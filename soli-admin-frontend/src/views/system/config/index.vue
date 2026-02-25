@@ -156,18 +156,3 @@ const handleDelete = (row: any) => {
 const handleExport = () => { ElMessage.info('点击导出'); };
 const handleRefreshCache = () => { ElMessage.success('刷新缓存成功'); };
 </script>
-
-<style scoped>
-.app-container {
-  background-color: #fff;
-  min-height: 100%;
-}
-.mb8 {
-  margin-bottom: 8px;
-}
-.pagination-container {
-  margin-top: 20px;
-  display: flex;
-  justify-content: flex-end;
-}
-</style>

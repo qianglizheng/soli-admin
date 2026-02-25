@@ -166,18 +166,3 @@ const handleExport = () => { ElMessage.info('点击导出'); };
 const handleDataScope = (row: any) => { ElMessage.info('分配数据权限'); };
 
 </script>
-
-<style scoped>
-.app-container {
-  background-color: #fff;
-  min-height: 100%;
-}
-.mb8 {
-  margin-bottom: 8px;
-}
-.pagination-container {
-  margin-top: 20px;
-  display: flex;
-  justify-content: flex-end;
-}
-</style>

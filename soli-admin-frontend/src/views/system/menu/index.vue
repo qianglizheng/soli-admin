@@ -192,13 +192,3 @@ const handleDelete = (row: any) => {
   }).catch(() => {});
 };
 </script>
-
-<style scoped>
-.app-container {
-  background-color: #fff;
-  min-height: 100%;
-}
-.mb8 {
-  margin-bottom: 8px;
-}
-</style>

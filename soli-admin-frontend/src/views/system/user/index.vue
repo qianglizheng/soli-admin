@@ -229,10 +229,6 @@ const handleResetPwd = (row: any) => { ElMessage.info('重置密码'); };
 </script>
 
 <style scoped>
-.app-container {
-  background-color: #fff;
-  min-height: 100%;
-}
 .box-container {
   padding: 10px;
   background: #fff;
@@ -240,18 +236,7 @@ const handleResetPwd = (row: any) => { ElMessage.info('重置密码'); };
 .dept-container {
   border-right: 1px solid #d8dce5;
 }
-.mb10 {
-  margin-bottom: 10px;
-}
-.mb8 {
-  margin-bottom: 8px;
-}
 .filter-tree {
   margin-top: 10px;
-}
-.pagination-container {
-  margin-top: 20px;
-  display: flex;
-  justify-content: flex-end;
 }
 </style>

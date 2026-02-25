@@ -188,18 +188,3 @@ const handleExport = () => { ElMessage.info('点击导出'); };
 const handleView = (row: any) => { ElMessage.info('查看详情: ' + row.title); };
 
 </script>
-
-<style scoped>
-.app-container {
-  background-color: #fff;
-  min-height: 100%;
-}
-.mb8 {
-  margin-bottom: 8px;
-}
-.pagination-container {
-  margin-top: 20px;
-  display: flex;
-  justify-content: flex-end;
-}
-</style>
