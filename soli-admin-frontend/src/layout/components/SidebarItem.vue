@@ -34,7 +34,9 @@
               <component :is="item.meta.icon" />
             </el-icon>
             <span class="menu-title">{{ item.meta?.title }}</span>
-            <el-icon class="arrow-icon"><ArrowRight /></el-icon>
+            <template v-if="!isCollapse">
+              <el-icon class="arrow-icon"><ArrowRight /></el-icon>
+            </template>
           </div>
         </template>
 
@@ -66,6 +68,10 @@ const props = defineProps({
   basePath: {
     type: String,
     default: ''
+  },
+  isCollapse: {
+    type: Boolean,
+    default: false
   }
 });
 

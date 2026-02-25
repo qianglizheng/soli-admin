@@ -51,7 +51,7 @@ const initTags = () => {
   const dashboardRoute = {
     path: '/dashboard',
     name: 'Dashboard',
-    meta: { title: 'Dashboard', affix: true }
+    meta: { title: '仪表盘', affix: true }
   };
   tagsViewStore.addView(dashboardRoute);
 };

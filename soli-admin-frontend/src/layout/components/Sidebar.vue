@@ -14,6 +14,7 @@
           :key="item.path"
           :item="item"
           :base-path="item.path"
+          :isCollapse="isCollapse"
         />
       </div>
     </el-scrollbar>
