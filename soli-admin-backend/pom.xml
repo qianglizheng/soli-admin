@@ -1,0 +1,28 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.soli</groupId>
+  <artifactId>soli-admin-backend</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>soli-admin</name>
+  <url>http://maven.apache.org</url>
+  <modules>
+    <module>soli-admin-auth-core</module>
+    <module>soli-admin-auth-api</module>
+    <module>soli-admin-auth-web</module>
+    <module>soli-admin-system-core</module>
+    <module>soli-admin-system-api</module>
+    <module>soli-admin-system-web</module>
+    <module>soli-admin-start</module>
+    <module>soli-admin-web-core</module>
+    <module>soli-admin-common</module>
+  </modules>
+  <description>soli后台管理系统</description>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+</project>
