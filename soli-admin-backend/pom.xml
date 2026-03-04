@@ -2,6 +2,11 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>4.0.3</version>
+  </parent>
   <groupId>com.soli</groupId>
   <artifactId>soli-admin-backend</artifactId>
   <version>1.0-SNAPSHOT</version>
@@ -17,8 +22,8 @@
     <module>soli-admin-system-api</module>
     <module>soli-admin-system-web</module>
     <module>soli-admin-start</module>
-    <module>soli-admin-web-core</module>
-    <module>soli-admin-common</module>
+    <module>soli-admin-common-core</module>
+    <module>soli-admin-common-web</module>
   </modules>
   <description>soli后台管理系统</description>
 
