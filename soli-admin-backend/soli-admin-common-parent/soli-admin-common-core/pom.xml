@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.soli</groupId>
-        <artifactId>soli-admin-framework-parent</artifactId>
+        <artifactId>soli-admin-common-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 

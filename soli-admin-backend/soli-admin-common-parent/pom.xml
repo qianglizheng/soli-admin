@@ -1,0 +1,24 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.soli</groupId>
+        <artifactId>soli-admin-backend</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>soli-admin-common-parent</artifactId>
+    <packaging>pom</packaging>
+
+    <name>soli-admin-common-parent</name>
+    <url>http://maven.apache.org</url>
+
+    <modules>
+        <module>soli-admin-common-core</module>
+        <module>soli-admin-common-web</module>
+        <module>soli-admin-common-api</module>
+    </modules>
+
+    <description>抽离公共代码，例如SpringSecurity过滤器、全局异常处理器、MyBatis-Plus配置等</description>
+
+</project>

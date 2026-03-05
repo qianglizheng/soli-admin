@@ -23,8 +23,6 @@
     <module>soli-admin-system-core</module>
     <module>soli-admin-system-api</module>
     <module>soli-admin-system-web</module>
-    <module>soli-admin-common-core</module>
-    <module>soli-admin-common-web</module>
   </modules>
   <description>soli后台管理系统</description>
 

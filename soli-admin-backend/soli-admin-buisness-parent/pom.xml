@@ -3,14 +3,14 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.soli</groupId>
-        <artifactId>soli-admin-framework-parent</artifactId>
+        <artifactId>soli-admin-backend</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>soli-admin-common-web</artifactId>
-    <packaging>jar</packaging>
+    <artifactId>soli-admin-buisness-parent</artifactId>
+    <packaging>pom</packaging>
 
-    <name>soli-admin-common-web</name>
+    <name>soli-admin-buisness-parent</name>
     <url>http://maven.apache.org</url>
 
     <properties>
@@ -18,10 +18,6 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
