@@ -3,12 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <version>4.0.3</version>
+    <groupId>com.soli</groupId>
+    <artifactId>soli-admin-backend</artifactId>
+    <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <groupId>com.soli</groupId>
   <artifactId>soli-admin-framework-parent</artifactId>
   <version>1.0-SNAPSHOT</version>
 
@@ -16,6 +15,7 @@
 
   <name>soli-admin-framework-parent</name>
   <url>http://maven.apache.org</url>
+
   <modules>
     <module>soli-admin-auth-core</module>
     <module>soli-admin-auth-api</module>
@@ -37,7 +37,12 @@
       <dependency>
         <groupId>com.soli</groupId>
         <artifactId>soli-admin-common-core</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>${soli-admin.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.soli</groupId>
+        <artifactId>soli-admin-common-web</artifactId>
+        <version>${soli-admin.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
