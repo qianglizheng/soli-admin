@@ -9,8 +9,13 @@ import org.springframework.web.bind.annotation.RestController;
 */
 @RestController
 public class TestController {
-    @GetMapping("/test")
+    @GetMapping("/")
     public String test() {
-        return "test";
+        return "/";
+    }
+
+    @GetMapping("/admin")
+    public String admin() {
+        return "/admin";
     }
 }

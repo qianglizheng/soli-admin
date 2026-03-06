@@ -29,11 +29,6 @@
             <artifactId>soli-admin-system-web</artifactId>
             <version>${soli-admin.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.soli</groupId>
-            <artifactId>soli-admin-goods</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
     </dependencies>
 
 </project>
