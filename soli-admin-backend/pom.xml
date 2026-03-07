@@ -21,7 +21,7 @@
         <module>soli-admin-framework-parent</module>
         <module>soli-admin-start</module>
         <module>soli-admin-common-parent</module>
-        <module>soli-admin-buisness-parent</module>
+        <module>soli-admin-business-parent</module>
     </modules>
     <description>soli后台管理系统</description>
 
