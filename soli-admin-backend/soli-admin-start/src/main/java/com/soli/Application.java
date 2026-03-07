@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 * @since 2026-03-04 22:08
 */
 @SpringBootApplication(scanBasePackages = "com.soli")
-@MapperScan(basePackages = "com.soli")
+@MapperScan(basePackages = "com.soli.**.mapper")
 public class Application {
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
