@@ -10,6 +10,8 @@ import com.soli.system.core.service.sysuser.SysUserService;
 import lombok.AllArgsConstructor;
 
 /**
+ * 系统用户控制器
+ *
  * @author lizhengqiang
  * @since 2026-03-08 0:48
 */
