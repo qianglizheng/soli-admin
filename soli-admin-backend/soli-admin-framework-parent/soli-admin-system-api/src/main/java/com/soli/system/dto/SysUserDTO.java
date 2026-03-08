@@ -2,10 +2,13 @@ package com.soli.system.dto;
 
 import java.time.LocalDateTime;
 
+import lombok.Data;
+
 /**
  * @author lizhengqiang
  * @since 2026-03-08 20:50
 */
+@Data
 public class SysUserDTO {
 
     private String username;

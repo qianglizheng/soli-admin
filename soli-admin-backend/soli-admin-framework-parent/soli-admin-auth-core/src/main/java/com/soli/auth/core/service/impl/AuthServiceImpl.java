@@ -7,14 +7,14 @@ import com.soli.auth.api.vo.TokenVO;
 import com.soli.system.dto.SysUserDTO;
 import com.soli.system.service.SysUserService;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 /**
  * @author lizhengqiang
  * @since 2026-03-08 15:59
 */
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
     private final SysUserService sysUserService;

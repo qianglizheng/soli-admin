@@ -12,7 +12,7 @@ import com.soli.system.dto.SysUserDTO;
  * @since 2026-03-08 21:06
  */
 @Mapper(componentModel = "spring")
-public interface SysUserConvert {
+public interface SysUserConverter {
 
     SysUserDTO toDTO(SysUserEntity entity);
 

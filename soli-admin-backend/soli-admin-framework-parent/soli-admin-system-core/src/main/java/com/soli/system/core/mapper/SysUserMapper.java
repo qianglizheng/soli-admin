@@ -12,7 +12,6 @@ import com.soli.system.core.entity.sysuser.SysUserEntity;
  * @author lizhengqiang
  * @since 2026-03-08 0:29
 */
-@Mapper
 public interface SysUserMapper {
 
     /**

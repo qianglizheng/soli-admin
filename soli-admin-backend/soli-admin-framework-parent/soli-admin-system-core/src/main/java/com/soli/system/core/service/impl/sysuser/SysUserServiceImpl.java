@@ -7,19 +7,19 @@ import com.soli.system.core.mapper.SysUserMapper;
 import com.soli.system.dto.SysUserDTO;
 import com.soli.system.service.SysUserService;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 /**
  * @author lizhengqiang
  * @since 2026-03-08 0:44
 */
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class SysUserServiceImpl implements SysUserService {
 
     private final SysUserMapper mapper;
 
-    private final SysUserConvert converter;
+    private final SysUserConverter converter;
 
     @Override
     public SysUserDTO getById(Long id) {
