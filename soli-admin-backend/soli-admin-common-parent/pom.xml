@@ -21,4 +21,19 @@
 
     <description>抽离公共代码，例如SpringSecurity过滤器、全局异常处理器、MyBatis-Plus配置等</description>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.soli</groupId>
+                <artifactId>soli-admin-common-api</artifactId>
+                <version>${soli-admin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.soli</groupId>
+                <artifactId>soli-admin-common-core</artifactId>
+                <version>${soli-admin.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
 </project>

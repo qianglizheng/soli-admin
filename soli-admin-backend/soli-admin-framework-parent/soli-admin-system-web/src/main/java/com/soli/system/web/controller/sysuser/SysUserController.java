@@ -1,11 +1,14 @@
 package com.soli.system.web.controller.sysuser;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.soli.system.core.entity.sysuser.SysUserEntity;
-import com.soli.system.core.service.sysuser.SysUserService;
+import com.soli.system.dto.SysUserDTO;
+import com.soli.system.service.SysUserService;
 
 import lombok.AllArgsConstructor;
 
@@ -20,14 +23,11 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class SysUserController {
 
-    private final SysUserService sysUserService;
+    private final SysUserService service;
 
-    @GetMapping("/insert")
-    public void insert() {
-        SysUserEntity user = new SysUserEntity();
-        user.setUsername("admin");
-        user.setPassword("123456");
-
-        sysUserService.save(user);
+    @GetMapping("/{id}")
+    public SysUserDTO findById(@PathVariable Long id) {
+        return service.getById(id);
     }
+
 }

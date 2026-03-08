@@ -34,12 +34,17 @@
     <dependencies>
       <dependency>
         <groupId>com.soli</groupId>
-        <artifactId>soli-admin-common-core</artifactId>
+        <artifactId>soli-admin-auth-api</artifactId>
         <version>${soli-admin.version}</version>
       </dependency>
       <dependency>
         <groupId>com.soli</groupId>
-        <artifactId>soli-admin-common-web</artifactId>
+        <artifactId>soli-admin-auth-core</artifactId>
+        <version>${soli-admin.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.soli</groupId>
+        <artifactId>soli-admin-system-api</artifactId>
         <version>${soli-admin.version}</version>
       </dependency>
       <dependency>
@@ -49,7 +54,17 @@
       </dependency>
       <dependency>
         <groupId>com.soli</groupId>
-        <artifactId>soli-admin-system-web</artifactId>
+        <artifactId>soli-admin-common-api</artifactId>
+        <version>${soli-admin.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.soli</groupId>
+        <artifactId>soli-admin-common-core</artifactId>
+        <version>${soli-admin.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.soli</groupId>
+        <artifactId>soli-admin-common-web</artifactId>
         <version>${soli-admin.version}</version>
       </dependency>
     </dependencies>

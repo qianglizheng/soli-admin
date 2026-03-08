@@ -29,6 +29,12 @@
             <artifactId>soli-admin-system-web</artifactId>
             <version>${soli-admin.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+            <version>4.0.0</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
 </project>

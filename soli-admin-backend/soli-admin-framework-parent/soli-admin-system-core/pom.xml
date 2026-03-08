@@ -20,6 +20,10 @@
     <dependencies>
         <dependency>
             <groupId>com.soli</groupId>
+            <artifactId>soli-admin-system-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.soli</groupId>
             <artifactId>soli-admin-common-core</artifactId>
         </dependency>
         <dependency>

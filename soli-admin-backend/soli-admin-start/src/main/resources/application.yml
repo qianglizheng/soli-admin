@@ -6,13 +6,10 @@ spring:
     username: root
     password: root
 
-mybatis-plus:
+mybatis:
   configuration:
     map-underscore-to-camel-case: true
-  mapper-locations: classpath*:/mapper/**.xml
-  global-config:
-    db-config:
-      id-type: assign_id
+  mapper-locations: classpath*:mapper/**/*.xml
   type-aliases-package: com.soli.*.core.entity
 
 logging:
