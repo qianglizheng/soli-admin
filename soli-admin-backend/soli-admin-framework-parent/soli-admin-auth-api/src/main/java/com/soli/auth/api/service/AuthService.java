@@ -1,6 +1,8 @@
 package com.soli.auth.api.service;
 
-import com.soli.auth.api.vo.TokenVO;
+import com.soli.auth.api.dto.TokenDTO;
+import com.soli.auth.api.dto.UsernamePasswordLoginDTO;
+import com.soli.common.api.exception.BusinessException;
 
 /**
  * 认证授权服务
@@ -10,6 +12,6 @@ import com.soli.auth.api.vo.TokenVO;
  */
 public interface AuthService {
 
-    TokenVO loginByUsernameAndPassword(String username, String password);
+    TokenDTO loginByUsernameAndPassword(UsernamePasswordLoginDTO userInfo) throws BusinessException;
 
 }

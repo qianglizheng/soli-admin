@@ -1,5 +1,6 @@
 package com.soli.auth.api.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
@@ -7,6 +8,7 @@ import lombok.Data;
  * @since 2026-03-08 15:50
 */
 @Data
+@AllArgsConstructor
 public class TokenDTO {
 
     /** 访问令牌 */
