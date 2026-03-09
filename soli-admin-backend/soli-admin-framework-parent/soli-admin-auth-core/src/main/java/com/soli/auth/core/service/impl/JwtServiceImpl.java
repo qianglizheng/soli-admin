@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Date;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.stereotype.Service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
@@ -19,6 +20,7 @@ import lombok.RequiredArgsConstructor;
  * @author lizhengqiang
  * @since 2026-03-09 22:24
 */
+@Service
 @EnableConfigurationProperties(JwtProperties.class)
 @RequiredArgsConstructor
 public class JwtServiceImpl implements JwtService {
