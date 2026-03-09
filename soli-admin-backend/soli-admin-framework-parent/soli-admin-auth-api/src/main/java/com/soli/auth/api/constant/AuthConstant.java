@@ -1,6 +1,8 @@
 package com.soli.auth.api.constant;
 
 /**
+ * 认证服务常量
+ *
  * @author lizhengqiang
  * @since 2026-03-09 21:48
 */
