@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class UsernamePasswordLoginDTO extends CaptchaDTO {
+public class UsernamePasswordLoginDTO extends BaseCaptcha {
 
     /** 用户名 */
     private String username;

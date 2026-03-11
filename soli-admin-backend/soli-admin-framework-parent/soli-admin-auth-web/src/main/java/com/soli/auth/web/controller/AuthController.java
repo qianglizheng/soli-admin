@@ -10,6 +10,8 @@ import com.soli.auth.api.dto.UsernamePasswordLoginDTO;
 import com.soli.auth.api.service.AuthService;
 import com.soli.common.api.vo.ApiResponse;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 
 /**
@@ -18,6 +20,7 @@ import lombok.AllArgsConstructor;
  * @author lizhengqiang
  * @since 2026-03-08 14:17
 */
+@Tag(name = "认证服务接口")
 @RestController
 @RequestMapping("/auth")
 @AllArgsConstructor
@@ -25,6 +28,7 @@ public class AuthController {
 
     private final AuthService authService;
 
+    @Operation(summary = "用户名密码登录")
     @PostMapping("/login-using-username")
     public ApiResponse<TokenDTO> login(@RequestBody UsernamePasswordLoginDTO userInfo) {
         TokenDTO token = authService.loginByUsernameAndPassword(userInfo);

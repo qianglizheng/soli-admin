@@ -7,7 +7,7 @@ import lombok.Data;
  * @since 2026-03-08 14:54
 */
 @Data
-public abstract class CaptchaDTO {
+public abstract class BaseCaptcha {
 
     /** 验证码 */
     private String captchaCode;
