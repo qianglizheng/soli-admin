@@ -15,6 +15,8 @@ public class CaptchaProperties {
     private Image image;
 
     private Sms sms;
+    
+    private Email email;
 
     @Data
     public static class Image {
@@ -29,6 +31,17 @@ public class CaptchaProperties {
 
     @Data
     public static class Sms {
+
+        /** 登录验证码过期时间（秒） */
+        private Long loginExpire;
+
+        /** 注册验证码过期时间（秒） */
+        private Long registerExpire;
+
+    }
+    
+    @Data
+    public static class Email {
 
         /** 登录验证码过期时间（秒） */
         private Long loginExpire;

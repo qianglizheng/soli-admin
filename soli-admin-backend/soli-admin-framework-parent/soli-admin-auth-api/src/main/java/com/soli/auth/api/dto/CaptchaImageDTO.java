@@ -15,9 +15,6 @@ import lombok.EqualsAndHashCode;
 @AllArgsConstructor
 public class CaptchaImageDTO extends BaseCaptchaDTO {
 
-    /** 验证码 UUID */
-    private String captchaUUID;
-
     /** base64编码的图片 */
     private String base64CaptchaImage;
 

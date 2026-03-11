@@ -2,7 +2,6 @@ package com.soli.auth.core.service.impl;
 
 import java.time.Duration;
 import java.util.Random;
-import java.util.UUID;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -14,46 +13,40 @@ import com.soli.auth.api.enums.CaptchaScene;
 import com.soli.auth.api.enums.CaptchaType;
 import com.soli.auth.api.service.CaptchaService;
 import com.soli.auth.core.config.CaptchaProperties;
-import com.soli.auth.api.service.SmsService;
+import com.soli.auth.api.service.EmailService;
 import com.soli.common.api.exception.BusinessException;
 
 import lombok.RequiredArgsConstructor;
 
-/**
- * @author lizhengqiang
- * @since 2026-03-11 23:00
-*/
 @Service
 @RequiredArgsConstructor
-public class SmsCaptchaService implements CaptchaService {
+public class EmailCaptchaService implements CaptchaService {
 
     private final StringRedisTemplate stringRedisTemplate;
 
-    private final CaptchaProperties captchaProperties;
-    
-    private final SmsService smsSender;
+    private final CaptchaProperties properties;
+
+    private final EmailService emailSender;
 
     @Override
     public CaptchaType type() {
-        return CaptchaType.SMS;
+        return CaptchaType.EMAIL;
     }
 
     @Override
     public CaptchaKeyDTO generateCaptcha(CaptchaScene scene, String target) throws BusinessException {
-        Assert.hasText(target, "手机号不能为空");
+        Assert.hasText(target, "邮箱不能为空");
 
         String code = String.valueOf(new Random().nextInt(899999) + 100000);
-        String prefix = CaptchaConstant.CAPTCHA_SMS_LOGIN_PREFIX;
-        long expire = captchaProperties.getSms().getLoginExpire();
-
+        String prefix = CaptchaConstant.CAPTCHA_EMAIL_LOGIN_PREFIX;
+        long expire = properties.getEmail().getLoginExpire();
         if (CaptchaScene.REGISTER.equals(scene)) {
-            prefix = CaptchaConstant.CAPTCHA_SMS_REGISTER_PREFIX;
-            expire = captchaProperties.getSms().getRegisterExpire();
+            prefix = CaptchaConstant.CAPTCHA_EMAIL_REGISTER_PREFIX;
+            expire = properties.getEmail().getRegisterExpire();
         }
         String key = prefix + target;
         stringRedisTemplate.opsForValue().set(key, code, Duration.ofSeconds(expire));
-
-        smsSender.send(target, code);
+        emailSender.send(target, code);
         return new CaptchaKeyDTO(target);
     }
 

@@ -20,4 +20,10 @@ public class CaptchaConstant {
     /** 短信注册验证码键前缀 */
     public static final String CAPTCHA_SMS_REGISTER_PREFIX = "soli:auth:captcha:sms:register:";
 
+    /** 邮箱登录验证码键前缀 */
+    public static final String CAPTCHA_EMAIL_LOGIN_PREFIX = "soli:auth:captcha:email:login:";
+
+    /** 邮箱注册验证码键前缀 */
+    public static final String CAPTCHA_EMAIL_REGISTER_PREFIX = "soli:auth:captcha:email:register:";
+
 }

@@ -18,9 +18,10 @@ import com.soli.auth.api.constant.CaptchaConstant;
 import com.soli.auth.api.dto.BaseCaptchaDTO;
 import com.soli.auth.api.dto.CaptchaImageDTO;
 import com.soli.auth.api.enums.CaptchaScene;
+import com.soli.auth.api.enums.CaptchaType;
 import com.soli.auth.api.service.CaptchaService;
 import com.soli.auth.core.config.CaptchaProperties;
-import com.soli.auth.core.config.JwtProperties;
+import com.soli.common.api.exception.BusinessException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -40,7 +41,12 @@ public class ImageCaptchaService implements CaptchaService {
     private final StringRedisTemplate stringRedisTemplate;
 
     @Override
-    public BaseCaptchaDTO generateCaptcha(CaptchaScene scene, String target) throws IOException {
+    public CaptchaType type() {
+        return CaptchaType.IMAGE;
+    }
+
+    @Override
+    public CaptchaImageDTO generateCaptcha(CaptchaScene scene, String target) throws IOException, BusinessException {
         String text = kaptchaProducer.createText();
         BufferedImage image = kaptchaProducer.createImage(text);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -54,9 +60,10 @@ public class ImageCaptchaService implements CaptchaService {
             expire = captchaProperties.getImage().getRegisterExpire();
         }
 
-        String captchaUUID = prefix + UUID.randomUUID();
-        stringRedisTemplate.opsForValue().set(captchaUUID, text, Duration.ofSeconds(expire));
-        return new CaptchaImageDTO(captchaUUID, base64);
+        String uuid = UUID.randomUUID().toString();
+        String key = prefix + uuid;
+        stringRedisTemplate.opsForValue().set(key, text, Duration.ofSeconds(expire));
+        return new CaptchaImageDTO(base64);
     }
 
 }

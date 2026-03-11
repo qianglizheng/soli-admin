@@ -19,6 +19,16 @@ mybatis:
 
 soli:
   auth:
+    captcha:
+      image:
+        login-expire: 300
+        register-expire: 600
+      sms:
+        login-expire: 300
+        register-expire: 600
+      email:
+        login-expire: 300
+        register-expire: 600
     jwt:
       secret: "f8sd9f8sd9f8sd9f8sd9f8sd9"
       issuer: "soli-auth"
