@@ -2,7 +2,6 @@ package com.soli.auth.api.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /**
@@ -12,8 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-public class CaptchaKeyDTO extends BaseCaptchaDTO {
+public class CaptchaKeyDTO implements BaseCaptchaDTO {
 
     /** 验证码 UUID */
     private String captchaUUID;

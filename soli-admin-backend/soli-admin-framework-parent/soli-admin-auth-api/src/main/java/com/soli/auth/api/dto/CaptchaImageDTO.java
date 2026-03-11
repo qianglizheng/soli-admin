@@ -2,7 +2,6 @@ package com.soli.auth.api.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
  * 图片验证码数据传输对象
@@ -11,9 +10,8 @@ import lombok.EqualsAndHashCode;
  * @since 2026-03-08 15:37
 */
 @Data
-@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
-public class CaptchaImageDTO extends BaseCaptchaDTO {
+public class CaptchaImageDTO implements BaseCaptchaDTO {
 
     /** base64编码的图片 */
     private String base64CaptchaImage;
