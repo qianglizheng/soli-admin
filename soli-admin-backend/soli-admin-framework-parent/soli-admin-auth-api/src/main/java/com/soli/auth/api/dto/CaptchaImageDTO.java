@@ -13,6 +13,9 @@ import lombok.Data;
 @AllArgsConstructor
 public class CaptchaImageDTO implements BaseCaptchaDTO {
 
+    /** 验证码唯一 ID */
+    private String captchaUUID;
+
     /** base64编码的图片 */
     private String base64CaptchaImage;
 

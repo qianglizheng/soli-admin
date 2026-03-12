@@ -1,15 +1,22 @@
 package com.soli.auth.core.service.impl;
 
+import java.util.List;
 import java.util.Objects;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import com.soli.auth.api.constant.CaptchaConstant;
 import com.soli.auth.api.dto.TokenDTO;
 import com.soli.auth.api.dto.UsernamePasswordLoginDTO;
+import com.soli.auth.api.enums.CaptchaChannel;
+import com.soli.auth.api.enums.CaptchaScene;
+import com.soli.auth.api.enums.CaptchaType;
 import com.soli.auth.api.service.AuthService;
+import com.soli.auth.api.service.CaptchaService;
 import com.soli.auth.api.service.JwtService;
+import com.soli.auth.core.config.CaptchaProperties;
 import com.soli.common.api.exception.BusinessException;
 import com.soli.system.dto.SysUserDTO;
 import com.soli.system.service.SysUserService;
@@ -30,11 +37,16 @@ public class AuthServiceImpl implements AuthService {
 
     private final JwtService jwtService;
 
-    private final StringRedisTemplate redisTemplate;
+    private final List<CaptchaService> captchaServices;
+
+    private final CaptchaProperties captchaProperties;
 
     @Override
     public TokenDTO loginByUsernameAndPassword(UsernamePasswordLoginDTO userInfo) throws BusinessException {
-        verifyCaptcha(userInfo.getCaptchaUUID(), userInfo.getCaptchaCode());
+        Assert.notNull(userInfo, "用户登录信息不能为空");
+        if (captchaProperties.getImage().isLoginEnable()) {
+            validateCaptcha(CaptchaType.IMAGE, userInfo.getCaptchaUUID(), userInfo.getCaptchaCode());
+        }
         SysUserDTO userDTO = service.getByUsername(userInfo.getUsername());
         if (Objects.isNull(userDTO) || !Objects.equals(userDTO.getPassword(), userInfo.getPassword())) {
             throw new BusinessException("登录失败：请检查用户名或者密码");
@@ -42,13 +54,12 @@ public class AuthServiceImpl implements AuthService {
         return jwtService.generateTokenDTO(userDTO.getId());
     }
 
-    void verifyCaptcha(String captchaUUID, String captchaCode) throws BusinessException {
-        String key = CaptchaConstant.CAPTCHA_IMAGE_LOGIN_PREFIX + captchaUUID;
-        String captcha = redisTemplate.opsForValue().get(key);
-        if (Objects.isNull(captcha) || !captcha.equalsIgnoreCase(captchaCode)) {
-            throw new BusinessException("验证码错误或已过期");
-        }
-        redisTemplate.delete(key);
+    private void validateCaptcha(CaptchaType captchaType, String captchaUUID, String targetCaptcha) {
+        CaptchaService captchaService = captchaServices.stream()
+                .filter(service -> service.type() == captchaType)
+                .findFirst()
+                .orElseThrow();
+        captchaService.validateCaptcha(CaptchaScene.LOGIN, captchaUUID, targetCaptcha);
     }
 
 }

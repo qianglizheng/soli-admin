@@ -20,14 +20,16 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class CaptchaController {
 
-    private final List<CaptchaService> services;
+    private final List<CaptchaService> captchaServices;
 
     @PostMapping
     @Operation(summary = "获取验证码")
-    public ApiResponse<BaseCaptchaDTO> generate(@RequestBody CaptchaGenerateRequest request)
-            throws Exception {
-        CaptchaService svc = services.stream().filter(s -> s.type() == request.getType()).findFirst().orElseThrow();
-        BaseCaptchaDTO dto = svc.generateCaptcha(request.getScene(), request.getTarget());
+    public ApiResponse<BaseCaptchaDTO> generate(@RequestBody CaptchaGenerateRequest request) {
+        CaptchaService captchaService = captchaServices.stream()
+                .filter(service -> service.type() == request.getType())
+                .findFirst()
+                .orElseThrow();
+        BaseCaptchaDTO dto = captchaService.generateCaptcha(request.getScene(), request.getTarget());
         return ApiResponse.success(dto);
     }
 

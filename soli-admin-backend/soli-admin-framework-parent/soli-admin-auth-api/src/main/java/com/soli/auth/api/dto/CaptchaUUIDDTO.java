@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CaptchaKeyDTO implements BaseCaptchaDTO {
+public class CaptchaUUIDDTO implements BaseCaptchaDTO {
 
     /** 验证码 UUID */
     private String captchaUUID;

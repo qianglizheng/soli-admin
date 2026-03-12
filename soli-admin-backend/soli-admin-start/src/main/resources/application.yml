@@ -21,7 +21,9 @@ soli:
   auth:
     captcha:
       image:
+        login-enable: true
         login-expire: 300
+        register-enable: false
         register-expire: 600
       sms:
         login-expire: 300

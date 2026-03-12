@@ -2,14 +2,13 @@ package com.soli.auth.core.service.impl;
 
 import java.time.Duration;
 import java.util.Random;
-import java.util.UUID;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import com.soli.auth.api.constant.CaptchaConstant;
-import com.soli.auth.api.dto.CaptchaKeyDTO;
+import com.soli.auth.api.dto.CaptchaUUIDDTO;
 import com.soli.auth.api.enums.CaptchaScene;
 import com.soli.auth.api.enums.CaptchaType;
 import com.soli.auth.api.service.CaptchaService;
@@ -39,7 +38,7 @@ public class SmsCaptchaService implements CaptchaService {
     }
 
     @Override
-    public CaptchaKeyDTO generateCaptcha(CaptchaScene scene, String target) throws BusinessException {
+    public CaptchaUUIDDTO generateCaptcha(CaptchaScene scene, String target) {
         Assert.hasText(target, "手机号不能为空");
 
         String code = String.valueOf(new Random().nextInt(899999) + 100000);
@@ -54,7 +53,12 @@ public class SmsCaptchaService implements CaptchaService {
         stringRedisTemplate.opsForValue().set(key, code, Duration.ofSeconds(expire));
 
         smsSender.send(target, code);
-        return new CaptchaKeyDTO(target);
+        return new CaptchaUUIDDTO(target);
+    }
+
+    @Override
+    public void validateCaptcha(CaptchaScene scene, String captchaUUID, String targetCaptcha) throws BusinessException {
+
     }
 
 }

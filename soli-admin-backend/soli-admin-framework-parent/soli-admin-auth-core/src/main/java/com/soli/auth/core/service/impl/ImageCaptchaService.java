@@ -5,17 +5,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Base64;
+import java.util.Objects;
 import java.util.UUID;
 
 import javax.imageio.ImageIO;
 
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.google.code.kaptcha.impl.DefaultKaptcha;
 import com.soli.auth.api.constant.CaptchaConstant;
-import com.soli.auth.api.dto.BaseCaptchaDTO;
 import com.soli.auth.api.dto.CaptchaImageDTO;
 import com.soli.auth.api.enums.CaptchaScene;
 import com.soli.auth.api.enums.CaptchaType;
@@ -31,7 +30,6 @@ import lombok.RequiredArgsConstructor;
 */
 @Service
 @RequiredArgsConstructor
-@EnableConfigurationProperties(CaptchaProperties.class)
 public class ImageCaptchaService implements CaptchaService {
 
     private final DefaultKaptcha kaptchaProducer;
@@ -46,11 +44,15 @@ public class ImageCaptchaService implements CaptchaService {
     }
 
     @Override
-    public CaptchaImageDTO generateCaptcha(CaptchaScene scene, String target) throws IOException, BusinessException {
+    public CaptchaImageDTO generateCaptcha(CaptchaScene scene, String target) throws BusinessException {
         String text = kaptchaProducer.createText();
         BufferedImage image = kaptchaProducer.createImage(text);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        ImageIO.write(image, "jpg", stream);
+        try {
+            ImageIO.write(image, "jpg", stream);
+        } catch (IOException e) {
+            throw new BusinessException("生成验证码图片失败");
+        }
         String base64 = Base64.getEncoder().encodeToString(stream.toByteArray());
 
         String prefix = CaptchaConstant.CAPTCHA_IMAGE_LOGIN_PREFIX;
@@ -63,7 +65,21 @@ public class ImageCaptchaService implements CaptchaService {
         String uuid = UUID.randomUUID().toString();
         String key = prefix + uuid;
         stringRedisTemplate.opsForValue().set(key, text, Duration.ofSeconds(expire));
-        return new CaptchaImageDTO(base64);
+        return new CaptchaImageDTO(uuid, base64);
+    }
+
+    @Override
+    public void validateCaptcha(CaptchaScene scene, String captchaUUID, String targetCaptcha) throws BusinessException {
+        String prefix = CaptchaConstant.CAPTCHA_IMAGE_LOGIN_PREFIX;
+        if (CaptchaScene.REGISTER.equals(scene)) {
+            prefix = CaptchaConstant.CAPTCHA_IMAGE_REGISTER_PREFIX;
+        }
+        String key = prefix + captchaUUID;
+        String captcha = stringRedisTemplate.opsForValue().get(key);
+        if (Objects.isNull(captcha) || !captcha.equalsIgnoreCase(targetCaptcha)) {
+            throw new BusinessException("验证码错误或已过期");
+        }
+        stringRedisTemplate.delete(key);
     }
 
 }
