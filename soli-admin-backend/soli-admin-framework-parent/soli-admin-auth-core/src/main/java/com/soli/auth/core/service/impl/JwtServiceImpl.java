@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.soli.auth.api.dto.TokenDTO;
 import com.soli.auth.api.service.JwtService;
@@ -57,7 +58,7 @@ public class JwtServiceImpl implements JwtService {
                 .sign(algorithm);
     }
 
-    public DecodedJWT parseToken(String token) {
+    public DecodedJWT parseToken(String token) throws JWTVerificationException {
         Algorithm algorithm = Algorithm.HMAC256(properties.getSecret());
         JWTVerifier verifier = JWT.require(algorithm)
                 .withIssuer(properties.getIssuer())
@@ -65,7 +66,7 @@ public class JwtServiceImpl implements JwtService {
         return verifier.verify(token);
     }
 
-    public Long getUserId(String token) {
+    public Long getUserId(String token) throws JWTVerificationException{
         DecodedJWT jwt = parseToken(token);
         return Long.valueOf(jwt.getSubject());
     }

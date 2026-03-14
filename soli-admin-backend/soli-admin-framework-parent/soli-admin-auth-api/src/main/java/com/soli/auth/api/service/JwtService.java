@@ -1,5 +1,6 @@
 package com.soli.auth.api.service;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.soli.auth.api.dto.TokenDTO;
 
@@ -40,7 +41,7 @@ public interface JwtService {
      * @param token token 字符串
      * @return DecodedJWT
      */
-    DecodedJWT parseToken(String token);
+    DecodedJWT parseToken(String token) throws JWTVerificationException;
 
     /**
      * 解析 token 并且获取用户 ID
@@ -48,5 +49,5 @@ public interface JwtService {
      * @param token token字符串
      * @return 用户 ID
      */
-    Long getUserId(String token);
+    Long getUserId(String token) throws JWTVerificationException;
 }
