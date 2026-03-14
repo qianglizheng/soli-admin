@@ -1,6 +1,8 @@
 package com.soli.common.web.security.jwt;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Set;
 
 import javax.security.auth.login.AccountExpiredException;
 
@@ -8,6 +10,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -17,6 +22,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.soli.auth.api.service.JwtService;
 import com.soli.common.api.exception.BusinessException;
+import com.soli.system.service.sysmenu.SysMenuService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -33,6 +39,8 @@ public class AccessTokenFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
 
+    private final SysMenuService sysMenuService;
+
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
             throws ServletException, IOException {
@@ -45,7 +53,6 @@ public class AccessTokenFilter extends OncePerRequestFilter {
             accessToken = accessToken.substring(7);
         }
 
-
         Long userId = null;
         try {
             userId = jwtService.getUserId(accessToken);
@@ -53,7 +60,10 @@ public class AccessTokenFilter extends OncePerRequestFilter {
             throw new BusinessException(e.getMessage());
         }
 
-        AccessAuthentication authentication = new AccessAuthentication();
+        Set<String> permsSet = sysMenuService.getPermsByUserId(userId);
+        List<GrantedAuthority> authorityList = AuthorityUtils.createAuthorityList(permsSet);
+
+        AccessAuthentication authentication = new AccessAuthentication(authorityList);
         authentication.setUserId(userId);
         authentication.setAccessToken(accessToken);
         authentication.setAuthenticated(true);

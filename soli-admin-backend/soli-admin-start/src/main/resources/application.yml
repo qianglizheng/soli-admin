@@ -34,8 +34,8 @@ soli:
     jwt:
       secret: "f8sd9f8sd9f8sd9f8sd9f8sd9"
       issuer: "soli-auth"
-      access-token-expire: 60
-      refresh-token-expire: 604800
+      access-token-expire: 9999999
+      refresh-token-expire: 9999999
 
 #logging:
 #  level:
