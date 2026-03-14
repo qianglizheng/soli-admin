@@ -1,21 +1,23 @@
-package com.soli.system.core.entity.sysuser;
+package com.soli.system.service.sysuser;
 
 import java.time.LocalDateTime;
 
-import com.soli.common.core.entity.BaseEntity;
+import com.soli.common.api.dto.BaseDTO;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
- * 系统用户持久化对象
+ * 系统用户传输对象
  *
  * @author lizhengqiang
- * @since 2026-03-07 21:55
+ * @since 2026-03-08 20:50
 */
-@Data
-@EqualsAndHashCode(callSuper = true)
-public class SysUserEntity extends BaseEntity {
+@Getter
+@Setter
+public class SysUserDTO extends BaseDTO {
 
     /** 用户名 */
     private String username;

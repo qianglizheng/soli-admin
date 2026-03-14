@@ -1,9 +1,9 @@
-package com.soli.system.service;
+package com.soli.system.service.sysuser;
 
-
-import com.soli.system.dto.SysUserDTO;
 
 /**
+ * 系统用户服务
+ *
  * @author lizhengqiang
  * @since 2026-03-08 16:04
  */

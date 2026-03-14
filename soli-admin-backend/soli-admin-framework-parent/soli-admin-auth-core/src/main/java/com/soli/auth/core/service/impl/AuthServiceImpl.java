@@ -3,14 +3,11 @@ package com.soli.auth.core.service.impl;
 import java.util.List;
 import java.util.Objects;
 
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import com.soli.auth.api.constant.CaptchaConstant;
 import com.soli.auth.api.dto.TokenDTO;
 import com.soli.auth.api.dto.UsernamePasswordLoginDTO;
-import com.soli.auth.api.enums.CaptchaChannel;
 import com.soli.auth.api.enums.CaptchaScene;
 import com.soli.auth.api.enums.CaptchaType;
 import com.soli.auth.api.service.AuthService;
@@ -18,8 +15,8 @@ import com.soli.auth.api.service.CaptchaService;
 import com.soli.auth.api.service.JwtService;
 import com.soli.auth.core.config.CaptchaProperties;
 import com.soli.common.api.exception.BusinessException;
-import com.soli.system.dto.SysUserDTO;
-import com.soli.system.service.SysUserService;
+import com.soli.system.service.sysuser.SysUserDTO;
+import com.soli.system.service.sysuser.SysUserService;
 
 import lombok.RequiredArgsConstructor;
 

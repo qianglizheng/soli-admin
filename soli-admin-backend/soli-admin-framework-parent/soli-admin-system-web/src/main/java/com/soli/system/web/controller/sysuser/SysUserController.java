@@ -6,9 +6,11 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.soli.system.dto.SysUserDTO;
-import com.soli.system.service.SysUserService;
+import com.soli.system.service.sysuser.SysUserDTO;
+import com.soli.system.service.sysuser.SysUserService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 
 /**
@@ -17,17 +19,18 @@ import lombok.AllArgsConstructor;
  * @author lizhengqiang
  * @since 2026-03-08 0:48
 */
+@Tag(name = "系统用户", description = "系统用户相关接口")
 @RestController
 @RequestMapping("/sys-user")
 @AllArgsConstructor
 public class SysUserController {
 
-    private final SysUserService service;
+    private final SysUserService sysUserService;
 
+    @Operation(summary = "根据用户ID查询用户")
     @GetMapping("/{id}")
     public SysUserDTO findById(@RequestHeader("Authorization") String accessToken, @PathVariable Long id) {
-        SysUserDTO byId = service.getById(id);
-        return byId;
+        return sysUserService.getById(id);
     }
 
 }

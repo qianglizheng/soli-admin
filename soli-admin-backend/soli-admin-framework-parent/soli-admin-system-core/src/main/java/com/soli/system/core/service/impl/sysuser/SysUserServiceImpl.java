@@ -2,10 +2,9 @@ package com.soli.system.core.service.impl.sysuser;
 
 import org.springframework.stereotype.Service;
 
-import com.soli.system.core.entity.sysuser.SysUserEntity;
 import com.soli.system.core.mapper.SysUserMapper;
-import com.soli.system.dto.SysUserDTO;
-import com.soli.system.service.SysUserService;
+import com.soli.system.service.sysuser.SysUserDTO;
+import com.soli.system.service.sysuser.SysUserService;
 
 import lombok.RequiredArgsConstructor;
 

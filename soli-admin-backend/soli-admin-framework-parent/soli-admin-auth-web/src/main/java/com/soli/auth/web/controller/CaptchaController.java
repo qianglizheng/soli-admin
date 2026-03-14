@@ -13,8 +13,10 @@ import com.soli.auth.api.service.CaptchaService;
 import com.soli.common.api.vo.ApiResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 
+@Tag(name = "验证码")
 @RestController
 @RequestMapping("/auth/captcha")
 @AllArgsConstructor

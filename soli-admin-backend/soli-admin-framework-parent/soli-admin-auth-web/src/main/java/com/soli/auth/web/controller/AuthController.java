@@ -1,5 +1,8 @@
 package com.soli.auth.web.controller;
 
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +23,7 @@ import lombok.AllArgsConstructor;
  * @author lizhengqiang
  * @since 2026-03-08 14:17
 */
-@Tag(name = "认证服务接口")
+@Tag(name = "用户认证")
 @RestController
 @RequestMapping("/auth")
 @AllArgsConstructor

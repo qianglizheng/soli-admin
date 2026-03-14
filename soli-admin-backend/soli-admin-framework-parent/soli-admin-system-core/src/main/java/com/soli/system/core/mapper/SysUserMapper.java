@@ -1,10 +1,9 @@
 package com.soli.system.core.mapper;
 
 
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import com.soli.system.core.entity.sysuser.SysUserEntity;
+import com.soli.system.core.service.impl.sysuser.SysUserEntity;
 
 /**
  * 系统用户持久层

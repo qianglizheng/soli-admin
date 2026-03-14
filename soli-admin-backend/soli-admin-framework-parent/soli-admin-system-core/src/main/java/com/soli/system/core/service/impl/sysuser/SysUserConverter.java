@@ -4,8 +4,7 @@ import java.util.List;
 
 import org.mapstruct.Mapper;
 
-import com.soli.system.core.entity.sysuser.SysUserEntity;
-import com.soli.system.dto.SysUserDTO;
+import com.soli.system.service.sysuser.SysUserDTO;
 
 /**
  * @author lizhengqiang

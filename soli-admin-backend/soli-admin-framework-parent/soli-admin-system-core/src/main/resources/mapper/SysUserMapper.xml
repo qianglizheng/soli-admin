@@ -6,7 +6,7 @@
 <mapper namespace="com.soli.system.core.mapper.SysUserMapper">
 
     <!-- 用户结果映射 -->
-    <resultMap id="SysUserResultMap" type="com.soli.system.core.entity.sysuser.SysUserEntity">
+    <resultMap id="SysUserResultMap" type="com.soli.system.core.service.impl.sysuser.SysUserEntity">
         <id property="id" column="id"/>
         <result property="username" column="username"/>
         <result property="password" column="password"/>
