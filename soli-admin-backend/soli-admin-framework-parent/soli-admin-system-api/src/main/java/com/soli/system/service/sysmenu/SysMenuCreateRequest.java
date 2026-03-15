@@ -11,8 +11,6 @@ import lombok.Setter;
 @Setter
 public class SysMenuCreateRequest {
 
-    private Long id;
-
     /** 菜单名称 */
     private String name;
 
