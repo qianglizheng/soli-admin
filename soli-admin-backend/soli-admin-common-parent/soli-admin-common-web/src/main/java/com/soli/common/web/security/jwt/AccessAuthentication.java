@@ -25,10 +25,6 @@ public class AccessAuthentication extends AbstractAuthenticationToken {
         super(authorities);
     }
 
-    public AccessAuthentication() {
-        this(null);
-    }
-
     @Override
     public @Nullable Object getCredentials() {
         return isAuthenticated() ? null : accessToken;

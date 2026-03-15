@@ -4,22 +4,14 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-import javax.security.auth.login.AccountExpiredException;
-
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
-import org.springframework.http.HttpMethod;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.soli.auth.api.service.JwtService;
 import com.soli.common.api.exception.BusinessException;
 import com.soli.system.service.sysmenu.SysMenuService;
@@ -60,7 +52,7 @@ public class AccessTokenFilter extends OncePerRequestFilter {
             throw new BusinessException(e.getMessage());
         }
 
-        Set<String> permsSet = sysMenuService.getPermsByUserId(userId);
+        Set<String> permsSet = sysMenuService.queryPermsByUserId(userId);
         List<GrantedAuthority> authorityList = AuthorityUtils.createAuthorityList(permsSet);
 
         AccessAuthentication authentication = new AccessAuthentication(authorityList);

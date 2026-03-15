@@ -1,5 +1,7 @@
 package com.soli.system.service.sysmenu;
 
+import java.util.List;
+
 import com.soli.common.api.dto.BaseDTO;
 
 import lombok.Getter;
@@ -17,7 +19,7 @@ public class SysMenuDTO extends BaseDTO {
     private String name;
 
     /** 父菜单 ID */
-    private String parentId;
+    private Long parentId;
 
     /** 显示顺序 */
     private String sort;
@@ -36,5 +38,11 @@ public class SysMenuDTO extends BaseDTO {
 
     /** 菜单图标 */
     private String icon;
+
+    /** 菜单状态 */
+    private String status;
+
+    /** 子菜单 */
+    private List<SysMenuDTO> children;
 
 }

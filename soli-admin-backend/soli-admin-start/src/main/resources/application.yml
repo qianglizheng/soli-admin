@@ -14,6 +14,7 @@ spring:
 mybatis:
   configuration:
     map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   mapper-locations: classpath*:mapper/**/*.xml
   type-aliases-package: com.soli.*.core.entity
 
@@ -37,6 +38,6 @@ soli:
       access-token-expire: 9999999
       refresh-token-expire: 9999999
 
-#logging:
-#  level:
-#    org.springframework.security: info
+logging:
+  level:
+    org.springframework.security: trace

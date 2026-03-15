@@ -1,6 +1,9 @@
 package com.soli.system.core.mapper;
 
+import java.util.List;
 import java.util.Set;
+
+import com.soli.system.core.service.impl.sysmenu.SysMenuEntity;
 
 /**
  * @author lizhengqiang
@@ -14,5 +17,13 @@ public interface SysMenuMapper {
      * @return 权限编码集合
      */
     Set<String> selectPermsByUserId(Long userId);
+
+    /**
+     * 根据用户 Id 查询用户菜单
+     *
+     * @param userId 用户 Id
+     * @return 菜单列表
+     */
+    List<SysMenuEntity> selectMenuByUserId(Long userId);
 
 }

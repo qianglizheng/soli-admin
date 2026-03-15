@@ -17,7 +17,7 @@ public class SysMenuEntity extends BaseEntity {
     private String name;
 
     /** 父菜单 ID */
-    private String parentId;
+    private Long parentId;
 
     /** 显示顺序 */
     private String sort;
