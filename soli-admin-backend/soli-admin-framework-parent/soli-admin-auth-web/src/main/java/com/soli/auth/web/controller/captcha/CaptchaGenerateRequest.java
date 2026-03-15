@@ -1,4 +1,4 @@
-package com.soli.auth.api.request;
+package com.soli.auth.web.controller.captcha;
 
 import com.soli.auth.api.enums.CaptchaScene;
 import com.soli.auth.api.enums.CaptchaType;

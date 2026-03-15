@@ -69,14 +69,24 @@
         </template>
       </el-table-column>
     </el-table>
+    <menu-form
+      v-model="formVisible"
+      :mode="formMode"
+      :initialData="formInitial"
+      :treeData="menuList"
+      :currentId="formMode === 'edit' ? (formInitial.id as number) : undefined"
+      @submit="onFormSubmit"
+      @cancel="onFormCancel"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, nextTick, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { getMenuTree } from '@/api/menu';
+import { getMenuTree, addMenu, updateMenu, deleteMenu } from '@/api/menu';
 import type { SysMenuDTO } from '@/types/global';
+import MenuForm from './components/MenuForm.vue';
 
 defineOptions({
   name: "SystemMenuPage"
@@ -129,15 +139,15 @@ const toggleExpandAll = () => {
 };
 
 const handleAdd = (row?: SysMenuDTO) => {
-  if (row && row.id) {
-    ElMessage.info(`新增 [${row.name}] 的子菜单`);
-  } else {
-    ElMessage.info('新增顶级菜单');
-  }
+  formMode.value = 'create';
+  formInitial.value = row && row.id ? { parentId: row.id } : { parentId: 0 };
+  formVisible.value = true;
 };
 
 const handleUpdate = (row: SysMenuDTO) => {
-  ElMessage.info(`修改 [${row.name}]`);
+  formMode.value = 'edit';
+  formInitial.value = { ...row };
+  formVisible.value = true;
 };
 
 const handleDelete = (row: SysMenuDTO) => {
@@ -146,8 +156,37 @@ const handleDelete = (row: SysMenuDTO) => {
     cancelButtonText: "取消",
     type: "warning"
   }).then(() => {
+    if (row.id) {
+      return deleteMenu(row.id);
+    }
+  }).then(() => {
     ElMessage.success("删除成功");
+    handleQuery();
   }).catch(() => {});
+};
+
+const formVisible = ref(false);
+const formMode = ref<'create' | 'edit'>('create');
+const formInitial = ref<Partial<SysMenuDTO>>({});
+
+const onFormSubmit = async (data: Partial<SysMenuDTO>) => {
+  loading.value = true;
+  try {
+    if (formMode.value === 'create') {
+      await addMenu(data);
+      ElMessage.success('新增成功');
+    } else {
+      await updateMenu(data.id as number, data);
+      ElMessage.success('修改成功');
+    }
+    await handleQuery();
+  } finally {
+    loading.value = false;
+  }
+};
+
+const onFormCancel = () => {
+  formVisible.value = false;
 };
 
 onMounted(() => {

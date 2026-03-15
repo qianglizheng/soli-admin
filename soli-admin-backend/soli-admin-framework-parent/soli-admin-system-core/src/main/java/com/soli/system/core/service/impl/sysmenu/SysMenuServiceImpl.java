@@ -9,14 +9,14 @@ import com.soli.system.core.mapper.SysMenuMapper;
 import com.soli.system.service.sysmenu.SysMenuDTO;
 import com.soli.system.service.sysmenu.SysMenuService;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 
 /**
  * @author lizhengqiang
  * @since 2026-03-14 20:52
 */
 @Service
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class SysMenuServiceImpl implements SysMenuService {
 
     private final SysMenuMapper sysMenuMapper;
@@ -32,6 +32,12 @@ public class SysMenuServiceImpl implements SysMenuService {
     public List<SysMenuDTO> queryTreeList(Long userId) {
         List<SysMenuEntity> sysMenuEntities = sysMenuMapper.selectMenuByUserId(userId);
         return buildTree(sysMenuConverter.toDTOList(sysMenuEntities));
+    }
+
+    @Override
+    public int create(SysMenuDTO sysMenuDTO) {
+        SysMenuEntity entity = sysMenuConverter.toEntity(sysMenuDTO);
+        return sysMenuMapper.insert(entity);
     }
 
     private List<SysMenuDTO> buildTree(List<SysMenuDTO> menus) {

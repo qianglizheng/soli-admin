@@ -1,4 +1,4 @@
-package com.soli.auth.web.controller;
+package com.soli.auth.web.controller.captcha;
 
 import java.util.List;
 
@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.soli.auth.api.dto.BaseCaptchaDTO;
-import com.soli.auth.api.request.CaptchaGenerateRequest;
 import com.soli.auth.api.service.CaptchaService;
 import com.soli.common.api.vo.ApiResponse;
 

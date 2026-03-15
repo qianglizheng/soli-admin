@@ -27,4 +27,11 @@ public interface SysMenuService {
      */
     List<SysMenuDTO> queryTreeList(Long userId);
 
+    /**
+     * 新增菜单
+     *
+     * @param sysMenuDTO 新增菜单信息
+     * @return 影响的行数
+     */
+    int create(SysMenuDTO sysMenuDTO);
 }

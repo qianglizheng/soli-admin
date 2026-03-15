@@ -26,4 +26,11 @@ public interface SysMenuMapper {
      */
     List<SysMenuEntity> selectMenuByUserId(Long userId);
 
+    /**
+     * 插入菜单
+     *
+     * @param entity 菜单信息
+     * @return 影响的条数
+     */
+    int insert(SysMenuEntity entity);
 }

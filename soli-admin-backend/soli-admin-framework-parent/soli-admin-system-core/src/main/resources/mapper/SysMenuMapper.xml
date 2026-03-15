@@ -29,6 +29,42 @@
         mst.id, mst.name, mst.parent_id, mst.sort, mst.path, mst.component, mst.type, mst.perms, mst.icon, mst.status, mst.create_by, mst.create_time, mst.update_by, mst.update_time, mst.note
     </sql>
 
+    <insert id="insert" parameterType="com.soli.system.core.service.impl.sysmenu.SysMenuEntity" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_menu
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="name != null">name,</if>
+            <if test="parentId != null">parent_id,</if>
+            <if test="sort != null">sort,</if>
+            <if test="path != null">path,</if>
+            <if test="component != null">component,</if>
+            <if test="type != null">type,</if>
+            <if test="perms != null">perms,</if>
+            <if test="icon != null">icon,</if>
+            <if test="status != null">status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="name != null">#{name},</if>
+            <if test="parentId != null">#{parentId},</if>
+            <if test="sort != null">#{sort},</if>
+            <if test="path != null">#{path},</if>
+            <if test="component != null">#{component},</if>
+            <if test="type != null">#{type},</if>
+            <if test="perms != null">#{perms},</if>
+            <if test="icon != null">#{icon},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
     <!-- 根据ID查询 -->
     <select id="selectByUserId" resultMap="SysRoleResultMap">
         select <include refid="Base_Column_List"/> from sys_role r inner join sys_user_role ur on r.id = ur.role_id where ur.user_id = #{userId}

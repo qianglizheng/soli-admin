@@ -4,7 +4,9 @@ import java.util.List;
 
 import org.mapstruct.Mapper;
 
+import com.soli.system.service.sysmenu.SysMenuCreateRequest;
 import com.soli.system.service.sysmenu.SysMenuDTO;
+import com.soli.system.service.sysmenu.SysMenuUpdateRequest;
 
 /**
  * @author lizhengqiang
@@ -14,6 +16,10 @@ import com.soli.system.service.sysmenu.SysMenuDTO;
 public interface SysMenuConverter {
 
     SysMenuDTO toDTO(SysMenuEntity entity);
+
+    SysMenuDTO toDTO(SysMenuCreateRequest createRequest);
+
+    SysMenuDTO toDTO(SysMenuUpdateRequest updateRequest);
 
     SysMenuEntity toEntity(SysMenuDTO dto);
 
