@@ -53,6 +53,7 @@
         where ur.user_id = #{userId}
           and r.status = '0'
           and mst.status = '0'
+        order by mst.parent_id, mst.sort
     </select>
 
 </mapper>

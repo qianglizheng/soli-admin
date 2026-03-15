@@ -18,9 +18,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SysRoleServiceImpl implements SysRoleService {
 
-    private SysRoleMapper sysRoleMapper;
+    private final SysRoleMapper sysRoleMapper;
 
-    private SysRoleConverter sysRoleConverter;
+    private final SysRoleConverter sysRoleConverter;
 
     @Override
     public List<SysRoleDTO> queryAll() {

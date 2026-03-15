@@ -3,6 +3,8 @@ package com.soli.common.api.dto;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.Data;
 
 /**
@@ -19,12 +21,14 @@ public abstract class BaseDTO implements Serializable {
     private String createBy;
 
     /** 创建时间 */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;
 
     /** 最后更新人 */
     private String updateBy;
 
     /** 最后更新时间 */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updateTime;
 
     /** 备注 */

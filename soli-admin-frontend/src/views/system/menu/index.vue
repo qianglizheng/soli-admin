@@ -47,7 +47,6 @@
           </el-icon>
         </template>
       </el-table-column>
-      <el-table-column prop="sort" label="排序" width="60" />
       <el-table-column prop="perms" label="权限代码" :show-overflow-tooltip="true" />
       <el-table-column prop="component" label="组件路径" :show-overflow-tooltip="true" />
       <el-table-column prop="status" label="状态" width="80">
