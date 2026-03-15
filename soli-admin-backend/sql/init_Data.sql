@@ -20,11 +20,6 @@ create table sys_user (
     note           varchar(500)      default null             comment '备注',
     primary key (id)
 ) engine=innodb comment '系统用户表';
-insert into sys_user values
-                         (1,'admin','123456','系统管理员','admin@test.com','13800000001',null,'0','0',null,null,'0','system',now(),null,null,null),
-                         (2,'manager','123456','部门管理员','manager@test.com','13800000002',null,'1','0',null,null,'0','system',now(),null,null,null),
-                         (3,'user01','123456','普通用户1','user01@test.com','13800000003',null,'1','0',null,null,'0','system',now(),null,null,null),
-                         (4,'user02','123456','普通用户2','user02@test.com','13800000004',null,'1','1',null,null,'0','system',now(),null,null,null);
 
 -- 系统用户角色表
 drop table if exists sys_role;
@@ -42,10 +37,6 @@ create table sys_role (
     note           varchar(500)      default null             comment '备注',
     primary key (id)
 ) engine=innodb comment = '系统角色表';
-insert into sys_role values
-(1,'超级管理员','admin',1,'1','0','system',now(),null,null,null),
-(2,'系统管理员','manager',2,'1','0','system',now(),null,null,null),
-(3,'普通用户','user',3,'1','0','system',now(),null,null,null);
 
 -- 系统用户角色关联表
 drop table if exists sys_user_role;
@@ -54,11 +45,6 @@ create table sys_user_role (
     role_id        bigint(20)        not null                 comment '角色ID',
     primary key(user_id, role_id)
 ) engine=innodb comment = '系统用户角色关联表';
-insert into sys_user_role values
-(1,1),
-(2,2),
-(3,3),
-(4,3);
 
 drop table if exists sys_menu;
 create table sys_menu (
@@ -79,27 +65,6 @@ create table sys_menu (
   note           varchar(500)      default null             comment '备注',
   primary key (id)
 ) engine=innodb auto_increment=2000 comment = '菜单权限表';
-insert into sys_menu values
-(1000,'系统管理',0,1,'/system',null,'0',null,'system','0','system',now(),null,null,null),
-
-(1001,'用户管理',1000,1,'user','system/user/index','1',null,'user','0','system',now(),null,null,null),
-(1002,'角色管理',1000,2,'role','system/role/index','1',null,'peoples','0','system',now(),null,null,null),
-(1003,'菜单管理',1000,3,'menu','system/menu/index','1',null,'tree','0','system',now(),null,null,null),
-
-(1101,'用户查询',1001,1,null,null,'2','sys:user:list',null,'0','system',now(),null,null,null),
-(1102,'用户新增',1001,2,null,null,'2','sys:user:add',null,'0','system',now(),null,null,null),
-(1103,'用户修改',1001,3,null,null,'2','sys:user:update',null,'0','system',now(),null,null,null),
-(1104,'用户删除',1001,4,null,null,'2','sys:user:delete',null,'0','system',now(),null,null,null),
-
-(1201,'角色查询',1002,1,null,null,'2','sys:role:list',null,'0','system',now(),null,null,null),
-(1202,'角色新增',1002,2,null,null,'2','sys:role:add',null,'0','system',now(),null,null,null),
-(1203,'角色修改',1002,3,null,null,'2','sys:role:update',null,'0','system',now(),null,null,null),
-(1204,'角色删除',1002,4,null,null,'2','sys:role:delete',null,'0','system',now(),null,null,null),
-
-(1301,'菜单查询',1003,1,null,null,'2','sys:menu:list',null,'0','system',now(),null,null,null),
-(1302,'菜单新增',1003,2,null,null,'2','sys:menu:add',null,'0','system',now(),null,null,null),
-(1303,'菜单修改',1003,3,null,null,'2','sys:menu:update',null,'0','system',now(),null,null,null),
-(1304,'菜单删除',1003,4,null,null,'2','sys:menu:delete',null,'0','system',now(),null,null,null);
 
 drop table if exists sys_role_menu;
 create table sys_role_menu (
@@ -107,18 +72,3 @@ create table sys_role_menu (
   menu_id   bigint(20) not null comment '菜单ID',
   primary key(role_id, menu_id)
 ) engine=innodb comment = '角色和菜单关联表';
-insert into sys_role_menu
-select 1,id from sys_menu;
-insert into sys_role_menu values
-(2,1000),
-(2,1001),
-(2,1002),
-(2,1101),
-(2,1102),
-(2,1103),
-(2,1201),
-(2,1203);
-insert into sys_role_menu values
-(3,1000),
-(3,1001),
-(3,1101);
