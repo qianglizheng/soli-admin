@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
+import com.github.yitter.idgen.YitIdHelper;
 import com.soli.system.core.mapper.SysMenuMapper;
 import com.soli.system.service.sysmenu.SysMenuDTO;
 import com.soli.system.service.sysmenu.SysMenuService;
@@ -37,6 +38,7 @@ public class SysMenuServiceImpl implements SysMenuService {
     @Override
     public int create(SysMenuDTO sysMenuDTO) {
         SysMenuEntity entity = sysMenuConverter.toEntity(sysMenuDTO);
+        entity.setId(YitIdHelper.nextId());
         return sysMenuMapper.insert(entity);
     }
 
