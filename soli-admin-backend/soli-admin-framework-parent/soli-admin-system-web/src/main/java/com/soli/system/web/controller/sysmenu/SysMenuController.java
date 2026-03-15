@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.soli.system.service.sysmenu.SysMenuDTO;
 import com.soli.system.service.sysmenu.SysMenuService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
@@ -26,6 +27,7 @@ public class SysMenuController {
 
     private final SysMenuService sysMenuService;
 
+    @Operation(summary = "获取树形菜单")
     @GetMapping("tree")
     public List<SysMenuDTO> getTreeList(@RequestHeader("Authorization") String accessToken, @AuthenticationPrincipal Long userId) {
         return sysMenuService.queryTreeList(userId);

@@ -1,7 +1,7 @@
 
 declare global {
   interface Window {
-    __APP__: any;
+    __APP__: unknown;
   }
 }
 
@@ -12,8 +12,23 @@ export interface UserInfo {
   roles: string[];
 }
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   code: number;
   data: T;
   message: string;
+}
+
+export interface SysMenuDTO {
+  id: number;
+  name: string;
+  parentId: number;
+  sort: string;
+  path: string;
+  component: string;
+  type: string;
+  perms: string;
+  icon: string;
+  status: string;
+  createTime?: string;
+  children?: SysMenuDTO[];
 }

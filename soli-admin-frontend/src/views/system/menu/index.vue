@@ -1,4 +1,3 @@
-
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
@@ -36,11 +35,11 @@
       v-if="refreshTable"
       v-loading="loading"
       :data="menuList"
-      row-key="menuId"
+      row-key="id"
       :default-expand-all="isExpandAll"
       :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
     >
-      <el-table-column prop="menuName" label="菜单名称" :show-overflow-tooltip="true" width="160" />
+      <el-table-column prop="name" label="菜单名称" :show-overflow-tooltip="true" width="160" />
       <el-table-column prop="icon" label="图标" align="center" width="100">
         <template #default="scope">
           <el-icon v-if="scope.row.icon">
@@ -48,8 +47,8 @@
           </el-icon>
         </template>
       </el-table-column>
-      <el-table-column prop="orderNum" label="排序" width="60" />
-      <el-table-column prop="perms" label="权限标识" :show-overflow-tooltip="true" />
+      <el-table-column prop="sort" label="排序" width="60" />
+      <el-table-column prop="perms" label="权限代码" :show-overflow-tooltip="true" />
       <el-table-column prop="component" label="组件路径" :show-overflow-tooltip="true" />
       <el-table-column prop="status" label="状态" width="80">
         <template #default="scope">
@@ -75,91 +74,51 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, nextTick } from 'vue';
-import { Search, Plus, Edit, Delete, Sort, Refresh } from '@element-plus/icons-vue';
+import { ref, reactive, nextTick, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
+import { getMenuTree } from '@/api/menu';
+import type { SysMenuDTO } from '@/types/global';
 
-const showSearch = ref(true);
-const loading = ref(false);
-const isExpandAll = ref(false);
-const refreshTable = ref(true);
-const menuList = ref<any[]>([]);
+defineOptions({
+  name: "SystemMenuPage"
+})
+
+const showSearch = ref<boolean>(true);
+const loading = ref<boolean>(false);
+const isExpandAll = ref<boolean>(false);
+const refreshTable = ref<boolean>(true);
+const menuList = ref<SysMenuDTO[]>([]);
 
 const queryParams = reactive({
   menuName: '',
   status: ''
 });
 
-// Mock Data
-menuList.value = [
-  {
-    menuId: 1,
-    menuName: '系统管理',
-    icon: 'Setting',
-    orderNum: 1,
-    perms: '',
-    component: '',
-    status: '0',
-    createTime: '2023-01-01 10:00:00',
-    children: [
-      {
-        menuId: 101,
-        menuName: '用户管理',
-        icon: 'User',
-        orderNum: 1,
-        perms: 'system:user:list',
-        component: 'system/user/index',
-        status: '0',
-        createTime: '2023-01-01 10:00:00'
-      },
-      {
-        menuId: 102,
-        menuName: '角色管理',
-        icon: 'Avatar',
-        orderNum: 2,
-        perms: 'system:role:list',
-        component: 'system/role/index',
-        status: '0',
-        createTime: '2023-01-01 10:00:00'
-      }
-    ]
-  },
-  {
-    menuId: 2,
-    menuName: '日志管理',
-    icon: 'Monitor',
-    orderNum: 2,
-    perms: '',
-    component: '',
-    status: '0',
-    createTime: '2023-01-01 10:00:00',
-    children: [
-      {
-        menuId: 201,
-        menuName: '操作日志',
-        icon: 'Document',
-        orderNum: 1,
-        perms: 'monitor:operlog:list',
-        component: 'monitor/operlog/index',
-        status: '0',
-        createTime: '2023-01-01 10:00:00'
-      }
-    ]
-  }
-];
-
-const handleQuery = () => {
+const loadMenuTree = async () => {
   loading.value = true;
-  setTimeout(() => {
+  try {
+    const res = await getMenuTree({
+      menuName: queryParams.menuName || undefined,
+      status: queryParams.status || undefined
+    });
+    menuList.value = res.data || [];
+  } catch (error) {
+    console.error('加载菜单树失败', error);
+    menuList.value = [];
+  } finally {
     loading.value = false;
-    ElMessage.success('查询成功');
-  }, 500);
+  }
 };
 
-const resetQuery = () => {
+const handleQuery = async () => {
+  await loadMenuTree();
+  ElMessage.success('查询成功');
+};
+
+const resetQuery = async () => {
   queryParams.menuName = '';
   queryParams.status = '';
-  handleQuery();
+  await handleQuery();
 };
 
 const toggleExpandAll = () => {
@@ -170,20 +129,20 @@ const toggleExpandAll = () => {
   });
 };
 
-const handleAdd = (row?: any) => {
-  if (row && row.menuId) {
-    ElMessage.info(`新增 [${row.menuName}] 的子菜单`);
+const handleAdd = (row?: SysMenuDTO) => {
+  if (row && row.id) {
+    ElMessage.info(`新增 [${row.name}] 的子菜单`);
   } else {
     ElMessage.info('新增顶级菜单');
   }
 };
 
-const handleUpdate = (row: any) => {
-  ElMessage.info(`修改 [${row.menuName}]`);
+const handleUpdate = (row: SysMenuDTO) => {
+  ElMessage.info(`修改 [${row.name}]`);
 };
 
-const handleDelete = (row: any) => {
-  ElMessageBox.confirm(`是否确认删除名称为"${row.menuName}"的数据项?`, "警告", {
+const handleDelete = (row: SysMenuDTO) => {
+  ElMessageBox.confirm(`是否确认删除名称为"${row.name}"的数据项?`, "警告", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
     type: "warning"
@@ -191,4 +150,8 @@ const handleDelete = (row: any) => {
     ElMessage.success("删除成功");
   }).catch(() => {});
 };
+
+onMounted(() => {
+  loadMenuTree();
+});
 </script>

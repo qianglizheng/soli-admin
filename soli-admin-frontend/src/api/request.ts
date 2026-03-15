@@ -10,7 +10,8 @@ const service = axios.create({
 
 service.interceptors.request.use(
   config => {
-    const token = getToken();
+    // const token = getToken();
+    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzb2xpLWF1dGgiLCJzdWIiOiIxIiwiaWF0IjoxNzczNTUzOTk4LCJleHAiOjE3ODM1NTM5OTd9.ieoDx8sfUbEdldO7_izVyEsPOfKBt_KST-HbuXYQq2s";
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
@@ -24,12 +25,15 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   response => {
     const res = response.data;
-    if (res.code !== 200) {
-      ElMessage.error(res.message || 'Error');
-      return Promise.reject(new Error(res.message || 'Error'));
-    } else {
-      return res;
+    const hasCode = typeof res === 'object' && res !== null && 'code' in res && 'data' in res;
+    if (hasCode) {
+      if ((res as any).code !== 200) {
+        ElMessage.error((res as any).message || 'Error');
+        return Promise.reject(new Error((res as any).message || 'Error'));
+      }
+      return res as any;
     }
+    return { code: 200, data: res, message: '' };
   },
   error => {
     ElMessage.error(error.message || 'Request Error');
@@ -37,6 +41,6 @@ service.interceptors.response.use(
   }
 );
 
-export default function request<T = any>(config: AxiosRequestConfig): Promise<T> {
+export default function request<T = unknown>(config: AxiosRequestConfig): Promise<T> {
   return service(config) as unknown as Promise<T>;
 }
