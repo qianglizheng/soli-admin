@@ -208,7 +208,7 @@ const handleSelectionChange = (selection: any[]) => {
 };
 
 const handleStatusChange = (row: any) => {
-  let text = row.status === '0' ? '启用' : '停用';
+  const text = row.status === '0' ? '启用' : '停用';
   ElMessageBox.confirm(`确认要"${text}""${row.userName}"用户吗?`, "警告", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",

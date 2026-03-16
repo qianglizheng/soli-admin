@@ -1,56 +1,72 @@
 
 import { defineStore } from 'pinia';
 import { type RouteLocationNormalized } from 'vue-router';
+import { ref } from 'vue';
 
 export interface TagView extends Partial<RouteLocationNormalized> {
   title?: string;
 }
 
-export const useTagsViewStore = defineStore('tagsView', {
-  state: () => ({
-    visitedViews: [] as TagView[],
-    cachedViews: [] as string[]
-  }),
-  actions: {
-    addView(view: TagView) {
-      this.addVisitedView(view);
-      this.addCachedView(view);
-    },
-    addVisitedView(view: TagView) {
-      if (this.visitedViews.some(v => v.path === view.path)) return;
-      this.visitedViews.push(
-        Object.assign({}, view, {
-          title: view.meta?.title || 'no-name'
-        })
-      );
-    },
-    addCachedView(view: TagView) {
-      if (this.cachedViews.includes(view.name as string)) return;
-      if (!view.meta?.noCache) {
-        this.cachedViews.push(view.name as string);
-      }
-    },
-    delView(view: TagView) {
-      return new Promise(resolve => {
-        this.delVisitedView(view);
-        this.delCachedView(view);
-        resolve({
-          visitedViews: [...this.visitedViews],
-          cachedViews: [...this.cachedViews]
-        });
-      });
-    },
-    delVisitedView(view: TagView) {
-      for (const [i, v] of this.visitedViews.entries()) {
-        if (v.path === view.path) {
-          this.visitedViews.splice(i, 1);
-          break;
-        }
-      }
-    },
-    delCachedView(view: TagView) {
-      const index = this.cachedViews.indexOf(view.name as string);
-      index > -1 && this.cachedViews.splice(index, 1);
+export const useTagsViewStore = defineStore('tagsView', () => {
+  const visitedViews = ref<TagView[]>([]);
+  const cachedViews = ref<string[]>([]);
+
+  const addView = (view: TagView) => {
+    addVisitedView(view);
+    addCachedView(view);
+  };
+
+  const addVisitedView = (view: TagView) => {
+    if (visitedViews.value.some(v => v.path === view.path)) return;
+    visitedViews.value.push(
+      Object.assign({}, view, {
+        title: view.meta?.title || 'no-name'
+      })
+    );
+  };
+
+  const addCachedView = (view: TagView) => {
+    if (cachedViews.value.includes(view.name as string)) return;
+    if (!view.meta?.noCache) {
+      cachedViews.value.push(view.name as string);
     }
-  }
+  };
+
+  const delView = (view: TagView) => {
+    return new Promise(resolve => {
+      delVisitedView(view);
+      delCachedView(view);
+      resolve({
+        visitedViews: [...visitedViews.value],
+        cachedViews: [...cachedViews.value]
+      });
+    });
+  };
+
+  const delVisitedView = (view: TagView) => {
+    for (const [i, v] of visitedViews.value.entries()) {
+      if (v.path === view.path) {
+        visitedViews.value.splice(i, 1);
+        break;
+      }
+    }
+  };
+
+  const delCachedView = (view: TagView) => {
+    const index = cachedViews.value.indexOf(view.name as string);
+    if (index > -1) {
+      cachedViews.value.splice(index, 1);
+    }
+  };
+
+  return {
+    visitedViews,
+    cachedViews,
+    addView,
+    addVisitedView,
+    addCachedView,
+    delView,
+    delVisitedView,
+    delCachedView
+  };
 });
