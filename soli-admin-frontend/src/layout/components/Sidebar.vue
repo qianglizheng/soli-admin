@@ -1,4 +1,3 @@
-
 <template>
   <div class="sidebar" :class="{ 'has-logo': showLogo }">
     <div v-if="showLogo" class="sidebar-logo-container" :class="{ collapse: isCollapse }">
@@ -9,13 +8,8 @@
     </div>
     <el-scrollbar wrap-class="scrollbar-wrapper">
       <div class="custom-menu">
-        <sidebar-item
-          v-for="item in menuRoutes"
-          :key="item.path"
-          :item="item"
-          :base-path="item.path"
-          :isCollapse="isCollapse"
-        />
+        <sidebar-item v-for="item in menuRoutes" :key="item.path" :item="item" :base-path="item.path"
+          :isCollapse="isCollapse" />
       </div>
     </el-scrollbar>
   </div>
@@ -23,15 +17,12 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { useRouter } from 'vue-router';
 import { useAppStore } from '@/store/modules/app';
 import SidebarItem from './SidebarItem.vue';
-import path from 'path-browserify';
 import logoMini from '@/assets/logo-mini.svg';
 import logoFull from '@/assets/logo-full.svg';
 import { usePermissionStore } from '@/store/modules/permission';
 
-const router = useRouter();
 const appStore = useAppStore();
 
 const isCollapse = computed(() => !appStore.sidebar.opened);
