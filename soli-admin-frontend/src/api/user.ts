@@ -2,9 +2,9 @@
 import request from './request';
 import type { ApiResponse, UserInfo } from '@/types/global';
 
-export function login(data: any) {
-  return request<ApiResponse<{ token: string }>>({
-    url: '/user/login',
+export function loginUsingUsername(data: { username: string; password: string }) {
+  return request<ApiResponse<{ accessToken: string; refreshToken: string }>>({
+    url: '/auth/login-using-username',
     method: 'post',
     data
   });

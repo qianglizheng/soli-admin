@@ -18,10 +18,10 @@
     <url>http://maven.apache.org</url>
 
     <modules>
-        <module>soli-admin-framework-parent</module>
+        <module>soli-admin-framework</module>
         <module>soli-admin-start</module>
-        <module>soli-admin-common-parent</module>
-        <module>soli-admin-business-parent</module>
+        <module>soli-admin-common</module>
+        <module>soli-admin-business</module>
     </modules>
     <description>soli后台管理系统</description>
 

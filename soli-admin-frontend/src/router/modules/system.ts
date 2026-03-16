@@ -6,7 +6,7 @@ export default {
   component: Layout,
   redirect: '/system/user',
   name: 'System',
-  meta: { title: '系统管理', icon: 'Setting' },
+  meta: { title: '系统管理', icon: 'Tools' },
   children: [
     {
       path: 'user',

@@ -176,7 +176,7 @@ const onFormSubmit = async (data: Partial<SysMenuDTO>) => {
       await addMenu(data);
       ElMessage.success('新增成功');
     } else {
-      await updateMenu(data.id as number, data);
+      await updateMenu(data);
       ElMessage.success('修改成功');
     }
     await handleQuery();

@@ -1,6 +1,6 @@
 
 import { defineStore } from 'pinia';
-import { login, getUserInfo, logout } from '@/api/user';
+import { loginUsingUsername, getUserInfo, logout } from '@/api/user';
 import { getToken, setToken, removeToken } from '@/utils/auth';
 
 export const useUserStore = defineStore('user', {
@@ -12,15 +12,10 @@ export const useUserStore = defineStore('user', {
   }),
   actions: {
     // 登录
-    async login(userInfo: any) {
-      // const res = await login(userInfo);
-      const res = {
-        data: {
-          token: '22'
-        }
-      };
-      this.token = res.data.token;
-      setToken(res.data.token);
+    async login(userInfo: { username: string; password: string; code?: string }) {
+      const res = await loginUsingUsername({ username: userInfo.username, password: userInfo.password });
+      this.token = res.data.accessToken;
+      setToken(res.data.accessToken);
     },
     // 获取用户信息
     async getInfo() {

@@ -22,9 +22,9 @@ export function addMenu(data: Partial<SysMenuDTO>) {
   });
 }
 
-export function updateMenu(id: number, data: Partial<SysMenuDTO>) {
+export function updateMenu(data: Partial<SysMenuDTO>) {
   return request<ApiResponse<void>>({
-    url: `/sys/menu/${id}`,
+    url: `/sys/menu`,
     method: 'put',
     data
   });
