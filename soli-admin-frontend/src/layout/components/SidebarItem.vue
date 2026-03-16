@@ -55,23 +55,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ArrowRight } from '@element-plus/icons-vue';
 import path from 'path-browserify';
 
 const props = defineProps({
-  item: {
-    type: Object,
-    required: true
-  },
   basePath: {
-    type: String,
-    default: ''
+    default: '',
+    type: String
   },
   isCollapse: {
-    type: Boolean,
-    default: false
+    default: false,
+    type: Boolean
+  },
+  item: {
+    required: true,
+    type: Object
   }
 });
 
@@ -89,19 +89,13 @@ const hasChildren = (item: any) => {
   return false;
 };
 
-const resolvePath = (base: string, p: string) => {
-  return path.resolve(base, p);
-};
+const resolvePath = (base: string, p: string) => path.resolve(base, p);
 
 const fullPath = computed(() => resolvePath(props.basePath, props.item.path));
 
-const isActive = computed(() => {
-  return route.path === fullPath.value;
-});
+const isActive = computed(() => route.path === fullPath.value);
 
-const isChildActive = computed(() => {
-  return route.path.startsWith(fullPath.value + '/');
-});
+const isChildActive = computed(() => route.path.startsWith(fullPath.value + '/'));
 
 const handleClick = () => {
   router.push(fullPath.value);

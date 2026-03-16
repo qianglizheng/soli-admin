@@ -1,20 +1,20 @@
 
 export const storage = {
-  set(key: string, value: any) {
-    localStorage.setItem(key, JSON.stringify(value));
+  clear() {
+    localStorage.clear();
   },
   get(key: string) {
     const value = localStorage.getItem(key);
     try {
       return value ? JSON.parse(value) : null;
-    } catch (err) {
+    } catch {
       return value;
     }
   },
   remove(key: string) {
     localStorage.removeItem(key);
   },
-  clear() {
-    localStorage.clear();
+  set(key: string, value: any) {
+    localStorage.setItem(key, JSON.stringify(value));
   }
 };

@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch, onMounted } from 'vue';
+import { computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useTagsViewStore } from '@/store/modules/tagsView';
 import { Close } from '@element-plus/icons-vue';
@@ -30,13 +30,9 @@ const router = useRouter();
 
 const visitedViews = computed(() => tagsViewStore.visitedViews);
 
-const isActive = (tag: any) => {
-  return tag.path === route.path;
-};
+const isActive = (tag: any) => tag.path === route.path;
 
-const isAffix = (tag: any) => {
-  return tag.meta && tag.meta.affix;
-};
+const isAffix = (tag: any) => tag.meta && tag.meta.affix;
 
 const addTags = () => {
   const { name } = route;
@@ -49,9 +45,9 @@ const addTags = () => {
 const initTags = () => {
   // Manually add dashboard
   const dashboardRoute = {
-    path: '/dashboard',
+    meta: { affix: true, title: '仪表盘' },
     name: 'Dashboard',
-    meta: { title: '仪表盘', affix: true }
+    path: '/dashboard'
   };
   tagsViewStore.addView(dashboardRoute);
 };
@@ -65,7 +61,7 @@ const closeSelectedTag = (view: any) => {
 };
 
 const toLastView = (visitedViews: any[], view: any) => {
-  const latestView = visitedViews.slice(-1)[0];
+  const latestView = visitedViews[visitedViews.length - 1];
   if (latestView) {
     router.push(latestView.fullPath);
   } else {

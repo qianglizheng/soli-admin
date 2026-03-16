@@ -31,6 +31,7 @@ router.beforeEach(async (to, from, next) => {
           await permissionStore.loadRoutes();
           next({ ...to, replace: true });
         } catch (error) {
+          console.error(error);
           await userStore.logout();
           ElMessage.error('Has Error');
           next(`/login?redirect=${to.path}`);
