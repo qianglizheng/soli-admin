@@ -27,6 +27,10 @@ import Sidebar from './components/Sidebar.vue';
 import Header from './components/Header.vue';
 import TagsView from './components/TagsView.vue';
 
+defineOptions({
+  name: "SystemLayout"
+})
+
 const appStore = useAppStore();
 const sidebar = computed(() => appStore.sidebar);
 </script>

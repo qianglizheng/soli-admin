@@ -98,8 +98,11 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
-import { Search, Plus, Edit, Delete, Download, Refresh } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
+
+defineOptions({
+  name: "SystemDict"
+})
 
 const showSearch = ref(true);
 const loading = ref(false);

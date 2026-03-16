@@ -1,33 +1,17 @@
-
 <template>
   <div class="app-container">
     <!-- 搜索区域 -->
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
       <el-form-item label="登录地址" prop="ipaddr">
-        <el-input
-          v-model="queryParams.ipaddr"
-          placeholder="请输入登录地址"
-          clearable
-          style="width: 240px"
-          @keyup.enter="handleQuery"
-        />
+        <el-input v-model="queryParams.ipaddr" placeholder="请输入登录地址" clearable style="width: 240px"
+          @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item label="用户名称" prop="userName">
-        <el-input
-          v-model="queryParams.userName"
-          placeholder="请输入用户名称"
-          clearable
-          style="width: 240px"
-          @keyup.enter="handleQuery"
-        />
+        <el-input v-model="queryParams.userName" placeholder="请输入用户名称" clearable style="width: 240px"
+          @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item label="状态" prop="status">
-        <el-select
-          v-model="queryParams.status"
-          placeholder="登录状态"
-          clearable
-          style="width: 240px"
-        >
+        <el-select v-model="queryParams.status" placeholder="登录状态" clearable style="width: 240px">
           <el-option label="成功" value="0" />
           <el-option label="失败" value="1" />
         </el-select>
@@ -62,7 +46,8 @@
       <el-table-column label="操作系统" align="center" prop="os" />
       <el-table-column label="登录状态" align="center" prop="status">
         <template #default="scope">
-          <el-tag :type="scope.row.status === '0' ? 'success' : 'danger'">{{ scope.row.status === '0' ? '成功' : '失败' }}</el-tag>
+          <el-tag :type="scope.row.status === '0' ? 'success' : 'danger'">{{ scope.row.status === '0' ? '成功' : '失败'
+            }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="操作信息" align="center" prop="msg" />
@@ -74,23 +59,20 @@
     </el-table>
 
     <div class="pagination-container">
-      <el-pagination
-        v-model:current-page="queryParams.pageNum"
-        v-model:page-size="queryParams.pageSize"
-        :page-sizes="[10, 20, 30, 50]"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-        @size-change="handleQuery"
-        @current-change="handleQuery"
-      />
+      <el-pagination v-model:current-page="queryParams.pageNum" v-model:page-size="queryParams.pageSize"
+        :page-sizes="[10, 20, 30, 50]" layout="total, sizes, prev, pager, next, jumper" :total="total"
+        @size-change="handleQuery" @current-change="handleQuery" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
-import { Search, Delete, Download, Refresh } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
+
+defineOptions({
+  name: "LoginInfo"
+})
 
 const showSearch = ref(true);
 const loading = ref(false);
@@ -137,9 +119,9 @@ const handleDelete = () => {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
     type: "warning"
-  }).then(function() {
+  }).then(function () {
     ElMessage.success("删除成功");
-  }).catch(() => {});
+  }).catch(() => { });
 };
 
 const handleClean = () => {
@@ -147,9 +129,9 @@ const handleClean = () => {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
     type: "warning"
-  }).then(function() {
+  }).then(function () {
     ElMessage.success("清空成功");
-  }).catch(() => {});
+  }).catch(() => { });
 };
 
 const handleExport = () => { ElMessage.info('点击导出'); };

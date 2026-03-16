@@ -1,24 +1,13 @@
-
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
       <el-form-item label="参数名称" prop="configName">
-        <el-input
-          v-model="queryParams.configName"
-          placeholder="请输入参数名称"
-          clearable
-          style="width: 240px"
-          @keyup.enter="handleQuery"
-        />
+        <el-input v-model="queryParams.configName" placeholder="请输入参数名称" clearable style="width: 240px"
+          @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item label="参数键名" prop="configKey">
-        <el-input
-          v-model="queryParams.configKey"
-          placeholder="请输入参数键名"
-          clearable
-          style="width: 240px"
-          @keyup.enter="handleQuery"
-        />
+        <el-input v-model="queryParams.configKey" placeholder="请输入参数键名" clearable style="width: 240px"
+          @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item label="系统内置" prop="configType">
         <el-select v-model="queryParams.configType" placeholder="系统内置" clearable style="width: 240px">
@@ -78,23 +67,20 @@
     </el-table>
 
     <div class="pagination-container">
-      <el-pagination
-        v-model:current-page="queryParams.pageNum"
-        v-model:page-size="queryParams.pageSize"
-        :page-sizes="[10, 20, 30, 50]"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-        @size-change="handleQuery"
-        @current-change="handleQuery"
-      />
+      <el-pagination v-model:current-page="queryParams.pageNum" v-model:page-size="queryParams.pageSize"
+        :page-sizes="[10, 20, 30, 50]" layout="total, sizes, prev, pager, next, jumper" :total="total"
+        @size-change="handleQuery" @current-change="handleQuery" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
-import { Search, Plus, Edit, Delete, Download, Refresh } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
+
+defineOptions({
+  name: "SystemConfig"
+})
 
 const showSearch = ref(true);
 const loading = ref(false);
@@ -151,7 +137,7 @@ const handleDelete = (row: any) => {
     type: "warning"
   }).then(() => {
     ElMessage.success("删除成功");
-  }).catch(() => {});
+  }).catch(() => { });
 };
 const handleExport = () => { ElMessage.info('点击导出'); };
 const handleRefreshCache = () => { ElMessage.success('刷新缓存成功'); };

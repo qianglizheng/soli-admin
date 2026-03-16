@@ -67,8 +67,11 @@
 
 <script setup lang="ts">
 import { ref, reactive, nextTick } from 'vue';
-import { Search, Plus, Edit, Delete, Sort, Refresh } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
+
+defineOptions({
+  name: "SystemDept"
+})
 
 const showSearch = ref(true);
 const loading = ref(false);

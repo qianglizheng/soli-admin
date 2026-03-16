@@ -1,4 +1,3 @@
-
 <template>
   <div class="dashboard-container">
     <!-- 顶部数据卡片 -->
@@ -6,13 +5,17 @@
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
         <div class="card-panel">
           <div class="card-panel-icon-wrapper icon-people">
-            <el-icon class="card-panel-icon"><User /></el-icon>
+            <el-icon class="card-panel-icon">
+              <User />
+            </el-icon>
           </div>
           <div class="card-panel-description">
             <div class="card-panel-text">总用户数</div>
             <div class="card-panel-num">1,245</div>
             <div class="card-panel-trend">
-              <span class="trend-up"><el-icon><Top /></el-icon> 12%</span>
+              <span class="trend-up"><el-icon>
+                  <Top />
+                </el-icon> 12%</span>
             </div>
           </div>
         </div>
@@ -20,13 +23,17 @@
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
         <div class="card-panel">
           <div class="card-panel-icon-wrapper icon-message">
-            <el-icon class="card-panel-icon"><ChatLineSquare /></el-icon>
+            <el-icon class="card-panel-icon">
+              <ChatLineSquare />
+            </el-icon>
           </div>
           <div class="card-panel-description">
             <div class="card-panel-text">未读消息</div>
             <div class="card-panel-num">8</div>
             <div class="card-panel-trend">
-              <span class="trend-down"><el-icon><Bottom /></el-icon> 5%</span>
+              <span class="trend-down"><el-icon>
+                  <Bottom />
+                </el-icon> 5%</span>
             </div>
           </div>
         </div>
@@ -34,13 +41,17 @@
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
         <div class="card-panel">
           <div class="card-panel-icon-wrapper icon-money">
-            <el-icon class="card-panel-icon"><Money /></el-icon>
+            <el-icon class="card-panel-icon">
+              <Money />
+            </el-icon>
           </div>
           <div class="card-panel-description">
             <div class="card-panel-text">今日交易额</div>
             <div class="card-panel-num">¥ 24,560</div>
             <div class="card-panel-trend">
-              <span class="trend-up"><el-icon><Top /></el-icon> 8%</span>
+              <span class="trend-up"><el-icon>
+                  <Top />
+                </el-icon> 8%</span>
             </div>
           </div>
         </div>
@@ -48,13 +59,17 @@
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
         <div class="card-panel">
           <div class="card-panel-icon-wrapper icon-shopping">
-            <el-icon class="card-panel-icon"><ShoppingCart /></el-icon>
+            <el-icon class="card-panel-icon">
+              <ShoppingCart />
+            </el-icon>
           </div>
           <div class="card-panel-description">
             <div class="card-panel-text">总订单数</div>
             <div class="card-panel-num">1,452</div>
             <div class="card-panel-trend">
-              <span class="trend-up"><el-icon><Top /></el-icon> 22%</span>
+              <span class="trend-up"><el-icon>
+                  <Top />
+                </el-icon> 22%</span>
             </div>
           </div>
         </div>
@@ -139,6 +154,10 @@ import {
   GridComponent
 } from 'echarts/components';
 import VChart from 'vue-echarts';
+
+defineOptions({
+  name: "DashBorad"
+})
 
 use([
   CanvasRenderer,
@@ -300,10 +319,21 @@ const todoList = ref([
           color: #fff;
         }
 
-        .icon-people { background: #40c9c6; }
-        .icon-message { background: #36a3f7; }
-        .icon-money { background: #f4516c; }
-        .icon-shopping { background: #34bfa3; }
+        .icon-people {
+          background: #40c9c6;
+        }
+
+        .icon-message {
+          background: #36a3f7;
+        }
+
+        .icon-money {
+          background: #f4516c;
+        }
+
+        .icon-shopping {
+          background: #34bfa3;
+        }
       }
 
       .card-panel-icon-wrapper {
@@ -319,10 +349,21 @@ const todoList = ref([
         }
       }
 
-      .icon-people { color: #40c9c6; }
-      .icon-message { color: #36a3f7; }
-      .icon-money { color: #f4516c; }
-      .icon-shopping { color: #34bfa3; }
+      .icon-people {
+        color: #40c9c6;
+      }
+
+      .icon-message {
+        color: #36a3f7;
+      }
+
+      .icon-money {
+        color: #f4516c;
+      }
+
+      .icon-shopping {
+        color: #34bfa3;
+      }
 
       .card-panel-description {
         float: right;
@@ -348,8 +389,13 @@ const todoList = ref([
         .card-panel-trend {
           font-size: 14px;
 
-          .trend-up { color: #f56c6c; }
-          .trend-down { color: #67c23a; }
+          .trend-up {
+            color: #f56c6c;
+          }
+
+          .trend-down {
+            color: #67c23a;
+          }
         }
       }
     }
@@ -387,7 +433,8 @@ const todoList = ref([
     }
   }
 
-  .table-container, .todo-container {
+  .table-container,
+  .todo-container {
     background: #fff;
     padding: 20px;
     border-radius: 4px;
