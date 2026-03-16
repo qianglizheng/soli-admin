@@ -1,4 +1,3 @@
-
 <template>
   <div class="app-container">
     <el-row :gutter="0">
@@ -6,15 +5,8 @@
       <el-col :span="4" :xs="24">
         <div class="box-container dept-container">
           <el-input v-model="deptName" placeholder="请输入部门名称" prefix-icon="Search" clearable class="mb10" />
-          <el-tree
-            ref="deptTreeRef"
-            class="filter-tree"
-            :data="deptData"
-            :props="defaultProps"
-            default-expand-all
-            :filter-node-method="filterNode"
-            @node-click="handleNodeClick"
-          />
+          <el-tree ref="deptTreeRef" class="filter-tree" :data="deptData" :props="defaultProps" default-expand-all
+            :filter-node-method="filterNode" @node-click="handleNodeClick" />
         </div>
       </el-col>
 
@@ -24,30 +16,15 @@
           <!-- 搜索区域 -->
           <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
             <el-form-item label="用户名称" prop="userName">
-              <el-input
-                v-model="queryParams.userName"
-                placeholder="请输入用户名称"
-                clearable
-                style="width: 240px"
-                @keyup.enter="handleQuery"
-              />
+              <el-input v-model="queryParams.userName" placeholder="请输入用户名称" clearable style="width: 240px"
+                @keyup.enter="handleQuery" />
             </el-form-item>
             <el-form-item label="手机号码" prop="phonenumber">
-              <el-input
-                v-model="queryParams.phonenumber"
-                placeholder="请输入手机号码"
-                clearable
-                style="width: 240px"
-                @keyup.enter="handleQuery"
-              />
+              <el-input v-model="queryParams.phonenumber" placeholder="请输入手机号码" clearable style="width: 240px"
+                @keyup.enter="handleQuery" />
             </el-form-item>
             <el-form-item label="状态" prop="status">
-              <el-select
-                v-model="queryParams.status"
-                placeholder="用户状态"
-                clearable
-                style="width: 240px"
-              >
+              <el-select v-model="queryParams.status" placeholder="用户状态" clearable style="width: 240px">
                 <el-option label="正常" value="0" />
                 <el-option label="停用" value="1" />
               </el-select>
@@ -80,16 +57,13 @@
             <el-table-column label="用户编号" align="center" key="userId" prop="userId" />
             <el-table-column label="用户名称" align="center" key="userName" prop="userName" :show-overflow-tooltip="true" />
             <el-table-column label="用户昵称" align="center" key="nickName" prop="nickName" :show-overflow-tooltip="true" />
-            <el-table-column label="部门" align="center" key="deptName" prop="dept.deptName" :show-overflow-tooltip="true" />
+            <el-table-column label="部门" align="center" key="deptName" prop="dept.deptName"
+              :show-overflow-tooltip="true" />
             <el-table-column label="手机号码" align="center" key="phonenumber" prop="phonenumber" width="120" />
             <el-table-column label="状态" align="center" key="status">
               <template #default="scope">
-                <el-switch
-                  v-model="scope.row.status"
-                  active-value="0"
-                  inactive-value="1"
-                  @change="handleStatusChange(scope.row)"
-                />
+                <el-switch v-model="scope.row.status" active-value="0" inactive-value="1"
+                  @change="handleStatusChange(scope.row)" />
               </template>
             </el-table-column>
             <el-table-column label="创建时间" align="center" prop="createTime" width="160">
@@ -107,15 +81,9 @@
           </el-table>
 
           <div class="pagination-container">
-            <el-pagination
-              v-model:current-page="queryParams.pageNum"
-              v-model:page-size="queryParams.pageSize"
-              :page-sizes="[10, 20, 30, 50]"
-              layout="total, sizes, prev, pager, next, jumper"
-              :total="total"
-              @size-change="handleQuery"
-              @current-change="handleQuery"
-            />
+            <el-pagination v-model:current-page="queryParams.pageNum" v-model:page-size="queryParams.pageSize"
+              :page-sizes="[10, 20, 30, 50]" layout="total, sizes, prev, pager, next, jumper" :total="total"
+              @size-change="handleQuery" @current-change="handleQuery" />
           </div>
         </div>
       </el-col>
@@ -124,9 +92,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, nextTick } from 'vue';
-import { Search, Plus, Edit, Delete, Download, Refresh, Key } from '@element-plus/icons-vue';
+import { ref, reactive, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
+
+defineOptions({
+  name: "SystemUser"
+})
 
 const deptName = ref('');
 const deptTreeRef = ref(null);
@@ -213,9 +184,9 @@ const handleStatusChange = (row: any) => {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
     type: "warning"
-  }).then(function() {
+  }).then(function () {
     ElMessage.success(`${text}成功`);
-  }).catch(function() {
+  }).catch(function () {
     row.status = row.status === '0' ? '1' : '0';
   });
 };
@@ -233,9 +204,11 @@ const handleResetPwd = (row: any) => { ElMessage.info('重置密码'); };
   padding: 10px;
   background: #fff;
 }
+
 .dept-container {
   border-right: 1px solid #d8dce5;
 }
+
 .filter-tree {
   margin-top: 10px;
 }

@@ -1,4 +1,3 @@
-
 <template>
   <div class="login-container">
     <div class="login-box">
@@ -16,48 +15,23 @@
         </div>
         <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" class="login-form-content">
           <el-form-item prop="username">
-            <el-input
-              v-model="loginForm.username"
-              type="text"
-              placeholder="账号"
-              prefix-icon="User"
-              size="large"
-            />
+            <el-input v-model="loginForm.username" type="text" placeholder="账号" prefix-icon="User" size="large" />
           </el-form-item>
           <el-form-item prop="password">
-            <el-input
-              v-model="loginForm.password"
-              type="password"
-              placeholder="密码"
-              prefix-icon="Lock"
-              size="large"
-              show-password
-              @keyup.enter="handleLogin"
-            />
+            <el-input v-model="loginForm.password" type="password" placeholder="密码" prefix-icon="Lock" size="large"
+              show-password @keyup.enter="handleLogin" />
           </el-form-item>
           <el-form-item prop="code">
             <div class="login-code">
-              <el-input
-                v-model="loginForm.code"
-                placeholder="验证码"
-                prefix-icon="Key"
-                size="large"
-                style="width: 60%"
-                @keyup.enter="handleLogin"
-              />
+              <el-input v-model="loginForm.code" placeholder="验证码" prefix-icon="Key" size="large" style="width: 60%"
+                @keyup.enter="handleLogin" />
               <div class="login-code-img" @click="refreshCode">
                 <img :src="codeUrl" alt="验证码" />
               </div>
             </div>
           </el-form-item>
           <el-form-item style="width: 100%">
-            <el-button
-              :loading="loading"
-              type="primary"
-              size="large"
-              style="width: 100%"
-              @click="handleLogin"
-            >
+            <el-button :loading="loading" type="primary" size="large" style="width: 100%" @click="handleLogin">
               登 录
             </el-button>
           </el-form-item>
@@ -71,10 +45,13 @@
 import { reactive, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useUserStore } from '@/store/modules/user';
-import { User, Lock, Key } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
 import type { FormInstance, FormRules } from 'element-plus';
 import { generateCaptcha } from '@/api/captcha';
+
+defineOptions({
+  name: "UserLogin"
+})
 
 const router = useRouter();
 const route = useRoute();
@@ -84,7 +61,7 @@ const loginFormRef = ref<FormInstance>();
 const loginForm = reactive({
   username: 'admin',
   password: '123456',
-  code: ''
+  code: '1234'
 });
 
 const loginRules = reactive<FormRules>({
@@ -232,7 +209,8 @@ const handleLogin = async () => {
         border: 1px solid transparent;
         transition: all 0.3s;
 
-        &:hover, &.is-focus {
+        &:hover,
+        &.is-focus {
           background-color: #fff;
           border-color: #409EFF;
           box-shadow: 0 0 0 1px #409EFF inset;
@@ -284,9 +262,17 @@ const handleLogin = async () => {
 }
 
 @keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-15px); }
-  100% { transform: translateY(0px); }
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-15px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
 }
 
 @media screen and (max-width: 768px) {

@@ -89,7 +89,7 @@ import type { SysMenuDTO } from '@/types/global';
 import MenuForm from './components/MenuForm.vue';
 
 defineOptions({
-  name: "SystemMenuPage"
+  name: "SystemMenu"
 })
 
 const showSearch = ref<boolean>(true);
