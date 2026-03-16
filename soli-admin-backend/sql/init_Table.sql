@@ -1,154 +1,74 @@
--- 角色初始化
-insert into sys_role values (1,'超级管理员','admin',1,'1','0','system',now(),null,null,null);
-insert into sys_role values (2,'系统管理员','manager',2,'1','0','system',now(),null,null,null);
-insert into sys_role values (3,'普通用户','user',3,'1','0','system',now(),null,null,null);
--- 用户初始化
-insert into sys_user values (1,'superadmin','123456','超级管理员','superadmin@test.com','13800000001',null,'0','0',null,null,'0','system',now(),null,null,null);
-insert into sys_user values (2,'admin','123456','系统管理员','admin@test.com','13800000002',null,'1','0',null,null,'0','system',now(),null,null,null);
-insert into sys_user values (3,'user','123456','普通用户','user@test.com','13800000003',null,'1','0',null,null,'0','system',now(),null,null,null);
--- 用户角色关联
-insert into sys_user_role values (1,1);
-insert into sys_user_role values (2,2);
-insert into sys_user_role values (3,3);
--- 菜单初始化（与前端路由一致）
-insert into sys_menu values (900,'仪表盘',0,0,'/dashboard','dashboard/index','1',null,'Odometer','0','system',now(),null,null,null);
-insert into sys_menu values (1000,'系统管理',0,1,'/system',null,'0',null,'Setting','0','system',now(),null,null,null);
-insert into sys_menu values (1001,'用户管理',1000,1,'user','system/user/index','1',null,'User','0','system',now(),null,null,null);
-insert into sys_menu values (1002,'角色管理',1000,2,'role','system/role/index','1',null,'Avatar','0','system',now(),null,null,null);
-insert into sys_menu values (1003,'菜单管理',1000,3,'menu','system/menu/index','1',null,'Menu','0','system',now(),null,null,null);
-insert into sys_menu values (1004,'部门管理',1000,4,'dept','system/dept/index','1',null,'Connection','0','system',now(),null,null,null);
-insert into sys_menu values (1005,'岗位管理',1000,5,'post','system/post/index','1',null,'Position','0','system',now(),null,null,null);
-insert into sys_menu values (1006,'字典管理',1000,6,'dict','system/dict/index','1',null,'Reading','0','system',now(),null,null,null);
-insert into sys_menu values (1007,'选项设置',1000,7,'config','system/config/index','1',null,'Tools','0','system',now(),null,null,null);
-insert into sys_menu values (1008,'日志管理',1000,8,'log',null,'0',null,'Monitor','0','system',now(),null,null,null);
-insert into sys_menu values (1009,'操作日志',1008,1,'operlog','system/monitor/operlog/index','1',null,'Document','0','system',now(),null,null,null);
-insert into sys_menu values (1010,'登录日志',1008,2,'logininfor','system/monitor/logininfor/index','1',null,'Key','0','system',now(),null,null,null);
--- 按钮权限（type=2）
-insert into sys_menu values (1101,'用户查询',1001,1,null,null,'2','sys:user:list',null,'0','system',now(),null,null,null);
-insert into sys_menu values (1102,'用户新增',1001,2,null,null,'2','sys:user:add',null,'0','system',now(),null,null,null);
-insert into sys_menu values (1103,'用户修改',1001,3,null,null,'2','sys:user:update',null,'0','system',now(),null,null,null);
-insert into sys_menu values (1104,'用户删除',1001,4,null,null,'2','sys:user:delete',null,'0','system',now(),null,null,null);
-insert into sys_menu values (1201,'角色查询',1002,1,null,null,'2','sys:role:list',null,'0','system',now(),null,null,null);
-insert into sys_menu values (1202,'角色新增',1002,2,null,null,'2','sys:role:add',null,'0','system',now(),null,null,null);
-insert into sys_menu values (1203,'角色修改',1002,3,null,null,'2','sys:role:update',null,'0','system',now(),null,null,null);
-insert into sys_menu values (1204,'角色删除',1002,4,null,null,'2','sys:role:delete',null,'0','system',now(),null,null,null);
-insert into sys_menu values (1301,'菜单查询',1003,1,null,null,'2','sys:menu:list',null,'0','system',now(),null,null,null);
-insert into sys_menu values (1302,'菜单新增',1003,2,null,null,'2','sys:menu:add',null,'0','system',now(),null,null,null);
-insert into sys_menu values (1303,'菜单修改',1003,3,null,null,'2','sys:menu:update',null,'0','system',now(),null,null,null);
-insert into sys_menu values (1304,'菜单删除',1003,4,null,null,'2','sys:menu:delete',null,'0','system',now(),null,null,null);
-insert into sys_menu values (2001,'部门查询',1004,1,null,null,'2','sys:dept:list',null,'0','system',now(),null,null,null);
-insert into sys_menu values (2002,'部门新增',1004,2,null,null,'2','sys:dept:add',null,'0','system',now(),null,null,null);
-insert into sys_menu values (2003,'部门修改',1004,3,null,null,'2','sys:dept:update',null,'0','system',now(),null,null,null);
-insert into sys_menu values (2004,'部门删除',1004,4,null,null,'2','sys:dept:delete',null,'0','system',now(),null,null,null);
-insert into sys_menu values (2011,'岗位查询',1005,1,null,null,'2','sys:post:list',null,'0','system',now(),null,null,null);
-insert into sys_menu values (2012,'岗位新增',1005,2,null,null,'2','sys:post:add',null,'0','system',now(),null,null,null);
-insert into sys_menu values (2013,'岗位修改',1005,3,null,null,'2','sys:post:update',null,'0','system',now(),null,null,null);
-insert into sys_menu values (2014,'岗位删除',1005,4,null,null,'2','sys:post:delete',null,'0','system',now(),null,null,null);
-insert into sys_menu values (2021,'字典查询',1006,1,null,null,'2','sys:dict:list',null,'0','system',now(),null,null,null);
-insert into sys_menu values (2022,'字典新增',1006,2,null,null,'2','sys:dict:add',null,'0','system',now(),null,null,null);
-insert into sys_menu values (2023,'字典修改',1006,3,null,null,'2','sys:dict:update',null,'0','system',now(),null,null,null);
-insert into sys_menu values (2024,'字典删除',1006,4,null,null,'2','sys:dict:delete',null,'0','system',now(),null,null,null);
-insert into sys_menu values (2031,'参数查询',1007,1,null,null,'2','sys:config:list',null,'0','system',now(),null,null,null);
-insert into sys_menu values (2032,'参数新增',1007,2,null,null,'2','sys:config:add',null,'0','system',now(),null,null,null);
-insert into sys_menu values (2033,'参数修改',1007,3,null,null,'2','sys:config:update',null,'0','system',now(),null,null,null);
-insert into sys_menu values (2034,'参数删除',1007,4,null,null,'2','sys:config:delete',null,'0','system',now(),null,null,null);
-insert into sys_menu values (2041,'操作日志查询',1009,1,null,null,'2','sys:operlog:list',null,'0','system',now(),null,null,null);
-insert into sys_menu values (2042,'操作日志查看',1009,2,null,null,'2','sys:operlog:view',null,'0','system',now(),null,null,null);
-insert into sys_menu values (2043,'操作日志删除',1009,3,null,null,'2','sys:operlog:delete',null,'0','system',now(),null,null,null);
-insert into sys_menu values (2051,'登录日志查询',1010,1,null,null,'2','sys:logininfor:list',null,'0','system',now(),null,null,null);
-insert into sys_menu values (2052,'登录日志删除',1010,2,null,null,'2','sys:logininfor:delete',null,'0','system',now(),null,null,null);
--- 角色权限分配
--- 超级管理员（角色ID=1）拥有全部菜单和按钮
-insert into sys_role_menu values (1,900);
-insert into sys_role_menu values (1,1000);
-insert into sys_role_menu values (1,1001);
-insert into sys_role_menu values (1,1002);
-insert into sys_role_menu values (1,1003);
-insert into sys_role_menu values (1,1004);
-insert into sys_role_menu values (1,1005);
-insert into sys_role_menu values (1,1006);
-insert into sys_role_menu values (1,1007);
-insert into sys_role_menu values (1,1008);
-insert into sys_role_menu values (1,1009);
-insert into sys_role_menu values (1,1010);
-insert into sys_role_menu values (1,1101);
-insert into sys_role_menu values (1,1102);
-insert into sys_role_menu values (1,1103);
-insert into sys_role_menu values (1,1104);
-insert into sys_role_menu values (1,1201);
-insert into sys_role_menu values (1,1202);
-insert into sys_role_menu values (1,1203);
-insert into sys_role_menu values (1,1204);
-insert into sys_role_menu values (1,1301);
-insert into sys_role_menu values (1,1302);
-insert into sys_role_menu values (1,1303);
-insert into sys_role_menu values (1,1304);
-insert into sys_role_menu values (1,2001);
-insert into sys_role_menu values (1,2002);
-insert into sys_role_menu values (1,2003);
-insert into sys_role_menu values (1,2004);
-insert into sys_role_menu values (1,2011);
-insert into sys_role_menu values (1,2012);
-insert into sys_role_menu values (1,2013);
-insert into sys_role_menu values (1,2014);
-insert into sys_role_menu values (1,2021);
-insert into sys_role_menu values (1,2022);
-insert into sys_role_menu values (1,2023);
-insert into sys_role_menu values (1,2024);
-insert into sys_role_menu values (1,2031);
-insert into sys_role_menu values (1,2032);
-insert into sys_role_menu values (1,2033);
-insert into sys_role_menu values (1,2034);
-insert into sys_role_menu values (1,2041);
-insert into sys_role_menu values (1,2042);
-insert into sys_role_menu values (1,2043);
-insert into sys_role_menu values (1,2051);
-insert into sys_role_menu values (1,2052);
--- 管理员（角色ID=2）拥有除菜单管理外的全部权限
-insert into sys_role_menu values (2,900);
-insert into sys_role_menu values (2,1000);
-insert into sys_role_menu values (2,1001);
-insert into sys_role_menu values (2,1002);
-insert into sys_role_menu values (2,1004);
-insert into sys_role_menu values (2,1005);
-insert into sys_role_menu values (2,1006);
-insert into sys_role_menu values (2,1007);
-insert into sys_role_menu values (2,1008);
-insert into sys_role_menu values (2,1009);
-insert into sys_role_menu values (2,1010);
-insert into sys_role_menu values (2,1101);
-insert into sys_role_menu values (2,1102);
-insert into sys_role_menu values (2,1103);
-insert into sys_role_menu values (2,1104);
-insert into sys_role_menu values (2,1201);
-insert into sys_role_menu values (2,1202);
-insert into sys_role_menu values (2,1203);
-insert into sys_role_menu values (2,1204);
-insert into sys_role_menu values (2,2001);
-insert into sys_role_menu values (2,2002);
-insert into sys_role_menu values (2,2003);
-insert into sys_role_menu values (2,2004);
-insert into sys_role_menu values (2,2011);
-insert into sys_role_menu values (2,2012);
-insert into sys_role_menu values (2,2013);
-insert into sys_role_menu values (2,2014);
-insert into sys_role_menu values (2,2021);
-insert into sys_role_menu values (2,2022);
-insert into sys_role_menu values (2,2023);
-insert into sys_role_menu values (2,2024);
-insert into sys_role_menu values (2,2031);
-insert into sys_role_menu values (2,2032);
-insert into sys_role_menu values (2,2033);
-insert into sys_role_menu values (2,2034);
-insert into sys_role_menu values (2,2041);
-insert into sys_role_menu values (2,2042);
-insert into sys_role_menu values (2,2043);
-insert into sys_role_menu values (2,2051);
-insert into sys_role_menu values (2,2052);
--- 普通用户（角色ID=3）仅拥有用户管理权限
-insert into sys_role_menu values (3,1000);
-insert into sys_role_menu values (3,1001);
-insert into sys_role_menu values (3,1101);
-insert into sys_role_menu values (3,1102);
-insert into sys_role_menu values (3,1103);
-insert into sys_role_menu values (3,1104);
+-- 系统用户表
+drop table if exists sys_user;
+create table sys_user (
+    id             bigint(20)        not null                 comment '用户id',
+    username       varchar(32)       not null                 comment '用户名',
+    password       varchar(100)      not null                 comment '用户密码',
+    nickname       varchar(32)       default null             comment '用户昵称',
+    email          varchar(50)       default null             comment '用户邮箱',
+    phone          varchar(11)       default null             comment '用户手机',
+    avatar         varchar(100)      default null             comment '用户头像',
+    type           char(1)           default '1' not null     comment '用户类型（0超管-拥有所有权限 1普通用户）',
+    sex            char(1)           default '0' not null     comment '用户性别（0男 1女）',
+    login_ip       varchar(128)      default null             comment '最后登录ip',
+    login_time     datetime          default null             comment '最后登录时间',
+    status         char(1)           default '0' not null     comment '用户状态（0正常 1停用）',
+    create_by      varchar(32)       default null             comment '创建者',
+    create_time    datetime          default null             comment '创建时间',
+    update_by      varchar(32)       default null             comment '更新者',
+    update_time    datetime          default null             comment '更新时间',
+    note           varchar(500)      default null             comment '备注',
+    primary key (id)
+) engine=innodb comment '系统用户表';
+
+-- 系统用户角色表
+drop table if exists sys_role;
+create table sys_role (
+    id             bigint(20)        not null                 comment '角色ID',
+    name           varchar(30)       not null                 comment '角色名称',
+    code           varchar(100)      not null                 comment '角色权限字符串',
+    sort           int(4)            default 1 not null       comment '显示顺序',
+    data_scope     char(1)           default '1' not null     comment '数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）',
+    status         char(1)           default 0 not null       comment '角色状态（0正常 1停用）',
+    create_by      varchar(32)       default null             comment '创建者',
+    create_time    datetime          default null             comment '创建时间',
+    update_by      varchar(32)       default null             comment '更新者',
+    update_time    datetime          default null             comment '更新时间',
+    note           varchar(500)      default null             comment '备注',
+    primary key (id)
+) engine=innodb comment = '系统角色表';
+
+-- 系统用户角色关联表
+drop table if exists sys_user_role;
+create table sys_user_role (
+    user_id        bigint(20)        not null                 comment '用户ID',
+    role_id        bigint(20)        not null                 comment '角色ID',
+    primary key(user_id, role_id)
+) engine=innodb comment = '系统用户角色关联表';
+
+drop table if exists sys_menu;
+create table sys_menu (
+  id             bigint(20)        not null                 comment '菜单ID',
+  name           varchar(50)       not null                 comment '菜单名称',
+  parent_id      bigint(20)        default 0                comment '父菜单ID',
+  sort           int(4)            default 0                comment '显示顺序',
+  path           varchar(200)      default ''               comment '路由地址',
+  component      varchar(255)      default null             comment '组件路径',
+  type           char(1)           default ''               comment '菜单类型（0目录 1菜单 2按钮）',
+  perms          varchar(100)      default null             comment '权限标识',
+  icon           varchar(100)      default '#'              comment '菜单图标',
+  status         char(1)           default 0 not null       comment '菜单状态（0正常 1停用）',
+  create_by      varchar(32)       default null             comment '创建者',
+  create_time    datetime          default null             comment '创建时间',
+  update_by      varchar(32)       default null             comment '更新者',
+  update_time    datetime          default null             comment '更新时间',
+  note           varchar(500)      default null             comment '备注',
+  primary key (id)
+) engine=innodb auto_increment=2000 comment = '菜单权限表';
+
+drop table if exists sys_role_menu;
+create table sys_role_menu (
+  role_id   bigint(20) not null comment '角色ID',
+  menu_id   bigint(20) not null comment '菜单ID',
+  primary key(role_id, menu_id)
+) engine=innodb comment = '角色和菜单关联表';
