@@ -2,24 +2,24 @@
 import request from './request';
 import type { ApiResponse, UserInfo } from '@/types/global';
 
-export function loginUsingUsername(data: { username: string; password: string }) {
+export function loginUsingUsername(data: { username: string; password: string; code?: string; captchaUUID?: string }) {
   return request<ApiResponse<{ accessToken: string; refreshToken: string }>>({
-    url: '/auth/login-using-username',
+    data,
     method: 'post',
-    data
+    url: '/auth/login-using-username'
   });
 }
 
 export function getUserInfo() {
   return request<ApiResponse<UserInfo>>({
-    url: '/user/info',
-    method: 'get'
+    method: 'get',
+    url: '/user/info'
   });
 }
 
 export function logout() {
   return request<ApiResponse>({
-    url: '/user/logout',
-    method: 'post'
+    method: 'post',
+    url: '/user/logout'
   });
 }

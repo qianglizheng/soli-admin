@@ -74,6 +74,7 @@ import { useUserStore } from '@/store/modules/user';
 import { User, Lock, Key } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
 import type { FormInstance, FormRules } from 'element-plus';
+import { generateCaptcha } from '@/api/captcha';
 
 const router = useRouter();
 const route = useRoute();
@@ -82,7 +83,7 @@ const loginFormRef = ref<FormInstance>();
 
 const loginForm = reactive({
   username: 'admin',
-  password: '123',
+  password: '123456',
   code: ''
 });
 
@@ -94,30 +95,19 @@ const loginRules = reactive<FormRules>({
 
 const loading = ref(false);
 const codeUrl = ref('');
+const captchaUUID = ref('');
 
-// Mock captcha generation
-const generateCode = () => {
-  // Use a placeholder image service for demo purposes, or generate a random color block/text if backend is not available
-  // Here we use a simple SVG placeholder with random text for demo
-  const randomNum = Math.floor(Math.random() * 9000 + 1000);
-  const svg = `
-    <svg width="100" height="38" xmlns="http://www.w3.org/2000/svg">
-      <rect width="100%" height="100%" fill="#f2f6fc"/>
-      <text x="50%" y="50%" font-family="Arial" font-size="20" fill="#409EFF" dominant-baseline="middle" text-anchor="middle" font-weight="bold" font-style="italic">${randomNum}</text>
-    </svg>
-  `;
-  const blob = new Blob([svg], { type: 'image/svg+xml' });
-  codeUrl.value = URL.createObjectURL(blob);
-
-  // In a real app, you would fetch this from your API
-  // e.g. getCodeImg().then(res => { codeUrl.value = res.img; ... })
+const generateCode = async () => {
+  const res = await generateCaptcha({ type: 'IMAGE', scene: 'LOGIN' });
+  const img = res.data.base64CaptchaImage;
+  captchaUUID.value = res.data.captchaUUID;
+  codeUrl.value = `data:image/png;base64,${img}`;
 };
 
 const refreshCode = () => {
   generateCode();
 };
 
-// Initialize code
 generateCode();
 
 const handleLogin = async () => {
@@ -127,7 +117,7 @@ const handleLogin = async () => {
     if (valid) {
       loading.value = true;
       try {
-        await userStore.login(loginForm);
+        await userStore.login({ ...loginForm, captchaUUID: captchaUUID.value });
         const redirect = route.query.redirect as string;
         ElMessage.success('登录成功');
         router.push(redirect || '/');
@@ -262,11 +252,14 @@ const handleLogin = async () => {
         border-radius: 4px;
         cursor: pointer;
         overflow: hidden;
+        background-color: #f5f7fa;
+        box-shadow: 0 0 0 1px rgba(64, 158, 255, 0.08) inset;
 
         img {
           width: 100%;
           height: 100%;
           object-fit: cover;
+          image-rendering: -webkit-optimize-contrast;
         }
       }
     }

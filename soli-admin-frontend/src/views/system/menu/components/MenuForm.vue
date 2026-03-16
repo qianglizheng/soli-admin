@@ -73,32 +73,32 @@ const visible = computed({
 
 const formRef = ref();
 const form = reactive<Partial<SysMenuDTO>>({
+  component: '',
+  icon: '',
   name: '',
   parentId: 0,
-  sort: '',
   path: '',
-  component: '',
-  type: '1',
   perms: '',
-  icon: '',
-  status: '0'
+  sort: '',
+  status: '0',
+  type: '1'
 });
 
 const rules = {
-  name: [{ required: true, message: '请输入菜单名称', trigger: 'blur' }],
-  type: [{ required: true, message: '请选择类型', trigger: 'change' }],
-  status: [{ required: true, message: '请选择状态', trigger: 'change' }]
+  name: [{ message: '请输入菜单名称', required: true, trigger: 'blur' }],
+  status: [{ message: '请选择状态', required: true, trigger: 'change' }],
+  type: [{ message: '请选择类型', required: true, trigger: 'change' }]
 } as any;
 
 const treeSelectProps = {
-  value: 'id',
-  label: 'name',
   children: 'children',
-  disabled: 'disabled'
+  disabled: 'disabled',
+  label: 'name',
+  value: 'id'
 };
 
 const filterByType = (nodes: SysMenuDTO[] | undefined): SysMenuDTO[] => {
-  if (!nodes) return [];
+  if (!nodes) {return [];}
   const res: SysMenuDTO[] = [];
   for (const n of nodes) {
     if (n.type !== '2') {
@@ -112,11 +112,11 @@ const filterByType = (nodes: SysMenuDTO[] | undefined): SysMenuDTO[] => {
 };
 
 const markDisabled = (nodes: SysMenuDTO[] | undefined, currentId?: number): any[] => {
-  if (!nodes) return [];
+  if (!nodes) {return [];}
   return nodes.map(n => ({
     ...n,
-    disabled: currentId !== undefined && n.id === currentId,
-    children: markDisabled(n.children, currentId)
+    children: markDisabled(n.children, currentId),
+    disabled: currentId !== undefined && n.id === currentId
   }));
 };
 
@@ -124,9 +124,9 @@ const treeOptions = computed(() => {
   const filtered = filterByType(props.treeData);
   const children = markDisabled(filtered, props.currentId);
   return [{
+    children,
     id: 0,
-    name: '顶级菜单',
-    children
+    name: '顶级菜单'
   } as any];
 });
 

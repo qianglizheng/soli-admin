@@ -82,9 +82,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, nextTick, onMounted } from 'vue';
+import { nextTick, onMounted, reactive, ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { getMenuTree, addMenu, updateMenu, deleteMenu } from '@/api/menu';
+import { addMenu, deleteMenu, getMenuTree, updateMenu } from '@/api/menu';
 import type { SysMenuDTO } from '@/types/global';
 import MenuForm from './components/MenuForm.vue';
 
@@ -152,8 +152,8 @@ const handleUpdate = (row: SysMenuDTO) => {
 
 const handleDelete = (row: SysMenuDTO) => {
   ElMessageBox.confirm(`是否确认删除名称为"${row.name}"的数据项?`, "警告", {
-    confirmButtonText: "确定",
     cancelButtonText: "取消",
+    confirmButtonText: "确定",
     type: "warning"
   }).then(() => {
     if (row.id) {

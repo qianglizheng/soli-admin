@@ -1,6 +1,7 @@
 
 import router from './index';
 import { useUserStore } from '@/store/modules/user';
+import { usePermissionStore } from '@/store/modules/permission';
 import { getToken } from '@/utils/auth';
 import { ElMessage } from 'element-plus';
 import NProgress from 'nprogress';
@@ -26,6 +27,8 @@ router.beforeEach(async (to, from, next) => {
       } else {
         try {
           await userStore.getInfo();
+          const permissionStore = usePermissionStore();
+          await permissionStore.loadRoutes();
           next({ ...to, replace: true });
         } catch (error) {
           await userStore.logout();

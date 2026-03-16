@@ -29,6 +29,7 @@ import SidebarItem from './SidebarItem.vue';
 import path from 'path-browserify';
 import logoMini from '@/assets/logo-mini.svg';
 import logoFull from '@/assets/logo-full.svg';
+import { usePermissionStore } from '@/store/modules/permission';
 
 const router = useRouter();
 const appStore = useAppStore();
@@ -36,13 +37,15 @@ const appStore = useAppStore();
 const isCollapse = computed(() => !appStore.sidebar.opened);
 const showLogo = true;
 
-// Get routes from router options for now (in real app use permission store)
+const permissionStore = usePermissionStore();
+
+// Use dynamic routes from permission store
 const menuRoutes = computed(() => {
-  const routes = router.options.routes;
-  const constantRoutes = routes.filter(r => !r.meta?.hidden);
+  const routes = permissionStore.routes as any[];
+  const constantRoutes = routes.filter((r: any) => !r.meta?.hidden);
 
   // Process routes to lift Dashboard children if needed
-  return constantRoutes.map(route => {
+  return constantRoutes.map((route: any) => {
     // Special handling for Dashboard: if it has children but we want to show it as root
     if (route.path === '/' && route.children && route.children.length === 1 && route.children[0]?.path === 'dashboard') {
       const dashboardChild = route.children[0];

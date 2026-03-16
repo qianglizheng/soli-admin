@@ -2,10 +2,11 @@ package com.soli.auth.core.config;
 
 import java.util.Properties;
 
-import com.google.code.kaptcha.impl.DefaultKaptcha;
-import com.google.code.kaptcha.util.Config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import com.google.code.kaptcha.impl.DefaultKaptcha;
+import com.google.code.kaptcha.util.Config;
 
 
 /**
@@ -24,7 +25,7 @@ public class KaptchaConfig {
         properties.setProperty("kaptcha.border", "no");
 
         // 字体颜色
-        properties.setProperty("kaptcha.textproducer.font.color", "black");
+        properties.setProperty("kaptcha.textproducer.font.color", "blue");
 
         // 图片宽度
         properties.setProperty("kaptcha.image.width", "120");

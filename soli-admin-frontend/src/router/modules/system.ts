@@ -2,72 +2,72 @@
 import Layout from '@/layout/index.vue';
 
 export default {
-  path: '/system',
-  component: Layout,
-  redirect: '/system/user',
-  name: 'System',
-  meta: { title: '系统管理', icon: 'Tools' },
   children: [
     {
-      path: 'user',
-      name: 'User',
       component: () => import('@/views/system/user/index.vue'),
-      meta: { title: '用户管理', icon: 'User' }
+      meta: { icon: 'User', title: '用户管理' },
+      name: 'User',
+      path: 'user'
     },
     {
-      path: 'role',
-      name: 'Role',
       component: () => import('@/views/system/role/index.vue'),
-      meta: { title: '角色管理', icon: 'Avatar' }
+      meta: { icon: 'Avatar', title: '角色管理' },
+      name: 'Role',
+      path: 'role'
     },
     {
-      path: 'menu',
-      name: 'Menu',
       component: () => import('@/views/system/menu/index.vue'),
-      meta: { title: '菜单管理', icon: 'Menu' }
+      meta: { icon: 'Menu', title: '菜单管理' },
+      name: 'Menu',
+      path: 'menu'
     },
     {
-      path: 'dept',
-      name: 'Dept',
       component: () => import('@/views/system/dept/index.vue'),
-      meta: { title: '部门管理', icon: 'Connection' }
+      meta: { icon: 'Connection', title: '部门管理' },
+      name: 'Dept',
+      path: 'dept'
     },
     {
-      path: 'post',
-      name: 'Post',
       component: () => import('@/views/system/post/index.vue'),
-      meta: { title: '岗位管理', icon: 'Position' }
+      meta: { icon: 'Position', title: '岗位管理' },
+      name: 'Post',
+      path: 'post'
     },
     {
-      path: 'dict',
-      name: 'Dict',
       component: () => import('@/views/system/dict/index.vue'),
-      meta: { title: '字典管理', icon: 'Reading' }
+      meta: { icon: 'Reading', title: '字典管理' },
+      name: 'Dict',
+      path: 'dict'
     },
     {
-      path: 'config',
-      name: 'Config',
       component: () => import('@/views/system/config/index.vue'),
-      meta: { title: '选项设置', icon: 'Tools' }
+      meta: { icon: 'Tools', title: '选项设置' },
+      name: 'Config',
+      path: 'config'
     },
     {
-      path: 'log',
-      name: 'Log',
-      meta: { title: '日志管理', icon: 'Monitor' },
       children: [
         {
-          path: 'operlog',
-          name: 'Operlog',
           component: () => import('@/views/system/monitor/operlog/index.vue'),
-          meta: { title: '操作日志', icon: 'Document' }
+          meta: { icon: 'Document', title: '操作日志' },
+          name: 'Operlog',
+          path: 'operlog'
         },
         {
-          path: 'logininfor',
-          name: 'Logininfor',
           component: () => import('@/views/system/monitor/logininfor/index.vue'),
-          meta: { title: '登录日志', icon: 'Key' }
+          meta: { icon: 'Key', title: '登录日志' },
+          name: 'Logininfor',
+          path: 'logininfor'
         }
-      ]
+      ],
+      meta: { icon: 'Monitor', title: '日志管理' },
+      name: 'Log',
+      path: 'log'
     }
-  ]
+  ],
+  component: Layout,
+  meta: { icon: 'Tools', title: '系统管理' },
+  name: 'System',
+  path: '/system',
+  redirect: '/system/user'
 };

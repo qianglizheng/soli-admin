@@ -8,31 +8,31 @@ export interface MenuQueryParams {
 
 export function getMenuTree(params?: MenuQueryParams) {
   return request<ApiResponse<SysMenuDTO[]>>({
-    url: '/sys/menu/tree',
     method: 'get',
-    params
+    params,
+    url: '/sys/menu/tree'
   });
 }
 
 export function addMenu(data: Partial<SysMenuDTO>) {
   return request<ApiResponse<void>>({
-    url: '/sys/menu',
+    data,
     method: 'post',
-    data
+    url: '/sys/menu'
   });
 }
 
 export function updateMenu(data: Partial<SysMenuDTO>) {
   return request<ApiResponse<void>>({
-    url: `/sys/menu`,
+    data,
     method: 'put',
-    data
+    url: `/sys/menu`
   });
 }
 
 export function deleteMenu(id: number) {
   return request<ApiResponse<void>>({
-    url: `/sys/menu/${id}`,
-    method: 'delete'
+    method: 'delete',
+    url: `/sys/menu/${id}`
   });
 }
