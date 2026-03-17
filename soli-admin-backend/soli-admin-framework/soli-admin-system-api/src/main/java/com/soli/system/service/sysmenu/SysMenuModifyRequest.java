@@ -9,7 +9,7 @@ import lombok.Setter;
 */
 @Getter
 @Setter
-public class SysMenuUpdateRequest {
+public class SysMenuModifyRequest {
 
     /** 菜单 Id */
     private Long id;

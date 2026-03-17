@@ -2,11 +2,11 @@ package com.soli.system.core.service.impl.sysmenu;
 
 import java.util.List;
 
+import com.soli.system.service.sysmenu.SysMenuModifyRequest;
 import org.mapstruct.Mapper;
 
 import com.soli.system.service.sysmenu.SysMenuCreateRequest;
 import com.soli.system.service.sysmenu.SysMenuDTO;
-import com.soli.system.service.sysmenu.SysMenuUpdateRequest;
 
 /**
  * @author lizhengqiang
@@ -19,7 +19,7 @@ public interface SysMenuConverter {
 
     SysMenuDTO toDTO(SysMenuCreateRequest createRequest);
 
-    SysMenuDTO toDTO(SysMenuUpdateRequest updateRequest);
+    SysMenuDTO toDTO(SysMenuModifyRequest updateRequest);
 
     SysMenuEntity toEntity(SysMenuDTO dto);
 

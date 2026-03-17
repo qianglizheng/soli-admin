@@ -18,12 +18,11 @@ import com.soli.system.core.service.impl.sysmenu.SysMenuConverter;
 import com.soli.system.service.sysmenu.SysMenuCreateRequest;
 import com.soli.system.service.sysmenu.SysMenuDTO;
 import com.soli.system.service.sysmenu.SysMenuService;
-import com.soli.system.service.sysmenu.SysMenuUpdateRequest;
+import com.soli.system.service.sysmenu.SysMenuModifyRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
 
 /**
  * @author lizhengqiang
@@ -54,7 +53,7 @@ public class SysMenuController {
 
     @Operation(summary = "修改菜单")
     @PutMapping
-    public void modify(@RequestBody SysMenuUpdateRequest updateRequest) {
+    public void modify(@RequestBody SysMenuModifyRequest updateRequest) {
         sysMenuService.modify(sysMenuConverter.toDTO(updateRequest));
     }
 

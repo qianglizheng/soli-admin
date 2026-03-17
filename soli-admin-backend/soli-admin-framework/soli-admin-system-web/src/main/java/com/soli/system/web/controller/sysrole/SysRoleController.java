@@ -2,14 +2,12 @@ package com.soli.system.web.controller.sysrole;
 
 import com.soli.common.api.vo.PageResult;
 import com.soli.common.api.vo.Result;
-import com.soli.system.service.sysrole.SysRoleDTO;
-import com.soli.system.service.sysrole.SysRoleQuery;
+import com.soli.system.core.service.impl.sysrole.SysRoleConverter;
+import com.soli.system.service.sysrole.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import com.soli.system.service.sysrole.SysRoleService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -27,10 +25,12 @@ public class SysRoleController {
 
     private final SysRoleService sysRoleService;
 
+    private final SysRoleConverter sysRoleConverter;
+
     @Operation(summary = "新增角色")
     @PostMapping
-    public void create(@RequestBody SysRoleDTO dto) {
-        sysRoleService.create(dto);
+    public void create(@RequestBody SysRoleCreateRequest createRequest) {
+        sysRoleService.create(sysRoleConverter.toDTO(createRequest));
     }
 
     @Operation(summary = "查询角色详情")
@@ -47,8 +47,8 @@ public class SysRoleController {
 
     @Operation(summary = "修改角色")
     @PutMapping("/{id}")
-    public void modify(@PathVariable Long id, @RequestBody SysRoleDTO dto) {
-        sysRoleService.modify(id, dto);
+    public void modify(@PathVariable Long id, @RequestBody SysRoleModifyRequest modifyRequest) {
+        sysRoleService.modify(id, sysRoleConverter.toDTO(modifyRequest));
     }
 
     @Operation(summary = "删除角色")
@@ -56,4 +56,5 @@ public class SysRoleController {
     public void remove(@PathVariable Long id) {
         sysRoleService.remove(id);
     }
+
 }
