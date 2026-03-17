@@ -1,12 +1,8 @@
-package com.soli.system.core.service.impl.sysmenu;
+package com.soli.system.service.sysmenu;
 
 import java.util.List;
 
-import com.soli.system.service.sysmenu.SysMenuModifyRequest;
 import org.mapstruct.Mapper;
-
-import com.soli.system.service.sysmenu.SysMenuCreateRequest;
-import com.soli.system.service.sysmenu.SysMenuDTO;
 
 /**
  * @author lizhengqiang

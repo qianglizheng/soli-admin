@@ -1,5 +1,6 @@
 package com.soli.system.core.service.impl.sysuser;
 
+import com.soli.system.service.sysuser.SysUserConverter;
 import org.springframework.stereotype.Service;
 
 import com.soli.system.core.mapper.SysUserMapper;

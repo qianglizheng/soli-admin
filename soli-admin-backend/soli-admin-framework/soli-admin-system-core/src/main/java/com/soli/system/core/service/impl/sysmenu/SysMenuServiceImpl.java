@@ -3,6 +3,7 @@ package com.soli.system.core.service.impl.sysmenu;
 import java.util.List;
 import java.util.Set;
 
+import com.soli.system.service.sysmenu.SysMenuConverter;
 import org.springframework.stereotype.Service;
 
 import com.github.yitter.idgen.YitIdHelper;
