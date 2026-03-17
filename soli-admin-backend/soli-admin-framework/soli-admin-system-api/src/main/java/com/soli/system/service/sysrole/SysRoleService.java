@@ -1,5 +1,8 @@
 package com.soli.system.service.sysrole;
 
+import com.soli.common.api.vo.PageResult;
+import com.soli.common.api.vo.Result;
+
 import java.util.List;
 
 /**
@@ -25,4 +28,43 @@ public interface SysRoleService {
      */
     List<SysRoleDTO> getByUserId(Long userId);
 
+    /**
+     * 创建角色
+     *
+     * @param dto 角色信息
+     * @return 影响的行数
+     */
+    int create(SysRoleDTO dto);
+
+    /**
+     * 根据角色 Id 获取角色信息
+     *
+     * @param id 角色 Id
+     * @return 角色信息
+     */
+    SysRoleDTO getById(Long id);
+
+    /**
+     * 修改角色
+     *
+     * @param dto 角色信息
+     * @return 影响的行数
+     */
+    int modify(Long id, SysRoleDTO dto);
+
+    /**
+     * 删除角色
+     *
+     * @param id 角色 Id
+     * @return 影响的行数
+     */
+    int remove(Long id);
+
+    /**
+     * 分页查询角色
+     *
+     * @param query 查询参数
+     * @return 分页角色信息
+     */
+    PageResult<SysRoleDTO> page(SysRoleQuery query);
 }

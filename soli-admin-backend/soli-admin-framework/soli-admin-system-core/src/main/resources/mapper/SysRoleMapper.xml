@@ -30,8 +30,7 @@
         select <include refid="Base_Column_List"/> from sys_role r inner join sys_user_role ur on r.id = ur.role_id where ur.user_id = #{userId}
     </select>
 
-    <!-- 根据用户名查询 -->
-    <select id="selectAll" resultMap="SysRoleResultMap">
+    <select id="select" resultMap="SysRoleResultMap">
         select <include refid="Base_Column_List"/> from sys_role
     </select>
 

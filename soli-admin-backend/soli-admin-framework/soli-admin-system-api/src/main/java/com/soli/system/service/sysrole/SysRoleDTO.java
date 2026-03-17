@@ -23,7 +23,7 @@ public class SysRoleDTO extends BaseDTO {
     private String sort;
 
     /** 数据限制范围 */
-    private String data_scope;
+    private String dataScope;
 
     /** 角色状态 */
     private String status;

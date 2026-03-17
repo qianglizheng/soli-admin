@@ -2,6 +2,8 @@ package com.soli.system.web.controller.sysmenu;
 
 import java.util.List;
 
+import com.soli.common.api.vo.Result;
+import lombok.AllArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,7 +32,7 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "菜单管理", description = "菜单管理相关接口")
 @RestController
 @RequestMapping("/sys/menu")
-@RequiredArgsConstructor
+@AllArgsConstructor
 @SecurityRequirement(name = "Authorization")
 public class SysMenuController {
 
@@ -40,8 +42,8 @@ public class SysMenuController {
 
     @Operation(summary = "获取树形菜单")
     @GetMapping("tree")
-    public List<SysMenuDTO> getTreeList(@AuthenticationPrincipal Long userId) {
-        return sysMenuService.queryTreeList(userId);
+    public Result<List<SysMenuDTO>> getTreeList(@AuthenticationPrincipal Long userId) {
+        return Result.success(sysMenuService.queryTreeList(userId));
     }
 
     @Operation(summary = "新增菜单")

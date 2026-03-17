@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.soli.auth.api.dto.BaseCaptchaDTO;
 import com.soli.auth.api.service.CaptchaService;
-import com.soli.common.api.vo.ApiResponse;
+import com.soli.common.api.vo.Result;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,13 +25,13 @@ public class CaptchaController {
 
     @PostMapping
     @Operation(summary = "获取验证码")
-    public ApiResponse<BaseCaptchaDTO> generate(@RequestBody CaptchaGenerateRequest request) {
+    public Result<BaseCaptchaDTO> generate(@RequestBody CaptchaGenerateRequest request) {
         CaptchaService captchaService = captchaServices.stream()
                 .filter(service -> service.type() == request.getType())
                 .findFirst()
                 .orElseThrow();
         BaseCaptchaDTO dto = captchaService.generateCaptcha(request.getScene(), request.getTarget());
-        return ApiResponse.success(dto);
+        return Result.success(dto);
     }
 
 }

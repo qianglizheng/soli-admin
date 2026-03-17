@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.soli.auth.api.dto.TokenDTO;
 import com.soli.auth.api.dto.UsernamePasswordLoginDTO;
 import com.soli.auth.api.service.AuthService;
-import com.soli.common.api.vo.ApiResponse;
+import com.soli.common.api.vo.Result;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,9 +30,9 @@ public class AuthController {
 
     @Operation(summary = "用户名密码登录")
     @PostMapping("/login-using-username")
-    public ApiResponse<TokenDTO> login(@RequestBody UsernamePasswordLoginDTO userInfo) {
+    public Result<TokenDTO> login(@RequestBody UsernamePasswordLoginDTO userInfo) {
         TokenDTO token = authService.loginByUsernameAndPassword(userInfo);
-        return ApiResponse.success(token);
+        return Result.success(token);
     }
 
 }

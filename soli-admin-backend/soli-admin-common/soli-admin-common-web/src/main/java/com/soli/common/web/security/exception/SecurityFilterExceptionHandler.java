@@ -8,7 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.soli.common.api.exception.BusinessException;
-import com.soli.common.api.vo.ApiResponse;
+import com.soli.common.api.vo.Result;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -30,10 +30,12 @@ public class SecurityFilterExceptionHandler extends OncePerRequestFilter {
         try {
             filterChain.doFilter(request, response);
         } catch (BusinessException e) {
+            e.printStackTrace();
             ObjectMapper mapper = new ObjectMapper();
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.setCharacterEncoding("UTF-8");
             PrintWriter writer = response.getWriter();
-            writer.write(mapper.writeValueAsString(ApiResponse.fail(e.getMessage())));
+            writer.write(mapper.writeValueAsString(Result.fail(e.getMessage())));
             writer.flush();
             writer.close();
         }
