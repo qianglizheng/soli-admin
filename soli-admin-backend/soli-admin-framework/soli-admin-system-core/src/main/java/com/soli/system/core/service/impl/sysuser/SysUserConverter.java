@@ -7,6 +7,8 @@ import org.mapstruct.Mapper;
 import com.soli.system.service.sysuser.SysUserDTO;
 
 /**
+ * 用户对象转换器
+ *
  * @author lizhengqiang
  * @since 2026-03-08 21:06
  */

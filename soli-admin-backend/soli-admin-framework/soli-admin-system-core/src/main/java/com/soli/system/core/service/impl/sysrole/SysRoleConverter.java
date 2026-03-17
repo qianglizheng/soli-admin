@@ -9,6 +9,8 @@ import org.mapstruct.Mapper;
 import com.soli.system.service.sysrole.SysRoleDTO;
 
 /**
+ * 角色对象转换器
+ *
  * @author lizhengqiang
  * @since 2026-03-14 16:00
  */

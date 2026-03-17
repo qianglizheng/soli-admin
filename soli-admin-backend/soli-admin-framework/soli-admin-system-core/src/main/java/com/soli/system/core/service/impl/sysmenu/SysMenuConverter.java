@@ -9,6 +9,8 @@ import com.soli.system.service.sysmenu.SysMenuCreateRequest;
 import com.soli.system.service.sysmenu.SysMenuDTO;
 
 /**
+ * 菜单对象转换器
+ *
  * @author lizhengqiang
  * @since 2026-03-14 20:53
  */
