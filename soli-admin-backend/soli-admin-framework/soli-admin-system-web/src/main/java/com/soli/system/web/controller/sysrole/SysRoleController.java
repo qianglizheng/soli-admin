@@ -1,5 +1,7 @@
 package com.soli.system.web.controller.sysrole;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.soli.common.api.exception.BusinessException;
 import com.soli.common.api.vo.PageResult;
 import com.soli.common.api.vo.Result;
 import com.soli.system.core.service.impl.sysrole.SysRoleConverter;
@@ -7,6 +9,7 @@ import com.soli.system.service.sysrole.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AllArgsConstructor;
+import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 @SecurityRequirement(name = "Authorization")
 public class SysRoleController {
 
+    @JsonFormat
     private final SysRoleService sysRoleService;
 
     private final SysRoleConverter sysRoleConverter;
@@ -36,7 +40,7 @@ public class SysRoleController {
     @Operation(summary = "查询角色详情")
     @GetMapping("/{id}")
     public SysRoleDTO getById(@PathVariable Long id) {
-        return sysRoleService.getById(id).orElse(null);
+        return sysRoleService.getById(id).orElseThrow(() -> new BusinessException("指定角色不存在！"));
     }
 
     @Operation(summary = "分页查询角色")

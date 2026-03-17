@@ -3,8 +3,9 @@ package com.soli.common.web.security.exception;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import org.jspecify.annotations.NonNull;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.MediaType;
+import org.springframework.lang.NonNull;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.soli.common.api.exception.BusinessException;
@@ -14,7 +15,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import tools.jackson.databind.ObjectMapper;
 
 /**
  * 处理 springSecurity过滤器的抛出的异常

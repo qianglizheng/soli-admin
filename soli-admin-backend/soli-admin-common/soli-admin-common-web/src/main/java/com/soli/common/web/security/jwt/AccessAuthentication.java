@@ -2,7 +2,7 @@ package com.soli.common.web.security.jwt;
 
 import java.util.Collection;
 
-import org.jspecify.annotations.Nullable;
+import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 

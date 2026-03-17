@@ -61,7 +61,7 @@ public class SecurityConfig {
      */
     @Bean
     @Order(1)
-    public SecurityFilterChain swaggerFilterChain(HttpSecurity http) {
+    public SecurityFilterChain swaggerFilterChain(HttpSecurity http) throws Exception {
         commonSetting(http);
         return http.securityMatcher(SWAGGER_WHITELIST).authorizeHttpRequests(authorize ->
                 authorize.anyRequest().permitAll()).build();
@@ -75,7 +75,7 @@ public class SecurityConfig {
      */
     @Bean
     @Order(2)
-    public SecurityFilterChain authFilterChain(HttpSecurity http) {
+    public SecurityFilterChain authFilterChain(HttpSecurity http) throws Exception {
         commonSetting(http);
         return http.securityMatcher(AUTH_WHITELIST).authorizeHttpRequests(authorize ->
                 authorize.anyRequest().permitAll()).build();
@@ -89,7 +89,7 @@ public class SecurityConfig {
      */
     @Bean
     @Order(3)
-    public SecurityFilterChain defaultSecurity(HttpSecurity http) {
+    public SecurityFilterChain defaultSecurity(HttpSecurity http) throws Exception {
         commonSetting(http);
         http.addFilterBefore(new AccessTokenFilter(jwtService, sysMenuService), UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(new SecurityFilterExceptionHandler(), SecurityContextHolderFilter.class);
@@ -103,7 +103,7 @@ public class SecurityConfig {
      *
      * @param http HttpSecurity
      */
-    private void commonSetting(HttpSecurity http) {
+    private void commonSetting(HttpSecurity http) throws Exception {
         http
                 .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)

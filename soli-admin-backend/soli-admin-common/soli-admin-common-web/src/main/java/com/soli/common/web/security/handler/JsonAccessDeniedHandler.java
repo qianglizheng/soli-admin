@@ -2,7 +2,7 @@ package com.soli.common.web.security.handler;
 
 import java.io.IOException;
 
-import org.jspecify.annotations.NonNull;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
