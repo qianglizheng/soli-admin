@@ -36,7 +36,7 @@ public class SysRoleController {
     @Operation(summary = "查询角色详情")
     @GetMapping("/{id}")
     public SysRoleDTO getById(@PathVariable Long id) {
-        return sysRoleService.getById(id);
+        return sysRoleService.getById(id).orElse(null);
     }
 
     @Operation(summary = "分页查询角色")
@@ -46,9 +46,9 @@ public class SysRoleController {
     }
 
     @Operation(summary = "修改角色")
-    @PutMapping("/{id}")
-    public void modify(@PathVariable Long id, @RequestBody SysRoleModifyRequest modifyRequest) {
-        sysRoleService.modify(id, sysRoleConverter.toDTO(modifyRequest));
+    @PutMapping
+    public void modify(@RequestBody SysRoleModifyRequest modifyRequest) {
+        sysRoleService.modify(sysRoleConverter.toDTO(modifyRequest));
     }
 
     @Operation(summary = "删除角色")

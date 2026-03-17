@@ -6,6 +6,8 @@ import java.time.LocalDateTime;
 
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  *
@@ -13,8 +15,9 @@ import lombok.Data;
  * @author lizhengqiang
  * @since 2026-03-07 21:13
 */
-@Data
-public abstract class BaseEntity implements Serializable {
+@Getter
+@Setter
+public abstract class BaseEntity extends IdEntity implements Serializable {
 
     @Serial
     private static final long serialVersionUID = -4711040444260557604L;

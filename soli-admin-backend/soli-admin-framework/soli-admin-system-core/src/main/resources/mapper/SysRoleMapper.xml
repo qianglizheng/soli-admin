@@ -24,6 +24,15 @@
     <sql id="Base_Column_List">
         id, name, code, sort, data_scope, status, create_by, create_time, update_by, update_time, note
     </sql>
+    <insert id="insert">
+
+    </insert>
+    <update id="update">
+
+    </update>
+    <delete id="deleteById">
+
+    </delete>
 
     <!-- 根据ID查询 -->
     <select id="selectByUserId" resultMap="SysRoleResultMap">
@@ -32,6 +41,9 @@
 
     <select id="select" resultMap="SysRoleResultMap">
         select <include refid="Base_Column_List"/> from sys_role
+    </select>
+    <select id="selectById" resultType="com.soli.system.core.service.impl.sysrole.SysRoleEntity">
+
     </select>
 
 </mapper>

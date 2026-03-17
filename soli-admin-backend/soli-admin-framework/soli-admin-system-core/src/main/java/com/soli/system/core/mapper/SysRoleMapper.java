@@ -29,4 +29,34 @@ public interface SysRoleMapper {
      * @return 分页角色信息
      */
     List<SysRoleEntity> select(SysRoleQuery query);
+
+    /**
+     * 根据 id 查询角色信息
+     * @param id 角色 id
+     * @return 角色信息
+     */
+    SysRoleEntity selectById(Long id);
+
+    /**
+     * 插入一条角色信息
+     *
+     * @param entity 角色实体
+     * @return 影响的行数
+     */
+    int insert(SysRoleEntity entity);
+
+    /**
+     * 更新角色信息
+     *
+     * @param entity 角色实体
+     * @return 影响的行数
+     */
+    int update(SysRoleEntity entity);
+
+    /**
+     * 根据 id 删除一条角色信息
+     * @param id 角色 id
+     * @return 影响的行数
+     */
+    int deleteById(Long id);
 }

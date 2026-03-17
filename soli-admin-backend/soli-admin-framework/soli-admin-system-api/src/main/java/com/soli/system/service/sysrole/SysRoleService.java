@@ -1,9 +1,10 @@
 package com.soli.system.service.sysrole;
 
+import com.soli.common.api.exception.BusinessException;
 import com.soli.common.api.vo.PageResult;
-import com.soli.common.api.vo.Result;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 系统角色服务
@@ -32,9 +33,9 @@ public interface SysRoleService {
      * 创建角色
      *
      * @param dto 角色信息
-     * @return 影响的行数
+     * @throws BusinessException 异常
      */
-    int create(SysRoleDTO dto);
+    void create(SysRoleDTO dto) throws BusinessException;
 
     /**
      * 根据角色 Id 获取角色信息
@@ -42,23 +43,23 @@ public interface SysRoleService {
      * @param id 角色 Id
      * @return 角色信息
      */
-    SysRoleDTO getById(Long id);
+    Optional<SysRoleDTO> getById(Long id);
 
     /**
      * 修改角色
      *
      * @param dto 角色信息
-     * @return 影响的行数
+     * @throws BusinessException 异常
      */
-    int modify(Long id, SysRoleDTO dto);
+    void modify(SysRoleDTO dto) throws BusinessException;
 
     /**
      * 删除角色
      *
      * @param id 角色 Id
-     * @return 影响的行数
+     * @throws BusinessException 异常
      */
-    int remove(Long id);
+    void remove(Long id) throws BusinessException;
 
     /**
      * 分页查询角色

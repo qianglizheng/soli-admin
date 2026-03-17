@@ -2,12 +2,8 @@ package com.soli.system.core.service.impl.sysrole;
 
 import java.util.List;
 
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import com.soli.common.api.vo.PageResult;
-import com.soli.common.api.vo.Result;
-import com.soli.system.core.mapper.SysMenuMapper;
+import com.github.yitter.idgen.YitIdHelper;
+import com.soli.system.core.service.impl.BaseServiceImpl;
 import com.soli.system.service.sysrole.SysRoleQuery;
 import org.springframework.stereotype.Service;
 
@@ -15,19 +11,22 @@ import com.soli.system.core.mapper.SysRoleMapper;
 import com.soli.system.service.sysrole.SysRoleDTO;
 import com.soli.system.service.sysrole.SysRoleService;
 
-import lombok.RequiredArgsConstructor;
-
 /**
  * @author lizhengqiang
  * @since 2026-03-14 15:59
 */
 @Service
-@RequiredArgsConstructor
-public class SysRoleServiceImpl implements SysRoleService {
+public class SysRoleServiceImpl extends BaseServiceImpl<SysRoleDTO, SysRoleEntity, SysRoleQuery> implements SysRoleService {
 
     private final SysRoleMapper sysRoleMapper;
 
     private final SysRoleConverter sysRoleConverter;
+
+    public SysRoleServiceImpl(final SysRoleMapper sysRoleMapper, final SysRoleConverter sysRoleConverter) {
+        super(sysRoleConverter);
+        this.sysRoleMapper = sysRoleMapper;
+        this.sysRoleConverter = sysRoleConverter;
+    }
 
     @Override
     public List<SysRoleDTO> queryAll() {
@@ -41,36 +40,33 @@ public class SysRoleServiceImpl implements SysRoleService {
     }
 
     @Override
-    public int create(SysRoleDTO dto) {
-        return 0;
+    protected SysRoleEntity selectById(Long id) {
+        return sysRoleMapper.selectById(id);
     }
 
     @Override
-    public SysRoleDTO getById(Long id) {
-        return null;
+    protected int insert(SysRoleEntity entity) {
+        return sysRoleMapper.insert(entity);
     }
 
     @Override
-    public int modify(Long id, SysRoleDTO dto) {
-        return 0;
+    protected int update(SysRoleEntity entity) {
+        return sysRoleMapper.update(entity);
     }
 
     @Override
-    public int remove(Long id) {
-        return 0;
+    protected int deleteById(Long id) {
+        return sysRoleMapper.deleteById(id);
     }
 
     @Override
-    public PageResult<SysRoleDTO> page(SysRoleQuery query) {
-        Page<SysRoleEntity> page = PageHelper.startPage(query.getPageNum(), query.getPageSize())
-                .doSelectPage(() -> sysRoleMapper.select(query));
-        List<SysRoleDTO> dtoList = sysRoleConverter.toDTOList(page.getResult());
-        return PageResult.of(
-                page.getPageNum(),
-                page.getPageSize(),
-                page.getTotal(),
-                dtoList
-        );
+    protected List<SysRoleEntity> selectByQuery(SysRoleQuery query) {
+        return sysRoleMapper.select(query);
+    }
+
+    @Override
+    protected String moduleName() {
+        return "系统用户";
     }
 
 }
