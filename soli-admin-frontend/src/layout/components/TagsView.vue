@@ -1,14 +1,8 @@
-
 <template>
   <div class="tags-view-container">
     <el-scrollbar class="tags-view-wrapper">
-      <router-link
-        v-for="tag in visitedViews"
-        :key="tag.path"
-        :to="{ path: tag.path, query: tag.query }"
-        class="tags-view-item"
-        :class="isActive(tag) ? 'active' : ''"
-      >
+      <router-link v-for="tag in visitedViews" :key="tag.path" :to="{ path: tag.path, query: tag.query }"
+        class="tags-view-item" :class="isActive(tag) ? 'active' : ''">
         {{ tag.title }}
         <el-icon v-if="!isAffix(tag)" class="el-icon-close" @click.prevent.stop="closeSelectedTag(tag)">
           <Close />
@@ -23,6 +17,10 @@ import { computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useTagsViewStore } from '@/store/modules/tagsView';
 import { Close } from '@element-plus/icons-vue';
+
+defineOptions({
+  name: "LayoutTagsView"
+})
 
 const tagsViewStore = useTagsViewStore();
 const route = useRoute();
@@ -93,6 +91,7 @@ onMounted(() => {
   background: #fff;
   border-bottom: 1px solid #d8dce5;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.12), 0 0 3px 0 rgba(0, 0, 0, 0.04);
+
   .tags-view-wrapper {
     .tags-view-item {
       display: inline-block;
@@ -112,13 +111,16 @@ onMounted(() => {
       &:first-of-type {
         margin-left: 15px;
       }
+
       &:last-of-type {
         margin-right: 15px;
       }
+
       &.active {
         background-color: #409EFF;
         color: #fff;
         border-color: #409EFF;
+
         &::before {
           content: '';
           background: #fff;
@@ -133,6 +135,7 @@ onMounted(() => {
     }
   }
 }
+
 .tags-view-wrapper {
   .tags-view-item {
     .el-icon-close {
@@ -143,11 +146,13 @@ onMounted(() => {
       text-align: center;
       transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
       transform-origin: 100% 50%;
+
       &:before {
         transform: scale(0.6);
         display: inline-block;
         vertical-align: -3px;
       }
+
       &:hover {
         background-color: #b4bccc;
         color: #fff;

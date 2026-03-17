@@ -1,9 +1,8 @@
-
 <template>
   <div class="header">
     <div class="header-left">
       <div class="hamburger-container" @click="toggleSideBar">
-        <el-icon :class="{'is-active': sidebar.opened}" class="hamburger">
+        <el-icon :class="{ 'is-active': sidebar.opened }" class="hamburger">
           <Expand v-if="!sidebar.opened" />
           <Fold v-else />
         </el-icon>
@@ -12,7 +11,7 @@
         Home / {{ route.meta.title }}
       </div>
     </div>
-    
+
     <div class="right-menu">
       <header-search id="header-search" class="right-menu-item" />
       <el-dropdown @command="handleCommand" class="right-menu-item">
@@ -37,6 +36,10 @@ import { useUserStore } from '@/store/modules/user';
 import { useAppStore } from '@/store/modules/app';
 import { ArrowDown, Expand, Fold } from '@element-plus/icons-vue';
 import HeaderSearch from '@/components/HeaderSearch/index.vue';
+
+defineOptions({
+  name: "LayoutHeader"
+})
 
 const route = useRoute();
 const router = useRouter();
@@ -64,7 +67,7 @@ const handleCommand = async (command: string) => {
   align-items: center;
   justify-content: space-between;
   padding: 0;
-  
+
   .header-left {
     display: flex;
     align-items: center;
@@ -78,7 +81,7 @@ const handleCommand = async (command: string) => {
   float: left;
   cursor: pointer;
   transition: background .3s;
-  -webkit-tap-highlight-color:transparent;
+  -webkit-tap-highlight-color: transparent;
   display: flex;
   align-items: center;
 
@@ -95,7 +98,7 @@ const handleCommand = async (command: string) => {
   display: flex;
   align-items: center;
   padding-right: 20px;
-  
+
   .right-menu-item {
     display: inline-block;
     padding: 0 8px;

@@ -23,6 +23,10 @@ import logoMini from '@/assets/logo-mini.svg';
 import logoFull from '@/assets/logo-full.svg';
 import { usePermissionStore } from '@/store/modules/permission';
 
+defineOptions({
+  name: "LayoutSidebar"
+})
+
 const appStore = useAppStore();
 
 const isCollapse = computed(() => !appStore.sidebar.opened);
