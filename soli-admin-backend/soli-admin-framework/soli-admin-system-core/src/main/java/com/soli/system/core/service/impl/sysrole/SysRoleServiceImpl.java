@@ -60,7 +60,7 @@ public class SysRoleServiceImpl extends BaseServiceImpl<SysRoleDTO, SysRoleEntit
     }
 
     @Override
-    protected List<SysRoleEntity> selectByQuery(SysRoleQuery query) {
+    protected List<SysRoleEntity> select(SysRoleQuery query) {
         return sysRoleMapper.select(query);
     }
 

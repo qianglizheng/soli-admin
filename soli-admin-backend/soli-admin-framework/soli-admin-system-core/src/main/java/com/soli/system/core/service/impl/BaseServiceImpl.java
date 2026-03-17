@@ -24,7 +24,7 @@ public abstract class BaseServiceImpl<D, E extends IdEntity, Q extends PageQuery
     @SuppressWarnings("resource")
     public PageResult<D> page(Q query) {
         PageHelper.startPage(query.getPageNum(), query.getPageSize());
-        List<E> entityList = selectByQuery(query);
+        List<E> entityList = select(query);
         List<D> dtoList = converter.toDTOList(entityList);
         PageInfo<E> pageInfo = new PageInfo<>(entityList);
         return PageResult.of(
@@ -111,7 +111,7 @@ public abstract class BaseServiceImpl<D, E extends IdEntity, Q extends PageQuery
      * @return 分页数据
      * @throws BusinessException 抛出具体的异常信息
      */
-    protected abstract List<E> selectByQuery(Q query);
+    protected abstract List<E> select(Q query);
 
     /**
      * 模块名称
