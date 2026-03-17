@@ -48,8 +48,7 @@ public abstract class BaseServiceImpl<D, E extends IdEntity, Q extends PageQuery
     public void create(D dto) throws BusinessException {
         E entity = converter.toEntity(dto);
         entity.setId(YitIdHelper.nextId());
-        int insert = insert(entity);
-        if (insert == 0) {
+        if (insert(entity) == 0) {
             throw new BusinessException(moduleName() + "创建失败");
         }
     }
@@ -57,16 +56,14 @@ public abstract class BaseServiceImpl<D, E extends IdEntity, Q extends PageQuery
     @Transactional(rollbackFor = Exception.class)
     public void modify(D dto) throws BusinessException {
         E entity = converter.toEntity(dto);
-        int update = update(entity);
-        if (update == 0) {
+        if (update(entity) == 0) {
             throw new BusinessException(moduleName() + "更新失败");
         }
     }
 
     @Transactional(rollbackFor = Exception.class)
     public void remove(Long id) throws BusinessException {
-        int deleteById = deleteById(id);
-        if (deleteById == 0) {
+        if (deleteById(id) == 0) {
             throw new BusinessException(moduleName() + "删除失败");
         }
     }
