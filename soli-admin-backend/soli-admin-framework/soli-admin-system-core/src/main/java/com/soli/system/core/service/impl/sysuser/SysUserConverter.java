@@ -1,8 +1,10 @@
-package com.soli.system.service.sysuser;
+package com.soli.system.core.service.impl.sysuser;
 
 import java.util.List;
 
 import org.mapstruct.Mapper;
+
+import com.soli.system.service.sysuser.SysUserDTO;
 
 /**
  * @author lizhengqiang

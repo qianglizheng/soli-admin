@@ -2,7 +2,7 @@ package com.soli.system.web.controller.sysrole;
 
 import com.soli.common.api.vo.PageResult;
 import com.soli.common.api.vo.Result;
-import com.soli.system.service.sysrole.SysRoleConverter;
+import com.soli.system.core.service.impl.sysrole.SysRoleConverter;
 import com.soli.system.service.sysrole.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 
 /**
  * @author lizhengqiang

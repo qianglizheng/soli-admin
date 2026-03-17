@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.soli.system.service.sysmenu.SysMenuConverter;
+import com.soli.system.core.service.impl.sysmenu.SysMenuConverter;
 import com.soli.system.service.sysmenu.SysMenuCreateRequest;
 import com.soli.system.service.sysmenu.SysMenuDTO;
 import com.soli.system.service.sysmenu.SysMenuService;

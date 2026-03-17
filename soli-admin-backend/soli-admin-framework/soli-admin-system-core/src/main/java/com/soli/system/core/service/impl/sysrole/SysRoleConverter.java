@@ -1,8 +1,12 @@
-package com.soli.system.service.sysrole;
+package com.soli.system.core.service.impl.sysrole;
 
 import java.util.List;
 
+import com.soli.system.service.sysrole.SysRoleCreateRequest;
+import com.soli.system.service.sysrole.SysRoleModifyRequest;
 import org.mapstruct.Mapper;
+
+import com.soli.system.service.sysrole.SysRoleDTO;
 
 /**
  * @author lizhengqiang

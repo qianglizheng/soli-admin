@@ -4,8 +4,10 @@ import java.util.List;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.soli.common.api.vo.PageResult;
-import com.soli.system.service.sysrole.SysRoleConverter;
+import com.soli.common.api.vo.Result;
+import com.soli.system.core.mapper.SysMenuMapper;
 import com.soli.system.service.sysrole.SysRoleQuery;
 import org.springframework.stereotype.Service;
 
