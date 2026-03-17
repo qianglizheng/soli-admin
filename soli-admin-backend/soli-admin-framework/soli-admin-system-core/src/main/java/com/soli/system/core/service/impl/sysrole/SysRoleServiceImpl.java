@@ -2,7 +2,6 @@ package com.soli.system.core.service.impl.sysrole;
 
 import java.util.List;
 
-import com.github.yitter.idgen.YitIdHelper;
 import com.soli.system.core.service.impl.BaseServiceImpl;
 import com.soli.system.service.sysrole.SysRoleQuery;
 import org.springframework.stereotype.Service;
