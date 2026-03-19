@@ -1,5 +1,7 @@
 package com.soli.system.service.sysmenu;
 
+import com.soli.system.service.BaseCrudService;
+
 import java.util.List;
 import java.util.Set;
 
@@ -9,7 +11,7 @@ import java.util.Set;
  * @author lizhengqiang
  * @since 2026-03-14 20:53
  */
-public interface SysMenuService {
+public interface SysMenuService extends BaseCrudService<SysMenuDTO, SysMenuQuery> {
 
     /**
      * 查询用户权限
@@ -27,27 +29,4 @@ public interface SysMenuService {
      */
     List<SysMenuDTO> queryTreeList(Long userId);
 
-    /**
-     * 新增菜单
-     *
-     * @param sysMenuDTO 新增菜单信息
-     * @return 影响的行数
-     */
-    int create(SysMenuDTO sysMenuDTO);
-
-    /**
-     * 修改菜单
-     *
-     * @param sysMenuDTO 修改菜单信息
-     * @return 影响的行数
-     */
-    int modify(SysMenuDTO sysMenuDTO);
-
-    /**
-     * 删除菜单
-     *
-     * @param id 菜单Id
-     * @return 影响的行数
-     */
-    int remove(Long id);
 }

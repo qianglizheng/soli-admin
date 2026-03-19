@@ -37,16 +37,10 @@ public class SysRoleController {
         sysRoleService.create(sysRoleConverter.toDTO(createRequest));
     }
 
-    @Operation(summary = "查询角色详情")
-    @GetMapping("/{id}")
-    public SysRoleDTO getById(@PathVariable Long id) {
-        return sysRoleService.getById(id).orElseThrow(() -> new BusinessException("指定角色不存在！"));
-    }
-
-    @Operation(summary = "分页查询角色")
-    @PostMapping("/page")
-    public Result<PageResult<SysRoleDTO>> page(@RequestBody SysRoleQuery query) {
-        return Result.success(sysRoleService.page(query));
+    @Operation(summary = "删除角色")
+    @DeleteMapping("/{id}")
+    public void remove(@PathVariable Long id) {
+        sysRoleService.remove(id);
     }
 
     @Operation(summary = "修改角色")
@@ -55,10 +49,16 @@ public class SysRoleController {
         sysRoleService.modify(sysRoleConverter.toDTO(modifyRequest));
     }
 
-    @Operation(summary = "删除角色")
-    @DeleteMapping("/{id}")
-    public void remove(@PathVariable Long id) {
-        sysRoleService.remove(id);
+    @Operation(summary = "分页查询角色")
+    @PostMapping("/page")
+    public Result<PageResult<SysRoleDTO>> page(@RequestBody SysRoleQuery query) {
+        return Result.success(sysRoleService.page(query));
+    }
+
+    @Operation(summary = "查询角色详情")
+    @GetMapping("/{id}")
+    public SysRoleDTO getById(@PathVariable Long id) {
+        return sysRoleService.getById(id).orElseThrow(() -> new BusinessException("指定角色不存在！"));
     }
 
 }

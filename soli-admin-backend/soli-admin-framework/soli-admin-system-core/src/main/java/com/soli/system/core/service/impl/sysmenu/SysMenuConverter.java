@@ -2,6 +2,7 @@ package com.soli.system.core.service.impl.sysmenu;
 
 import java.util.List;
 
+import com.soli.system.core.service.Converter;
 import com.soli.system.service.sysmenu.SysMenuModifyRequest;
 import org.mapstruct.Mapper;
 
@@ -15,7 +16,7 @@ import com.soli.system.service.sysmenu.SysMenuDTO;
  * @since 2026-03-14 20:53
  */
 @Mapper(componentModel = "spring")
-public interface SysMenuConverter {
+public interface SysMenuConverter extends Converter<SysMenuDTO, SysMenuEntity> {
 
     SysMenuDTO toDTO(SysMenuEntity entity);
 

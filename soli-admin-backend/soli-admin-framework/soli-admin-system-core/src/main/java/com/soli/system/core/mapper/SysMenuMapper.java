@@ -4,12 +4,13 @@ import java.util.List;
 import java.util.Set;
 
 import com.soli.system.core.service.impl.sysmenu.SysMenuEntity;
+import com.soli.system.service.sysmenu.SysMenuQuery;
 
 /**
  * @author lizhengqiang
  * @since 2026-03-14 22:41
  */
-public interface SysMenuMapper {
+public interface SysMenuMapper extends BaseCrudMapper<SysMenuEntity, SysMenuQuery> {
 
     /**
      * 根据用户 Id 查询权限
@@ -26,27 +27,4 @@ public interface SysMenuMapper {
      */
     List<SysMenuEntity> selectMenuByUserId(Long userId);
 
-    /**
-     * 插入菜单
-     *
-     * @param entity 菜单信息
-     * @return 影响的条数
-     */
-    int insert(SysMenuEntity entity);
-
-    /**
-     * 更新菜单
-     *
-     * @param entity 菜单信息
-     * @return 影响的条数
-     */
-    int update(SysMenuEntity entity);
-
-    /**
-     * 删除菜单
-     *
-     * @param id 菜单 Id
-     * @return 影响的条数
-     */
-    int delete(Long id);
 }

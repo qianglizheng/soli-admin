@@ -2,7 +2,7 @@ package com.soli.system.core.service.impl.sysrole;
 
 import java.util.List;
 
-import com.soli.system.core.service.impl.BaseServiceImpl;
+import com.soli.system.core.service.impl.BaseCrudServiceImpl;
 import com.soli.system.service.sysrole.SysRoleQuery;
 import org.springframework.stereotype.Service;
 
@@ -15,52 +15,20 @@ import com.soli.system.service.sysrole.SysRoleService;
  * @since 2026-03-14 15:59
 */
 @Service
-public class SysRoleServiceImpl extends BaseServiceImpl<SysRoleDTO, SysRoleEntity, SysRoleQuery> implements SysRoleService {
+public class SysRoleServiceImpl extends BaseCrudServiceImpl<SysRoleDTO, SysRoleEntity, SysRoleQuery>
+        implements SysRoleService {
 
     private final SysRoleMapper sysRoleMapper;
 
-    private final SysRoleConverter sysRoleConverter;
-
-    public SysRoleServiceImpl(final SysRoleMapper sysRoleMapper, final SysRoleConverter sysRoleConverter) {
-        super(sysRoleConverter);
-        this.sysRoleMapper = sysRoleMapper;
-        this.sysRoleConverter = sysRoleConverter;
-    }
-
-    @Override
-    public List<SysRoleDTO> queryAll() {
-        return List.of();
+    public SysRoleServiceImpl(final SysRoleMapper mapper, final SysRoleConverter converter) {
+        super(mapper, converter);
+        this.sysRoleMapper = mapper;
     }
 
     @Override
     public List<SysRoleDTO> getByUserId(Long userId) {
         List<SysRoleEntity> sysRoleEntities = sysRoleMapper.selectByUserId(userId);
-        return sysRoleConverter.toDTOList(sysRoleEntities);
-    }
-
-    @Override
-    protected SysRoleEntity selectById(Long id) {
-        return sysRoleMapper.selectById(id);
-    }
-
-    @Override
-    protected int insert(SysRoleEntity entity) {
-        return sysRoleMapper.insert(entity);
-    }
-
-    @Override
-    protected int update(SysRoleEntity entity) {
-        return sysRoleMapper.update(entity);
-    }
-
-    @Override
-    protected int deleteById(Long id) {
-        return sysRoleMapper.deleteById(id);
-    }
-
-    @Override
-    protected List<SysRoleEntity> select(SysRoleQuery query) {
-        return sysRoleMapper.select(query);
+        return converter.toDTOList(sysRoleEntities);
     }
 
     @Override
