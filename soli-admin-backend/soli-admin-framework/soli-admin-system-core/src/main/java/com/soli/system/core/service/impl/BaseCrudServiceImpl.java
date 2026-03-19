@@ -15,6 +15,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * 具有基础增删改查的抽象类
+ *
+ * @param <D> DTO 对象
+ * @param <E> Entity 对象
+ * @param <Q> PageQuery 对象
+ * @author lizhengqiang
+ * @since 2026-03-19 22:22
+ */
 public abstract class BaseCrudServiceImpl<D, E extends IdEntity, Q extends PageQuery> implements BaseCrudService<D, Q> {
 
     public final Converter<D, E> converter;

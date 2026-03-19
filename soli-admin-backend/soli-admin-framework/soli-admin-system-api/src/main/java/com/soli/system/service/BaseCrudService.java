@@ -7,15 +7,18 @@ import com.soli.common.api.vo.PageResult;
 import java.util.Optional;
 
 /**
+ * 基础增删改查服务接口
+ * @param <D> DTO 对象
+ * @param <Q> PageQuery 对象
  * @author lizhengqiang
- * @since 2026-03-19 22:05
+ * @since 2026-03-19 22:23
  */
 public interface BaseCrudService<D, Q extends PageQuery> {
 
     /**
      * 创建
      *
-     * @param dto dto
+     * @param dto DTO 对象
      * @throws BusinessException 异常
      */
     void create(D dto) throws BusinessException;
@@ -31,7 +34,7 @@ public interface BaseCrudService<D, Q extends PageQuery> {
     /**
      * 修改
      *
-     * @param dto dto
+     * @param dto DTO 对象
      * @throws BusinessException 异常
      */
     void modify(D dto) throws BusinessException;
@@ -39,7 +42,7 @@ public interface BaseCrudService<D, Q extends PageQuery> {
     /**
      * 分页查询
      *
-     * @param query 查询参数
+     * @param query 分页查询参数
      * @return 分页信息
      */
     PageResult<D> page(Q query);
@@ -48,7 +51,7 @@ public interface BaseCrudService<D, Q extends PageQuery> {
      * 根据角色 Id 获取
      *
      * @param id Id
-     * @return dto
+     * @return DTO 对象
      */
     Optional<D> getById(Long id);
 
