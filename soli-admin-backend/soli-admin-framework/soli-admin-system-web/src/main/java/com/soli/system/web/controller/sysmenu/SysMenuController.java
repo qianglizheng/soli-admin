@@ -25,6 +25,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
+ * 菜单管理控制器
+ *
  * @author lizhengqiang
  * @since 2026-03-15 12:50
 */

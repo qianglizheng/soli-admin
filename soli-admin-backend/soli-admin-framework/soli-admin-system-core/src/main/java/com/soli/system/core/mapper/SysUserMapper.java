@@ -1,6 +1,7 @@
 package com.soli.system.core.mapper;
 
 
+import com.soli.system.service.sysuser.SysUserQuery;
 import org.apache.ibatis.annotations.Param;
 
 import com.soli.system.core.service.impl.sysuser.SysUserEntity;
@@ -11,15 +12,7 @@ import com.soli.system.core.service.impl.sysuser.SysUserEntity;
  * @author lizhengqiang
  * @since 2026-03-08 0:29
 */
-public interface SysUserMapper {
-
-    /**
-     * 根据用户 ID 查询用户
-     *
-     * @param id 用户 ID
-     * @return 用户实体，如果不存在返回 null
-     */
-    SysUserEntity selectById(@Param("id") Long id);
+public interface SysUserMapper extends BaseCrudMapper<SysUserEntity, SysUserQuery> {
 
     /**
      * 根据用户名查询用户

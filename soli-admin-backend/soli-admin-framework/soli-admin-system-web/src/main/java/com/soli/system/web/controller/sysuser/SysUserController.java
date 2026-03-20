@@ -1,23 +1,23 @@
 package com.soli.system.web.controller.sysuser;
 
+import com.soli.common.api.exception.BusinessException;
+import com.soli.common.api.vo.PageResult;
+import com.soli.common.api.vo.Result;
+import com.soli.system.core.service.impl.sysuser.SysUserConverter;
+import com.soli.system.service.sysrole.SysRoleDTO;
+import com.soli.system.service.sysrole.SysRoleModifyRequest;
+import com.soli.system.service.sysrole.SysRoleQuery;
+import com.soli.system.service.sysuser.*;
+import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.soli.system.service.sysuser.SysUserDTO;
-import com.soli.system.service.sysuser.SysUserService;
+import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 /**
- * 系统用户控制器
+ * 用户管理控制器
  *
  * @author lizhengqiang
  * @since 2026-03-08 0:48
@@ -28,20 +28,43 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SysUserController {
 
-    private final SysUserService sysUserService;
+    private final SysUserService service;
 
-    @Operation(summary = "根据用户ID查询用户")
-    @PreAuthorize("hasAuthority('sys:user:list')")
-    @GetMapping("/{id}")
-    public SysUserDTO findById(@RequestHeader("Authorization") String accessToken, @PathVariable Long id) {
-        return sysUserService.getById(id);
+    private final SysUserConverter converter;
+
+    @Operation(summary = "添加用户")
+    @PreAuthorize("hasAuthority('sys:user:create')")
+    @PutMapping
+    public void create(@RequestBody SysUserCreateRequest createRequest) {
+        service.create(converter.toDTO(createRequest));
     }
 
-    @Operation(summary = "添加系统用户")
-    @PreAuthorize("hasAuthority('sys:user:add')")
+    @Operation(summary = "删除用户")
+    @PreAuthorize("hasAuthority('sys:user:remove')")
+    @DeleteMapping("/{id}")
+    public void remove(@PathVariable Long id) {
+        service.remove(id);
+    }
+
+    @Operation(summary = "修改用户")
+    @PreAuthorize("hasAuthority('sys:user:modify')")
     @PutMapping
-    public void addSysUser(@RequestHeader("Authorization") String accessToken, @RequestBody SysUserDTO sysUser) {
-        return;
+    public void modify(@RequestBody SysUserModifyRequest modifyRequest) {
+        service.modify(converter.toDTO(modifyRequest));
+    }
+
+    @Operation(summary = "分页查询用户")
+    @PreAuthorize("hasAuthority('sys:user:page')")
+    @PostMapping("/page")
+    public Result<PageResult<SysUserDTO>> page(@RequestBody SysUserQuery query) {
+        return Result.success(service.page(query));
+    }
+
+    @Operation(summary = "根据Id查询用户")
+    @PreAuthorize("hasAuthority('sys:user:page')")
+    @GetMapping("/{id}")
+    public SysUserDTO getById(@PathVariable Long id) {
+        return service.getById(id).orElseThrow(() -> new BusinessException("指定用户不存在！"));
     }
 
 }

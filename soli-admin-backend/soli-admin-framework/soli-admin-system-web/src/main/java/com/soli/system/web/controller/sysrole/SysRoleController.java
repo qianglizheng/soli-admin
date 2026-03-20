@@ -16,6 +16,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 /**
+ * 角色管理控制器
+ *
  * @author lizhengqiang
  * @since 2026-03-14 20:15
 */
