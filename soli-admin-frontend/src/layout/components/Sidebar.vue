@@ -57,11 +57,11 @@ const menuRoutes = computed(() => {
 
 <style scoped lang="scss">
 // Variables
-$menuBg: #304156;
-$subMenuBg: #1f2d3d;
-$menuHover: #263445;
-$menuText: #bfcbd9;
-$menuActiveText: #409EFF;
+$menuBg: #001529;
+$subMenuBg: #000c17;
+$menuHover: #1890ff;
+$menuText: rgba(255, 255, 255, 0.65);
+$menuActiveText: #fff;
 
 .sidebar {
   height: 100%;
@@ -75,10 +75,9 @@ $menuActiveText: #409EFF;
   width: 100%;
   height: 50px;
   line-height: 50px;
-  background: #2b2f3a;
+  background: #002140;
   text-align: center;
   overflow: hidden;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 
   & .sidebar-logo-link {
     height: 100%;
@@ -119,13 +118,13 @@ $menuActiveText: #409EFF;
 /* Global styles for popover content */
 .sidebar-popper {
   padding: 0 !important;
-  background-color: #304156 !important;
+  background-color: #001529 !important;
   border: none !important;
   box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3) !important;
 
   .el-popper__arrow::before {
-    background-color: #304156 !important;
-    border-color: #304156 !important;
+    background-color: #001529 !important;
+    border-color: #001529 !important;
   }
 
   .submenu-list {

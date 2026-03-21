@@ -90,7 +90,7 @@ onMounted(() => {
   width: 100%;
   background: #fff;
   border-bottom: 1px solid #d8dce5;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.12), 0 0 3px 0 rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
 
   .tags-view-wrapper {
     .tags-view-item {
@@ -107,6 +107,7 @@ onMounted(() => {
       margin-left: 5px;
       margin-top: 4px;
       text-decoration: none;
+      transition: all 0.3s;
 
       &:first-of-type {
         margin-left: 15px;
@@ -117,9 +118,9 @@ onMounted(() => {
       }
 
       &.active {
-        background-color: #409EFF;
+        background-color: var(--app-primary-color, #409EFF);
         color: #fff;
-        border-color: #409EFF;
+        border-color: var(--app-primary-color, #409EFF);
 
         &::before {
           content: '';

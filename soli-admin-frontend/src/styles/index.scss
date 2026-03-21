@@ -1,32 +1,43 @@
 
 @use '../../node_modules/element-plus/theme-chalk/src/index' as *;
 
+:root {
+  /* Softer, More Professional Palette */
+  --app-primary: #1677ff;
+  --app-bg-color: #f5f7f9; /* 更清爽的蓝灰色背景 */
+  --app-sidebar-bg: #001529;
+  --app-card-bg: #ffffff;
+  --app-border-color: #ebeef5; /* 更细微的边框颜色 */
+  --app-text-main: #262626;
+  --app-text-secondary: #8c8c8c;
+  --app-card-radius: 4px;
+}
+
 html, body, #app {
   height: 100%;
   margin: 0;
   padding: 0;
-  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
-    'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overflow: hidden; /* Prevent global scrollbar */
+  background-color: var(--app-bg-color);
+  color: var(--app-text-main);
+  overflow: hidden;
 }
 
+/* Layout */
 .app-wrapper {
   display: flex;
   width: 100%;
   height: 100%;
-  position: relative;
 }
 
 .sidebar-container {
-  width: 210px;
+  width: 220px;
   height: 100%;
-  background-color: #304156;
-  color: #fff;
-  transition: width 0.28s;
-  overflow: hidden;
+  background-color: var(--app-sidebar-bg);
+  transition: width 0.2s;
   flex-shrink: 0;
+  z-index: 1001;
 
   &.collapse {
     width: 64px;
@@ -37,38 +48,83 @@ html, body, #app {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-width: 0;
-  background-color: #fff;
-  height: 100%;
   overflow: hidden;
+  height: 100%;
+  min-width: 0;
 }
 
 .header-container {
   height: 50px;
   background-color: #fff;
-  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  border-bottom: 1px solid var(--app-border-color);
+  display: flex;
+  align-items: center;
+  z-index: 1000;
   flex-shrink: 0;
 }
 
 .app-main {
   flex: 1;
-  padding: 20px;
-  overflow-y: auto; /* Enable scroll in content area */
-  position: relative;
-  overflow-x: hidden;
+  padding: 8px; /* 减小主容器内边距 */
+  overflow: hidden; /* 默认禁止全局滚动，由具体页面控制 */
+  display: flex;
+  flex-direction: column;
 }
 
-/* Scrollbar styling */
+/* Professional Card Style */
+.tech-card {
+  background: var(--app-card-bg);
+  border-radius: var(--app-card-radius);
+  border: 1px solid var(--app-border-color);
+  padding: 12px;
+  margin-bottom: 4px; /* 减小默认间距 */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+/* Button Reset - No gradients, no glows */
+.el-button--primary {
+  background-color: var(--app-primary);
+  border-color: var(--app-primary);
+  box-shadow: none;
+  &:hover, &:focus {
+    background-color: #4096ff;
+    border-color: #4096ff;
+    transform: none;
+  }
+}
+
+/* Form Styling */
+.el-form-item__label {
+  font-weight: 500;
+  color: #262626;
+}
+
+.el-input__wrapper {
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px #d9d9d9 inset !important;
+  &:hover {
+    box-shadow: 0 0 0 1px var(--app-primary) inset !important;
+  }
+  &.is-focus {
+    box-shadow: 0 0 0 1px var(--app-primary) inset !important;
+  }
+}
+
+/* Table Style Refinement */
+.el-table {
+  --el-table-header-bg-color: #fafafa;
+  border-radius: 4px;
+  color: #262626;
+}
+
+/* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: #c0c4cc;
-  border-radius: 3px;
+  background: #bfbfbf;
+  border-radius: 10px;
+  &:hover { background: #8c8c8c; }
 }

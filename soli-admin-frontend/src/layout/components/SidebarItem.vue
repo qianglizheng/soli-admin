@@ -95,10 +95,10 @@ const handleChildClick = () => {
 
 <style scoped lang="scss">
 // Variables
-$menuText: #bfcbd9;
+$menuText: rgba(255, 255, 255, 0.65);
 $menuActiveText: #fff;
-$menuHover: #263445;
-$menuActiveBg: #1890ff; // Keeping variable but overriding below with rgba
+$menuHover: rgba(255, 255, 255, 0.08);
+$menuActiveBg: #1890ff;
 $menuOpenedBg: rgba(0, 0, 0, 0.25);
 
 .sidebar-item-container {
@@ -125,13 +125,16 @@ $menuOpenedBg: rgba(0, 0, 0, 0.25);
 
   &.is-active {
     color: $menuActiveText;
-    // Use a more subtle, lower opacity blue for active state
-    background-color: rgba(24, 144, 255, 0.3);
-    border-left: 3px solid #1890ff; // Add a border indicator
-
+    background-color: $menuActiveBg; // Solid color for active state
+    
     .menu-icon {
       color: #fff;
     }
+  }
+
+  &.has-children.is-active {
+      background-color: transparent; // Parent item shouldn't have solid background when active
+      color: #fff;
   }
 
   &.is-opened {

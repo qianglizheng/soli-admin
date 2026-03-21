@@ -70,6 +70,7 @@ const handleCommand = async (command: string) => {
   align-items: center;
   justify-content: space-between;
   padding: 0;
+  border-bottom: 1px solid #f0f0f0;
 
   .header-left {
     display: flex;
@@ -78,8 +79,8 @@ const handleCommand = async (command: string) => {
 }
 
 .hamburger-container {
-  padding: 0 15px;
-  line-height: 46px;
+  padding: 0 16px;
+  line-height: 50px;
   height: 100%;
   float: left;
   cursor: pointer;
@@ -94,29 +95,34 @@ const handleCommand = async (command: string) => {
 
   .hamburger {
     font-size: 20px;
+    color: #515a6e;
   }
+}
+
+.breadcrumb {
+  margin-left: 10px;
+  color: #97a8be;
+  font-size: 14px;
 }
 
 .right-menu {
   display: flex;
   align-items: center;
   padding-right: 20px;
+  height: 100%;
 
   .right-menu-item {
-    display: inline-block;
-    padding: 0 8px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 12px;
     height: 100%;
-    font-size: 18px;
+    font-size: 16px;
     color: #5a5e66;
     vertical-align: text-bottom;
+    transition: background 0.3s;
 
-    &.hover-effect {
-      cursor: pointer;
-      transition: background .3s;
-
-      &:hover {
-        background: rgba(0, 0, 0, .025)
-      }
+    &:hover {
+      background: rgba(0, 0, 0, .025);
     }
   }
 }
@@ -126,5 +132,6 @@ const handleCommand = async (command: string) => {
   display: flex;
   align-items: center;
   outline: none;
+  font-size: 14px;
 }
 </style>

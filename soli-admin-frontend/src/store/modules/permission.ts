@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import router, { dashboardRoute } from '@/router';
 import { getMenuTree } from '@/api/menu';
 import systemRoute, { systemExtraRoutes } from '@/router/modules/system';
+import purchaseRoute from '@/router/modules/purchase';
 import { useUserStore } from '@/store/modules/user';
 import type { RouteRecordRaw } from 'vue-router';
 import type { SysMenuDTO } from '@/types/global';
@@ -68,7 +69,7 @@ export const usePermissionStore = defineStore('permission', () => {
     let dynamicRoutes: RouteRecordRaw[] = [];
 
     if (userStore.isSuperAdmin) {
-      dynamicRoutes = [systemRoute];
+      dynamicRoutes = [systemRoute, purchaseRoute];
     } else {
       const res = await getMenuTree();
       const menus = (res.data || []) as SysMenuDTO[];
