@@ -83,7 +83,7 @@ const generateRoutes = (routes: any[], basePath = '/', prefixTitle: string[] = [
   let res: any[] = [];
 
   for (const router of routes) {
-    if (router.hidden) { continue; }
+    if (router.hidden || router.meta?.hidden) { continue; }
 
     const data: any = {
       path: path.resolve(basePath, router.path),

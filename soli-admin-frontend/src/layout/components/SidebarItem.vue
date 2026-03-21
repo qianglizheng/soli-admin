@@ -29,7 +29,7 @@
         </template>
 
         <div class="submenu-list">
-          <sidebar-item v-for="child in item.children" :key="child.path" :item="child"
+          <sidebar-item v-for="child in visibleChildren(item)" :key="child.path" :item="child"
             :base-path="resolvePath(basePath, item.path)" @item-click="handleChildClick" />
         </div>
       </el-popover>
@@ -68,12 +68,10 @@ const route = useRoute();
 const router = useRouter();
 const popoverVisible = ref(false);
 
+const visibleChildren = (item: any) => item.children?.filter((child: any) => !(child.hidden || child.meta?.hidden)) || [];
+
 const hasChildren = (item: any) => {
-  if (item.children) {
-    const showingChildren = item.children.filter((item: any) => !item.hidden);
-    return showingChildren.length > 0;
-  }
-  return false;
+  return visibleChildren(item).length > 0;
 };
 
 const resolvePath = (base: string, p: string) => path.resolve(base, p);

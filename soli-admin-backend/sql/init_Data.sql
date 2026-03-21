@@ -91,3 +91,18 @@ insert into sys_role_menu values (1,1621);
 insert into sys_role_menu values (1,1622);
 insert into sys_role_menu values (1,1623);
 insert into sys_role_menu values (1,1624);
+
+insert into sys_dict_type values (3001,'用户性别','sys_user_sex','0','system',now(),null,null,'用户性别列表');
+insert into sys_dict_type values (3002,'显示状态','sys_show_hide','0','system',now(),null,null,'菜单显示状态列表');
+insert into sys_dict_type values (3003,'系统开关','sys_normal_disable','0','system',now(),null,null,'系统开关列表');
+insert into sys_dict_type values (3004,'是否字典','sys_yes_no','0','system',now(),null,null,'是否字典列表');
+
+insert into sys_dict_data values (4001,3001,'男','0',1,null,'primary','N','0','system',now(),null,null,'用户性别男');
+insert into sys_dict_data values (4002,3001,'女','1',2,null,'danger','N','0','system',now(),null,null,'用户性别女');
+insert into sys_dict_data values (4003,3001,'未知','2',3,null,'info','Y','0','system',now(),null,null,'用户性别未知');
+insert into sys_dict_data values (4004,3002,'显示','0',1,null,'success','Y','0','system',now(),null,null,'菜单显示');
+insert into sys_dict_data values (4005,3002,'隐藏','1',2,null,'warning','N','0','system',now(),null,null,'菜单隐藏');
+insert into sys_dict_data values (4006,3003,'正常','0',1,null,'success','Y','0','system',now(),null,null,'系统正常状态');
+insert into sys_dict_data values (4007,3003,'停用','1',2,null,'danger','N','0','system',now(),null,null,'系统停用状态');
+insert into sys_dict_data values (4008,3004,'是','Y',1,null,'success','Y','0','system',now(),null,null,'是否字典是');
+insert into sys_dict_data values (4009,3004,'否','N',2,null,'info','N','0','system',now(),null,null,'是否字典否');

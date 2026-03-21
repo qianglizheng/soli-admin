@@ -67,3 +67,28 @@ export interface SysMenuDTO {
   createTime?: string;
   children?: SysMenuDTO[];
 }
+
+export interface SysDictType {
+  id: number;
+  name: string;
+  type: string;
+  status?: string;
+  note?: string;
+  createTime?: string;
+  updateTime?: string;
+}
+
+export interface SysDictData {
+  id: number;
+  dictTypeId: number;
+  label: string;
+  value: string;
+  sort?: string;
+  cssClass?: string;
+  listClass?: string;
+  isDefault?: string;
+  status?: string;
+  note?: string;
+  createTime?: string;
+  updateTime?: string;
+}

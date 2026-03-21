@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import router, { dashboardRoute } from '@/router';
 import { getMenuTree } from '@/api/menu';
-import systemRoute from '@/router/modules/system';
+import systemRoute, { systemExtraRoutes } from '@/router/modules/system';
 import { useUserStore } from '@/store/modules/user';
 import type { RouteRecordRaw } from 'vue-router';
 import type { SysMenuDTO } from '@/types/global';
@@ -73,6 +73,16 @@ export const usePermissionStore = defineStore('permission', () => {
       const res = await getMenuTree();
       const menus = (res.data || []) as SysMenuDTO[];
       dynamicRoutes = buildRoutesFromMenus(menus);
+    }
+
+    const systemMenuRoute = dynamicRoutes.find(route => route.path === '/system' || route.name === 'System');
+    if (systemMenuRoute) {
+      const children = (systemMenuRoute.children ||= []);
+      systemExtraRoutes.forEach(route => {
+        if (!children.some(child => child.path === route.path)) {
+          children.push(route);
+        }
+      });
     }
 
     dynamicRoutes.forEach(route => router.addRoute(route));

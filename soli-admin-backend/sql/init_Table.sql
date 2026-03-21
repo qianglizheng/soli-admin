@@ -74,3 +74,41 @@ create table sys_role_menu (
   menu_id   bigint(20) not null comment '菜单ID',
   primary key(role_id, menu_id)
 ) engine=innodb comment = '角色和菜单关联表';
+
+-- 字典类型表
+drop table if exists sys_dict_type;
+create table sys_dict_type (
+  id             bigint(20)        not null auto_increment  comment '字典ID',
+  name           varchar(100)      not null                 comment '字典名称',
+  type           varchar(100)      not null                 comment '字典类型',
+  status         char(1)           default '0' not null     comment '状态（0正常 1停用）',
+  create_by      varchar(32)       default null             comment '创建者',
+  create_time    datetime          default null             comment '创建时间',
+  update_by      varchar(32)       default null             comment '更新者',
+  update_time    datetime          default null             comment '更新时间',
+  note           varchar(500)      default null             comment '备注',
+  primary key (id),
+  unique key uk_sys_dict_type_type (type)
+) engine=innodb auto_increment=3000 comment = '字典类型表';
+
+-- 字典数据表
+drop table if exists sys_dict_data;
+create table sys_dict_data (
+  id             bigint(20)        not null auto_increment  comment '字典数据ID',
+  dict_type_id   bigint(20)        not null                 comment '字典类型ID',
+  label          varchar(100)      not null                 comment '字典标签',
+  value          varchar(100)      not null                 comment '字典键值',
+  sort           int(4)            default 0 not null       comment '显示排序',
+  css_class      varchar(100)      default null             comment '样式属性',
+  list_class     varchar(100)      default null             comment '表格回显样式',
+  is_default     char(1)           default 'N' not null     comment '是否默认（Y是 N否）',
+  status         char(1)           default '0' not null     comment '状态（0正常 1停用）',
+  create_by      varchar(32)       default null             comment '创建者',
+  create_time    datetime          default null             comment '创建时间',
+  update_by      varchar(32)       default null             comment '更新者',
+  update_time    datetime          default null             comment '更新时间',
+  note           varchar(500)      default null             comment '备注',
+  primary key (id),
+  key idx_sys_dict_data_type_id (dict_type_id),
+  unique key uk_sys_dict_data_type_value (dict_type_id, value)
+) engine=innodb auto_increment=4000 comment = '字典数据表';
