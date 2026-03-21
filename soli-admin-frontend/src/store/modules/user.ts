@@ -1,14 +1,15 @@
-
 import { defineStore } from 'pinia';
-import { loginUsingUsername } from '@/api/user';
-import { getToken, setToken, removeToken } from '@/utils/auth';
-import { ref } from 'vue';
+import { getUserInfo, loginUsingUsername } from '@/api/user';
+import { getToken, removeToken, setToken } from '@/utils/auth';
+import { computed, ref } from 'vue';
 
 export const useUserStore = defineStore('user', () => {
   const token = ref<string | undefined>(getToken());
   const name = ref('');
   const avatar = ref('');
+  const type = ref('');
   const roles = ref<string[]>([]);
+  const isSuperAdmin = computed(() => type.value === '0' || roles.value.includes('admin'));
 
   const login = async (userInfo: { username: string; password: string; code?: string; captchaUUID?: string }) => {
     const res = await loginUsingUsername({
@@ -22,21 +23,19 @@ export const useUserStore = defineStore('user', () => {
   };
 
   const getInfo = async () => {
-    const res = {
-      data: {
-        username: 'a',
-        avatar: 'a',
-        roles: ['a']
-      }
-    };
-    const { username, avatar: av, roles: rs } = res.data;
-    name.value = username;
+    const res = await getUserInfo();
+    const { username, nickname, avatar: av, type: userType, roles: rs } = res.data;
+    name.value = nickname || username;
     avatar.value = av || '';
-    roles.value = rs;
+    type.value = userType || '';
+    roles.value = rs || [];
   };
 
   const logout = async () => {
     token.value = '';
+    name.value = '';
+    avatar.value = '';
+    type.value = '';
     roles.value = [];
     removeToken();
   };
@@ -45,7 +44,9 @@ export const useUserStore = defineStore('user', () => {
     token,
     name,
     avatar,
+    type,
     roles,
+    isSuperAdmin,
     login,
     getInfo,
     logout

@@ -4,17 +4,23 @@ import com.soli.common.api.exception.BusinessException;
 import com.soli.common.api.vo.PageResult;
 import com.soli.common.api.vo.Result;
 import com.soli.system.core.service.impl.sysuser.SysUserConverter;
-import com.soli.system.service.sysrole.SysRoleDTO;
-import com.soli.system.service.sysrole.SysRoleModifyRequest;
-import com.soli.system.service.sysrole.SysRoleQuery;
-import com.soli.system.service.sysuser.*;
-import org.apache.ibatis.javassist.NotFoundException;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
+import com.soli.system.service.sysuser.SysUserCreateRequest;
+import com.soli.system.service.sysuser.SysUserDTO;
+import com.soli.system.service.sysuser.SysUserModifyRequest;
+import com.soli.system.service.sysuser.SysUserQuery;
+import com.soli.system.service.sysuser.SysUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 用户管理控制器
@@ -32,25 +38,28 @@ public class SysUserController {
 
     private final SysUserConverter converter;
 
-    @Operation(summary = "添加用户")
+    @Operation(summary = "新增用户")
     @PreAuthorize("hasAuthority('sys:user:create')")
-    @PutMapping
-    public void create(@RequestBody SysUserCreateRequest createRequest) {
+    @PostMapping
+    public Result<Void> create(@RequestBody SysUserCreateRequest createRequest) {
         service.create(converter.toDTO(createRequest));
+        return Result.success();
     }
 
     @Operation(summary = "删除用户")
     @PreAuthorize("hasAuthority('sys:user:remove')")
     @DeleteMapping("/{id}")
-    public void remove(@PathVariable Long id) {
+    public Result<Void> remove(@PathVariable Long id) {
         service.remove(id);
+        return Result.success();
     }
 
     @Operation(summary = "修改用户")
     @PreAuthorize("hasAuthority('sys:user:modify')")
     @PutMapping
-    public void modify(@RequestBody SysUserModifyRequest modifyRequest) {
+    public Result<Void> modify(@RequestBody SysUserModifyRequest modifyRequest) {
         service.modify(converter.toDTO(modifyRequest));
+        return Result.success();
     }
 
     @Operation(summary = "分页查询用户")
@@ -60,11 +69,11 @@ public class SysUserController {
         return Result.success(service.page(query));
     }
 
-    @Operation(summary = "根据Id查询用户")
+    @Operation(summary = "根据 ID 查询用户")
     @PreAuthorize("hasAuthority('sys:user:page')")
     @GetMapping("/{id}")
-    public SysUserDTO getById(@PathVariable Long id) {
-        return service.getById(id).orElseThrow(() -> new BusinessException("指定用户不存在！"));
+    public Result<SysUserDTO> getById(@PathVariable Long id) {
+        SysUserDTO user = service.getById(id).orElseThrow(() -> new BusinessException("指定用户不存在"));
+        return Result.success(user);
     }
-
 }

@@ -1,7 +1,8 @@
+import type { RouteRecordRaw } from 'vue-router';
 
-import Layout from '@/layout/index.vue';
+const Layout = () => import('@/layout/index.vue');
 
-export default {
+const systemRoute: RouteRecordRaw = {
   children: [
     {
       component: () => import('@/views/system/user/index.vue'),
@@ -22,18 +23,6 @@ export default {
       path: 'menu'
     },
     {
-      component: () => import('@/views/system/dept/index.vue'),
-      meta: { icon: 'Connection', title: '部门管理' },
-      name: 'Dept',
-      path: 'dept'
-    },
-    {
-      component: () => import('@/views/system/post/index.vue'),
-      meta: { icon: 'Position', title: '岗位管理' },
-      name: 'Post',
-      path: 'post'
-    },
-    {
       component: () => import('@/views/system/dict/index.vue'),
       meta: { icon: 'Reading', title: '字典管理' },
       name: 'Dict',
@@ -41,7 +30,7 @@ export default {
     },
     {
       component: () => import('@/views/system/config/index.vue'),
-      meta: { icon: 'Tools', title: '选项设置' },
+      meta: { icon: 'Tools', title: '参数设置' },
       name: 'Config',
       path: 'config'
     },
@@ -71,3 +60,5 @@ export default {
   path: '/system',
   redirect: '/system/user'
 };
+
+export default systemRoute;

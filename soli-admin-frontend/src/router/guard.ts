@@ -21,18 +21,18 @@ router.beforeEach(async (to, from, next) => {
       NProgress.done();
     } else {
       const userStore = useUserStore();
-      const hasRoles = userStore.roles && userStore.roles.length > 0;
-      if (hasRoles) {
+      const permissionStore = usePermissionStore();
+      if (permissionStore.isRoutesLoaded) {
         next();
       } else {
         try {
           await userStore.getInfo();
-          const permissionStore = usePermissionStore();
           await permissionStore.loadRoutes();
           next({ ...to, replace: true });
         } catch (error) {
           console.error(error);
           await userStore.logout();
+          permissionStore.resetRoutes();
           ElMessage.error('Has Error');
           next(`/login?redirect=${to.path}`);
           NProgress.done();

@@ -1,15 +1,20 @@
-
 import { defineStore } from 'pinia';
-import router from '@/router';
-import Layout from '@/layout/index.vue';
+import router, { dashboardRoute } from '@/router';
 import { getMenuTree } from '@/api/menu';
+import systemRoute from '@/router/modules/system';
+import { useUserStore } from '@/store/modules/user';
 import type { RouteRecordRaw } from 'vue-router';
 import type { SysMenuDTO } from '@/types/global';
 import { ref } from 'vue';
 
+const Layout = () => import('@/layout/index.vue');
+
+const staticMenuRoutes: RouteRecordRaw[] = [dashboardRoute];
+
 export const usePermissionStore = defineStore('permission', () => {
-  const routes = ref<RouteRecordRaw[]>([]);
+  const routes = ref<RouteRecordRaw[]>([...staticMenuRoutes]);
   const addRoutes = ref<RouteRecordRaw[]>([]);
+  const isRoutesLoaded = ref(false);
 
   const buildRoutesFromMenus = (menus: SysMenuDTO[]): RouteRecordRaw[] => {
     const records: Record<number, RouteRecordRaw> = {};
@@ -55,19 +60,45 @@ export const usePermissionStore = defineStore('permission', () => {
   };
 
   const loadRoutes = async () => {
-    const res = await getMenuTree();
-    const menus = (res.data || []) as SysMenuDTO[];
-    const dynamicRoutes = buildRoutesFromMenus(menus);
-    dynamicRoutes.forEach(r => router.addRoute(r));
+    if (isRoutesLoaded.value) {
+      return addRoutes.value;
+    }
+
+    const userStore = useUserStore();
+    let dynamicRoutes: RouteRecordRaw[] = [];
+
+    if (userStore.isSuperAdmin) {
+      dynamicRoutes = [systemRoute];
+    } else {
+      const res = await getMenuTree();
+      const menus = (res.data || []) as SysMenuDTO[];
+      dynamicRoutes = buildRoutesFromMenus(menus);
+    }
+
+    dynamicRoutes.forEach(route => router.addRoute(route));
     addRoutes.value = dynamicRoutes;
-    routes.value = dynamicRoutes;
+    routes.value = [...staticMenuRoutes, ...dynamicRoutes];
+    isRoutesLoaded.value = true;
     return dynamicRoutes;
+  };
+
+  const resetRoutes = () => {
+    addRoutes.value.forEach(route => {
+      if (route.name && router.hasRoute(route.name)) {
+        router.removeRoute(route.name);
+      }
+    });
+    addRoutes.value = [];
+    routes.value = [...staticMenuRoutes];
+    isRoutesLoaded.value = false;
   };
 
   return {
     routes,
     addRoutes,
+    isRoutesLoaded,
     loadRoutes,
+    resetRoutes,
     buildRoutesFromMenus
   };
 });

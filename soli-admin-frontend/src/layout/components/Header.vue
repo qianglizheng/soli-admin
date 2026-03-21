@@ -8,7 +8,7 @@
         </el-icon>
       </div>
       <div class="breadcrumb">
-        Home / {{ route.meta.title }}
+        首页 / {{ route.meta.title }}
       </div>
     </div>
 
@@ -16,12 +16,12 @@
       <header-search id="header-search" class="right-menu-item" />
       <el-dropdown @command="handleCommand" class="right-menu-item">
         <span class="el-dropdown-link">
-          Admin
+          {{ userStore.name || '管理员' }}
           <el-icon class="el-icon--right"><arrow-down /></el-icon>
         </span>
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item command="logout">Logout</el-dropdown-item>
+            <el-dropdown-item command="logout">退出登录</el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
@@ -33,6 +33,7 @@
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/store/modules/user';
+import { usePermissionStore } from '@/store/modules/permission';
 import { useAppStore } from '@/store/modules/app';
 import { ArrowDown, Expand, Fold } from '@element-plus/icons-vue';
 import HeaderSearch from '@/components/HeaderSearch/index.vue';
@@ -44,6 +45,7 @@ defineOptions({
 const route = useRoute();
 const router = useRouter();
 const userStore = useUserStore();
+const permissionStore = usePermissionStore();
 const appStore = useAppStore();
 
 const sidebar = computed(() => appStore.sidebar);
@@ -55,6 +57,7 @@ const toggleSideBar = () => {
 const handleCommand = async (command: string) => {
   if (command === 'logout') {
     await userStore.logout();
+    permissionStore.resetRoutes();
     router.push('/login');
   }
 };

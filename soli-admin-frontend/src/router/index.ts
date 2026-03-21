@@ -1,7 +1,20 @@
-
 import { type RouteRecordRaw, createRouter, createWebHistory } from 'vue-router';
-import Layout from '@/layout/index.vue';
-import systemRouter from './modules/system';
+
+const Layout = () => import('@/layout/index.vue');
+
+export const dashboardRoute: RouteRecordRaw = {
+  children: [
+    {
+      component: () => import('@/views/dashboard/index.vue'),
+      meta: { affix: true, icon: 'Odometer', title: '仪表盘' },
+      name: 'Dashboard',
+      path: 'dashboard'
+    }
+  ],
+  component: Layout,
+  path: '/',
+  redirect: '/dashboard'
+};
 
 export const constantRoutes: RouteRecordRaw[] = [
   {
@@ -9,20 +22,7 @@ export const constantRoutes: RouteRecordRaw[] = [
     meta: { hidden: true },
     path: '/login'
   },
-  {
-    children: [
-      {
-        component: () => import('@/views/dashboard/index.vue'),
-        meta: { affix: true, icon: 'Odometer', title: '仪表盘' },
-        name: 'Dashboard',
-        path: 'dashboard'
-      }
-    ],
-    component: Layout,
-    path: '/',
-    redirect: '/dashboard'
-  },
-  systemRouter
+  dashboardRoute
 ];
 
 const router = createRouter({

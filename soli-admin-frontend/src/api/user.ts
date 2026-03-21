@@ -1,6 +1,36 @@
-
 import request from './request';
-import type { ApiResponse, UserInfo } from '@/types/global';
+import type { ApiResponse, PageResult, SysUser, UserInfo } from '@/types/global';
+
+export interface UserPageQuery {
+  pageNum: number;
+  pageSize: number;
+  username?: string;
+  phone?: string;
+  status?: string;
+}
+
+export interface CreateUserPayload {
+  username: string;
+  password: string;
+  nickname?: string;
+  email?: string;
+  phone?: string;
+  avatar?: string;
+  type?: string;
+  sex?: string;
+  status?: string;
+}
+
+export interface UpdateUserPayload {
+  id: number;
+  nickname?: string;
+  email?: string;
+  phone?: string;
+  avatar?: string;
+  type?: string;
+  sex?: string;
+  status?: string;
+}
 
 export function loginUsingUsername(data: { username: string; password: string; code?: string; captchaUUID?: string }) {
   return request<ApiResponse<{ accessToken: string; refreshToken: string }>>({
@@ -17,9 +47,33 @@ export function getUserInfo() {
   });
 }
 
-export function logout() {
-  return request<ApiResponse>({
+export function getUserPage(data: UserPageQuery) {
+  return request<ApiResponse<PageResult<SysUser>>>({
+    data,
     method: 'post',
-    url: '/user/logout'
+    url: '/sys/user/page'
+  });
+}
+
+export function createUser(data: CreateUserPayload) {
+  return request<ApiResponse<void>>({
+    data,
+    method: 'post',
+    url: '/sys/user'
+  });
+}
+
+export function updateUser(data: UpdateUserPayload) {
+  return request<ApiResponse<void>>({
+    data,
+    method: 'put',
+    url: '/sys/user'
+  });
+}
+
+export function deleteUser(id: number) {
+  return request<ApiResponse<void>>({
+    method: 'delete',
+    url: `/sys/user/${id}`
   });
 }
