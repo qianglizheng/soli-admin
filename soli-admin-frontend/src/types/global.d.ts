@@ -41,6 +41,17 @@ export interface SysUser {
   updateTime?: string;
 }
 
+export interface SysRole {
+  id: number;
+  name: string;
+  code: string;
+  sort?: string;
+  dataScope?: string;
+  status?: string;
+  createTime?: string;
+  updateTime?: string;
+}
+
 export interface SysMenuDTO {
   id: number;
   name: string;

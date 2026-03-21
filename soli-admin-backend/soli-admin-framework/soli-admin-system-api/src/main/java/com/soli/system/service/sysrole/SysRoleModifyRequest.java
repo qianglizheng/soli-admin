@@ -1,5 +1,7 @@
 package com.soli.system.service.sysrole;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,10 +13,16 @@ import lombok.Setter;
 @Setter
 public class SysRoleModifyRequest {
 
+    /** 角色ID */
+    @NotNull(message = "角色ID不能为空")
+    private Long id;
+
     /** 角色名称 */
+    @NotBlank(message = "角色名称不能为空")
     private String name;
 
     /** 权限编码 */
+    @NotBlank(message = "权限字符不能为空")
     private String code;
 
     /** 显示顺序 */

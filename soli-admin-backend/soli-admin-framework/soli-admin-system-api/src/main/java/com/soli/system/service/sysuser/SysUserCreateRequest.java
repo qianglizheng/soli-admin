@@ -1,5 +1,6 @@
 package com.soli.system.service.sysuser;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,9 +15,11 @@ import lombok.Setter;
 public class SysUserCreateRequest {
 
     /** 用户名 */
+    @NotBlank(message = "用户名不能为空")
     private String username;
 
     /** 用户密码 */
+    @NotBlank(message = "用户密码不能为空")
     private String password;
 
     /** 用户昵称 */

@@ -11,6 +11,7 @@ import com.soli.system.service.sysuser.SysUserQuery;
 import com.soli.system.service.sysuser.SysUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -41,7 +42,7 @@ public class SysUserController {
     @Operation(summary = "新增用户")
     @PreAuthorize("hasAuthority('sys:user:create')")
     @PostMapping
-    public Result<Void> create(@RequestBody SysUserCreateRequest createRequest) {
+    public Result<Void> create(@Valid @RequestBody SysUserCreateRequest createRequest) {
         service.create(converter.toDTO(createRequest));
         return Result.success();
     }
@@ -57,7 +58,7 @@ public class SysUserController {
     @Operation(summary = "修改用户")
     @PreAuthorize("hasAuthority('sys:user:modify')")
     @PutMapping
-    public Result<Void> modify(@RequestBody SysUserModifyRequest modifyRequest) {
+    public Result<Void> modify(@Valid @RequestBody SysUserModifyRequest modifyRequest) {
         service.modify(converter.toDTO(modifyRequest));
         return Result.success();
     }
@@ -73,7 +74,7 @@ public class SysUserController {
     @PreAuthorize("hasAuthority('sys:user:page')")
     @GetMapping("/{id}")
     public Result<SysUserDTO> getById(@PathVariable Long id) {
-        SysUserDTO user = service.getById(id).orElseThrow(() -> new BusinessException("指定用户不存在"));
+        SysUserDTO user = service.getById(id).orElseThrow(() -> new BusinessException("指定用户不存在！"));
         return Result.success(user);
     }
 }

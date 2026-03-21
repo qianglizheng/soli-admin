@@ -12,4 +12,13 @@ import lombok.Setter;
 @Setter
 public class SysRoleQuery extends PageQuery {
 
+    /** 角色名称 */
+    private String roleName;
+
+    /** 权限字符 */
+    private String roleKey;
+
+    /** 角色状态 */
+    private String status;
+
 }
