@@ -3,12 +3,22 @@
     <!-- 搜索区域 -->
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
       <el-form-item label="角色名称" prop="roleName">
-        <el-input v-model="queryParams.roleName" placeholder="请输入角色名称" clearable style="width: 240px"
-          @keyup.enter="handleQuery" />
+        <el-input
+          v-model="queryParams.roleName"
+          placeholder="请输入角色名称"
+          clearable
+          style="width: 240px"
+          @keyup.enter="handleQuery"
+        />
       </el-form-item>
       <el-form-item label="权限字符" prop="roleKey">
-        <el-input v-model="queryParams.roleKey" placeholder="请输入权限字符" clearable style="width: 240px"
-          @keyup.enter="handleQuery" />
+        <el-input
+          v-model="queryParams.roleKey"
+          placeholder="请输入权限字符"
+          clearable
+          style="width: 240px"
+          @keyup.enter="handleQuery"
+        />
       </el-form-item>
       <el-form-item label="状态" prop="status">
         <el-select v-model="queryParams.status" placeholder="角色状态" clearable style="width: 240px">
@@ -47,8 +57,12 @@
       <el-table-column label="显示顺序" prop="roleSort" width="100" />
       <el-table-column label="状态" align="center" width="100">
         <template #default="scope">
-          <el-switch v-model="scope.row.status" active-value="0" inactive-value="1"
-            @change="handleStatusSwitchChange(scope.row, $event)" />
+          <el-switch
+            :model-value="scope.row.status"
+            active-value="0"
+            inactive-value="1"
+            @change="handleStatusSwitchChange(scope.row, $event)"
+          />
         </template>
       </el-table-column>
       <el-table-column label="创建时间" align="center" prop="createTime" width="180">
@@ -56,7 +70,7 @@
           <span>{{ scope.row.createTime }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="260" fixed="right" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" fixed="right" min-width="260" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)">修改</el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)">删除</el-button>
@@ -66,45 +80,37 @@
     </el-table>
 
     <div class="pagination-container">
-      <el-pagination v-model:current-page="queryParams.pageNum" v-model:page-size="queryParams.pageSize"
-        :page-sizes="[10, 20, 30, 50]" layout="total, sizes, prev, pager, next, jumper" :total="total"
-        @size-change="handlePageSizeChange" @current-change="getList" />
+      <el-pagination
+        v-model:current-page="queryParams.pageNum"
+        v-model:page-size="queryParams.pageSize"
+        :page-sizes="[10, 20, 30, 50]"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
+        @size-change="handlePageSizeChange"
+        @current-change="getList"
+      />
     </div>
 
-    <el-dialog v-model="dialogVisible" :title="dialogTitle" width="520px" @closed="resetForm">
-      <el-form ref="formRef" :model="formData" :rules="formRules" label-width="90px">
-        <el-form-item label="角色名称" prop="roleName">
-          <el-input v-model="formData.roleName" placeholder="请输入角色名称" />
-        </el-form-item>
-        <el-form-item label="权限字符" prop="roleKey">
-          <el-input v-model="formData.roleKey" placeholder="请输入权限字符" />
-        </el-form-item>
-        <el-form-item label="显示顺序" prop="roleSort">
-          <el-input v-model="formData.roleSort" placeholder="请输入显示顺序" />
-        </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-radio-group v-model="formData.status">
-            <el-radio value="0">正常</el-radio>
-            <el-radio value="1">停用</el-radio>
-          </el-radio-group>
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button :loading="submitLoading" type="primary" @click="submitForm">确定</el-button>
-      </template>
-    </el-dialog>
+    <role-form
+      v-model="formVisible"
+      :mode="formMode"
+      :initial-data="formInitial"
+      :submitting="submitLoading"
+      @submit="handleFormSubmit"
+      @cancel="handleFormCancel"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue';
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus';
+import { onMounted, reactive, ref } from 'vue';
+import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus';
 import { createRole, deleteRole, getRolePage, updateRole, type CreateRolePayload } from '@/api/role';
+import RoleForm from './components/RoleForm.vue';
 
 defineOptions({
-  name: "SystemRole"
-})
+  name: 'SystemRole'
+});
 
 interface RoleRow {
   roleId: number;
@@ -116,7 +122,7 @@ interface RoleRow {
   createTime?: string;
 }
 
-interface RoleForm {
+interface RoleFormData {
   roleId?: number;
   roleName: string;
   roleKey: string;
@@ -126,7 +132,6 @@ interface RoleForm {
 }
 
 const queryRef = ref<FormInstance>();
-const formRef = ref<FormInstance>();
 const showSearch = ref(true);
 const loading = ref(false);
 const submitLoading = ref(false);
@@ -135,8 +140,9 @@ const multiple = ref(true);
 const total = ref(0);
 const roleList = ref<RoleRow[]>([]);
 const selectedRows = ref<RoleRow[]>([]);
-const dialogVisible = ref(false);
-const isEdit = ref(false);
+const formVisible = ref(false);
+const formMode = ref<'create' | 'edit'>('create');
+const formInitial = ref<Partial<RoleFormData>>({});
 
 const queryParams = reactive({
   pageNum: 1,
@@ -146,22 +152,13 @@ const queryParams = reactive({
   status: ''
 });
 
-const createDefaultForm = (): RoleForm => ({
+const createDefaultForm = (): RoleFormData => ({
   roleName: '',
   roleKey: '',
   roleSort: '1',
   dataScope: '1',
   status: '0'
 });
-
-const formData = reactive<RoleForm>(createDefaultForm());
-
-const formRules: FormRules<RoleForm> = {
-  roleName: [{ required: true, message: '请输入角色名称', trigger: 'blur' }],
-  roleKey: [{ required: true, message: '请输入权限字符', trigger: 'blur' }]
-};
-
-const dialogTitle = computed(() => (isEdit.value ? '修改角色' : '新增角色'));
 
 const mapRoleRow = (item: any): RoleRow => ({
   roleId: item.id,
@@ -173,10 +170,14 @@ const mapRoleRow = (item: any): RoleRow => ({
   createTime: item.createTime
 });
 
-const resetForm = () => {
-  Object.assign(formData, createDefaultForm());
-  formRef.value?.clearValidate();
-};
+const toFormData = (row: RoleRow): RoleFormData => ({
+  roleId: row.roleId,
+  roleName: row.roleName,
+  roleKey: row.roleKey,
+  roleSort: row.roleSort,
+  dataScope: row.dataScope,
+  status: row.status
+});
 
 const getList = async () => {
   loading.value = true;
@@ -216,10 +217,10 @@ const handleStatusChange = async (row: RoleRow, value: string) => {
   const previousStatus = row.status;
   const text = value === '0' ? '启用' : '停用';
   try {
-    await ElMessageBox.confirm(`确认要"${text}""${row.roleName}"角色吗?`, "警告", {
-      confirmButtonText: "确定",
-      cancelButtonText: "取消",
-      type: "warning"
+    await ElMessageBox.confirm(`确认要${text}角色“${row.roleName}”吗？`, '警告', {
+      cancelButtonText: '取消',
+      confirmButtonText: '确定',
+      type: 'warning'
     });
     row.status = value;
     await updateRole({
@@ -241,56 +242,46 @@ const handleStatusSwitchChange = (row: RoleRow, value: string | number | boolean
 };
 
 const handleAdd = () => {
-  isEdit.value = false;
-  resetForm();
-  dialogVisible.value = true;
+  formMode.value = 'create';
+  formInitial.value = createDefaultForm();
+  formVisible.value = true;
 };
 
 const handleUpdate = (row?: RoleRow) => {
   const currentRow = row || selectedRows.value[0];
-  if (!currentRow) return;
-  isEdit.value = true;
-  resetForm();
-  Object.assign(formData, {
-    roleId: currentRow.roleId,
-    roleName: currentRow.roleName,
-    roleKey: currentRow.roleKey,
-    roleSort: currentRow.roleSort,
-    dataScope: currentRow.dataScope,
-    status: currentRow.status
-  });
-  dialogVisible.value = true;
+  if (!currentRow) {
+    return;
+  }
+  formMode.value = 'edit';
+  formInitial.value = toFormData(currentRow);
+  formVisible.value = true;
 };
 
-const submitForm = async () => {
-  if (!formRef.value) return;
-  const valid = await formRef.value.validate().catch(() => false);
-  if (!valid) return;
-
+const handleFormSubmit = async (data: RoleFormData) => {
   submitLoading.value = true;
   try {
-    if (isEdit.value && formData.roleId) {
+    if (formMode.value === 'edit' && data.roleId) {
       await updateRole({
-        id: formData.roleId,
-        name: formData.roleName,
-        code: formData.roleKey,
-        sort: formData.roleSort,
-        dataScope: formData.dataScope,
-        status: formData.status
+        id: data.roleId,
+        name: data.roleName,
+        code: data.roleKey,
+        sort: data.roleSort,
+        dataScope: data.dataScope,
+        status: data.status
       });
       ElMessage.success('修改成功');
     } else {
       const payload: CreateRolePayload = {
-        name: formData.roleName,
-        code: formData.roleKey,
-        sort: formData.roleSort,
-        dataScope: formData.dataScope,
-        status: formData.status
+        name: data.roleName,
+        code: data.roleKey,
+        sort: data.roleSort,
+        dataScope: data.dataScope,
+        status: data.status
       };
       await createRole(payload);
       ElMessage.success('新增成功');
     }
-    dialogVisible.value = false;
+    formVisible.value = false;
     await getList();
   } finally {
     submitLoading.value = false;
@@ -299,27 +290,38 @@ const submitForm = async () => {
 
 const handleDelete = async (row?: RoleRow) => {
   const rows = row ? [row] : selectedRows.value;
-  if (!rows.length) return;
+  if (!rows.length) {
+    return;
+  }
   const names = rows.map(item => item.roleName).join('、');
-  await ElMessageBox.confirm(`确认要删除角色"${names}"吗?`, "警告", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning"
+  await ElMessageBox.confirm(`确认要删除角色“${names}”吗？`, '警告', {
+    cancelButtonText: '取消',
+    confirmButtonText: '确定',
+    type: 'warning'
   });
 
   for (const item of rows) {
     await deleteRole(item.roleId);
   }
 
-  ElMessage.success("删除成功");
+  ElMessage.success('删除成功');
   if (roleList.value.length === rows.length && queryParams.pageNum > 1) {
     queryParams.pageNum -= 1;
   }
   await getList();
 };
 
-const handleExport = () => { ElMessage.info('导出功能暂未实现'); };
-const handleDataScope = (row?: RoleRow) => { ElMessage.info(`数据权限功能暂未实现${row ? `：${row.roleName}` : ''}`); };
+const handleFormCancel = () => {
+  formVisible.value = false;
+};
+
+const handleExport = () => {
+  ElMessage.info('导出功能暂未实现');
+};
+
+const handleDataScope = (row?: RoleRow) => {
+  ElMessage.info(`数据权限功能暂未实现${row ? `：${row.roleName}` : ''}`);
+};
 
 onMounted(() => {
   void getList();

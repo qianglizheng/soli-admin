@@ -68,7 +68,7 @@
         </template>
       </el-table-column>
       <el-table-column label="创建时间" align="center" prop="createTime" width="180" />
-      <el-table-column label="操作" align="center" width="180" fixed="right" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" fixed="right" min-width="260" class-name="small-padding fixed-width">
         <template #default="{ row }">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(row)">修改</el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(row)">删除</el-button>

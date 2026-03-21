@@ -63,7 +63,7 @@
       </el-table-column>
       <el-table-column label="备注" prop="note" :show-overflow-tooltip="true" min-width="200" />
       <el-table-column label="创建时间" align="center" prop="createTime" width="180" />
-      <el-table-column label="操作" align="center" width="260" fixed="right" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" fixed="right" min-width="260" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Tickets" @click="handleData(scope.row)">数据</el-button>
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)">修改</el-button>

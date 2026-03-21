@@ -74,7 +74,7 @@
       <el-table-column label="回显样式" prop="listClass" min-width="120" />
       <el-table-column label="备注" prop="note" min-width="180" :show-overflow-tooltip="true" />
       <el-table-column label="创建时间" prop="createTime" align="center" width="180" />
-      <el-table-column label="操作" align="center" width="180" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" width="180" fixed="right" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)">修改</el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)">删除</el-button>
