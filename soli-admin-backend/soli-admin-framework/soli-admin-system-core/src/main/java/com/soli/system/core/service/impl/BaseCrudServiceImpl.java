@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * 具有基础增删改查的抽象类
+ * 具有基础增删改查能力的抽象类
  *
  * @param <D> DTO 对象
  * @param <E> Entity 对象
@@ -37,26 +37,32 @@ public abstract class BaseCrudServiceImpl<D, E extends IdEntity, Q extends PageQ
 
     @Transactional(rollbackFor = Exception.class)
     public void create(D dto) throws BusinessException {
+        beforeCreate(dto);
         E entity = converter.toEntity(dto);
         entity.setId(YitIdHelper.nextId());
         if (mapper.insert(entity) == 0) {
             throw new BusinessException(moduleName() + "创建失败");
         }
+        afterCreate(dto, entity);
     }
 
     @Transactional(rollbackFor = Exception.class)
     public void remove(Long id) throws BusinessException {
+        beforeRemove(id);
         if (mapper.deleteById(id) == 0) {
             throw new BusinessException(moduleName() + "删除失败");
         }
+        afterRemove(id);
     }
 
     @Transactional(rollbackFor = Exception.class)
     public void modify(D dto) throws BusinessException {
+        beforeModify(dto);
         E entity = converter.toEntity(dto);
         if (mapper.update(entity) == 0) {
             throw new BusinessException(moduleName() + "更新失败");
         }
+        afterModify(dto, entity);
     }
 
     @SuppressWarnings("resource")
@@ -89,4 +95,59 @@ public abstract class BaseCrudServiceImpl<D, E extends IdEntity, Q extends PageQ
      */
     protected abstract String moduleName();
 
+    /**
+     * 创建之前的操作，留给子类自行判断是否实现
+     *
+     * @param dto DTO 对象
+     */
+    protected void beforeCreate(D dto) {
+
+    }
+
+    /**
+     * 创建成功之后的操作，留给子类自行判断是否实现
+     *
+     * @param dto DTO 对象
+     * @param entity Entity 对象
+     */
+    protected void afterCreate(D dto, E entity) {
+
+    }
+
+    /**
+     * 删除之前的操作，留给子类自行判断是否实现
+     *
+     * @param id ID
+     */
+    protected void beforeRemove(Long id) {
+
+    }
+
+    /**
+     * 删除成功之后的操作，留给子类自行判断是否实现
+     *
+     * @param id ID
+     */
+    protected void afterRemove(Long id) {
+
+    }
+
+    /**
+     * 修改之前的操作，留给子类自行判断是否实现
+     *
+     * @param dto DTO 对象
+     */
+    protected void beforeModify(D dto) {
+
+    }
+
+    /**
+     * 修改成功之后的操作，留给子类自行判断是否实现
+     *
+     * @param dto DTO 对象
+     * @param entity Entity 对象
+     */
+    protected void afterModify(D dto, E entity) {
+
+    }
 }
