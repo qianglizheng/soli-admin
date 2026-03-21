@@ -33,7 +33,7 @@ public class SysDictDataDTO extends BaseDTO {
     private String listClass;
 
     /** 是否默认 */
-    private String isDefault;
+    private String defaultFlag;
 
     /** 状态 */
     private String status;

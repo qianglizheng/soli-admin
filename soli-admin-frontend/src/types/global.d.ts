@@ -86,7 +86,7 @@ export interface SysDictData {
   sort?: string;
   cssClass?: string;
   listClass?: string;
-  isDefault?: string;
+  defaultFlag?: string;
   status?: string;
   note?: string;
   createTime?: string;

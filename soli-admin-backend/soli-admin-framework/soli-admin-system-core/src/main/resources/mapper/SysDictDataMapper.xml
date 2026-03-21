@@ -13,7 +13,7 @@
         <result property="sort" column="sort"/>
         <result property="cssClass" column="css_class"/>
         <result property="listClass" column="list_class"/>
-        <result property="isDefault" column="is_default"/>
+        <result property="defaultFlag" column="default_flag"/>
         <result property="status" column="status"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>
@@ -23,14 +23,14 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, dict_type_id, label, value, sort, css_class, list_class, is_default, status, create_by, create_time, update_by, update_time, note
+        id, dict_type_id, label, value, sort, css_class, list_class, default_flag, status, create_by, create_time, update_by, update_time, note
     </sql>
 
     <insert id="insert" parameterType="com.soli.system.core.service.impl.sysdictdata.SysDictDataEntity">
         insert into sys_dict_data (
-            id, dict_type_id, label, value, sort, css_class, list_class, is_default, status, create_by, create_time, update_by, update_time, note
+            id, dict_type_id, label, value, sort, css_class, list_class, default_flag, status, create_by, create_time, update_by, update_time, note
         ) values (
-            #{id}, #{dictTypeId}, #{label}, #{value}, #{sort}, #{cssClass}, #{listClass}, #{isDefault}, #{status}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
+            #{id}, #{dictTypeId}, #{label}, #{value}, #{sort}, #{cssClass}, #{listClass}, #{defaultFlag}, #{status}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
         )
     </insert>
 
@@ -43,7 +43,7 @@
             <if test="sort != null">sort = #{sort},</if>
             <if test="cssClass != null">css_class = #{cssClass},</if>
             <if test="listClass != null">list_class = #{listClass},</if>
-            <if test="isDefault != null">is_default = #{isDefault},</if>
+            <if test="defaultFlag != null">default_flag = #{defaultFlag},</if>
             <if test="status != null">status = #{status},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
@@ -62,9 +62,9 @@
 
     <update id="clearDefaultByDictTypeId">
         update sys_dict_data
-        set is_default = 'N'
+        set default_flag = 'N'
         where dict_type_id = #{dictTypeId}
-          and is_default = 'Y'
+          and default_flag = 'Y'
         <if test="excludeId != null">
           and id != #{excludeId}
         </if>

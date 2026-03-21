@@ -16,8 +16,8 @@
       <el-form-item label="样式属性" prop="cssClass">
         <el-input v-model="form.cssClass" placeholder="请输入样式属性" />
       </el-form-item>
-      <el-form-item label="是否默认" prop="isDefault">
-        <el-radio-group v-model="form.isDefault">
+      <el-form-item label="是否默认" prop="defaultFlag">
+        <el-radio-group v-model="form.defaultFlag">
           <el-radio value="Y">是</el-radio>
           <el-radio value="N">否</el-radio>
         </el-radio-group>
@@ -62,7 +62,7 @@ const formRef = ref<FormInstance>();
 
 const createDefaultForm = (): Partial<SysDictData> => ({
   cssClass: '',
-  isDefault: 'N',
+  defaultFlag: 'N',
   label: '',
   listClass: '',
   note: '',
@@ -74,7 +74,7 @@ const createDefaultForm = (): Partial<SysDictData> => ({
 const form = reactive<Partial<SysDictData>>(createDefaultForm());
 
 const rules: FormRules = {
-  isDefault: [{ message: '请选择是否默认', required: true, trigger: 'change' }],
+  defaultFlag: [{ message: '请选择是否默认', required: true, trigger: 'change' }],
   label: [{ message: '请输入字典标签', required: true, trigger: 'blur' }],
   status: [{ message: '请选择状态', required: true, trigger: 'change' }],
   value: [{ message: '请输入字典键值', required: true, trigger: 'blur' }]

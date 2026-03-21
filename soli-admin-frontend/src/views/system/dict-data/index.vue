@@ -59,8 +59,8 @@
       <el-table-column label="排序" prop="sort" align="center" width="90" />
       <el-table-column label="默认" align="center" width="90">
         <template #default="scope">
-          <el-tag :type="scope.row.isDefault === 'Y' ? 'success' : 'info'">
-            {{ scope.row.isDefault === 'Y' ? '是' : '否' }}
+          <el-tag :type="scope.row.defaultFlag === 'Y' ? 'success' : 'info'">
+            {{ scope.row.defaultFlag === 'Y' ? '是' : '否' }}
           </el-tag>
         </template>
       </el-table-column>
@@ -254,7 +254,7 @@ const onFormSubmit = async (data: Partial<SysDictData>) => {
       await createDictData({
         cssClass: data.cssClass,
         dictTypeId: currentDictId.value,
-        isDefault: data.isDefault,
+        defaultFlag: data.defaultFlag,
         label: data.label || '',
         listClass: data.listClass,
         note: data.note,
@@ -268,7 +268,7 @@ const onFormSubmit = async (data: Partial<SysDictData>) => {
         cssClass: data.cssClass,
         dictTypeId: currentDictId.value,
         id: data.id,
-        isDefault: data.isDefault,
+        defaultFlag: data.defaultFlag,
         label: data.label || '',
         listClass: data.listClass,
         note: data.note,

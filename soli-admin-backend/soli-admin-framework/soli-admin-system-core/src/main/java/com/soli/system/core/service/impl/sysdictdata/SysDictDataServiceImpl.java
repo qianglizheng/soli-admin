@@ -38,7 +38,7 @@ public class SysDictDataServiceImpl extends BaseCrudServiceImpl<SysDictDataDTO, 
     protected void beforeCreate(SysDictDataDTO dto) {
         normalize(dto);
         ensureDictExists(dto.getDictTypeId());
-        if ("Y".equals(dto.getIsDefault())) {
+        if ("Y".equals(dto.getDefaultFlag())) {
             sysDictDataMapper.clearDefaultByDictTypeId(dto.getDictTypeId(), null);
         }
         dto.setCreateTime(LocalDateTime.now());
@@ -48,7 +48,7 @@ public class SysDictDataServiceImpl extends BaseCrudServiceImpl<SysDictDataDTO, 
     protected void beforeModify(SysDictDataDTO dto) {
         normalize(dto);
         ensureDictExists(dto.getDictTypeId());
-        if ("Y".equals(dto.getIsDefault())) {
+        if ("Y".equals(dto.getDefaultFlag())) {
             sysDictDataMapper.clearDefaultByDictTypeId(dto.getDictTypeId(), dto.getId());
         }
         dto.setUpdateTime(LocalDateTime.now());
@@ -73,8 +73,8 @@ public class SysDictDataServiceImpl extends BaseCrudServiceImpl<SysDictDataDTO, 
         if (dto.getStatus() == null || dto.getStatus().isBlank()) {
             dto.setStatus("0");
         }
-        if (dto.getIsDefault() == null || dto.getIsDefault().isBlank()) {
-            dto.setIsDefault("N");
+        if (dto.getDefaultFlag() == null || dto.getDefaultFlag().isBlank()) {
+            dto.setDefaultFlag("N");
         }
     }
 

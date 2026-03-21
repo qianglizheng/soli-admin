@@ -101,7 +101,7 @@ create table sys_dict_data (
     sort           int(4)            default 0 not null       comment '显示排序',
     css_class      varchar(100)      default null             comment '样式属性',
     list_class     varchar(100)      default null             comment '表格回显样式',
-    is_default     char(1)           default 'N' not null     comment '默认（Y是 N否）',
+    default_flag   char(1)           default 'N' not null     comment '默认（Y是 N否）',
     status         char(1)           default '0' not null     comment '状态（0正常 1停用）',
     create_by      varchar(32)       default null             comment '创建者',
     create_time    datetime          default null             comment '创建时间',
