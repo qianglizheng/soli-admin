@@ -112,3 +112,20 @@ create table sys_dict_data (
     key idx_sys_dict_data_type_id (dict_type_id),
     unique key uk_sys_dict_data_type_value (dict_type_id, value)
 ) engine=innodb auto_increment=4000 comment = '字典数据表';
+
+-- 参数配置表
+drop table if exists sys_config;
+create table sys_config (
+    id             bigint(20)        not null auto_increment  comment '参数主键',
+    config_name    varchar(100)      not null                 comment '参数名称',
+    config_key     varchar(100)      not null                 comment '参数键名',
+    config_value   varchar(500)      default null             comment '参数键值',
+    config_type    char(1)           default 'N' not null     comment '系统内置（Y是 N否）',
+    create_by      varchar(32)       default null             comment '创建者',
+    create_time    datetime          default null             comment '创建时间',
+    update_by      varchar(32)       default null             comment '更新者',
+    update_time    datetime          default null             comment '更新时间',
+    note           varchar(500)      default null             comment '备注',
+    primary key (id),
+    unique key uk_sys_config_key (config_key)
+) engine=innodb auto_increment=5000 comment = '参数配置表';

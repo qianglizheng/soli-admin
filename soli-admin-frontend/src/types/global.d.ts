@@ -92,3 +92,14 @@ export interface SysDictData {
   createTime?: string;
   updateTime?: string;
 }
+
+export interface SysConfig {
+  id: number;
+  configName: string;
+  configKey: string;
+  configValue?: string;
+  configType?: string;
+  note?: string;
+  createTime?: string;
+  updateTime?: string;
+}

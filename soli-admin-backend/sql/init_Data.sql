@@ -43,6 +43,7 @@ insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, i
 insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1502, '参数删除', 1500, 2, null, null, '2', 'sys:config:remove', null, '0', 'system', now(), null, null, null);
 insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1503, '参数修改', 1500, 3, null, null, '2', 'sys:config:modify', null, '0', 'system', now(), null, null, null);
 insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1504, '参数分页', 1500, 4, null, null, '2', 'sys:config:page', null, '0', 'system', now(), null, null, null);
+insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1505, '刷新缓存', 1500, 5, null, null, '2', 'sys:config:refreshCache', null, '0', 'system', now(), null, null, null);
 
 insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1600, '日志管理', 1000, 6, 'log', null, '0', null, 'Monitor', '0', 'system', now(), null, null, null);
 insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1610, '操作日志', 1600, 1, 'operlog', 'system/monitor/operlog/index', '1', null, 'Document', '0', 'system', now(), null, null, null);
@@ -85,6 +86,7 @@ insert into sys_role_menu (role_id, menu_id) values (1, 1501);
 insert into sys_role_menu (role_id, menu_id) values (1, 1502);
 insert into sys_role_menu (role_id, menu_id) values (1, 1503);
 insert into sys_role_menu (role_id, menu_id) values (1, 1504);
+insert into sys_role_menu (role_id, menu_id) values (1, 1505);
 insert into sys_role_menu (role_id, menu_id) values (1, 1600);
 insert into sys_role_menu (role_id, menu_id) values (1, 1610);
 insert into sys_role_menu (role_id, menu_id) values (1, 1611);
@@ -97,6 +99,7 @@ insert into sys_role_menu (role_id, menu_id) values (1, 1622);
 insert into sys_role_menu (role_id, menu_id) values (1, 1623);
 insert into sys_role_menu (role_id, menu_id) values (1, 1624);
 
+-- 字典初始化
 delete from sys_dict_type;
 insert into sys_dict_type (id, name, type, status, create_by, create_time, update_by, update_time, note) values (3001, '用户性别', 'sys_user_sex', '0', 'system', now(), null, null, '用户性别列表');
 insert into sys_dict_type (id, name, type, status, create_by, create_time, update_by, update_time, note) values (3002, '显示状态', 'sys_show_hide', '0', 'system', now(), null, null, '菜单显示状态列表');
@@ -113,3 +116,9 @@ insert into sys_dict_data (id, dict_type_id, label, value, sort, css_class, list
 insert into sys_dict_data (id, dict_type_id, label, value, sort, css_class, list_class, default_flag, status, create_by, create_time, update_by, update_time, note) values (4007, 3003, '停用', '1', 2, null, 'danger', 'N', '0', 'system', now(), null, null, '系统停用状态');
 insert into sys_dict_data (id, dict_type_id, label, value, sort, css_class, list_class, default_flag, status, create_by, create_time, update_by, update_time, note) values (4008, 3004, '是', 'Y', 1, null, 'success', 'Y', '0', 'system', now(), null, null, '是否字典是');
 insert into sys_dict_data (id, dict_type_id, label, value, sort, css_class, list_class, default_flag, status, create_by, create_time, update_by, update_time, note) values (4009, 3004, '否', 'N', 2, null, 'info', 'N', '0', 'system', now(), null, null, '是否字典否');
+
+-- 参数配置初始化
+delete from sys_config;
+insert into sys_config (id, config_name, config_key, config_value, config_type, create_by, create_time, update_by, update_time, note) values (5001, '主框架页-默认皮肤样式名称', 'sys.index.skinName', 'skin-blue', 'Y', 'system', now(), null, null, '蓝色 skin-blue、绿色 skin-green、紫色 skin-purple、红色 skin-red、黄色 skin-yellow');
+insert into sys_config (id, config_name, config_key, config_value, config_type, create_by, create_time, update_by, update_time, note) values (5002, '用户管理-账号初始密码', 'sys.user.initPassword', '123456', 'Y', 'system', now(), null, null, '初始化密码 123456');
+insert into sys_config (id, config_name, config_key, config_value, config_type, create_by, create_time, update_by, update_time, note) values (5003, '账号自助-验证码开关', 'sys.account.captchaEnabled', 'true', 'Y', 'system', now(), null, null, '是否开启验证码');

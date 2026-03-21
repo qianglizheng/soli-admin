@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.soli.system.core.mapper.SysConfigMapper">
+
+    <resultMap id="SysConfigResultMap" type="com.soli.system.core.service.impl.sysconfig.SysConfigEntity">
+        <id property="id" column="id"/>
+        <result property="configName" column="config_name"/>
+        <result property="configKey" column="config_key"/>
+        <result property="configValue" column="config_value"/>
+        <result property="configType" column="config_type"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="note" column="note"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, config_name, config_key, config_value, config_type, create_by, create_time, update_by, update_time, note
+    </sql>
+
+    <insert id="insert" parameterType="com.soli.system.core.service.impl.sysconfig.SysConfigEntity">
+        insert into sys_config (
+            id, config_name, config_key, config_value, config_type, create_by, create_time, update_by, update_time, note
+        ) values (
+            #{id}, #{configName}, #{configKey}, #{configValue}, #{configType}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.soli.system.core.service.impl.sysconfig.SysConfigEntity">
+        update sys_config
+        <set>
+            <if test="configName != null">config_name = #{configName},</if>
+            <if test="configKey != null">config_key = #{configKey},</if>
+            <if test="configValue != null">config_value = #{configValue},</if>
+            <if test="configType != null">config_type = #{configType},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="note != null">note = #{note},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        delete from sys_config where id = #{id}
+    </delete>
+
+    <select id="select" resultMap="SysConfigResultMap">
+        select <include refid="Base_Column_List"/>
+        from sys_config
+        <where>
+            <if test="configName != null and configName != ''">
+                and config_name like concat('%', #{configName}, '%')
+            </if>
+            <if test="configKey != null and configKey != ''">
+                and config_key like concat('%', #{configKey}, '%')
+            </if>
+            <if test="configType != null and configType != ''">
+                and config_type = #{configType}
+            </if>
+        </where>
+        order by create_time desc, id desc
+    </select>
+
+    <select id="selectById" resultMap="SysConfigResultMap">
+        select <include refid="Base_Column_List"/>
+        from sys_config
+        where id = #{id}
+    </select>
+
+    <select id="selectByConfigKey" resultMap="SysConfigResultMap">
+        select <include refid="Base_Column_List"/>
+        from sys_config
+        where config_key = #{configKey}
+        limit 1
+    </select>
+
+</mapper>
