@@ -19,4 +19,11 @@ public interface SysRoleMapper extends BaseCrudMapper<SysRoleEntity, SysRoleQuer
      */
     List<SysRoleEntity> selectByUserId(Long userId);
 
+    /**
+     * 查询所有状态正常的角色
+     *
+     * @return 角色集合
+     */
+    List<SysRoleEntity> selectAllEnabled();
+
 }

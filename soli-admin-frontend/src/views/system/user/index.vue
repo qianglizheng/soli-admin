@@ -1,7 +1,6 @@
 <template>
   <div class="app-container">
-    <!-- 搜索区域 -->
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
+    <el-form :model="queryParams" :inline="true" v-show="showSearch">
       <el-form-item label="用户名称" prop="username">
         <el-input
           v-model="queryParams.username"
@@ -21,7 +20,7 @@
         />
       </el-form-item>
       <el-form-item label="状态" prop="status">
-        <el-select v-model="queryParams.status" placeholder="用户状态" clearable style="width: 240px">
+        <el-select v-model="queryParams.status" placeholder="请选择用户状态" clearable style="width: 240px">
           <el-option label="正常" value="0" />
           <el-option label="停用" value="1" />
         </el-select>
@@ -32,20 +31,18 @@
       </el-form-item>
     </el-form>
 
-    <!-- 操作按钮区域 -->
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button type="primary" plain icon="Plus" @click="handleAdd">新增</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate">修改</el-button>
+        <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate()">修改</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()">删除</el-button>
       </el-col>
     </el-row>
 
-    <!-- 表格区域 -->
     <el-table v-loading="loading" :data="userList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="用户编号" align="center" prop="id" width="120" />
@@ -54,31 +51,27 @@
       <el-table-column label="手机号码" align="center" prop="phone" width="140" />
       <el-table-column label="用户邮箱" align="center" prop="email" :show-overflow-tooltip="true" min-width="180" />
       <el-table-column label="账号类型" align="center" width="120">
-        <template #default="scope">
-          <el-tag :type="scope.row.type === '0' ? 'danger' : 'info'">
-            {{ scope.row.type === '0' ? '超级管理员' : '普通用户' }}
+        <template #default="{ row }">
+          <el-tag :type="row.type === '0' ? 'danger' : 'info'">
+            {{ row.type === '0' ? '超级管理员' : '普通用户' }}
           </el-tag>
         </template>
       </el-table-column>
       <el-table-column label="状态" align="center" width="100">
-        <template #default="scope">
+        <template #default="{ row }">
           <el-switch
-            :model-value="scope.row.status"
+            :model-value="row.status"
             active-value="0"
             inactive-value="1"
-            @change="handleStatusSwitchChange(scope.row, $event)"
+            @change="handleStatusSwitchChange(row, $event)"
           />
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180">
-        <template #default="scope">
-          <span>{{ scope.row.createTime }}</span>
-        </template>
-      </el-table-column>
+      <el-table-column label="创建时间" align="center" prop="createTime" width="180" />
       <el-table-column label="操作" align="center" width="180" fixed="right" class-name="small-padding fixed-width">
-        <template #default="scope">
-          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)">修改</el-button>
-          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)">删除</el-button>
+        <template #default="{ row }">
+          <el-button link type="primary" icon="Edit" @click="handleUpdate(row)">修改</el-button>
+          <el-button link type="primary" icon="Delete" @click="handleDelete(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -95,74 +88,37 @@
       />
     </div>
 
-    <el-dialog v-model="dialogVisible" :title="dialogTitle" width="520px" @closed="resetForm">
-      <el-form ref="formRef" :model="formData" :rules="formRules" label-width="90px">
-        <el-form-item label="用户名称" prop="username">
-          <el-input v-model="formData.username" :disabled="isEdit" placeholder="请输入用户名称" />
-        </el-form-item>
-        <el-form-item v-if="!isEdit" label="用户密码" prop="password">
-          <el-input v-model="formData.password" placeholder="请输入用户密码" show-password type="password" />
-        </el-form-item>
-        <el-form-item label="用户昵称" prop="nickname">
-          <el-input v-model="formData.nickname" placeholder="请输入用户昵称" />
-        </el-form-item>
-        <el-form-item label="用户邮箱" prop="email">
-          <el-input v-model="formData.email" placeholder="请输入用户邮箱" />
-        </el-form-item>
-        <el-form-item label="手机号码" prop="phone">
-          <el-input v-model="formData.phone" placeholder="请输入手机号码" />
-        </el-form-item>
-        <el-form-item label="性别" prop="sex">
-          <el-radio-group v-model="formData.sex">
-            <el-radio value="0">男</el-radio>
-            <el-radio value="1">女</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="类型" prop="type">
-          <el-radio-group v-model="formData.type">
-            <el-radio value="0">超级管理员</el-radio>
-            <el-radio value="1">普通用户</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-radio-group v-model="formData.status">
-            <el-radio value="0">正常</el-radio>
-            <el-radio value="1">停用</el-radio>
-          </el-radio-group>
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button :loading="submitLoading" type="primary" @click="submitForm">确定</el-button>
-      </template>
-    </el-dialog>
+    <user-form
+      v-model="formVisible"
+      :mode="formMode"
+      :initial-data="formInitial"
+      :role-options="roleOptions"
+      :submitting="submitLoading"
+      @submit="handleFormSubmit"
+      @cancel="handleFormCancel"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue';
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus';
-import { createUser, deleteUser, getUserPage, updateUser, type CreateUserPayload } from '@/api/user';
-import type { SysUser } from '@/types/global';
+import { onMounted, reactive, ref } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import {
+  createUser,
+  deleteUser,
+  getUserDetail,
+  getUserPage,
+  getUserRoleOptions,
+  updateUser,
+  type CreateUserPayload
+} from '@/api/user';
+import type { SysRole, SysUser } from '@/types/global';
+import UserForm, { type UserFormModel } from './components/UserForm.vue';
 
 defineOptions({
   name: 'SystemUser'
 });
 
-interface UserForm {
-  id?: number;
-  username: string;
-  password: string;
-  nickname: string;
-  email: string;
-  phone: string;
-  sex: string;
-  type: string;
-  status: string;
-}
-
-const queryRef = ref<FormInstance>();
-const formRef = ref<FormInstance>();
 const showSearch = ref(true);
 const loading = ref(false);
 const submitLoading = ref(false);
@@ -171,8 +127,10 @@ const multiple = ref(true);
 const total = ref(0);
 const userList = ref<SysUser[]>([]);
 const selectedRows = ref<SysUser[]>([]);
-const dialogVisible = ref(false);
-const isEdit = ref(false);
+const formVisible = ref(false);
+const formMode = ref<'create' | 'edit'>('create');
+const formInitial = ref<Partial<UserFormModel>>({});
+const roleOptions = ref<SysRole[]>([]);
 
 const queryParams = reactive({
   pageNum: 1,
@@ -181,31 +139,6 @@ const queryParams = reactive({
   phone: '',
   status: ''
 });
-
-const createDefaultForm = (): UserForm => ({
-  username: '',
-  password: '',
-  nickname: '',
-  email: '',
-  phone: '',
-  sex: '0',
-  type: '1',
-  status: '0'
-});
-
-const formData = reactive<UserForm>(createDefaultForm());
-
-const formRules: FormRules<UserForm> = {
-  username: [{ required: true, message: '请输入用户名称', trigger: 'blur' }],
-  password: [{ required: true, message: '请输入用户密码', trigger: 'blur' }]
-};
-
-const dialogTitle = computed(() => (isEdit.value ? '修改用户' : '新增用户'));
-
-const resetForm = () => {
-  Object.assign(formData, createDefaultForm());
-  formRef.value?.clearValidate();
-};
 
 const getList = async () => {
   loading.value = true;
@@ -216,6 +149,14 @@ const getList = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const ensureRoleOptions = async () => {
+  if (roleOptions.value.length) {
+    return;
+  }
+  const res = await getUserRoleOptions();
+  roleOptions.value = res.data || [];
 };
 
 const handleQuery = () => {
@@ -238,88 +179,112 @@ const handlePageSizeChange = () => {
 const handleSelectionChange = (selection: SysUser[]) => {
   selectedRows.value = selection;
   single.value = selection.length !== 1;
-  multiple.value = !selection.length;
+  multiple.value = selection.length === 0;
 };
 
-const handleAdd = () => {
-  isEdit.value = false;
-  resetForm();
-  dialogVisible.value = true;
-};
-
-const handleUpdate = (row?: SysUser) => {
-  const currentRow = row || selectedRows.value[0];
-  if (!currentRow) return;
-  isEdit.value = true;
-  resetForm();
-  Object.assign(formData, {
-    id: currentRow.id,
-    username: currentRow.username || '',
+const handleAdd = async () => {
+  await ensureRoleOptions();
+  formMode.value = 'create';
+  formInitial.value = {
+    username: '',
     password: '',
-    nickname: currentRow.nickname || '',
-    email: currentRow.email || '',
-    phone: currentRow.phone || '',
-    sex: currentRow.sex || '0',
-    type: currentRow.type || '1',
-    status: currentRow.status || '0'
-  });
-  dialogVisible.value = true;
+    nickname: '',
+    email: '',
+    phone: '',
+    sex: '0',
+    type: '1',
+    status: '0',
+    roleIds: []
+  };
+  formVisible.value = true;
 };
 
-const submitForm = async () => {
-  if (!formRef.value) return;
-  const valid = await formRef.value.validate().catch(() => false);
-  if (!valid) return;
+const handleUpdate = async (row?: SysUser) => {
+  const currentRow = row || selectedRows.value[0];
+  if (!currentRow) {
+    return;
+  }
+  loading.value = true;
+  try {
+    const [detailRes] = await Promise.all([
+      getUserDetail(currentRow.id),
+      ensureRoleOptions()
+    ]);
+    const detail = detailRes.data;
+    formMode.value = 'edit';
+    formInitial.value = {
+      id: detail.id,
+      username: detail.username || '',
+      password: '',
+      nickname: detail.nickname || '',
+      email: detail.email || '',
+      phone: detail.phone || '',
+      sex: detail.sex || '0',
+      type: detail.type || '1',
+      status: detail.status || '0',
+      roleIds: detail.roleIds || []
+    };
+    formVisible.value = true;
+  } finally {
+    loading.value = false;
+  }
+};
 
+const handleFormSubmit = async (data: UserFormModel) => {
   submitLoading.value = true;
   try {
-    if (isEdit.value && formData.id) {
+    if (formMode.value === 'edit' && data.id) {
       await updateUser({
-        id: formData.id,
-        nickname: formData.nickname || undefined,
-        email: formData.email || undefined,
-        phone: formData.phone || undefined,
-        sex: formData.sex,
-        type: formData.type,
-        status: formData.status
+        id: data.id,
+        nickname: data.nickname || undefined,
+        email: data.email || undefined,
+        phone: data.phone || undefined,
+        sex: data.sex,
+        type: data.type,
+        status: data.status,
+        roleIds: data.roleIds
       });
       ElMessage.success('修改成功');
     } else {
       const payload: CreateUserPayload = {
-        username: formData.username,
-        password: formData.password,
-        nickname: formData.nickname || undefined,
-        email: formData.email || undefined,
-        phone: formData.phone || undefined,
-        sex: formData.sex,
-        type: formData.type,
-        status: formData.status
+        username: data.username,
+        password: data.password,
+        nickname: data.nickname || undefined,
+        email: data.email || undefined,
+        phone: data.phone || undefined,
+        sex: data.sex,
+        type: data.type,
+        status: data.status,
+        roleIds: data.roleIds
       };
       await createUser(payload);
       ElMessage.success('新增成功');
     }
-    dialogVisible.value = false;
+    formVisible.value = false;
     await getList();
   } finally {
     submitLoading.value = false;
   }
 };
 
+const handleFormCancel = () => {
+  formVisible.value = false;
+};
+
 const handleDelete = async (row?: SysUser) => {
   const rows = row ? [row] : selectedRows.value;
-  if (!rows.length) return;
-
+  if (!rows.length) {
+    return;
+  }
   const names = rows.map(item => item.username).join('、');
-  await ElMessageBox.confirm(`是否确认删除用户名称为"${names}"的数据项？`, '警告', {
+  await ElMessageBox.confirm(`是否确认删除用户名称为“${names}”的数据项？`, '警告', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'
   });
-
   for (const item of rows) {
     await deleteUser(item.id);
   }
-
   ElMessage.success('删除成功');
   if (userList.value.length === rows.length && queryParams.pageNum > 1) {
     queryParams.pageNum -= 1;

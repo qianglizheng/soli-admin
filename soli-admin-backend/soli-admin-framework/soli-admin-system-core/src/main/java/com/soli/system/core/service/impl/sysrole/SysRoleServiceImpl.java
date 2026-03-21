@@ -1,21 +1,19 @@
 package com.soli.system.core.service.impl.sysrole;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
+import com.soli.system.core.mapper.SysRoleMapper;
 import com.soli.system.core.service.impl.BaseCrudServiceImpl;
+import com.soli.system.service.sysrole.SysRoleDTO;
 import com.soli.system.service.sysrole.SysRoleQuery;
-import org.apache.commons.lang3.StringUtils;
+import com.soli.system.service.sysrole.SysRoleService;
 import org.springframework.stereotype.Service;
 
-import com.soli.system.core.mapper.SysRoleMapper;
-import com.soli.system.service.sysrole.SysRoleDTO;
-import com.soli.system.service.sysrole.SysRoleService;
+import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * @author lizhengqiang
  * @since 2026-03-14 15:59
-*/
+ */
 @Service
 public class SysRoleServiceImpl extends BaseCrudServiceImpl<SysRoleDTO, SysRoleEntity, SysRoleQuery>
         implements SysRoleService {
@@ -34,14 +32,17 @@ public class SysRoleServiceImpl extends BaseCrudServiceImpl<SysRoleDTO, SysRoleE
     }
 
     @Override
-    public void modify(SysRoleDTO dto) {
+    public List<SysRoleDTO> listAllEnabled() {
+        return converter.toDTOList(sysRoleMapper.selectAllEnabled());
+    }
+
+    @Override
+    protected void beforeModify(SysRoleDTO dto) {
         dto.setUpdateTime(LocalDateTime.now());
-        super.modify(dto);
     }
 
     @Override
     protected String moduleName() {
         return "角色管理";
     }
-
 }

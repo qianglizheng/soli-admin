@@ -37,6 +37,7 @@ export interface SysUser {
   type?: string;
   sex?: string;
   status?: string;
+  roleIds?: number[];
   createTime?: string;
   updateTime?: string;
 }

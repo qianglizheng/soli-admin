@@ -1,20 +1,18 @@
 package com.soli.system.service.sysuser;
 
-import java.time.LocalDateTime;
-
 import com.soli.common.api.dto.BaseDTO;
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 系统用户传输对象
  *
  * @author lizhengqiang
  * @since 2026-03-08 20:50
-*/
+ */
 @Getter
 @Setter
 public class SysUserDTO extends BaseDTO {
@@ -52,4 +50,6 @@ public class SysUserDTO extends BaseDTO {
     /** 用户最后登录时间 */
     private LocalDateTime loginTime;
 
+    /** 关联角色 ID 列表 */
+    private List<Long> roleIds;
 }

@@ -4,8 +4,10 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 /**
- * 更新用户请求对象
+ * 修改用户请求对象
  *
  * @author lizhengqiang
  * @since 2026-03-20 21:03
@@ -14,7 +16,7 @@ import lombok.Setter;
 @Setter
 public class SysUserModifyRequest {
 
-    /** 用户ID */
+    /** 用户 ID */
     @NotNull(message = "用户ID不能为空")
     private Long id;
 
@@ -38,4 +40,7 @@ public class SysUserModifyRequest {
 
     /** 用户状态 */
     private String status;
+
+    /** 关联角色 ID 列表 */
+    private List<Long> roleIds;
 }

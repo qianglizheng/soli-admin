@@ -4,6 +4,8 @@ import com.soli.common.api.exception.BusinessException;
 import com.soli.common.api.vo.PageResult;
 import com.soli.common.api.vo.Result;
 import com.soli.system.core.service.impl.sysuser.SysUserConverter;
+import com.soli.system.service.sysrole.SysRoleDTO;
+import com.soli.system.service.sysrole.SysRoleService;
 import com.soli.system.service.sysuser.SysUserCreateRequest;
 import com.soli.system.service.sysuser.SysUserDTO;
 import com.soli.system.service.sysuser.SysUserModifyRequest;
@@ -23,12 +25,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 /**
  * 用户管理控制器
  *
  * @author lizhengqiang
  * @since 2026-03-08 0:48
-*/
+ */
 @Tag(name = "用户管理", description = "用户管理相关接口")
 @RestController
 @RequestMapping("/sys/user")
@@ -38,6 +42,8 @@ public class SysUserController {
     private final SysUserService service;
 
     private final SysUserConverter converter;
+
+    private final SysRoleService roleService;
 
     @Operation(summary = "新增用户")
     @PreAuthorize("hasAuthority('sys:user:create')")
@@ -76,5 +82,12 @@ public class SysUserController {
     public Result<SysUserDTO> getById(@PathVariable Long id) {
         SysUserDTO user = service.getById(id).orElseThrow(() -> new BusinessException("指定用户不存在！"));
         return Result.success(user);
+    }
+
+    @Operation(summary = "查询状态正常的所有角色")
+    @PreAuthorize("hasAnyAuthority('sys:user:create','sys:user:modify','sys:user:page')")
+    @GetMapping("/role-options")
+    public Result<List<SysRoleDTO>> getRoleOptions() {
+        return Result.success(roleService.listAllEnabled());
     }
 }

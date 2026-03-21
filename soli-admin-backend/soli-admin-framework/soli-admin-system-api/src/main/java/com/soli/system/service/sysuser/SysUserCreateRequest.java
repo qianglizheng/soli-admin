@@ -4,12 +4,14 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 /**
- * 添加用户对象
+ * 新增用户请求对象
  *
  * @author lizhengqiang
  * @since 2026-03-20 21:01
-*/
+ */
 @Getter
 @Setter
 public class SysUserCreateRequest {
@@ -43,4 +45,6 @@ public class SysUserCreateRequest {
     /** 用户状态 */
     private String status;
 
+    /** 关联角色 ID 列表 */
+    private List<Long> roleIds;
 }

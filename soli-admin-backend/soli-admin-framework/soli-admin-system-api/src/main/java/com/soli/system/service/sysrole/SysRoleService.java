@@ -20,4 +20,11 @@ public interface SysRoleService extends BaseCrudService<SysRoleDTO, SysRoleQuery
      */
     List<SysRoleDTO> getByUserId(Long userId);
 
+    /**
+     * 查询所有状态正常的角色
+     *
+     * @return 角色集合
+     */
+    List<SysRoleDTO> listAllEnabled();
+
 }
