@@ -103,7 +103,7 @@ import {
   updateConfig
 } from '@/api/config';
 import type { SysConfig } from '@/types/global';
-import ConfigForm from './ConfigForm.vue';
+import ConfigForm from './components/ConfigForm.vue';
 
 defineOptions({
   name: 'SystemConfig'
