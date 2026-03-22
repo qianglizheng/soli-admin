@@ -5,9 +5,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.soli.auth.api.dto.TokenDTO;
-import com.soli.auth.api.dto.UsernamePasswordLoginDTO;
-import com.soli.auth.api.service.AuthService;
+import com.soli.auth.api.service.auth.TokenDTO;
+import com.soli.auth.api.service.auth.UsernamePasswordLoginDTO;
+import com.soli.auth.api.service.auth.AuthService;
 import com.soli.common.api.vo.Result;
 
 import io.swagger.v3.oas.annotations.Operation;

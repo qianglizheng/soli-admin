@@ -2,7 +2,7 @@ package com.soli.auth.api.service;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.soli.auth.api.dto.TokenDTO;
+import com.soli.auth.api.service.auth.TokenDTO;
 
 /**
  * jwt 服务

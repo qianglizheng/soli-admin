@@ -1,4 +1,4 @@
-package com.soli.auth.api.constant;
+package com.soli.auth.api.service.captcha;
 
 /**
  * 认证服务常量

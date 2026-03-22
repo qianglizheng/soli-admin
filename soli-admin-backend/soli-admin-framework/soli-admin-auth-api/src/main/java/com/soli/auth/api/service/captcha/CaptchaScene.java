@@ -1,4 +1,4 @@
-package com.soli.auth.api.enums;
+package com.soli.auth.api.service.captcha;
 
 /**
  * @author lizhengqiang

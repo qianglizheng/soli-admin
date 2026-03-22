@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.soli.auth.api.dto.BaseCaptchaDTO;
-import com.soli.auth.api.service.CaptchaService;
+import com.soli.auth.api.service.captcha.BaseCaptchaDTO;
+import com.soli.auth.api.service.captcha.CaptchaService;
 import com.soli.common.api.vo.Result;
 
 import io.swagger.v3.oas.annotations.Operation;

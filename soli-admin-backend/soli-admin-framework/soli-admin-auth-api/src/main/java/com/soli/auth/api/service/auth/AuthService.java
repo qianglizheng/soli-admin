@@ -1,7 +1,5 @@
-package com.soli.auth.api.service;
+package com.soli.auth.api.service.auth;
 
-import com.soli.auth.api.dto.TokenDTO;
-import com.soli.auth.api.dto.UsernamePasswordLoginDTO;
 import com.soli.common.api.exception.BusinessException;
 
 /**

@@ -1,8 +1,5 @@
-package com.soli.auth.api.service;
+package com.soli.auth.api.service.captcha;
 
-import com.soli.auth.api.dto.BaseCaptchaDTO;
-import com.soli.auth.api.enums.CaptchaScene;
-import com.soli.auth.api.enums.CaptchaType;
 import com.soli.common.api.exception.BusinessException;
 
 /**

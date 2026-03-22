@@ -1,9 +1,11 @@
-package com.soli.auth.api.dto;
+package com.soli.auth.api.service.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
+ * 双 Token
+ *
  * @author lizhengqiang
  * @since 2026-03-08 15:50
 */

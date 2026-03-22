@@ -6,12 +6,12 @@ import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import com.soli.auth.api.dto.TokenDTO;
-import com.soli.auth.api.dto.UsernamePasswordLoginDTO;
-import com.soli.auth.api.enums.CaptchaScene;
-import com.soli.auth.api.enums.CaptchaType;
-import com.soli.auth.api.service.AuthService;
-import com.soli.auth.api.service.CaptchaService;
+import com.soli.auth.api.service.auth.TokenDTO;
+import com.soli.auth.api.service.auth.UsernamePasswordLoginDTO;
+import com.soli.auth.api.service.captcha.CaptchaScene;
+import com.soli.auth.api.service.captcha.CaptchaType;
+import com.soli.auth.api.service.auth.AuthService;
+import com.soli.auth.api.service.captcha.CaptchaService;
 import com.soli.auth.api.service.JwtService;
 import com.soli.auth.core.config.CaptchaProperties;
 import com.soli.common.api.exception.BusinessException;

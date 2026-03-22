@@ -7,11 +7,11 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import com.soli.auth.api.constant.CaptchaConstant;
-import com.soli.auth.api.dto.CaptchaUUIDDTO;
-import com.soli.auth.api.enums.CaptchaScene;
-import com.soli.auth.api.enums.CaptchaType;
-import com.soli.auth.api.service.CaptchaService;
+import com.soli.auth.api.service.captcha.CaptchaConstant;
+import com.soli.auth.api.service.captcha.CaptchaUUIDDTO;
+import com.soli.auth.api.service.captcha.CaptchaScene;
+import com.soli.auth.api.service.captcha.CaptchaType;
+import com.soli.auth.api.service.captcha.CaptchaService;
 import com.soli.auth.core.config.CaptchaProperties;
 import com.soli.auth.api.service.SmsService;
 import com.soli.common.api.exception.BusinessException;

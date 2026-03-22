@@ -1,4 +1,4 @@
-package com.soli.auth.api.dto;
+package com.soli.auth.api.service.captcha;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

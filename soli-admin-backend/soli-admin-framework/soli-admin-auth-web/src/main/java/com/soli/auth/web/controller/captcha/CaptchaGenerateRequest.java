@@ -1,7 +1,7 @@
 package com.soli.auth.web.controller.captcha;
 
-import com.soli.auth.api.enums.CaptchaScene;
-import com.soli.auth.api.enums.CaptchaType;
+import com.soli.auth.api.service.captcha.CaptchaScene;
+import com.soli.auth.api.service.captcha.CaptchaType;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
