@@ -1,34 +1,61 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" :inline="true" v-show="showSearch">
-      <el-form-item label="参数名称" prop="configName">
-        <el-input
-          v-model="queryParams.configName"
-          placeholder="请输入参数名称"
-          clearable
-          style="width: 240px"
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="参数键名" prop="configKey">
-        <el-input
-          v-model="queryParams.configKey"
-          placeholder="请输入参数键名"
-          clearable
-          style="width: 240px"
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="系统内置" prop="configType">
-        <el-select v-model="queryParams.configType" placeholder="请选择系统内置" clearable style="width: 240px">
-          <el-option label="是" value="Y" />
-          <el-option label="否" value="N" />
-        </el-select>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-      </el-form-item>
+        <el-form :model="queryParams" :inline="true" v-show="showSearch">
+      <div ref="searchCollapseRef" class="search-collapse-container">
+        <el-form-item label="????" prop="configName" data-search-item="true">
+          <el-input
+            v-model="queryParams.configName"
+            placeholder="???????"
+            clearable
+            style="width: 240px"
+            @keyup.enter="handleQuery"
+          />
+        </el-form-item>
+        <el-form-item label="????" prop="configKey" data-search-item="true">
+          <el-input
+            v-model="queryParams.configKey"
+            placeholder="???????"
+            clearable
+            style="width: 240px"
+            @keyup.enter="handleQuery"
+          />
+        </el-form-item>
+        <el-form-item
+          label="????"
+          prop="configType"
+          data-search-item="true"
+          data-search-more="true"
+          :class="{ 'search-collapse-item-hidden': !isSearchMeasured || (showMoreButton && !showMoreSearch) }"
+        >
+          <el-select v-model="queryParams.configType" placeholder="???????" clearable style="width: 240px">
+            <el-option label="?" value="Y" />
+            <el-option label="?" value="N" />
+          </el-select>
+        </el-form-item>
+        <el-form-item
+          label="????"
+          prop="remarkKeyword"
+          data-search-item="true"
+          data-search-more="true"
+          :class="{ 'search-collapse-item-hidden': !isSearchMeasured || (showMoreButton && !showMoreSearch) }"
+        >
+          <el-input
+            v-model="queryParams.remarkKeyword"
+            placeholder="???????"
+            clearable
+            style="width: 240px"
+            @keyup.enter="handleQuery"
+          />
+        </el-form-item>
+        <el-form-item data-search-actions="true">
+          <el-button type="primary" icon="Search" @click="handleQuery">??</el-button>
+          <el-button icon="Refresh" @click="resetQuery">??</el-button>
+          <el-button v-if="isSearchMeasured && showMoreButton" link @click="toggleMoreSearch">
+            {{ showMoreSearch ? '??' : '??' }}
+            <el-icon class="el-icon--right"><component :is="showMoreSearch ? 'ArrowUp' : 'ArrowDown'" /></el-icon>
+          </el-button>
+        </el-form-item>
+      </div>
     </el-form>
 
     <el-row :gutter="10" class="mb8">
@@ -104,12 +131,20 @@ import {
 } from '@/api/config';
 import type { SysConfig } from '@/types/global';
 import ConfigForm from './components/ConfigForm.vue';
+import { useSearchCollapse } from '@/utils/useSearchCollapse';
 
 defineOptions({
   name: 'SystemConfig'
 });
 
 const showSearch = ref(true);
+const {
+  searchCollapseRef,
+  isSearchMeasured,
+  showMoreButton,
+  showMoreSearch,
+  toggleMoreSearch,
+} = useSearchCollapse(showSearch);
 const loading = ref(false);
 const single = ref(true);
 const multiple = ref(true);
@@ -125,7 +160,8 @@ const queryParams = reactive({
   pageSize: 10,
   configName: '',
   configKey: '',
-  configType: ''
+  configType: '',
+  remarkKeyword: ''
 });
 
 const getList = async () => {
@@ -154,6 +190,7 @@ const resetQuery = () => {
   queryParams.configName = '';
   queryParams.configKey = '';
   queryParams.configType = '';
+  queryParams.remarkKeyword = '';
   handleQuery();
 };
 

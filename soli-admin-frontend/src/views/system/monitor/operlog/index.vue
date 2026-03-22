@@ -1,35 +1,78 @@
 <template>
   <div class="app-container">
     <!-- 搜索区域 -->
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
-      <el-form-item label="系统模块" prop="title">
-        <el-input v-model="queryParams.title" placeholder="请输入系统模块" clearable style="width: 240px"
-          @keyup.enter="handleQuery" />
-      </el-form-item>
-      <el-form-item label="操作人员" prop="operName">
-        <el-input v-model="queryParams.operName" placeholder="请输入操作人员" clearable style="width: 240px"
-          @keyup.enter="handleQuery" />
-      </el-form-item>
-      <el-form-item label="类型" prop="businessType">
-        <el-select v-model="queryParams.businessType" placeholder="操作类型" clearable style="width: 240px">
-          <el-option label="新增" value="1" />
-          <el-option label="修改" value="2" />
-          <el-option label="删除" value="3" />
-          <el-option label="授权" value="4" />
-          <el-option label="导出" value="5" />
-          <el-option label="导入" value="6" />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="状态" prop="status">
-        <el-select v-model="queryParams.status" placeholder="操作状态" clearable style="width: 240px">
-          <el-option label="成功" value="0" />
-          <el-option label="失败" value="1" />
-        </el-select>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-      </el-form-item>
+        <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
+      <div ref="searchCollapseRef" class="search-collapse-container">
+        <el-form-item label="????" prop="title" data-search-item="true">
+          <el-input
+            v-model="queryParams.title"
+            placeholder="???????"
+            clearable
+            style="width: 240px"
+            @keyup.enter="handleQuery"
+          />
+        </el-form-item>
+        <el-form-item label="????" prop="operName" data-search-item="true">
+          <el-input
+            v-model="queryParams.operName"
+            placeholder="???????"
+            clearable
+            style="width: 240px"
+            @keyup.enter="handleQuery"
+          />
+        </el-form-item>
+        <el-form-item
+          label="??"
+          prop="businessType"
+          data-search-item="true"
+          data-search-more="true"
+          :class="{ 'search-collapse-item-hidden': !isSearchMeasured || (showMoreButton && !showMoreSearch) }"
+        >
+          <el-select v-model="queryParams.businessType" placeholder="????" clearable style="width: 240px">
+            <el-option label="??" value="1" />
+            <el-option label="??" value="2" />
+            <el-option label="??" value="3" />
+            <el-option label="??" value="4" />
+            <el-option label="??" value="5" />
+            <el-option label="??" value="6" />
+          </el-select>
+        </el-form-item>
+        <el-form-item
+          label="??"
+          prop="status"
+          data-search-item="true"
+          data-search-more="true"
+          :class="{ 'search-collapse-item-hidden': !isSearchMeasured || (showMoreButton && !showMoreSearch) }"
+        >
+          <el-select v-model="queryParams.status" placeholder="????" clearable style="width: 240px">
+            <el-option label="??" value="0" />
+            <el-option label="??" value="1" />
+          </el-select>
+        </el-form-item>
+        <el-form-item
+          label="????"
+          prop="requestMethod"
+          data-search-item="true"
+          data-search-more="true"
+          :class="{ 'search-collapse-item-hidden': !isSearchMeasured || (showMoreButton && !showMoreSearch) }"
+        >
+          <el-input
+            v-model="queryParams.requestMethod"
+            placeholder="???????"
+            clearable
+            style="width: 240px"
+            @keyup.enter="handleQuery"
+          />
+        </el-form-item>
+        <el-form-item data-search-actions="true">
+          <el-button type="primary" icon="Search" @click="handleQuery">??</el-button>
+          <el-button icon="Refresh" @click="resetQuery">??</el-button>
+          <el-button v-if="isSearchMeasured && showMoreButton" link @click="toggleMoreSearch">
+            {{ showMoreSearch ? '??' : '??' }}
+            <el-icon class="el-icon--right"><component :is="showMoreSearch ? 'ArrowUp' : 'ArrowDown'" /></el-icon>
+          </el-button>
+        </el-form-item>
+      </div>
     </el-form>
 
     <!-- 操作按钮区域 -->
@@ -87,12 +130,20 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
+import { useSearchCollapse } from '@/utils/useSearchCollapse';
 
 defineOptions({
   name: "OperInfo"
 })
 
 const showSearch = ref(true);
+const {
+  searchCollapseRef,
+  isSearchMeasured,
+  showMoreButton,
+  showMoreSearch,
+  toggleMoreSearch,
+} = useSearchCollapse(showSearch);
 const loading = ref(false);
 const multiple = ref(true);
 const total = ref(0);
@@ -104,7 +155,8 @@ const queryParams = reactive({
   title: '',
   operName: '',
   businessType: '',
-  status: ''
+  status: '',
+  requestMethod: ''
 });
 
 // Mock Data
@@ -134,6 +186,7 @@ const resetQuery = () => {
   queryParams.operName = '';
   queryParams.businessType = '';
   queryParams.status = '';
+  queryParams.requestMethod = '';
   handleQuery();
 };
 

@@ -8,6 +8,7 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue';
 
 import App from './App.vue';
 import router from './router';
+import EnterFocusScope from '@/components/Global/EnterFocusScope.vue';
 import '@/styles/index.scss';
 import '@/styles/common.scss';
 import '@/styles/reset.scss'
@@ -25,6 +26,7 @@ app.use(ElementPlus, {
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component);
 }
+app.component('EnterFocusScope', EnterFocusScope);
 
 // --- Mock 权限指令演示 ---
 const mockUserPermissions = ['purchase:bill:save', 'purchase:bill:add', 'purchase:bill:export', 'purchase:bill:audit', 'purchase:bill:log', 'purchase:bill:print'];

@@ -1,34 +1,61 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" :inline="true" v-show="showSearch">
-      <el-form-item label="用户名称" prop="username">
-        <el-input
-          v-model="queryParams.username"
-          placeholder="请输入用户名称"
-          clearable
-          style="width: 240px"
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="手机号码" prop="phone">
-        <el-input
-          v-model="queryParams.phone"
-          placeholder="请输入手机号码"
-          clearable
-          style="width: 240px"
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="状态" prop="status">
-        <el-select v-model="queryParams.status" placeholder="请选择用户状态" clearable style="width: 240px">
-          <el-option label="正常" value="0" />
-          <el-option label="停用" value="1" />
-        </el-select>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-      </el-form-item>
+        <el-form :model="queryParams" :inline="true" v-show="showSearch">
+      <div ref="searchCollapseRef" class="search-collapse-container">
+        <el-form-item label="????" prop="username" data-search-item="true">
+          <el-input
+            v-model="queryParams.username"
+            placeholder="???????"
+            clearable
+            style="width: 240px"
+            @keyup.enter="handleQuery"
+          />
+        </el-form-item>
+        <el-form-item label="????" prop="phone" data-search-item="true">
+          <el-input
+            v-model="queryParams.phone"
+            placeholder="???????"
+            clearable
+            style="width: 240px"
+            @keyup.enter="handleQuery"
+          />
+        </el-form-item>
+        <el-form-item
+          label="??"
+          prop="status"
+          data-search-item="true"
+          data-search-more="true"
+          :class="{ 'search-collapse-item-hidden': !isSearchMeasured || (showMoreButton && !showMoreSearch) }"
+        >
+          <el-select v-model="queryParams.status" placeholder="???????" clearable style="width: 240px">
+            <el-option label="??" value="0" />
+            <el-option label="??" value="1" />
+          </el-select>
+        </el-form-item>
+        <el-form-item
+          label="????"
+          prop="nicknameKeyword"
+          data-search-item="true"
+          data-search-more="true"
+          :class="{ 'search-collapse-item-hidden': !isSearchMeasured || (showMoreButton && !showMoreSearch) }"
+        >
+          <el-input
+            v-model="queryParams.nicknameKeyword"
+            placeholder="???????"
+            clearable
+            style="width: 240px"
+            @keyup.enter="handleQuery"
+          />
+        </el-form-item>
+        <el-form-item data-search-actions="true">
+          <el-button type="primary" icon="Search" @click="handleQuery">??</el-button>
+          <el-button icon="Refresh" @click="resetQuery">??</el-button>
+          <el-button v-if="isSearchMeasured && showMoreButton" link @click="toggleMoreSearch">
+            {{ showMoreSearch ? '??' : '??' }}
+            <el-icon class="el-icon--right"><component :is="showMoreSearch ? 'ArrowUp' : 'ArrowDown'" /></el-icon>
+          </el-button>
+        </el-form-item>
+      </div>
     </el-form>
 
     <el-row :gutter="10" class="mb8">
@@ -114,12 +141,20 @@ import {
 } from '@/api/user';
 import type { SysRole, SysUser } from '@/types/global';
 import UserForm, { type UserFormModel } from './components/UserForm.vue';
+import { useSearchCollapse } from '@/utils/useSearchCollapse';
 
 defineOptions({
   name: 'SystemUser'
 });
 
 const showSearch = ref(true);
+const {
+  searchCollapseRef,
+  isSearchMeasured,
+  showMoreButton,
+  showMoreSearch,
+  toggleMoreSearch,
+} = useSearchCollapse(showSearch);
 const loading = ref(false);
 const submitLoading = ref(false);
 const single = ref(true);
@@ -137,13 +172,20 @@ const queryParams = reactive({
   pageSize: 10,
   username: '',
   phone: '',
-  status: ''
+  status: '',
+  nicknameKeyword: ''
 });
 
 const getList = async () => {
   loading.value = true;
   try {
-    const res = await getUserPage({ ...queryParams });
+    const res = await getUserPage({
+      pageNum: queryParams.pageNum,
+      pageSize: queryParams.pageSize,
+      username: queryParams.username,
+      phone: queryParams.phone,
+      status: queryParams.status
+    });
     userList.value = res.data.list || [];
     total.value = res.data.total || 0;
   } finally {
@@ -168,6 +210,7 @@ const resetQuery = () => {
   queryParams.username = '';
   queryParams.phone = '';
   queryParams.status = '';
+  queryParams.nicknameKeyword = '';
   handleQuery();
 };
 

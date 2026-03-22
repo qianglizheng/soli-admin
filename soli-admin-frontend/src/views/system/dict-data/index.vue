@@ -8,35 +8,62 @@
       <el-button icon="ArrowLeft" @click="handleBack">返回</el-button>
     </div>
 
-    <el-form :model="queryParams" :inline="true" v-show="showSearch">
-      <el-form-item label="字典标签" prop="label">
-        <el-input
-          v-model="queryParams.label"
-          placeholder="请输入字典标签"
-          clearable
-          style="width: 240px"
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="字典键值" prop="value">
-        <el-input
-          v-model="queryParams.value"
-          placeholder="请输入字典键值"
-          clearable
-          style="width: 240px"
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="状态" prop="status">
-        <el-select v-model="queryParams.status" placeholder="数据状态" clearable style="width: 240px">
-          <el-option label="正常" value="0" />
-          <el-option label="停用" value="1" />
-        </el-select>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-      </el-form-item>
+        <el-form :model="queryParams" :inline="true" v-show="showSearch">
+      <div ref="searchCollapseRef" class="search-collapse-container">
+        <el-form-item label="????" prop="label" data-search-item="true">
+          <el-input
+            v-model="queryParams.label"
+            placeholder="???????"
+            clearable
+            style="width: 240px"
+            @keyup.enter="handleQuery"
+          />
+        </el-form-item>
+        <el-form-item label="????" prop="value" data-search-item="true">
+          <el-input
+            v-model="queryParams.value"
+            placeholder="???????"
+            clearable
+            style="width: 240px"
+            @keyup.enter="handleQuery"
+          />
+        </el-form-item>
+        <el-form-item
+          label="??"
+          prop="status"
+          data-search-item="true"
+          data-search-more="true"
+          :class="{ 'search-collapse-item-hidden': !isSearchMeasured || (showMoreButton && !showMoreSearch) }"
+        >
+          <el-select v-model="queryParams.status" placeholder="????" clearable style="width: 240px">
+            <el-option label="??" value="0" />
+            <el-option label="??" value="1" />
+          </el-select>
+        </el-form-item>
+        <el-form-item
+          label="????"
+          prop="listClassKeyword"
+          data-search-item="true"
+          data-search-more="true"
+          :class="{ 'search-collapse-item-hidden': !isSearchMeasured || (showMoreButton && !showMoreSearch) }"
+        >
+          <el-input
+            v-model="queryParams.listClassKeyword"
+            placeholder="???????"
+            clearable
+            style="width: 240px"
+            @keyup.enter="handleQuery"
+          />
+        </el-form-item>
+        <el-form-item data-search-actions="true">
+          <el-button type="primary" icon="Search" @click="handleQuery">??</el-button>
+          <el-button icon="Refresh" @click="resetQuery">??</el-button>
+          <el-button v-if="isSearchMeasured && showMoreButton" link @click="toggleMoreSearch">
+            {{ showMoreSearch ? '??' : '??' }}
+            <el-icon class="el-icon--right"><component :is="showMoreSearch ? 'ArrowUp' : 'ArrowDown'" /></el-icon>
+          </el-button>
+        </el-form-item>
+      </div>
     </el-form>
 
     <el-row :gutter="10" class="mb8">
@@ -117,6 +144,7 @@ import {
 } from '@/api/dict';
 import type { SysDictData, SysDictType } from '@/types/global';
 import DictDataForm from './components/DictDataForm.vue';
+import { useSearchCollapse } from '@/utils/useSearchCollapse';
 
 defineOptions({
   name: 'SystemDictData'
@@ -125,6 +153,13 @@ defineOptions({
 const route = useRoute();
 const router = useRouter();
 const showSearch = ref(true);
+const {
+  searchCollapseRef,
+  isSearchMeasured,
+  showMoreButton,
+  showMoreSearch,
+  toggleMoreSearch,
+} = useSearchCollapse(showSearch);
 const loading = ref(false);
 const single = ref(true);
 const multiple = ref(true);
@@ -143,7 +178,8 @@ const queryParams = reactive({
   pageSize: 10,
   label: '',
   status: '',
-  value: ''
+  value: '',
+  listClassKeyword: ''
 });
 
 const loadDictInfo = async () => {
@@ -192,6 +228,7 @@ const resetQuery = () => {
   queryParams.label = '';
   queryParams.status = '';
   queryParams.value = '';
+  queryParams.listClassKeyword = '';
   handleQuery();
 };
 
@@ -299,6 +336,7 @@ watch(
     queryParams.label = '';
     queryParams.status = '';
     queryParams.value = '';
+    queryParams.listClassKeyword = '';
     void loadPage();
   }
 );

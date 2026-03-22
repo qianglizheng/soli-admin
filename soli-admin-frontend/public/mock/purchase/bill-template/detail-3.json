@@ -1,0 +1,218 @@
+{
+  "header": {
+    "standard": {
+      "fields": {
+        "billDate": {
+          "right": "只读",
+          "fieldLabel": "业务日期"
+        },
+        "supplierId": {
+          "right": "只读",
+          "fieldLabel": "往来单位"
+        },
+        "settleType": {
+          "right": "只读",
+          "fieldLabel": "结算方式"
+        },
+        "warehouseId": {
+          "right": "只读",
+          "fieldLabel": "收货仓库"
+        },
+        "userName": {
+          "right": "只读",
+          "fieldLabel": "采购员"
+        },
+        "currency": {
+          "right": "只读",
+          "fieldLabel": "结算币种"
+        },
+        "remark": {
+          "right": "只读",
+          "fieldLabel": "备注说明"
+        },
+        "createByName": {
+          "right": "只读",
+          "fieldLabel": "制单人"
+        },
+        "statusName": {
+          "right": "只读",
+          "fieldLabel": "单据状态"
+        },
+        "descriptionText": {
+          "right": "只读",
+          "fieldLabel": "说明"
+        }
+      },
+      "buttons": {
+        "save": {
+          "right": "只读",
+          "fieldLabel": "保存"
+        },
+        "audit": {
+          "right": "只读",
+          "fieldLabel": "审核通过"
+        },
+        "print": {
+          "right": "读写",
+          "fieldLabel": "打印"
+        },
+        "log": {
+          "right": "读写",
+          "fieldLabel": "操作日志"
+        },
+        "copy": {
+          "right": "只读",
+          "fieldLabel": "复制单据"
+        },
+        "void": {
+          "right": "不可见",
+          "fieldLabel": "作废单据"
+        }
+      }
+    }
+  },
+  "detail": {
+    "goodsDetail": {
+      "fields": {
+        "itemCode": {
+          "right": "只读",
+          "fieldLabel": "物料编码"
+        },
+        "itemName": {
+          "right": "只读",
+          "fieldLabel": "物料名称"
+        },
+        "spec": {
+          "right": "只读",
+          "fieldLabel": "规格型号"
+        },
+        "unit": {
+          "right": "只读",
+          "fieldLabel": "单位"
+        },
+        "qty": {
+          "right": "只读",
+          "fieldLabel": "业务数量"
+        },
+        "priceExcl": {
+          "right": "只读",
+          "fieldLabel": "不含税单价"
+        },
+        "taxRate": {
+          "right": "只读",
+          "fieldLabel": "税率%"
+        },
+        "taxAmount": {
+          "right": "只读",
+          "fieldLabel": "税额"
+        },
+        "totalAmount": {
+          "right": "只读",
+          "fieldLabel": "价税合计"
+        }
+      },
+      "buttons": {
+        "add": {
+          "right": "只读",
+          "fieldLabel": "添加行"
+        },
+        "copy": {
+          "right": "只读",
+          "fieldLabel": "复制行"
+        },
+        "delete": {
+          "right": "只读",
+          "fieldLabel": "批量删除"
+        },
+        "import": {
+          "right": "不可见",
+          "fieldLabel": "导入"
+        },
+        "export": {
+          "right": "读写",
+          "fieldLabel": "导出"
+        },
+        "columnSetting": {
+          "right": "只读",
+          "fieldLabel": "列显示"
+        },
+        "selectMaterial": {
+          "right": "只读",
+          "fieldLabel": "选择物料"
+        }
+      }
+    },
+    "sourceDetail": {
+      "fields": {
+        "sourceBillNo": {
+          "right": "只读",
+          "fieldLabel": "来源单据号"
+        },
+        "sourceType": {
+          "right": "只读",
+          "fieldLabel": "来源类型"
+        },
+        "supplierName": {
+          "right": "只读",
+          "fieldLabel": "来源供应商"
+        },
+        "billDate": {
+          "right": "只读",
+          "fieldLabel": "来源日期"
+        },
+        "totalAmount": {
+          "right": "只读",
+          "fieldLabel": "来源金额"
+        },
+        "status": {
+          "right": "只读",
+          "fieldLabel": "来源状态"
+        },
+        "remark": {
+          "right": "只读",
+          "fieldLabel": "来源备注"
+        }
+      },
+      "buttons": {
+        "columnSetting": {
+          "right": "读写",
+          "fieldLabel": "列显示"
+        }
+      }
+    },
+    "attachmentDetail": {
+      "fields": {
+        "fileName": {
+          "right": "只读",
+          "fieldLabel": "附件名称"
+        },
+        "fileType": {
+          "right": "只读",
+          "fieldLabel": "附件类型"
+        },
+        "fileSize": {
+          "right": "只读",
+          "fieldLabel": "附件大小"
+        },
+        "uploadUser": {
+          "right": "只读",
+          "fieldLabel": "上传人"
+        },
+        "uploadTime": {
+          "right": "只读",
+          "fieldLabel": "上传时间"
+        },
+        "remark": {
+          "right": "只读",
+          "fieldLabel": "附件备注"
+        }
+      },
+      "buttons": {
+        "columnSetting": {
+          "right": "读写",
+          "fieldLabel": "列显示"
+        }
+      }
+    }
+  }
+}

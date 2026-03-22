@@ -2,35 +2,62 @@
   <div class="app-container">
     <!-- 搜索区域 -->
     <div class="search-wrapper" v-show="showSearch">
-      <el-form :model="queryParams" ref="queryRef" :inline="true">
-        <el-form-item label="角色名称" prop="roleName">
-          <el-input
-            v-model="queryParams.roleName"
-            placeholder="请输入角色名称"
-            clearable
-            style="width: 240px"
-            @keyup.enter="handleQuery"
-          />
-        </el-form-item>
-        <el-form-item label="权限字符" prop="roleKey">
-          <el-input
-            v-model="queryParams.roleKey"
-            placeholder="请输入权限字符"
-            clearable
-            style="width: 240px"
-            @keyup.enter="handleQuery"
-          />
-        </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-select v-model="queryParams.status" placeholder="角色状态" clearable style="width: 240px">
-            <el-option label="正常" value="0" />
-            <el-option label="停用" value="1" />
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-          <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-        </el-form-item>
+            <el-form :model="queryParams" ref="queryRef" :inline="true">
+        <div ref="searchCollapseRef" class="search-collapse-container">
+          <el-form-item label="????" prop="roleName" data-search-item="true">
+            <el-input
+              v-model="queryParams.roleName"
+              placeholder="???????"
+              clearable
+              style="width: 240px"
+              @keyup.enter="handleQuery"
+            />
+          </el-form-item>
+          <el-form-item label="????" prop="roleKey" data-search-item="true">
+            <el-input
+              v-model="queryParams.roleKey"
+              placeholder="???????"
+              clearable
+              style="width: 240px"
+              @keyup.enter="handleQuery"
+            />
+          </el-form-item>
+          <el-form-item
+            label="??"
+            prop="status"
+            data-search-item="true"
+            data-search-more="true"
+            :class="{ 'search-collapse-item-hidden': !isSearchMeasured || (showMoreButton && !showMoreSearch) }"
+          >
+            <el-select v-model="queryParams.status" placeholder="????" clearable style="width: 240px">
+              <el-option label="??" value="0" />
+              <el-option label="??" value="1" />
+            </el-select>
+          </el-form-item>
+          <el-form-item
+            label="????"
+            prop="dataScopeKeyword"
+            data-search-item="true"
+            data-search-more="true"
+            :class="{ 'search-collapse-item-hidden': !isSearchMeasured || (showMoreButton && !showMoreSearch) }"
+          >
+            <el-input
+              v-model="queryParams.dataScopeKeyword"
+              placeholder="???????"
+              clearable
+              style="width: 240px"
+              @keyup.enter="handleQuery"
+            />
+          </el-form-item>
+          <el-form-item data-search-actions="true">
+            <el-button type="primary" icon="Search" @click="handleQuery">??</el-button>
+            <el-button icon="Refresh" @click="resetQuery">??</el-button>
+            <el-button v-if="isSearchMeasured && showMoreButton" link @click="toggleMoreSearch">
+              {{ showMoreSearch ? '??' : '??' }}
+              <el-icon class="el-icon--right"><component :is="showMoreSearch ? 'ArrowUp' : 'ArrowDown'" /></el-icon>
+            </el-button>
+          </el-form-item>
+        </div>
       </el-form>
     </div>
 
@@ -107,6 +134,7 @@ import { onMounted, reactive, ref } from 'vue';
 import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus';
 import { createRole, deleteRole, getRolePage, updateRole, type CreateRolePayload } from '@/api/role';
 import RoleForm from './components/RoleForm.vue';
+import { useSearchCollapse } from '@/utils/useSearchCollapse';
 
 defineOptions({
   name: 'SystemRole'
@@ -133,6 +161,13 @@ interface RoleFormData {
 
 const queryRef = ref<FormInstance>();
 const showSearch = ref(true);
+const {
+  searchCollapseRef,
+  isSearchMeasured,
+  showMoreButton,
+  showMoreSearch,
+  toggleMoreSearch,
+} = useSearchCollapse(showSearch);
 const loading = ref(false);
 const submitLoading = ref(false);
 const single = ref(true);
@@ -149,7 +184,8 @@ const queryParams = reactive({
   pageSize: 10,
   roleName: '',
   roleKey: '',
-  status: ''
+  status: '',
+  dataScopeKeyword: ''
 });
 
 const createDefaultForm = (): RoleFormData => ({
@@ -182,7 +218,13 @@ const toFormData = (row: RoleRow): RoleFormData => ({
 const getList = async () => {
   loading.value = true;
   try {
-    const res = await getRolePage({ ...queryParams });
+    const res = await getRolePage({
+      pageNum: queryParams.pageNum,
+      pageSize: queryParams.pageSize,
+      roleName: queryParams.roleName,
+      roleKey: queryParams.roleKey,
+      status: queryParams.status
+    });
     roleList.value = (res.data.list || []).map(mapRoleRow);
     total.value = res.data.total || 0;
   } finally {
@@ -199,6 +241,7 @@ const resetQuery = () => {
   queryParams.roleName = '';
   queryParams.roleKey = '';
   queryParams.status = '';
+  queryParams.dataScopeKeyword = '';
   handleQuery();
 };
 

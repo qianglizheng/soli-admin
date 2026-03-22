@@ -1,25 +1,52 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
-      <el-form-item label="菜单名称" prop="menuName">
-        <el-input
-          v-model="queryParams.menuName"
-          placeholder="请输入菜单名称"
-          clearable
-          style="width: 240px"
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="状态" prop="status">
-        <el-select v-model="queryParams.status" placeholder="菜单状态" clearable style="width: 240px">
-          <el-option label="正常" value="0" />
-          <el-option label="停用" value="1" />
-        </el-select>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-      </el-form-item>
+        <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
+      <div ref="searchCollapseRef" class="search-collapse-container">
+        <el-form-item label="????" prop="menuName" data-search-item="true">
+          <el-input
+            v-model="queryParams.menuName"
+            placeholder="???????"
+            clearable
+            style="width: 240px"
+            @keyup.enter="handleQuery"
+          />
+        </el-form-item>
+        <el-form-item
+          label="??"
+          prop="status"
+          data-search-item="true"
+          data-search-more="true"
+          :class="{ 'search-collapse-item-hidden': !isSearchMeasured || (showMoreButton && !showMoreSearch) }"
+        >
+          <el-select v-model="queryParams.status" placeholder="????" clearable style="width: 240px">
+            <el-option label="??" value="0" />
+            <el-option label="??" value="1" />
+          </el-select>
+        </el-form-item>
+        <el-form-item
+          label="????"
+          prop="menuPermsKeyword"
+          data-search-item="true"
+          data-search-more="true"
+          :class="{ 'search-collapse-item-hidden': !isSearchMeasured || (showMoreButton && !showMoreSearch) }"
+        >
+          <el-input
+            v-model="queryParams.menuPermsKeyword"
+            placeholder="???????"
+            clearable
+            style="width: 240px"
+            @keyup.enter="handleQuery"
+          />
+        </el-form-item>
+        <el-form-item data-search-actions="true">
+          <el-button type="primary" icon="Search" @click="handleQuery">??</el-button>
+          <el-button icon="Refresh" @click="resetQuery">??</el-button>
+          <el-button v-if="isSearchMeasured && showMoreButton" link @click="toggleMoreSearch">
+            {{ showMoreSearch ? '??' : '??' }}
+            <el-icon class="el-icon--right"><component :is="showMoreSearch ? 'ArrowUp' : 'ArrowDown'" /></el-icon>
+          </el-button>
+        </el-form-item>
+      </div>
     </el-form>
 
     <el-row :gutter="10" class="mb8">
@@ -83,12 +110,20 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { addMenu, deleteMenu, getMenuTree, updateMenu } from '@/api/menu';
 import type { SysMenuDTO } from '@/types/global';
 import MenuForm from './components/MenuForm.vue';
+import { useSearchCollapse } from '@/utils/useSearchCollapse';
 
 defineOptions({
   name: "SystemMenu"
 })
 
 const showSearch = ref<boolean>(true);
+const {
+  searchCollapseRef,
+  isSearchMeasured,
+  showMoreButton,
+  showMoreSearch,
+  toggleMoreSearch,
+} = useSearchCollapse(showSearch);
 const loading = ref<boolean>(false);
 const isExpandAll = ref<boolean>(false);
 const refreshTable = ref<boolean>(true);
@@ -96,7 +131,8 @@ const menuList = ref<SysMenuDTO[]>([]);
 
 const queryParams = reactive({
   menuName: '',
-  status: ''
+  status: '',
+  menuPermsKeyword: ''
 });
 
 const loadMenuTree = async () => {
@@ -123,6 +159,7 @@ const handleQuery = async () => {
 const resetQuery = async () => {
   queryParams.menuName = '';
   queryParams.status = '';
+  queryParams.menuPermsKeyword = '';
   await handleQuery();
 };
 

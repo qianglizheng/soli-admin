@@ -124,6 +124,11 @@
         </div>
         <div class="right-ops">
           <el-tooltip content="刷新数据" placement="top"><el-button circle icon="RefreshRight" @click="handleQuery" /></el-tooltip>
+          <BillTemplateColumnSetting
+            v-model="visibleColumnKeys"
+            :columns="columnOptions"
+            :default-keys="defaultVisibleColumnKeys"
+          />
         </div>
       </div>
 
@@ -131,21 +136,70 @@
       <div class="table-content">
         <el-table
           v-loading="loading" :data="billList" border stripe highlight-current-row height="100%"
-          @selection-change="handleSelectionChange" ref="tableRef" class="main-table"
+          @selection-change="handleSelectionChange" @sort-change="handleSortChange" ref="tableRef" class="main-table"
         >
           <el-table-column type="selection" width="45" align="center" fixed="left" />
           <el-table-column type="index" label="序号" width="60" align="center" fixed="left" />
-          <el-table-column label="单据编号" prop="billNo" min-width="160" fixed="left">
+          <el-table-column
+            v-if="visibleColumnKeys.includes('billNo')"
+            label="单据编号"
+            prop="billNo"
+            column-key="billNo"
+            min-width="160"
+            fixed="left"
+            sortable
+            :filters="billNoFilters"
+            :filter-method="filterByBillNo"
+          >
             <template #default="scope">
               <el-link type="primary" class="bill-link" @click="handleView(scope.row)">{{ scope.row.billNo }}</el-link>
             </template>
           </el-table-column>
-          <el-table-column label="单据类型" prop="billType" width="100" align="center" />
-          <el-table-column label="供应商" prop="supplierName" show-overflow-tooltip min-width="180" />
-          <el-table-column label="金额" prop="totalAmount" width="140" align="right">
+          <el-table-column
+            v-if="visibleColumnKeys.includes('billType')"
+            label="单据类型"
+            prop="billType"
+            column-key="billType"
+            width="120"
+            align="center"
+            sortable
+            :filters="billTypeFilters"
+            :filter-method="filterByBillType"
+          />
+          <el-table-column
+            v-if="visibleColumnKeys.includes('supplierName')"
+            label="供应商"
+            prop="supplierName"
+            column-key="supplierName"
+            show-overflow-tooltip
+            min-width="180"
+            sortable
+            :filters="supplierFilters"
+            :filter-method="filterBySupplier"
+          />
+          <el-table-column
+            v-if="visibleColumnKeys.includes('totalAmount')"
+            label="金额"
+            prop="totalAmount"
+            width="140"
+            align="right"
+            sortable
+            :sort-method="sortByTotalAmount"
+          >
             <template #default="scope"><span class="price-text">¥ {{ scope.row.totalAmount }}</span></template>
           </el-table-column>
-          <el-table-column label="状态" align="center" width="100">
+          <el-table-column
+            v-if="visibleColumnKeys.includes('status')"
+            label="状态"
+            prop="status"
+            column-key="status"
+            align="center"
+            width="100"
+            sortable
+            :sort-method="sortByStatus"
+            :filters="statusFilters"
+            :filter-method="filterByStatus"
+          >
             <template #default="scope"><el-tag :type="getStatusType(scope.row.status)">{{ scope.row.statusName }}</el-tag></template>
           </el-table-column>
           <el-table-column label="操作" align="center" fixed="right" width="200">
@@ -153,7 +207,7 @@
               <div class="row-ops">
                 <el-button link type="primary" @click="handleView(scope.row)">详情</el-button>
                 <el-button link type="primary" @click="handleEdit(scope.row)">编辑</el-button>
-                <el-dropdown trigger="click" @command="(cmd: string) => handleRowMore(cmd, scope.row)">
+                <el-dropdown trigger="click" @command="handleRowMoreCommand($event, scope.row)">
                   <el-button link type="primary" style="margin-left: 8px"><el-icon><MoreFilled /></el-icon></el-button>
                   <template #dropdown>
                     <el-dropdown-menu>
@@ -188,20 +242,35 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue';
+import { ref, reactive, onMounted, computed, nextTick, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import {
   Search, Refresh, Plus, ArrowUp, ArrowDown, Document, Clock, Money, Finished,
   CaretTop, CaretBottom, Check, RefreshRight, MoreFilled
 } from '@element-plus/icons-vue';
 import { ElMessage, type TableInstance } from 'element-plus';
-import FooterSummary, { type SummaryItem } from '@/components/Business/FooterSummary.vue';
+import FooterSummary, { type SummaryItem } from '@/components/Bill/FooterSummaryCard.vue';
+import { useBillTemplateStore } from '@/store/modules/billTemplate';
+import BillTemplateColumnSetting from './components/BillTemplateColumnSetting.vue';
+import { buildTextFilters, compareNumber, matchTextFilter } from './components/tableHelper';
 
 const router = useRouter();
+const billTemplateStore = useBillTemplateStore();
 const tableRef = ref<TableInstance>();
 const loading = ref(false);
 const showMoreSearch = ref(false);
 const selectedRows = ref<any[]>([]);
+const defaultVisibleColumnKeys = ['billNo', 'billType', 'supplierName', 'totalAmount', 'status'];
+const filterableColumnKeys = ['billNo', 'billType', 'supplierName', 'status'];
+const columnOptions = [
+  { key: 'billNo', label: '单据编号' },
+  { key: 'billType', label: '单据类型' },
+  { key: 'supplierName', label: '供应商' },
+  { key: 'totalAmount', label: '金额' },
+  { key: 'status', label: '状态' }
+];
+const visibleColumnKeys = ref([...defaultVisibleColumnKeys]);
+const currentSortProp = ref('');
 
 interface BillListItem {
   billNo: string;
@@ -215,15 +284,23 @@ interface BillListItem {
   statusName: string;
 }
 
+/**
+ * 将金额字符串安全转换为数字。
+ */
 const getSafeAmount = (value: string | number) => {
   const amount = Number(String(value).replace(/,/g, ''));
   return Number.isFinite(amount) ? amount : 0;
 };
 
-const formatAmount = (value: number) => value.toLocaleString(undefined, {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
+/**
+ * 格式化金额展示。
+ */
+const formatAmount = (value: number) => {
+  return value.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
 
 const queryParams = reactive({
   pageNum: 1, pageSize: 20, billNo: '', supplier: '', status: '', billDate: [] as string[],
@@ -426,8 +503,52 @@ const billList = ref<BillListItem[]>([
   }
 ]);
 
-const total = computed(() => billList.value.length);
+/**
+ * 生成单据编号筛选项。
+ */
+const billNoFilters = computed(() => {
+  return buildTextFilters(billList.value, (item) => {
+    return item.billNo;
+  });
+});
 
+/**
+ * 生成单据类型筛选项。
+ */
+const billTypeFilters = computed(() => {
+  return buildTextFilters(billList.value, (item) => {
+    return item.billType;
+  });
+});
+
+/**
+ * 生成供应商筛选项。
+ */
+const supplierFilters = computed(() => {
+  return buildTextFilters(billList.value, (item) => {
+    return item.supplierName;
+  });
+});
+
+/**
+ * 生成状态筛选项。
+ */
+const statusFilters = computed(() => {
+  return buildTextFilters(billList.value, (item) => {
+    return item.statusName;
+  });
+});
+
+/**
+ * 计算当前列表总数。
+ */
+const total = computed(() => {
+  return billList.value.length;
+});
+
+/**
+ * 计算列表主合计。
+ */
 const listSummary = computed<SummaryItem[]>(() => {
   let totalAmount = 0;
   let totalQty = 0;
@@ -443,6 +564,9 @@ const listSummary = computed<SummaryItem[]>(() => {
   ];
 });
 
+/**
+ * 计算列表扩展合计。
+ */
 const listMoreSummary = computed<SummaryItem[]>(() => {
   let netAmount = 0;
   let taxAmount = 0;
@@ -459,27 +583,176 @@ const listMoreSummary = computed<SummaryItem[]>(() => {
   ];
 });
 
+/**
+ * 模拟查询列表数据。
+ */
 const handleQuery = () => {
   loading.value = true;
-  setTimeout(() => { loading.value = false; }, 200);
+  setTimeout(() => {
+    loading.value = false;
+  }, 200);
 };
 
+/**
+ * 重置查询条件并重新查询。
+ */
 const resetQuery = () => {
-  queryParams.billNo = ''; queryParams.supplier = ''; queryParams.status = '';
-  queryParams.billDate = []; handleQuery();
+  queryParams.billNo = '';
+  queryParams.supplier = '';
+  queryParams.status = '';
+  queryParams.billDate = [];
+  handleQuery();
 };
 
-const handleSelectionChange = (val: any[]) => { selectedRows.value = val; };
-const getStatusType = (status: string) => ({ '0': 'info', '1': 'warning', '2': 'success', '3': 'danger' }[status] || 'info');
-const handleAdd = () => router.push('/purchase/bill-template/detail');
-const handleView = (row: any) => router.push({ path: '/purchase/bill-template/detail', query: { id: row.billNo } });
-const handleEdit = (row: any) => router.push({ path: '/purchase/bill-template/detail', query: { id: row.billNo, mode: 'edit' } });
+/**
+ * 按单据编号筛选。
+ */
+const filterByBillNo = (value: string, row: BillListItem) => {
+  return matchTextFilter(value, row, (item) => {
+    return item.billNo;
+  });
+};
 
-const handleBatchAudit = () => ElMessage.success('批量审核成功');
-const handleBatchDelete = () => ElMessage.success('批量删除成功');
-const handleRowMore = (cmd: string, row: any) => ElMessage.info(`操作 ${cmd} 对于 ${row.billNo}`);
+/**
+ * 按单据类型筛选。
+ */
+const filterByBillType = (value: string, row: BillListItem) => {
+  return matchTextFilter(value, row, (item) => {
+    return item.billType;
+  });
+};
 
-onMounted(() => handleQuery());
+/**
+ * 按供应商筛选。
+ */
+const filterBySupplier = (value: string, row: BillListItem) => {
+  return matchTextFilter(value, row, (item) => {
+    return item.supplierName;
+  });
+};
+
+/**
+ * 按状态筛选。
+ */
+const filterByStatus = (value: string, row: BillListItem) => {
+  return matchTextFilter(value, row, (item) => {
+    return item.statusName;
+  });
+};
+
+/**
+ * 同步表格勾选行。
+ */
+const handleSelectionChange = (val: any[]) => {
+  selectedRows.value = val;
+};
+
+/**
+ * 按金额排序。
+ */
+const sortByTotalAmount = (left: BillListItem, right: BillListItem) => {
+  return compareNumber(left.totalAmount, right.totalAmount);
+};
+
+/**
+ * 按状态值排序。
+ */
+const sortByStatus = (left: BillListItem, right: BillListItem) => {
+  return compareNumber(left.status, right.status);
+};
+
+/**
+ * 记录当前排序列。
+ */
+const handleSortChange = (payload: { prop?: string | null }) => {
+  currentSortProp.value = payload.prop ? String(payload.prop) : '';
+};
+
+/**
+ * 解析状态标签类型。
+ */
+const getStatusType = (status: string) => {
+  return ({ '0': 'info', '1': 'warning', '2': 'success', '3': 'danger' }[status] || 'info');
+};
+
+/**
+ * 跳转到新建单据页。
+ */
+const handleAdd = () => {
+  billTemplateStore.resetHeaderDraft();
+  router.push('/purchase/bill-template/create');
+};
+
+/**
+ * 跳转到单据详情页。
+ */
+const handleView = (row: any) => {
+  router.push({ path: '/purchase/bill-template/detail', query: { id: row.billNo } });
+};
+
+/**
+ * 跳转到单据编辑页。
+ */
+const handleEdit = (row: any) => {
+  router.push({ path: '/purchase/bill-template/detail', query: { id: row.billNo, mode: 'edit' } });
+};
+
+/**
+ * 批量审核当前选中的单据。
+ */
+const handleBatchAudit = () => {
+  ElMessage.success('批量审核成功');
+};
+
+/**
+ * 批量删除当前选中的单据。
+ */
+const handleBatchDelete = () => {
+  ElMessage.success('批量删除成功');
+};
+
+/**
+ * 处理行级更多操作。
+ */
+const handleRowMore = (cmd: string, row: any) => {
+  ElMessage.info(`操作 ${cmd} 对于 ${row.billNo}`);
+};
+
+/**
+ * 适配下拉菜单的命令回调。
+ */
+const handleRowMoreCommand = (cmd: string, row: any) => {
+  handleRowMore(cmd, row);
+};
+
+/**
+ * 当列显示设置变化时，清理对应筛选和排序状态。
+ */
+watch(visibleColumnKeys, (value, oldValue) => {
+  const hiddenFilterKeys = oldValue.filter((key) => {
+    return !value.includes(key) && filterableColumnKeys.includes(key);
+  });
+  if (hiddenFilterKeys.length) {
+    tableRef.value?.clearFilter(hiddenFilterKeys);
+  }
+  const hiddenKeys = oldValue.filter((key) => {
+    return !value.includes(key);
+  });
+  if (currentSortProp.value && hiddenKeys.includes(currentSortProp.value)) {
+    tableRef.value?.clearSort();
+    currentSortProp.value = '';
+  }
+  nextTick(() => {
+    tableRef.value?.doLayout();
+  });
+}, { flush: 'sync' });
+
+/**
+ * 初始化列表数据。
+ */
+onMounted(() => {
+  handleQuery();
+});
 </script>
 
 <style scoped lang="scss">
@@ -518,7 +791,14 @@ onMounted(() => handleQuery());
 }
 
 .status-tabs-container { flex-shrink: 0; padding: 0 16px; border-bottom: 1px solid #f0f0f0; :deep(.el-tabs__header) { margin: 0; border-bottom: none; } }
-.table-operations { flex-shrink: 0; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }
+.table-operations {
+  flex-shrink: 0;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  .right-ops { display: flex; align-items: center; gap: 8px; }
+}
 
 .table-content {
   flex: 1;
