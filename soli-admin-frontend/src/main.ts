@@ -10,7 +10,8 @@ import App from './App.vue';
 import router from './router';
 import '@/styles/index.scss';
 import '@/styles/common.scss';
-import '@/router/guard'; // Import permission guard
+import '@/styles/reset.scss'
+import '@/router/guard';
 
 const app = createApp(App);
 
@@ -24,5 +25,20 @@ app.use(ElementPlus, {
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component);
 }
+
+// --- Mock 权限指令演示 ---
+const mockUserPermissions = ['purchase:bill:save', 'purchase:bill:add', 'purchase:bill:export', 'purchase:bill:audit', 'purchase:bill:log', 'purchase:bill:print'];
+
+app.directive('hasPermi', {
+  mounted(el, binding) {
+    const { value } = binding;
+    if (value && Array.isArray(value) && value.length > 0) {
+      const hasPermission = value.some(perm => mockUserPermissions.includes(perm));
+      if (!hasPermission) {
+        el.style.display = 'none'; // 使用隐藏代替移除，更安全
+      }
+    }
+  }
+});
 
 app.mount('#app');

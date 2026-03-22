@@ -1,249 +1,364 @@
 <template>
-  <div class="bill-detail-wrapper">
-    <!-- 1. 详情头部 -->
-    <DetailHeader 
-      title="采购订单" 
-      :billNo="billInfo.billNo" 
-      :statusName="billInfo.statusName" 
+  <div class="app-container">
+    <!-- 1. 顶部操作栏 -->
+    <DetailHeader
+      title="采购订单"
+      :billNo="billInfo.billNo"
+      :statusName="billInfo.statusName"
       :statusType="getStatusType(billInfo.status)"
       @back="handleBack"
     >
       <template #extra>
-        <el-dropdown split-button type="primary" @click="handleSave(billInfo.status)" @command="handleSave">
-          <el-icon><DocumentChecked /></el-icon>&nbsp;保存单据
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item command="0">保存为未审核 (暂存)</el-dropdown-item>
-              <el-dropdown-item command="1">保存并提交审核</el-dropdown-item>
-              <el-dropdown-item command="2">保存并直接过账</el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
-        <el-button icon="Check" @click="handleAudit" style="margin-left: 12px">审核通过</el-button>
-        <el-button icon="Printer">打印</el-button>
-        <el-button type="danger" plain icon="Delete">作废</el-button>
+        <div class="header-main-actions">
+          <el-dropdown split-button type="primary" @click="handleSave('0')" @command="handleSave" v-hasPermi="['purchase:bill:save']">
+            <el-icon><DocumentChecked /></el-icon>&nbsp;保存
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="0">保存为未审核 (暂存)</el-dropdown-item>
+                <el-dropdown-item command="1">保存并提交审核</el-dropdown-item>
+                <el-dropdown-item command="2">保存并直接过账</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+          <el-button icon="Check" @click="handleAudit" style="margin-left: 12px" v-hasPermi="['purchase:bill:audit']">审核通过</el-button>
+          <el-button icon="Printer" v-hasPermi="['purchase:bill:print']">打印</el-button>
+          <el-dropdown trigger="click" @command="handleMoreAction" style="margin-left: 12px">
+            <el-button icon="MoreFilled">更多操作</el-button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="log" icon="Files" v-hasPermi="['purchase:bill:log']">操作日志</el-dropdown-item>
+                <el-dropdown-item command="copy" icon="CopyDocument" v-hasPermi="['purchase:bill:add']">复制单据</el-dropdown-item>
+                <el-divider style="margin: 4px 0" />
+                <el-dropdown-item command="void" icon="CircleClose" type="danger" v-hasPermi="['purchase:bill:void']">作废单据</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
       </template>
     </DetailHeader>
 
-    <!-- 2. 单头信息 -->
-    <CollapsibleCard title="单据头信息" icon="InfoFilled" v-model="headerExpanded">
-      <el-tabs v-model="activeHeaderTab" class="header-tabs custom-plain-tabs">
+    <!-- 2. 单据头部信息 -->
+    <div class="tech-card">
+      <el-tabs v-model="activeHeaderTab" class="custom-plain-tabs">
         <el-tab-pane label="基础信息" name="basic">
-          <el-descriptions :column="4" border size="small">
-            <el-descriptions-item label="单据日期">
-              <el-date-picker v-model="billInfo.billDate" type="date" size="small" style="width: 100%" />
-            </el-descriptions-item>
-            <el-descriptions-item label="供应商">
-              <el-select v-model="billInfo.supplierId" size="small" style="width: 100%">
-                <el-option label="华为技术有限公司" :value="1" />
-              </el-select>
-            </el-descriptions-item>
-            <el-descriptions-item label="结算方式">
-              <el-select v-model="billInfo.settleType" size="small" style="width: 100%">
-                <el-option label="转账付款" value="1" />
-              </el-select>
-            </el-descriptions-item>
-            <el-descriptions-item label="仓库">
-              <el-select v-model="billInfo.warehouseId" size="small" style="width: 100%">
-                <el-option label="深圳一号仓" :value="1" />
-              </el-select>
-            </el-descriptions-item>
-            <el-descriptions-item label="业务员">{{ billInfo.userName }}</el-descriptions-item>
-            <el-descriptions-item label="联系电话">{{ billInfo.phone }}</el-descriptions-item>
-            <el-descriptions-item label="备注" :span="2">
-              <el-input v-model="billInfo.remark" size="small" placeholder="请输入备注" />
-            </el-descriptions-item>
-          </el-descriptions>
+          <el-form :model="billInfo" label-width="90px" size="small" class="compact-form">
+            <el-row :gutter="24">
+              <el-col :span="6">
+                <el-form-item label="单据日期">
+                  <el-date-picker v-model="billInfo.billDate" type="date" style="width: 100%" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="6">
+                <el-form-item label="供应商">
+                  <el-select v-model="billInfo.supplierId" style="width: 100%">
+                    <el-option label="华为技术有限公司" :value="1" />
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="6">
+                <el-form-item label="结算方式">
+                  <el-select v-model="billInfo.settleType" style="width: 100%">
+                    <el-option label="电汇" value="1" />
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="6">
+                <el-form-item label="仓库">
+                  <el-select v-model="billInfo.warehouseId" style="width: 100%">
+                    <el-option label="深圳一号仓" :value="1" />
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="6">
+                <el-form-item label="业务员">
+                  <el-input v-model="billInfo.userName" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="6">
+                <el-form-item label="币种">
+                  <el-select v-model="billInfo.currency" style="width: 100%">
+                    <el-option label="人民币 (CNY)" value="CNY" />
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="备注">
+                  <el-input v-model="billInfo.remark" placeholder="备注..." />
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </el-form>
         </el-tab-pane>
         <el-tab-pane label="审核信息" name="audit">
           <el-descriptions :column="3" border size="small">
             <el-descriptions-item label="制单人">张三</el-descriptions-item>
-            <el-descriptions-item label="制单时间">2024-03-22 09:00:00</el-descriptions-item>
             <el-descriptions-item label="审核状态">
               <el-tag size="small" :type="billInfo.status === '1' ? 'success' : 'info'">{{ billInfo.statusName }}</el-tag>
-            </el-descriptions-item>
-            <el-descriptions-item label="审核意见" :span="3">
-              <el-input v-model="auditInfo.opinion" type="textarea" :rows="2" size="small" placeholder="备注..." />
             </el-descriptions-item>
           </el-descriptions>
         </el-tab-pane>
       </el-tabs>
-    </CollapsibleCard>
+    </div>
 
-    <!-- 3. 明细表格 -->
-    <TableCard>
+    <!-- 3. 明细信息与合计栏包装：解决全局布局冲突的关键 -->
+    <div class="tech-card detail-table-card">
       <el-tabs v-model="activeDetailTab" class="tech-tabs-fill">
         <el-tab-pane label="物料明细清单" name="items">
           <div class="tab-pane-content">
-            <div class="table-toolbar">
-              <el-button type="primary" icon="Plus" size="small" @click="addItem">添加物料行</el-button>
-              <el-button 
-                type="danger" 
-                icon="Delete" 
-                size="small" 
-                :disabled="!selectedItems.length" 
-                @click="handleBatchDelete"
-              >
-                批量删除 ({{ selectedItems.length }})
-              </el-button>
-            </div>
-            <div class="table-container">
-              <el-table 
-                :data="itemDetails" 
-                border 
-                height="100%" 
-                size="small" 
-                class="bill-table"
-                @selection-change="handleItemSelectionChange"
-              >
-                <el-table-column type="selection" width="45" align="center" />
-                <el-table-column type="index" width="45" label="序号" align="center" />
-                <el-table-column label="物料编码" prop="itemCode" width="120" />
-                <el-table-column label="物料名称" prop="itemName" min-width="150" />
-                <el-table-column label="单位" prop="unit" width="70" align="center" />
-                <el-table-column label="数量" prop="qty" width="110" align="right">
-                  <template #default="scope">
-                    <el-input-number v-model="scope.row.qty" :controls="false" size="small" style="width: 100%" />
-                  </template>
-                </el-table-column>
-                <el-table-column label="含税单价" prop="price" width="110" align="right">
-                  <template #default="scope">
-                    <el-input-number v-model="scope.row.price" :controls="false" :precision="2" size="small" style="width: 100%" />
-                  </template>
-                </el-table-column>
-                <el-table-column label="金额" width="130" align="right">
-                  <template #default="scope">
-                    <span class="amount-text">¥ {{ (scope.row.qty * scope.row.price).toLocaleString() }}</span>
-                  </template>
-                </el-table-column>
-              </el-table>
-            </div>
+            <BillDetailTable
+              ref="billTableRef"
+              v-model="itemDetails"
+              @add="addItem"
+              :permissionAdd="['purchase:bill:add']"
+              :permissionImport="['purchase:bill:import']"
+              :permissionExport="['purchase:bill:export']"
+            >
+              <template #toolbar-right>
+                <el-checkbox v-model="showTax" label="显示税额" />
+              </template>
+
+              <el-table-column label="物料编码" prop="itemCode" width="130" fixed="left">
+                <template #default="scope">
+                  <el-input v-model="scope.row.itemCode" size="small" readonly>
+                    <template #append><el-button icon="Search" @click="showMaterialSelect(scope.$index)" /></template>
+                  </el-input>
+                </template>
+              </el-table-column>
+              <el-table-column label="物料名称" prop="itemName" min-width="180" show-overflow-tooltip />
+              <el-table-column label="规格型号" prop="spec" width="120" show-overflow-tooltip />
+              <el-table-column label="单位" prop="unit" width="60" align="center" />
+              <el-table-column label="数量" prop="qty" width="100" align="right">
+                <template #default="scope">
+                  <el-input-number
+                    v-model="scope.row.qty"
+                    :controls="false"
+                    size="small"
+                    style="width: 100%"
+                    @focus="handleFocus(scope.row, 'qty')"
+                    @blur="handleBlur(scope.row, 'qty')"
+                  />
+                </template>
+              </el-table-column>
+              <el-table-column label="不含税单价" prop="priceExcl" width="110" align="right">
+                <template #default="scope">
+                  <el-input-number
+                    v-model="scope.row.priceExcl"
+                    :controls="false"
+                    :precision="4"
+                    size="small"
+                    style="width: 100%"
+                    @focus="handleFocus(scope.row, 'priceExcl')"
+                    @blur="handleBlur(scope.row, 'priceExcl')"
+                  />
+                </template>
+              </el-table-column>
+              <el-table-column label="税率%" prop="taxRate" width="80" align="right">
+                <template #default="scope">
+                  <el-input-number
+                    v-model="scope.row.taxRate"
+                    :controls="false"
+                    size="small"
+                    style="width: 100%"
+                    @focus="handleFocus(scope.row, 'taxRate')"
+                    @blur="handleBlur(scope.row, 'taxRate')"
+                  />
+                </template>
+              </el-table-column>
+
+              <el-table-column v-if="showTax" label="税额" width="100" align="right">
+                <template #default="scope">
+                  <span class="tax-amount">¥ {{ calcTaxAmount(scope.row) }}</span>
+                </template>
+              </el-table-column>
+
+              <el-table-column label="价税合计" width="120" align="right" fixed="right">
+                <template #default="scope">
+                  <span class="total-amount">¥ {{ calcTotalAmount(scope.row) }}</span>
+                </template>
+              </el-table-column>
+            </BillDetailTable>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="付款记录" name="payments">
-          <div class="tab-pane-content">
-            <div class="table-container">
-              <el-table :data="paymentDetails" border height="100%" size="small">
-                <el-table-column label="结算账户" prop="account" />
-                <el-table-column label="支付日期" prop="payDate" align="center" />
-                <el-table-column label="支付金额" prop="payAmount" align="right" />
-              </el-table>
-            </div>
-          </div>
+        <el-tab-pane label="附件管理 (0)" name="files">
+          <div class="tab-pane-content"><el-empty description="暂无附件" /></div>
         </el-tab-pane>
       </el-tabs>
-    </TableCard>
+    </div>
 
-    <!-- 4. 底部合计 -->
-    <FooterSummary :items="summaryData" />
+    <!-- 4. 合计栏回归自然流：直接跟在表格卡片下方 -->
+    <FooterSummary :items="summaryData" :more-items="moreSummaryData" class="natural-footer" />
+
+    <!-- 4. 操作日志弹窗 -->
+    <el-dialog v-model="logVisible" title="单据操作日志" width="600px" destroy-on-close align-center>
+      <div class="log-timeline-container">
+        <el-timeline>
+          <el-timeline-item v-for="(activity, index) in activities" :key="index" :type="activity.type" :timestamp="activity.timestamp">
+            <div class="log-item-content">
+              <span class="operator">{{ activity.operator }}</span>
+              <p class="content">{{ activity.content }}</p>
+            </div>
+          </el-timeline-item>
+        </el-timeline>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { 
-  DocumentChecked, Check, Printer, Delete, Plus, InfoFilled,
-  Collection, Wallet, CreditCard, Money 
+import {
+  DocumentChecked, Check, Printer, CopyDocument, MoreFilled, InfoFilled,
+  Search, Files, Box
 } from '@element-plus/icons-vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessage } from 'element-plus';
 
-// 导入业务组件
 import DetailHeader from '@/components/Business/DetailHeader.vue';
-import CollapsibleCard from '@/components/Business/CollapsibleCard.vue';
-import TableCard from '@/components/Business/TableCard.vue';
 import FooterSummary, { type SummaryItem } from '@/components/Business/FooterSummary.vue';
+import BillDetailTable from '@/components/Business/BillDetailTable.vue';
 
 const router = useRouter();
+const billTableRef = ref();
 
-// 状态
-const headerExpanded = ref(true);
+const getSafeVal = (val: any) => {
+  const n = parseFloat(val);
+  return isNaN(n) ? 0 : n;
+};
+
 const activeHeaderTab = ref('basic');
 const activeDetailTab = ref('items');
-const selectedItems = ref<any[]>([]);
+const showTax = ref(true);
+const logVisible = ref(false);
 
 const billInfo = reactive({
-  billNo: 'PO-20240322-001',
-  billDate: '2024-03-22',
-  status: '0',
-  statusName: '未审核',
-  supplierId: 1,
-  settleType: '1',
-  warehouseId: 1,
-  userName: '王经理',
-  phone: '13800138000',
-  remark: ''
+  billNo: 'PO-20240322-001', billDate: '2024-03-22', status: '0', statusName: '未审核',
+  supplierId: 1, settleType: '1', deptId: '1-1', userName: '王经理', warehouseId: 1, currency: 'CNY', remark: ''
 });
-
-const auditInfo = reactive({ opinion: '' });
 
 const itemDetails = ref([
-  { itemCode: 'HW-001', itemName: '华为 Mate 60 Pro', unit: '台', qty: 10, price: 6999.00 }
+  { itemCode: 'HW-001', itemName: '华为 Mate 60 Pro', spec: '12GB+512GB', unit: '台', qty: 10, priceExcl: 5481.25, taxRate: 13, note: '' },
+  { itemCode: 'XM-002', itemName: '小米 14 Ultra', spec: '16GB+1TB', unit: '台', qty: 5, priceExcl: 4698.10, taxRate: 13, note: '' }
 ]);
 
-const paymentDetails = ref([
-  { account: '招商银行 (8892)', payDate: '2024-03-22', payAmount: '50,000.00' }
-]);
+const originalValues = new WeakMap<any, Record<string, any>>();
 
-// 计算合计栏数据
-const summaryData = computed<SummaryItem[]>(() => {
-  const totalQty = itemDetails.value.reduce((sum, item) => sum + item.qty, 0).toFixed(2);
-  const totalAmount = itemDetails.value.reduce((sum, item) => sum + (item.qty * item.price), 0).toLocaleString();
-  
-  if (activeDetailTab.value === 'items') {
-    return [
-      { label: '合计数量', value: totalQty, icon: Collection },
-      { label: '合计金额', value: totalAmount, icon: Wallet, type: 'amount', isMoney: true }
-    ];
-  } else {
-    return [
-      { label: '累计付款', value: '50,000.00', icon: CreditCard, type: 'payments', isMoney: true },
-      { label: '待付余额', value: '19,990.00', icon: Money, type: 'balance', isMoney: true }
-    ];
+const handleFocus = (row: any, field: string) => {
+  if (!originalValues.has(row)) originalValues.set(row, {});
+  originalValues.get(row)![field] = row[field];
+  row[field] = null;
+};
+
+const handleBlur = (row: any, field: string) => {
+  if (row[field] === null || row[field] === undefined) {
+    const original = originalValues.get(row)?.[field];
+    row[field] = (original !== undefined && original !== null) ? original : 0;
   }
+};
+
+const calcTaxAmount = (row: any) => {
+  const qty = getSafeVal(row.qty);
+  const price = getSafeVal(row.priceExcl);
+  const rate = getSafeVal(row.taxRate);
+  return (qty * price * (rate / 100)).toFixed(2);
+};
+
+const calcTotalAmount = (row: any) => {
+  const qty = getSafeVal(row.qty);
+  const price = getSafeVal(row.priceExcl);
+  const rate = getSafeVal(row.taxRate);
+  return (qty * price * (1 + rate / 100)).toLocaleString(undefined, { minimumFractionDigits: 2 });
+};
+
+const summaryData = computed<SummaryItem[]>(() => {
+  let totalAmount = 0;
+  let totalQty = 0;
+  itemDetails.value.forEach(item => {
+    const q = getSafeVal(item.qty);
+    const p = getSafeVal(item.priceExcl);
+    const r = getSafeVal(item.taxRate);
+    totalAmount += (q * p * (1 + r / 100));
+    totalQty += q;
+  });
+  return [
+    { label: '价税合计', value: totalAmount.toLocaleString(undefined, {minimumFractionDigits: 2}), type: 'amount', isMoney: true },
+    { label: '合计数量', value: totalQty.toFixed(2), icon: Box }
+  ];
 });
 
-// 方法
+const moreSummaryData = computed<SummaryItem[]>(() => {
+  let netAmount = 0;
+  let taxAmount = 0;
+  itemDetails.value.forEach(item => {
+    const q = getSafeVal(item.qty);
+    const p = getSafeVal(item.priceExcl);
+    const r = getSafeVal(item.taxRate);
+    netAmount += (q * p);
+    taxAmount += (q * p * (r / 100));
+  });
+  return [
+    { label: '不含税金额', value: netAmount.toLocaleString(), isMoney: true },
+    { label: '总税额', value: taxAmount.toLocaleString(), isMoney: true },
+    { label: '单据总笔数', value: itemDetails.value.length }
+  ];
+});
+
+const activities = [
+  { content: '创建采购订单', timestamp: '2024-03-22 09:00:00', operator: '管理员', type: 'primary' },
+  { content: '修改了单据明细', timestamp: '2024-03-22 10:30:00', operator: '王经理' }
+];
+
 const handleBack = () => router.back();
-const handleSave = (status: string) => {
-  billInfo.statusName = status === '1' ? '待审核' : '未审核';
-  ElMessage.success('保存成功');
-};
+const handleSave = (status: any) => ElMessage.success('操作成功');
 const handleAudit = () => ElMessage.success('审核通过');
 const addItem = () => {
-  itemDetails.value.push({ itemCode: 'NEW', itemName: '新物料', unit: '个', qty: 1, price: 0 });
+  itemDetails.value.push({ itemCode: '', itemName: '新物料', spec: '', unit: '', qty: 0, priceExcl: 0, taxRate: 13, note: '' });
+  billTableRef.value?.scrollToBottom();
 };
-
-const handleItemSelectionChange = (val: any[]) => {
-  selectedItems.value = val;
+const handleMoreAction = (cmd: string) => {
+  if (cmd === 'log') logVisible.value = true;
+  else ElMessage.info(`执行操作: ${cmd}`);
 };
-
-const handleBatchDelete = () => {
-  ElMessageBox.confirm('确定删除选中行吗？', '提示', { type: 'warning' }).then(() => {
-    // 简单模拟删除逻辑
-    const selectedCodes = selectedItems.value.map(item => item.itemCode);
-    itemDetails.value = itemDetails.value.filter(item => !selectedCodes.includes(item.itemCode));
-    selectedItems.value = [];
-    ElMessage.success('删除成功');
-  });
-};
-
 const getStatusType = (status: string) => ({ '0': 'info', '1': 'warning', '2': 'success' }[status] || 'info');
+const showMaterialSelect = (index: number) => ElMessage.info('打开物料选择对话框');
 </script>
 
 <style scoped lang="scss">
-.bill-detail-wrapper {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  height: 0;
-  gap: 4px;
-  overflow: hidden;
+.app-container {
+  padding: 0; background-color: transparent; display: flex; flex-direction: column; gap: 8px; height: 100%;
 }
 
-.amount-text {
-  font-family: 'Consolas', monospace;
-  font-weight: 600;
-  color: #cf1322;
+.header-main-actions { display: flex; align-items: center; gap: 8px; }
+
+.detail-table-card {
+  flex: 1; display: flex; flex-direction: column; padding: 0 !important; overflow: hidden;
+
+  :deep(.el-tabs) { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+  :deep(.el-tabs__header) { margin: 0; background: #fafafa; padding: 0 16px; border-bottom: 1px solid #f0f0f0; }
+  :deep(.el-tabs__content) { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  :deep(.el-tab-pane) { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+}
+
+.tab-pane-content {
+  flex: 1; display: flex; flex-direction: column; padding: 0; min-height: 0;
+}
+
+:deep(.natural-footer) {
+  flex-shrink: 0;
+  background: #fff;
+  border-radius: 4px;
+  border: 1px solid var(--app-border-color);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  .footer-summary-container { border-top: none; }
+  .summary-wrapper { padding: 0 16px; }
+  .summary-main { height: 44px; }
+}
+
+.total-amount { font-family: 'Consolas', monospace; font-weight: 700; color: #cf1322; }
+.tax-amount { color: #8c8c8c; font-size: 11px; }
+
+.log-timeline-container { padding: 10px 20px; }
+.log-item-content {
+  .operator { font-size: 13px; color: var(--app-primary); font-weight: 600; }
+  .content { margin: 4px 0 0; font-size: 13px; color: #595959; }
 }
 </style>

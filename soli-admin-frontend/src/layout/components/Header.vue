@@ -8,7 +8,7 @@
         </el-icon>
       </div>
       <div class="breadcrumb">
-        首页 / {{ route.meta.title }}
+        首页 / <span class="active-title">{{ route.meta.title }}</span>
       </div>
     </div>
 
@@ -66,11 +66,13 @@ const handleCommand = async (command: string) => {
 <style scoped lang="scss">
 .header {
   height: 100%;
+  width: 100%; /* 核心修复：确保顶栏撑满 100% 宽度 */
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--app-border-color);
+  background: var(--app-header-bg);
 
   .header-left {
     display: flex;
@@ -103,6 +105,12 @@ const handleCommand = async (command: string) => {
   margin-left: 10px;
   color: #97a8be;
   font-size: 14px;
+
+  .active-title {
+    color: #262626;
+    font-weight: 600;
+    margin-left: 4px;
+  }
 }
 
 .right-menu {

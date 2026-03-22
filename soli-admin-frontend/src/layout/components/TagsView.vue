@@ -1,19 +1,26 @@
 <template>
   <div class="tags-view-container">
     <el-scrollbar class="tags-view-wrapper">
-      <router-link v-for="tag in visitedViews" :key="tag.path" :to="{ path: tag.path, query: tag.query }"
-        class="tags-view-item" :class="isActive(tag) ? 'active' : ''">
-        {{ tag.title }}
-        <el-icon v-if="!isAffix(tag)" class="el-icon-close" @click.prevent.stop="closeSelectedTag(tag)">
-          <Close />
-        </el-icon>
-      </router-link>
+      <div class="tags-inner">
+        <router-link 
+          v-for="tag in visitedViews" 
+          :key="tag.path" 
+          :to="{ path: tag.path, query: tag.query }"
+          class="tags-view-item" 
+          :class="{ active: isActive(tag) }"
+        >
+          <span class="tag-title">{{ tag.title }}</span>
+          <el-icon v-if="!isAffix(tag)" class="close-icon" @click.prevent.stop="closeSelectedTag(tag)">
+            <Close />
+          </el-icon>
+        </router-link>
+      </div>
     </el-scrollbar>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue';
+import { computed, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useTagsViewStore } from '@/store/modules/tagsView';
 import { Close } from '@element-plus/icons-vue';
@@ -29,7 +36,6 @@ const router = useRouter();
 const visitedViews = computed(() => tagsViewStore.visitedViews);
 
 const isActive = (tag: any) => tag.path === route.path;
-
 const isAffix = (tag: any) => tag.meta && tag.meta.affix;
 
 const addTags = () => {
@@ -41,7 +47,6 @@ const addTags = () => {
 };
 
 const initTags = () => {
-  // Manually add dashboard
   const dashboardRoute = {
     meta: { affix: true, title: '仪表盘' },
     name: 'Dashboard',
@@ -71,12 +76,7 @@ const toLastView = (visitedViews: any[], view: any) => {
   }
 };
 
-watch(
-  () => route.path,
-  () => {
-    addTags();
-  }
-);
+watch(() => route.path, () => { addTags(); });
 
 onMounted(() => {
   initTags();
@@ -88,75 +88,70 @@ onMounted(() => {
 .tags-view-container {
   height: 34px;
   width: 100%;
-  background: #fff;
-  border-bottom: 1px solid #d8dce5;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  background: #fff; /* 还原为纯白色 */
+  border-bottom: 1px solid #e8e8e8;
+  display: flex;
+  align-items: center;
 
   .tags-view-wrapper {
+    width: 100%;
+    
+    .tags-inner {
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      height: 34px;
+    }
+
     .tags-view-item {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
       position: relative;
       cursor: pointer;
       height: 26px;
       line-height: 26px;
-      border: 1px solid #d8dce5;
-      color: #495060;
+      border: 1px solid #d9d9d9;
       background: #fff;
+      color: #595959;
       padding: 0 8px;
       font-size: 12px;
-      margin-left: 5px;
-      margin-top: 4px;
+      margin-right: 4px;
       text-decoration: none;
-      transition: all 0.3s;
-
-      &:first-of-type {
-        margin-left: 15px;
-      }
-
-      &:last-of-type {
-        margin-right: 15px;
+      transition: all 0.2s;
+      
+      &:hover {
+        color: var(--app-primary);
+        border-color: var(--app-primary);
       }
 
       &.active {
-        background-color: var(--app-primary-color, #409EFF);
+        background-color: var(--app-primary);
         color: #fff;
-        border-color: var(--app-primary-color, #409EFF);
-
-        &::before {
-          content: '';
-          background: #fff;
-          display: inline-block;
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          position: relative;
-          margin-right: 2px;
+        border-color: var(--app-primary);
+        
+        .close-icon {
+          color: #fff;
         }
       }
-    }
-  }
-}
 
-.tags-view-wrapper {
-  .tags-view-item {
-    .el-icon-close {
-      width: 16px;
-      height: 16px;
-      vertical-align: 2px;
-      border-radius: 50%;
-      text-align: center;
-      transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
-      transform-origin: 100% 50%;
-
-      &:before {
-        transform: scale(0.6);
-        display: inline-block;
-        vertical-align: -3px;
+      .tag-title {
+        padding: 0 2px;
       }
 
-      &:hover {
-        background-color: #b4bccc;
-        color: #fff;
+      .close-icon {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        margin-left: 4px;
+        transition: all 0.2s;
+
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.1);
+        }
       }
     }
   }

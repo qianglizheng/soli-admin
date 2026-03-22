@@ -1,7 +1,7 @@
 
 <template>
-  <div class="app-wrapper">
-    <div class="sidebar-container" :class="{ collapse: !sidebar.opened }">
+  <div class="layout-container">
+    <div class="menu-container" :class="{ collapse: !sidebar.opened }">
       <Sidebar />
     </div>
     <div class="main-container">
