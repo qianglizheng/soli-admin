@@ -2,40 +2,40 @@
   <div class="app-container">
     <!-- 搜索区域 -->
     <div class="search-wrapper" v-show="showSearch">
-            <el-form :model="queryParams" ref="queryRef" :inline="true">
+      <el-form :model="queryParams" ref="queryRef" :inline="true">
         <div ref="searchCollapseRef" class="search-collapse-container">
-          <el-form-item label="????" prop="roleName" data-search-item="true">
+          <el-form-item label="角色名称" prop="roleName" data-search-item="true">
             <el-input
               v-model="queryParams.roleName"
-              placeholder="???????"
+              placeholder="请输入角色名称"
               clearable
               style="width: 240px"
               @keyup.enter="handleQuery"
             />
           </el-form-item>
-          <el-form-item label="????" prop="roleKey" data-search-item="true">
+          <el-form-item label="权限字符" prop="roleKey" data-search-item="true">
             <el-input
               v-model="queryParams.roleKey"
-              placeholder="???????"
+              placeholder="请输入权限字符"
               clearable
               style="width: 240px"
               @keyup.enter="handleQuery"
             />
           </el-form-item>
           <el-form-item
-            label="??"
+            label="状态"
             prop="status"
             data-search-item="true"
             data-search-more="true"
             :class="{ 'search-collapse-item-hidden': !isSearchMeasured || (showMoreButton && !showMoreSearch) }"
           >
-            <el-select v-model="queryParams.status" placeholder="????" clearable style="width: 240px">
-              <el-option label="??" value="0" />
-              <el-option label="??" value="1" />
+            <el-select v-model="queryParams.status" placeholder="角色状态" clearable style="width: 240px">
+              <el-option label="正常" value="0" />
+              <el-option label="停用" value="1" />
             </el-select>
           </el-form-item>
           <el-form-item
-            label="????"
+            label="数据范围"
             prop="dataScopeKeyword"
             data-search-item="true"
             data-search-more="true"
@@ -43,17 +43,17 @@
           >
             <el-input
               v-model="queryParams.dataScopeKeyword"
-              placeholder="???????"
+              placeholder="请输入数据范围"
               clearable
               style="width: 240px"
               @keyup.enter="handleQuery"
             />
           </el-form-item>
           <el-form-item data-search-actions="true">
-            <el-button type="primary" icon="Search" @click="handleQuery">??</el-button>
-            <el-button icon="Refresh" @click="resetQuery">??</el-button>
+            <el-button type="primary" icon="Search" @click="handleQuery">查询</el-button>
+            <el-button icon="Refresh" @click="resetQuery">重置</el-button>
             <el-button v-if="isSearchMeasured && showMoreButton" link @click="toggleMoreSearch">
-              {{ showMoreSearch ? '??' : '??' }}
+              {{ showMoreSearch ? '收起' : '更多' }}
               <el-icon class="el-icon--right"><component :is="showMoreSearch ? 'ArrowUp' : 'ArrowDown'" /></el-icon>
             </el-button>
           </el-form-item>

@@ -1,40 +1,40 @@
 <template>
   <div class="app-container">
     <!-- 搜索区域 -->
-        <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
+    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
       <div ref="searchCollapseRef" class="search-collapse-container">
-        <el-form-item label="????" prop="ipaddr" data-search-item="true">
+        <el-form-item label="登录地址" prop="ipaddr" data-search-item="true">
           <el-input
             v-model="queryParams.ipaddr"
-            placeholder="???????"
+            placeholder="请输入登录地址"
             clearable
             style="width: 240px"
             @keyup.enter="handleQuery"
           />
         </el-form-item>
-        <el-form-item label="????" prop="userName" data-search-item="true">
+        <el-form-item label="用户名称" prop="userName" data-search-item="true">
           <el-input
             v-model="queryParams.userName"
-            placeholder="???????"
+            placeholder="请输入用户名称"
             clearable
             style="width: 240px"
             @keyup.enter="handleQuery"
           />
         </el-form-item>
         <el-form-item
-          label="??"
+          label="状态"
           prop="status"
           data-search-item="true"
           data-search-more="true"
           :class="{ 'search-collapse-item-hidden': !isSearchMeasured || (showMoreButton && !showMoreSearch) }"
         >
-          <el-select v-model="queryParams.status" placeholder="????" clearable style="width: 240px">
-            <el-option label="??" value="0" />
-            <el-option label="??" value="1" />
+          <el-select v-model="queryParams.status" placeholder="登录状态" clearable style="width: 240px">
+            <el-option label="成功" value="0" />
+            <el-option label="失败" value="1" />
           </el-select>
         </el-form-item>
         <el-form-item
-          label="???"
+          label="浏览器"
           prop="browser"
           data-search-item="true"
           data-search-more="true"
@@ -42,17 +42,17 @@
         >
           <el-input
             v-model="queryParams.browser"
-            placeholder="??????"
+            placeholder="请输入浏览器"
             clearable
             style="width: 240px"
             @keyup.enter="handleQuery"
           />
         </el-form-item>
         <el-form-item data-search-actions="true">
-          <el-button type="primary" icon="Search" @click="handleQuery">??</el-button>
-          <el-button icon="Refresh" @click="resetQuery">??</el-button>
+          <el-button type="primary" icon="Search" @click="handleQuery">查询</el-button>
+          <el-button icon="Refresh" @click="resetQuery">重置</el-button>
           <el-button v-if="isSearchMeasured && showMoreButton" link @click="toggleMoreSearch">
-            {{ showMoreSearch ? '??' : '??' }}
+            {{ showMoreSearch ? '收起' : '更多' }}
             <el-icon class="el-icon--right"><component :is="showMoreSearch ? 'ArrowUp' : 'ArrowDown'" /></el-icon>
           </el-button>
         </el-form-item>

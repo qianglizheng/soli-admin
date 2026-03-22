@@ -1,39 +1,39 @@
 <template>
   <div class="app-container">
-        <el-form :model="queryParams" :inline="true" v-show="showSearch">
+    <el-form :model="queryParams" :inline="true" v-show="showSearch">
       <div ref="searchCollapseRef" class="search-collapse-container">
-        <el-form-item label="????" prop="configName" data-search-item="true">
+        <el-form-item label="参数名称" prop="configName" data-search-item="true">
           <el-input
             v-model="queryParams.configName"
-            placeholder="???????"
+            placeholder="请输入参数名称"
             clearable
             style="width: 240px"
             @keyup.enter="handleQuery"
           />
         </el-form-item>
-        <el-form-item label="????" prop="configKey" data-search-item="true">
+        <el-form-item label="参数键名" prop="configKey" data-search-item="true">
           <el-input
             v-model="queryParams.configKey"
-            placeholder="???????"
+            placeholder="请输入参数键名"
             clearable
             style="width: 240px"
             @keyup.enter="handleQuery"
           />
         </el-form-item>
         <el-form-item
-          label="????"
+          label="系统内置"
           prop="configType"
           data-search-item="true"
           data-search-more="true"
           :class="{ 'search-collapse-item-hidden': !isSearchMeasured || (showMoreButton && !showMoreSearch) }"
         >
-          <el-select v-model="queryParams.configType" placeholder="???????" clearable style="width: 240px">
-            <el-option label="?" value="Y" />
-            <el-option label="?" value="N" />
+          <el-select v-model="queryParams.configType" placeholder="请选择系统内置" clearable style="width: 240px">
+            <el-option label="是" value="Y" />
+            <el-option label="否" value="N" />
           </el-select>
         </el-form-item>
         <el-form-item
-          label="????"
+          label="参数备注"
           prop="remarkKeyword"
           data-search-item="true"
           data-search-more="true"
@@ -41,17 +41,17 @@
         >
           <el-input
             v-model="queryParams.remarkKeyword"
-            placeholder="???????"
+            placeholder="请输入参数备注"
             clearable
             style="width: 240px"
             @keyup.enter="handleQuery"
           />
         </el-form-item>
         <el-form-item data-search-actions="true">
-          <el-button type="primary" icon="Search" @click="handleQuery">??</el-button>
-          <el-button icon="Refresh" @click="resetQuery">??</el-button>
+          <el-button type="primary" icon="Search" @click="handleQuery">查询</el-button>
+          <el-button icon="Refresh" @click="resetQuery">重置</el-button>
           <el-button v-if="isSearchMeasured && showMoreButton" link @click="toggleMoreSearch">
-            {{ showMoreSearch ? '??' : '??' }}
+            {{ showMoreSearch ? '收起' : '更多' }}
             <el-icon class="el-icon--right"><component :is="showMoreSearch ? 'ArrowUp' : 'ArrowDown'" /></el-icon>
           </el-button>
         </el-form-item>

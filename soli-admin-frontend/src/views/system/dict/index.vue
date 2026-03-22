@@ -1,39 +1,39 @@
 <template>
   <div class="app-container">
-        <el-form :model="queryParams" :inline="true" v-show="showSearch">
+    <el-form :model="queryParams" :inline="true" v-show="showSearch">
       <div ref="searchCollapseRef" class="search-collapse-container">
-        <el-form-item label="????" prop="name" data-search-item="true">
+        <el-form-item label="字典名称" prop="name" data-search-item="true">
           <el-input
             v-model="queryParams.name"
-            placeholder="???????"
+            placeholder="请输入字典名称"
             clearable
             style="width: 240px"
             @keyup.enter="handleQuery"
           />
         </el-form-item>
-        <el-form-item label="????" prop="type" data-search-item="true">
+        <el-form-item label="字典类型" prop="type" data-search-item="true">
           <el-input
             v-model="queryParams.type"
-            placeholder="???????"
+            placeholder="请输入字典类型"
             clearable
             style="width: 240px"
             @keyup.enter="handleQuery"
           />
         </el-form-item>
         <el-form-item
-          label="??"
+          label="状态"
           prop="status"
           data-search-item="true"
           data-search-more="true"
-          :class="{ 'search-collapse-item-hidden': !isSearchMeasured || (showMoreButton && !showMoreSearch) }"
+
         >
-          <el-select v-model="queryParams.status" placeholder="????" clearable style="width: 240px">
-            <el-option label="??" value="0" />
-            <el-option label="??" value="1" />
+          <el-select v-model="queryParams.status" placeholder="字典状态" clearable style="width: 240px">
+            <el-option label="正常" value="0" />
+            <el-option label="停用" value="1" />
           </el-select>
         </el-form-item>
         <el-form-item
-          label="????"
+          label="字典备注"
           prop="noteKeyword"
           data-search-item="true"
           data-search-more="true"
@@ -41,17 +41,17 @@
         >
           <el-input
             v-model="queryParams.noteKeyword"
-            placeholder="???????"
+            placeholder="请输入字典备注"
             clearable
             style="width: 240px"
             @keyup.enter="handleQuery"
           />
         </el-form-item>
         <el-form-item data-search-actions="true">
-          <el-button type="primary" icon="Search" @click="handleQuery">??</el-button>
-          <el-button icon="Refresh" @click="resetQuery">??</el-button>
+          <el-button type="primary" icon="Search" @click="handleQuery">查询</el-button>
+          <el-button icon="Refresh" @click="resetQuery">重置</el-button>
           <el-button v-if="isSearchMeasured && showMoreButton" link @click="toggleMoreSearch">
-            {{ showMoreSearch ? '??' : '??' }}
+            {{ showMoreSearch ? '收起' : '更多' }}
             <el-icon class="el-icon--right"><component :is="showMoreSearch ? 'ArrowUp' : 'ArrowDown'" /></el-icon>
           </el-button>
         </el-form-item>
