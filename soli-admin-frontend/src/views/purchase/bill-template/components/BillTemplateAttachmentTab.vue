@@ -22,7 +22,7 @@
 
         <el-table-column
           v-if="canShowColumn('fileName')"
-          :label="getFieldTitle('fileName')"
+          :label="permissionAccess.getFieldLabel('fileName')"
           prop="fileName"
           column-key="fileName"
           min-width="220"
@@ -34,7 +34,7 @@
 
         <el-table-column
           v-if="canShowColumn('fileType')"
-          :label="getFieldTitle('fileType')"
+          :label="permissionAccess.getFieldLabel('fileType')"
           prop="fileType"
           column-key="fileType"
           width="120"
@@ -50,7 +50,7 @@
 
         <el-table-column
           v-if="canShowColumn('fileSize')"
-          :label="getFieldTitle('fileSize')"
+          :label="permissionAccess.getFieldLabel('fileSize')"
           prop="fileSize"
           width="120"
           align="center"
@@ -60,7 +60,7 @@
 
         <el-table-column
           v-if="canShowColumn('uploadUser')"
-          :label="getFieldTitle('uploadUser')"
+          :label="permissionAccess.getFieldLabel('uploadUser')"
           prop="uploadUser"
           column-key="uploadUser"
           width="120"
@@ -72,7 +72,7 @@
 
         <el-table-column
           v-if="canShowColumn('uploadTime')"
-          :label="getFieldTitle('uploadTime')"
+          :label="permissionAccess.getFieldLabel('uploadTime')"
           prop="uploadTime"
           width="180"
           align="center"
@@ -81,7 +81,7 @@
 
         <el-table-column
           v-if="canShowColumn('remark')"
-          :label="getFieldTitle('remark')"
+          :label="permissionAccess.getFieldLabel('remark')"
           prop="remark"
           min-width="180"
           show-overflow-tooltip
@@ -96,12 +96,10 @@
 import { computed, nextTick, ref, watch } from 'vue';
 import { type TableInstance } from 'element-plus';
 import {
-  filterVisibleKeys,
-  getFieldLabel,
-  isPermissionVisible,
+  createBillPermissionAccessor,
   isSameStringArray,
   normalizeVisibleKeys,
-  type BillPermissionSet
+  type BillPermissionSource
 } from '@/components/Bill/billPermission';
 import BillTemplateColumnSetting from './BillTemplateColumnSetting.vue';
 import { buildTextFilters, matchTextFilter, parseFileSize } from './tableHelper';
@@ -117,7 +115,7 @@ interface AttachmentRow {
 
 const props = defineProps<{
   rows: AttachmentRow[];
-  permissions?: BillPermissionSet;
+  permissions?: BillPermissionSource;
 }>();
 
 const defaultVisibleColumnKeys = ['fileName', 'fileType', 'fileSize', 'uploadUser', 'uploadTime', 'remark'];
@@ -131,29 +129,19 @@ const defaultFieldLabels = {
   remark: '备注'
 } as const;
 const allColumnKeys = Object.keys(defaultFieldLabels) as Array<keyof typeof defaultFieldLabels>;
+const permissionAccess = createBillPermissionAccessor(() => props.permissions, {
+  fieldLabels: defaultFieldLabels
+});
 
 const tableRef = ref<TableInstance>();
 const visibleColumnKeys = ref([...defaultVisibleColumnKeys]);
 const currentSortProp = ref('');
-/**
- * 判断字段是否允许显示。
- */
-const isFieldVisible = (key: string) => {
-  return isPermissionVisible(props.permissions, 'fields', key);
-};
-
-/**
- * 读取字段标题，优先使用权限配置中的自定义标题。
- */
-const getFieldTitle = (key: keyof typeof defaultFieldLabels) => {
-  return getFieldLabel(props.permissions, key, defaultFieldLabels[key]);
-};
 
 /**
  * 判断当前列是否可显示。
  */
 const canShowColumn = (key: string) => {
-  return visibleColumnKeys.value.includes(key) && isFieldVisible(key);
+  return visibleColumnKeys.value.includes(key) && permissionAccess.isFieldVisible(key);
 };
 
 /**
@@ -162,12 +150,12 @@ const canShowColumn = (key: string) => {
 const columnOptions = computed(() => {
   return allColumnKeys
     .filter((key) => {
-      return isFieldVisible(key);
+      return permissionAccess.isFieldVisible(key);
     })
     .map((key) => {
       return {
         key,
-        label: getFieldTitle(key)
+        label: permissionAccess.getFieldLabel(key)
       };
     });
 });
@@ -176,7 +164,7 @@ const columnOptions = computed(() => {
  * 根据权限过滤默认可见列。
  */
 const permissionDefaultVisibleColumnKeys = computed(() => {
-  return filterVisibleKeys(defaultVisibleColumnKeys, props.permissions, 'fields');
+  return permissionAccess.filterVisibleFields(defaultVisibleColumnKeys);
 });
 
 /**

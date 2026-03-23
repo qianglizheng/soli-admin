@@ -45,7 +45,7 @@
     <!-- 4. 合计栏回归自然流：直接跟在表格卡片下方 -->
     <FooterSummaryCard :items="summaryData" :more-items="moreSummaryData" class="natural-footer" />
 
-    <!-- 4. 操作日志弹窗 -->
+    <!-- 5. 操作日志弹窗 -->
     <el-dialog v-model="logVisible" title="单据操作日志" width="600px" destroy-on-close align-center>
       <div class="log-timeline-container">
         <el-timeline>
@@ -62,22 +62,29 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, watch } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Box } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
-
 import BillDetailFormCard from '@/components/Bill/BillDetailFormCard.vue';
 import BillDetailHeaderCard from '@/components/Bill/BillDetailHeaderCard.vue';
 import FooterSummaryCard, { type SummaryItem } from '@/components/Bill/FooterSummaryCard.vue';
 import BillDetailTableCard from '@/components/Bill/BillDetailTableCard.vue';
 import {
+  createBillPermissionAccessor,
   createEmptyBillPagePermissions,
-  createEmptyBillPermissionSet,
-  hasAnyVisiblePermission
+  createEmptyBillPermissionConfig
 } from '@/components/Bill/billPermission';
 import { useBillTemplateStore } from '@/store/modules/billTemplate';
 import { fetchBillTemplatePagePermissions } from './billPermissionMock';
+import {
+  fetchBillTemplateDetailData,
+  type BillTemplateActivity,
+  type BillTemplateAttachmentRow,
+  type BillTemplateDetailHeader,
+  type BillTemplateDetailItemRow,
+  type BillTemplateSourceBillRow
+} from './billDataMock';
 import BillHeaderBasicForm from './components/BillHeaderBasicForm.vue';
 import BillHeaderAuditInfo from './components/BillHeaderAuditInfo.vue';
 import BillTemplateItemsTab from './components/BillTemplateItemsTab.vue';
@@ -93,64 +100,85 @@ const getSafeVal = (val: any) => {
   return isNaN(n) ? 0 : n;
 };
 
+const createDefaultBillInfo = (): BillTemplateDetailHeader => ({
+  billNo: '',
+  billDate: '',
+  status: '0',
+  statusName: '未审核',
+  supplierId: null,
+  settleType: '',
+  deptId: '',
+  userName: '',
+  warehouseId: null,
+  currency: 'CNY',
+  remark: '',
+  createByName: ''
+});
+
 const activeHeaderTab = ref('basic');
 const activeDetailTab = ref('items');
 const headerExpanded = ref(true);
 const logVisible = ref(false);
 const pagePermissions = ref(createEmptyBillPagePermissions());
-const emptyPermissionSet = createEmptyBillPermissionSet();
+const emptyPermissionConfig = createEmptyBillPermissionConfig();
+
 /**
  * 当前页标准单头权限。
  */
 const standardPermissions = computed(() => {
-  return pagePermissions.value.header.standard || emptyPermissionSet;
+  return pagePermissions.value.header.standard || emptyPermissionConfig;
 });
 
 /**
  * 当前页物料明细权限。
  */
 const goodsDetailPermissions = computed(() => {
-  return pagePermissions.value.detail.goodsDetail || emptyPermissionSet;
+  return pagePermissions.value.detail.goodsDetail || emptyPermissionConfig;
 });
 
 /**
  * 当前页来源单据权限。
  */
 const sourceDetailPermissions = computed(() => {
-  return pagePermissions.value.detail.sourceDetail || emptyPermissionSet;
+  return pagePermissions.value.detail.sourceDetail || emptyPermissionConfig;
 });
 
 /**
  * 当前页附件管理权限。
  */
 const attachmentDetailPermissions = computed(() => {
-  return pagePermissions.value.detail.attachmentDetail || emptyPermissionSet;
+  return pagePermissions.value.detail.attachmentDetail || emptyPermissionConfig;
 });
+
 const headerBasicFieldKeys = ['billDate', 'supplierId', 'settleType', 'warehouseId', 'userName', 'currency', 'remark'];
 const headerAuditFieldKeys = ['createByName', 'statusName', 'descriptionText'];
 const goodsDetailFieldKeys = ['itemCode', 'itemName', 'spec', 'unit', 'qty', 'priceExcl', 'taxRate', 'taxAmount', 'totalAmount'];
 const sourceDetailFieldKeys = ['sourceBillNo', 'sourceType', 'supplierName', 'billDate', 'totalAmount', 'status', 'remark'];
 const attachmentDetailFieldKeys = ['fileName', 'fileType', 'fileSize', 'uploadUser', 'uploadTime', 'remark'];
+const standardPermissionAccess = createBillPermissionAccessor(() => standardPermissions.value);
+const goodsDetailPermissionAccess = createBillPermissionAccessor(() => goodsDetailPermissions.value);
+const sourceDetailPermissionAccess = createBillPermissionAccessor(() => sourceDetailPermissions.value);
+const attachmentDetailPermissionAccess = createBillPermissionAccessor(() => attachmentDetailPermissions.value);
 
 /**
  * 判断头部操作区是否需要显示。
  */
 const showHeaderActions = computed(() => {
-  return hasAnyVisiblePermission(standardPermissions.value, 'buttons', ['save', 'audit', 'print', 'log', 'copy', 'void']);
+  return standardPermissionAccess.hasVisibleButtons(['save', 'audit', 'print', 'log', 'copy', 'void']);
 });
 
 /**
  * 判断基础信息 tab 是否需要显示。
  */
 const showBasicHeaderTab = computed(() => {
-  return hasAnyVisiblePermission(standardPermissions.value, 'fields', headerBasicFieldKeys);
+  return standardPermissionAccess.hasVisibleFields(headerBasicFieldKeys);
 });
 
 /**
  * 判断审核信息 tab 是否需要显示。
  */
 const showAuditHeaderTab = computed(() => {
-  return hasAnyVisiblePermission(standardPermissions.value, 'fields', headerAuditFieldKeys);
+  return standardPermissionAccess.hasVisibleFields(headerAuditFieldKeys);
 });
 
 /**
@@ -164,21 +192,21 @@ const showHeaderCard = computed(() => {
  * 判断物料明细 tab 是否需要显示。
  */
 const showGoodsDetailTab = computed(() => {
-  return hasAnyVisiblePermission(goodsDetailPermissions.value, 'fields', goodsDetailFieldKeys);
+  return goodsDetailPermissionAccess.hasVisibleFields(goodsDetailFieldKeys);
 });
 
 /**
  * 判断来源单据 tab 是否需要显示。
  */
 const showSourceDetailTab = computed(() => {
-  return hasAnyVisiblePermission(sourceDetailPermissions.value, 'fields', sourceDetailFieldKeys);
+  return sourceDetailPermissionAccess.hasVisibleFields(sourceDetailFieldKeys);
 });
 
 /**
  * 判断附件管理 tab 是否需要显示。
  */
 const showAttachmentDetailTab = computed(() => {
-  return hasAnyVisiblePermission(attachmentDetailPermissions.value, 'fields', attachmentDetailFieldKeys);
+  return attachmentDetailPermissionAccess.hasVisibleFields(attachmentDetailFieldKeys);
 });
 
 /**
@@ -188,60 +216,16 @@ const showDetailCard = computed(() => {
   return showGoodsDetailTab.value || showSourceDetailTab.value || showAttachmentDetailTab.value;
 });
 
-const billInfo = reactive({
-  billNo: 'PO-20240322-001', billDate: '2024-03-22', status: '0', statusName: '未审核',
-  supplierId: 1, settleType: '1', deptId: '1-1', userName: '王经理', warehouseId: 1, currency: 'CNY', remark: '', createByName: '张三'
-});
-
-const itemDetails = ref([
-  { itemCode: 'HW-001', itemName: '华为 Mate 60 Pro', spec: '12GB+512GB', unit: '台', qty: 10, priceExcl: 5481.25, taxRate: 13, note: '' },
-  { itemCode: 'XM-002', itemName: '小米 14 Ultra', spec: '16GB+1TB', unit: '台', qty: 5, priceExcl: 4698.10, taxRate: 13, note: '' }
-]);
-
-const sourceBillList = ref([
-  {
-    sourceBillNo: 'CGSQ-20240320-001',
-    sourceType: '采购申请',
-    supplierName: '华为技术有限公司',
-    billDate: '2024-03-20',
-    totalAmount: '68,500.00',
-    status: '已审核',
-    remark: '来源于月度采购申请'
-  },
-  {
-    sourceBillNo: '询价单-20240318-002',
-    sourceType: '询价单',
-    supplierName: '小米通讯有限公司',
-    billDate: '2024-03-18',
-    totalAmount: '45,000.00',
-    status: '已审核',
-    remark: '比价后自动带入'
-  }
-]);
-
-const attachmentList = ref([
-  {
-    fileName: '采购合同-华为Mate60Pro.pdf',
-    fileType: 'PDF',
-    fileSize: '1.8 MB',
-    uploadUser: '张三',
-    uploadTime: '2024-03-22 09:12:00',
-    remark: '主合同文件'
-  },
-  {
-    fileName: '供应商报价单-20240322.xlsx',
-    fileType: 'XLSX',
-    fileSize: '356 KB',
-    uploadUser: '王经理',
-    uploadTime: '2024-03-22 10:08:00',
-    remark: '附件报价明细'
-  }
-]);
+const billInfo = reactive<BillTemplateDetailHeader>(createDefaultBillInfo());
+const itemDetails = ref<BillTemplateDetailItemRow[]>([]);
+const sourceBillList = ref<BillTemplateSourceBillRow[]>([]);
+const attachmentList = ref<BillTemplateAttachmentRow[]>([]);
+const activities = ref<BillTemplateActivity[]>([]);
 
 const summaryData = computed<SummaryItem[]>(() => {
   let totalAmount = 0;
   let totalQty = 0;
-  itemDetails.value.forEach(item => {
+  itemDetails.value.forEach((item) => {
     const q = getSafeVal(item.qty);
     const p = getSafeVal(item.priceExcl);
     const r = getSafeVal(item.taxRate);
@@ -249,7 +233,7 @@ const summaryData = computed<SummaryItem[]>(() => {
     totalQty += q;
   });
   return [
-    { label: '价税合计', value: totalAmount.toLocaleString(undefined, {minimumFractionDigits: 2}), type: 'amount', isMoney: true },
+    { label: '价税合计', value: totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 }), type: 'amount', isMoney: true },
     { label: '合计数量', value: totalQty.toFixed(2), icon: Box }
   ];
 });
@@ -257,7 +241,7 @@ const summaryData = computed<SummaryItem[]>(() => {
 const moreSummaryData = computed<SummaryItem[]>(() => {
   let netAmount = 0;
   let taxAmount = 0;
-  itemDetails.value.forEach(item => {
+  itemDetails.value.forEach((item) => {
     const q = getSafeVal(item.qty);
     const p = getSafeVal(item.priceExcl);
     const r = getSafeVal(item.taxRate);
@@ -271,10 +255,32 @@ const moreSummaryData = computed<SummaryItem[]>(() => {
   ];
 });
 
-const activities = [
-  { content: '创建采购订单', timestamp: '2024-03-22 09:00:00', operator: '管理员', type: 'primary' },
-  { content: '修改了单据明细', timestamp: '2024-03-22 10:30:00', operator: '王经理' }
-];
+/**
+ * 用详情 mock 数据覆盖当前页面数据。
+ */
+const applyDetailData = async () => {
+  const isCreateMode = route.query.mode === 'create';
+  const billNo = isCreateMode ? undefined : (typeof route.query.id === 'string' ? route.query.id : undefined);
+  const detailData = await fetchBillTemplateDetailData(billNo);
+
+  Object.assign(billInfo, createDefaultBillInfo(), detailData.header);
+  itemDetails.value = detailData.items.map((item) => {
+    return { ...item };
+  });
+  sourceBillList.value = detailData.sourceBills.map((item) => {
+    return { ...item };
+  });
+  attachmentList.value = detailData.attachments.map((item) => {
+    return { ...item };
+  });
+  activities.value = detailData.activities.map((item) => {
+    return { ...item };
+  });
+
+  if (isCreateMode) {
+    applyHeaderDraft();
+  }
+};
 
 /**
  * 将新建页暂存的单头信息带入详情页。
@@ -311,8 +317,8 @@ const handleBack = () => {
 /**
  * 处理保存动作，这里保留 mock 提示。
  */
-const handleSave = (status: any) => {
-  ElMessage.success('操作成功');
+const handleSave = (status: string) => {
+  ElMessage.success(`保存成功，状态码 ${status}`);
 };
 
 /**
@@ -337,7 +343,7 @@ const handleMoreAction = (cmd: string) => {
  * 解析单据状态标签类型。
  */
 const getStatusType = (status: string) => {
-  return ({ '0': 'info', '1': 'warning', '2': 'success' }[status] || 'info');
+  return ({ '0': 'info', '1': 'warning', '2': 'primary', '3': 'success', '4': 'success' }[status] || 'info');
 };
 
 /**
@@ -378,9 +384,7 @@ watch(() => billInfo.status, async () => {
  * 初始化详情页数据和权限。
  */
 onMounted(async () => {
-  if (route.query.mode === 'create') {
-    applyHeaderDraft();
-  }
+  await applyDetailData();
   await loadPagePermissions();
 });
 </script>

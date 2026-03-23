@@ -22,8 +22,21 @@
 
     <div v-if="showActionCard" class="tech-card action-card">
       <div class="action-bar">
-        <el-button v-if="isButtonVisible('cancel')" :disabled="isButtonReadonly('cancel')" @click="handleBack">取消</el-button>
-        <el-button v-if="isButtonVisible('continue')" type="primary" :disabled="isButtonReadonly('continue')" @click="handleContinue">继续</el-button>
+        <el-button
+          v-if="permissionAccess.isButtonVisible('cancel')"
+          :disabled="permissionAccess.isButtonReadonly('cancel')"
+          @click="handleBack"
+        >
+          {{ permissionAccess.getButtonLabel('cancel') }}
+        </el-button>
+        <el-button
+          v-if="permissionAccess.isButtonVisible('continue')"
+          type="primary"
+          :disabled="permissionAccess.isButtonReadonly('continue')"
+          @click="handleContinue"
+        >
+          {{ permissionAccess.getButtonLabel('continue') }}
+        </el-button>
       </div>
     </div>
   </div>
@@ -35,10 +48,9 @@ import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import DetailHeader from '@/components/Bill/BillDetailHeaderCard.vue';
 import {
+  createBillPermissionAccessor,
+  createEmptyBillPermissionConfig,
   createEmptyBillPagePermissions,
-  hasAnyVisiblePermission,
-  isPermissionReadonly,
-  isPermissionVisible
 } from '@/components/Bill/billPermission';
 import { useBillTemplateStore, type BillTemplateHeaderDraft } from '@/store/modules/billTemplate';
 import { useUserStore } from '@/store/modules/user';
@@ -51,14 +63,21 @@ const userStore = useUserStore();
 const billTemplateStore = useBillTemplateStore();
 const basicFormRef = ref<{ validate: () => Promise<void> }>();
 const pagePermissions = ref(createEmptyBillPagePermissions());
+const emptyPermissionConfig = createEmptyBillPermissionConfig();
 /**
  * 当前页标准单头权限。
  */
 const standardPermissions = computed(() => {
-  return pagePermissions.value.header.standard;
+  return pagePermissions.value.header.standard || emptyPermissionConfig;
 });
 const basicFieldKeys = ['billDate', 'supplierId', 'settleType', 'warehouseId', 'userName', 'currency', 'remark'];
 const auditFieldKeys = ['createByName', 'statusName', 'descriptionText'];
+const permissionAccess = createBillPermissionAccessor(() => standardPermissions.value, {
+  buttonLabels: {
+    cancel: '取消',
+    continue: '继续'
+  }
+});
 
 const formData = reactive<BillTemplateHeaderDraft>({
   ...billTemplateStore.headerDraft,
@@ -66,38 +85,24 @@ const formData = reactive<BillTemplateHeaderDraft>({
 });
 
 /**
- * 判断按钮是否允许显示。
- */
-const isButtonVisible = (key: string) => {
-  return isPermissionVisible(standardPermissions.value, 'buttons', key);
-};
-
-/**
- * 判断按钮是否处于只读状态。
- */
-const isButtonReadonly = (key: string) => {
-  return isPermissionReadonly(standardPermissions.value, 'buttons', key);
-};
-
-/**
  * 判断基础信息卡片是否需要显示。
  */
 const showBasicCard = computed(() => {
-  return hasAnyVisiblePermission(standardPermissions.value, 'fields', basicFieldKeys);
+  return permissionAccess.hasVisibleFields(basicFieldKeys);
 });
 
 /**
  * 判断审核信息卡片是否需要显示。
  */
 const showAuditCard = computed(() => {
-  return hasAnyVisiblePermission(standardPermissions.value, 'fields', auditFieldKeys);
+  return permissionAccess.hasVisibleFields(auditFieldKeys);
 });
 
 /**
  * 判断底部操作区是否需要显示。
  */
 const showActionCard = computed(() => {
-  return hasAnyVisiblePermission(standardPermissions.value, 'buttons', ['cancel', 'continue']);
+  return permissionAccess.hasVisibleButtons(['cancel', 'continue']);
 });
 
 const cardValidators = [
@@ -126,7 +131,7 @@ const handleBack = () => {
  * 校验单头卡片并进入详情页。
  */
 const handleContinue = async () => {
-  if (!isButtonVisible('continue') || isButtonReadonly('continue')) {
+  if (!permissionAccess.isButtonVisible('continue') || permissionAccess.isButtonReadonly('continue')) {
     return;
   }
   for (const card of cardValidators) {

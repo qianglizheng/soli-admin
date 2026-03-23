@@ -2,7 +2,7 @@
   "header": {
     "standard": {
       "billType": "purchase_order",
-      "currentState": "audited",
+      "currentState": "completed",
       "permissions": {
         "fields": {
           "billDate": {
@@ -84,8 +84,8 @@
           },
           "void": {
             "label": "作废单据",
-            "visible": true,
-            "disabled": true
+            "visible": false,
+            "disabled": false
           }
         }
       }
@@ -94,7 +94,7 @@
   "detail": {
     "goodsDetail": {
       "billType": "purchase_order",
-      "currentState": "audited",
+      "currentState": "completed",
       "permissions": {
         "fields": {
           "itemCode": {
@@ -184,7 +184,7 @@
     },
     "sourceDetail": {
       "billType": "purchase_order",
-      "currentState": "audited",
+      "currentState": "completed",
       "permissions": {
         "fields": {
           "sourceBillNo": {
@@ -234,7 +234,7 @@
     },
     "attachmentDetail": {
       "billType": "purchase_order",
-      "currentState": "audited",
+      "currentState": "completed",
       "permissions": {
         "fields": {
           "fileName": {

@@ -14,14 +14,14 @@
         <div class="right-actions">
           <div v-if="showActions && hasVisibleHeaderActions" class="bill-header-actions">
             <el-dropdown
-              v-if="isButtonVisible('save')"
+              v-if="permissionAccess.isButtonVisible('save')"
               split-button
               type="primary"
-              :disabled="isButtonReadonly('save')"
+              :disabled="permissionAccess.isButtonReadonly('save')"
               @click="handleSaveClick"
               @command="handleSaveCommand"
             >
-              <el-icon><DocumentChecked /></el-icon>&nbsp;保存
+              <el-icon><DocumentChecked /></el-icon>&nbsp;{{ permissionAccess.getButtonLabel('save') }}
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item v-for="item in saveOptions" :key="item.command" :command="item.command">
@@ -32,20 +32,20 @@
             </el-dropdown>
 
             <el-button
-              v-if="isButtonVisible('audit')"
+              v-if="permissionAccess.isButtonVisible('audit')"
               icon="Check"
-              :disabled="isButtonReadonly('audit')"
+              :disabled="permissionAccess.isButtonReadonly('audit')"
               @click="$emit('audit')"
             >
-              审核通过
+              {{ permissionAccess.getButtonLabel('audit') }}
             </el-button>
             <el-button
-              v-if="isButtonVisible('print')"
+              v-if="permissionAccess.isButtonVisible('print')"
               icon="Printer"
-              :disabled="isButtonReadonly('print')"
+              :disabled="permissionAccess.isButtonReadonly('print')"
               @click="$emit('print')"
             >
-              打印
+              {{ permissionAccess.getButtonLabel('print') }}
             </el-button>
 
             <el-dropdown v-if="hasVisibleMoreActions" trigger="click" @command="handleMoreCommand">
@@ -53,30 +53,30 @@
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item
-                    v-if="isButtonVisible('log')"
+                    v-if="permissionAccess.isButtonVisible('log')"
                     command="log"
                     icon="Files"
-                    :disabled="isButtonReadonly('log')"
+                    :disabled="permissionAccess.isButtonReadonly('log')"
                   >
-                    操作日志
+                    {{ permissionAccess.getButtonLabel('log') }}
                   </el-dropdown-item>
                   <el-dropdown-item
-                    v-if="isButtonVisible('copy')"
+                    v-if="permissionAccess.isButtonVisible('copy')"
                     command="copy"
                     icon="CopyDocument"
-                    :disabled="isButtonReadonly('copy')"
+                    :disabled="permissionAccess.isButtonReadonly('copy')"
                   >
-                    复制单据
+                    {{ permissionAccess.getButtonLabel('copy') }}
                   </el-dropdown-item>
                   <el-divider v-if="showMoreActionDivider" style="margin: 4px 0" />
                   <el-dropdown-item
-                    v-if="isButtonVisible('void')"
+                    v-if="permissionAccess.isButtonVisible('void')"
                     command="void"
                     icon="CircleClose"
                     type="danger"
-                    :disabled="isButtonReadonly('void')"
+                    :disabled="permissionAccess.isButtonReadonly('void')"
                   >
-                    作废单据
+                    {{ permissionAccess.getButtonLabel('void') }}
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </template>
@@ -93,10 +93,8 @@
 import { computed } from 'vue';
 import { DocumentChecked } from '@element-plus/icons-vue';
 import {
-  hasAnyVisiblePermission,
-  isPermissionReadonly,
-  isPermissionVisible,
-  type BillPermissionSet
+  createBillPermissionAccessor,
+  type BillPermissionSource
 } from './billPermission';
 
 interface SaveOption {
@@ -110,7 +108,7 @@ interface Props {
   statusName?: string;
   statusType?: string;
   showActions?: boolean;
-  permissions?: BillPermissionSet;
+  permissions?: BillPermissionSource;
   saveOptions?: SaveOption[];
 }
 
@@ -133,33 +131,29 @@ const emit = defineEmits<{
 
 const moreActionKeys = ['log', 'copy', 'void'];
 const headerActionKeys = ['save', 'audit', 'print', ...moreActionKeys];
-
-/**
- * 判断按钮是否允许显示。
- */
-const isButtonVisible = (key: string) => {
-  return isPermissionVisible(props.permissions, 'buttons', key);
-};
-
-/**
- * 判断按钮是否处于只读状态。
- */
-const isButtonReadonly = (key: string) => {
-  return isPermissionReadonly(props.permissions, 'buttons', key);
-};
+const permissionAccess = createBillPermissionAccessor(() => props.permissions, {
+  buttonLabels: {
+    save: '保存',
+    audit: '审核通过',
+    print: '打印',
+    log: '操作日志',
+    copy: '复制单据',
+    void: '作废单据'
+  }
+});
 
 /**
  * 判断头部是否还有可见操作按钮。
  */
 const hasVisibleHeaderActions = computed(() => {
-  return hasAnyVisiblePermission(props.permissions, 'buttons', headerActionKeys);
+  return permissionAccess.hasVisibleButtons(headerActionKeys);
 });
 
 /**
  * 判断“更多操作”菜单是否仍有可见项。
  */
 const hasVisibleMoreActions = computed(() => {
-  return hasAnyVisiblePermission(props.permissions, 'buttons', moreActionKeys);
+  return permissionAccess.hasVisibleButtons(moreActionKeys);
 });
 
 /**
@@ -167,10 +161,10 @@ const hasVisibleMoreActions = computed(() => {
  */
 const moreActionsReadonly = computed(() => {
   const visibleKeys = moreActionKeys.filter((key) => {
-    return isButtonVisible(key);
+    return permissionAccess.isButtonVisible(key);
   });
   return visibleKeys.length > 0 && visibleKeys.every((key) => {
-    return isButtonReadonly(key);
+    return permissionAccess.isButtonReadonly(key);
   });
 });
 
@@ -178,7 +172,8 @@ const moreActionsReadonly = computed(() => {
  * 控制更多操作中的分割线显示。
  */
 const showMoreActionDivider = computed(() => {
-  return isButtonVisible('void') && (isButtonVisible('log') || isButtonVisible('copy'));
+  return permissionAccess.isButtonVisible('void')
+    && (permissionAccess.isButtonVisible('log') || permissionAccess.isButtonVisible('copy'));
 });
 
 /**

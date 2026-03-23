@@ -1,20 +1,31 @@
 <template>
   <el-descriptions v-if="hasVisibleFields" :column="3" border size="small">
-    <el-descriptions-item v-if="isFieldVisible('createByName')" :label="getFieldTitle('createByName')">{{ model.createByName }}</el-descriptions-item>
-    <el-descriptions-item v-if="isFieldVisible('statusName')" :label="getFieldTitle('statusName')">
+    <el-descriptions-item
+      v-if="permissionAccess.isFieldVisible('createByName')"
+      :label="permissionAccess.getFieldLabel('createByName')"
+    >
+      {{ model.createByName }}
+    </el-descriptions-item>
+    <el-descriptions-item
+      v-if="permissionAccess.isFieldVisible('statusName')"
+      :label="permissionAccess.getFieldLabel('statusName')"
+    >
       <el-tag size="small" :type="tagType">{{ model.statusName }}</el-tag>
     </el-descriptions-item>
-    <el-descriptions-item v-if="descriptionText && isFieldVisible('descriptionText')" :label="getFieldTitle('descriptionText')">{{ descriptionText }}</el-descriptions-item>
+    <el-descriptions-item
+      v-if="descriptionText && permissionAccess.isFieldVisible('descriptionText')"
+      :label="permissionAccess.getFieldLabel('descriptionText')"
+    >
+      {{ descriptionText }}
+    </el-descriptions-item>
   </el-descriptions>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
 import {
-  getFieldLabel,
-  hasAnyVisiblePermission,
-  isPermissionVisible,
-  type BillPermissionSet
+  createBillPermissionAccessor,
+  type BillPermissionSource
 } from '@/components/Bill/billPermission';
 
 interface BillHeaderAuditInfoModel {
@@ -26,7 +37,7 @@ interface BillHeaderAuditInfoModel {
 interface Props {
   model: BillHeaderAuditInfoModel;
   descriptionText?: string;
-  permissions?: BillPermissionSet;
+  permissions?: BillPermissionSource;
 }
 
 const props = defineProps<Props>();
@@ -36,6 +47,9 @@ const defaultFieldLabels = {
   statusName: '审核状态',
   descriptionText: '说明'
 } as const;
+const permissionAccess = createBillPermissionAccessor(() => props.permissions, {
+  fieldLabels: defaultFieldLabels
+});
 
 /**
  * 根据状态生成审核标签类型。
@@ -48,23 +62,9 @@ const tagType = computed(() => {
 });
 
 /**
- * 判断审核字段是否允许显示。
- */
-const isFieldVisible = (key: string) => {
-  return isPermissionVisible(props.permissions, 'fields', key);
-};
-
-/**
- * 读取审核字段标题，优先使用权限配置中的自定义标题。
- */
-const getFieldTitle = (key: keyof typeof defaultFieldLabels) => {
-  return getFieldLabel(props.permissions, key, defaultFieldLabels[key]);
-};
-
-/**
  * 判断审核信息区域是否还存在可见字段。
  */
 const hasVisibleFields = computed(() => {
-  return hasAnyVisiblePermission(props.permissions, 'fields', auditFieldKeys);
+  return permissionAccess.hasVisibleFields(auditFieldKeys);
 });
 </script>

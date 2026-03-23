@@ -1,19 +1,21 @@
 <template>
-  <el-popover v-if="isButtonVisible('columnSetting')" placement="bottom-end" trigger="click" :width="220">
+  <el-popover v-if="permissionAccess.isButtonVisible('columnSetting')" placement="bottom-end" trigger="click" :width="220">
     <template #reference>
-      <el-button size="small" icon="Operation" :disabled="isButtonReadonly('columnSetting')">列显示</el-button>
+      <el-button size="small" icon="Operation" :disabled="permissionAccess.isButtonReadonly('columnSetting')">
+        {{ permissionAccess.getButtonLabel('columnSetting') }}
+      </el-button>
     </template>
     <div class="column-setting-panel">
       <div class="column-setting-panel__header">
         <span>列显示设置</span>
-        <el-button link type="primary" :disabled="isButtonReadonly('columnSetting')" @click="handleReset">重置</el-button>
+        <el-button link type="primary" :disabled="permissionAccess.isButtonReadonly('columnSetting')" @click="handleReset">重置</el-button>
       </div>
       <el-checkbox-group v-model="innerValue" class="column-setting-panel__group">
         <el-checkbox
           v-for="column in columns"
           :key="column.key"
           :label="column.key"
-          :disabled="isButtonReadonly('columnSetting')"
+          :disabled="permissionAccess.isButtonReadonly('columnSetting')"
         >
           {{ column.label }}
         </el-checkbox>
@@ -25,9 +27,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import {
-  isPermissionReadonly,
-  isPermissionVisible,
-  type BillPermissionSet
+  createBillPermissionAccessor,
+  type BillPermissionSource
 } from '@/components/Bill/billPermission';
 
 interface ColumnSettingItem {
@@ -39,7 +40,7 @@ const props = defineProps<{
   modelValue: string[];
   columns: ColumnSettingItem[];
   defaultKeys?: string[];
-  permissions?: BillPermissionSet;
+  permissions?: BillPermissionSource;
 }>();
 
 const emit = defineEmits<{
@@ -59,20 +60,11 @@ const innerValue = computed({
     }));
   }
 });
-
-/**
- * 判断按钮是否允许显示。
- */
-const isButtonVisible = (key: string) => {
-  return isPermissionVisible(props.permissions, 'buttons', key);
-};
-
-/**
- * 判断按钮是否处于只读状态。
- */
-const isButtonReadonly = (key: string) => {
-  return isPermissionReadonly(props.permissions, 'buttons', key);
-};
+const permissionAccess = createBillPermissionAccessor(() => props.permissions, {
+  buttonLabels: {
+    columnSetting: '列显示'
+  }
+});
 
 /**
  * 将列显示项重置为默认可见项。

@@ -4,49 +4,49 @@
     <div class="table-toolbar">
       <div class="left">
         <el-button
-          v-if="isButtonVisible('add')"
+          v-if="permissionAccess.isButtonVisible('add')"
           type="primary"
           icon="Plus"
           size="small"
-          :disabled="isButtonReadonly('add')"
+          :disabled="permissionAccess.isButtonReadonly('add')"
           @click="handleAdd"
-        >添加行</el-button>
+        >{{ permissionAccess.getButtonLabel('add') }}</el-button>
 
         <el-button
-          v-if="isButtonVisible('copy')"
+          v-if="permissionAccess.isButtonVisible('copy')"
           icon="CopyDocument"
           size="small"
-          :disabled="!selectedRows.length || isButtonReadonly('copy')"
+          :disabled="!selectedRows.length || permissionAccess.isButtonReadonly('copy')"
           @click="handleCopy"
-        >复制行</el-button>
+        >{{ permissionAccess.getButtonLabel('copy') }}</el-button>
 
         <el-button
-          v-if="isButtonVisible('delete')"
+          v-if="permissionAccess.isButtonVisible('delete')"
           type="danger"
           plain
           icon="Delete"
           size="small"
-          :disabled="!selectedRows.length || isButtonReadonly('delete')"
+          :disabled="!selectedRows.length || permissionAccess.isButtonReadonly('delete')"
           @click="handleDelete"
-        >批量删除</el-button>
+        >{{ permissionAccess.getButtonLabel('delete') }}</el-button>
 
         <el-divider v-if="showToolbarDivider" direction="vertical" />
 
         <el-button
-          v-if="isButtonVisible('import')"
+          v-if="permissionAccess.isButtonVisible('import')"
           icon="Upload"
           size="small"
-          :disabled="isButtonReadonly('import')"
+          :disabled="permissionAccess.isButtonReadonly('import')"
           @click="handleImport"
-        >导入</el-button>
+        >{{ permissionAccess.getButtonLabel('import') }}</el-button>
 
         <el-button
-          v-if="isButtonVisible('export')"
+          v-if="permissionAccess.isButtonVisible('export')"
           icon="Download"
           size="small"
-          :disabled="isButtonReadonly('export')"
+          :disabled="permissionAccess.isButtonReadonly('export')"
           @click="handleExport"
-        >导出</el-button>
+        >{{ permissionAccess.getButtonLabel('export') }}</el-button>
       </div>
       <div class="right">
         <slot name="toolbar-right"></slot>
@@ -79,9 +79,8 @@
 import { computed, ref, nextTick } from 'vue';
 import { ElMessage, type TableInstance } from 'element-plus';
 import {
-  isPermissionReadonly,
-  isPermissionVisible,
-  type BillPermissionSet
+  createBillPermissionAccessor,
+  type BillPermissionSource
 } from './billPermission';
 
 interface EnterFocusScopeExpose {
@@ -91,7 +90,7 @@ interface EnterFocusScopeExpose {
 
 const props = withDefaults(defineProps<{
   modelValue: any[];
-  permissions?: BillPermissionSet;
+  permissions?: BillPermissionSource;
   focusNewRowOnAdd?: boolean;
   appendRowOnEnterEnd?: boolean;
   focusRowSelector?: string;
@@ -108,33 +107,28 @@ const tableRef = ref<TableInstance>();
 const selectedRows = ref<any[]>([]);
 const toolbarSplitLeftKeys = ['add', 'copy', 'delete'];
 const toolbarSplitRightKeys = ['import', 'export'];
-
-/**
- * 判断按钮是否允许显示。
- */
-const isButtonVisible = (key: string) => {
-  return isPermissionVisible(props.permissions, 'buttons', key);
-};
-
-/**
- * 判断按钮是否处于只读状态。
- */
-const isButtonReadonly = (key: string) => {
-  return isPermissionReadonly(props.permissions, 'buttons', key);
-};
+const permissionAccess = createBillPermissionAccessor(() => props.permissions, {
+  buttonLabels: {
+    add: '添加行',
+    copy: '复制行',
+    delete: '批量删除',
+    import: '导入',
+    export: '导出'
+  }
+});
 
 /**
  * 判断当前是否允许新增行。
  */
 const canAddRow = computed(() => {
-  return isButtonVisible('add') && !isButtonReadonly('add');
+  return permissionAccess.isButtonVisible('add') && !permissionAccess.isButtonReadonly('add');
 });
 
 /**
  * 当复制或删除可用时，展示勾选列。
  */
 const showSelectionColumn = computed(() => {
-  return isButtonVisible('copy') || isButtonVisible('delete');
+  return permissionAccess.isButtonVisible('copy') || permissionAccess.isButtonVisible('delete');
 });
 
 /**
@@ -142,9 +136,9 @@ const showSelectionColumn = computed(() => {
  */
 const showToolbarDivider = computed(() => {
   return toolbarSplitLeftKeys.some((key) => {
-    return isButtonVisible(key);
+    return permissionAccess.isButtonVisible(key);
   }) && toolbarSplitRightKeys.some((key) => {
-    return isButtonVisible(key);
+    return permissionAccess.isButtonVisible(key);
   });
 });
 
@@ -266,7 +260,7 @@ const handleReachEnd = () => {
  * 复制当前选中的明细行。
  */
 const handleCopy = () => {
-  if (!isButtonVisible('copy') || isButtonReadonly('copy')) {
+  if (!permissionAccess.isButtonVisible('copy') || permissionAccess.isButtonReadonly('copy')) {
     return;
   }
   const newItems = [...props.modelValue];
@@ -282,7 +276,7 @@ const handleCopy = () => {
  * 删除当前选中的明细行。
  */
 const handleDelete = () => {
-  if (!isButtonVisible('delete') || isButtonReadonly('delete')) {
+  if (!permissionAccess.isButtonVisible('delete') || permissionAccess.isButtonReadonly('delete')) {
     return;
   }
   const newItems = props.modelValue.filter((item) => {
@@ -297,7 +291,7 @@ const handleDelete = () => {
  * 触发导入事件。
  */
 const handleImport = () => {
-  if (!isButtonVisible('import') || isButtonReadonly('import')) {
+  if (!permissionAccess.isButtonVisible('import') || permissionAccess.isButtonReadonly('import')) {
     return;
   }
   emit('import');
@@ -307,7 +301,7 @@ const handleImport = () => {
  * 触发导出事件。
  */
 const handleExport = () => {
-  if (!isButtonVisible('export') || isButtonReadonly('export')) {
+  if (!permissionAccess.isButtonVisible('export') || permissionAccess.isButtonReadonly('export')) {
     return;
   }
   emit('export');

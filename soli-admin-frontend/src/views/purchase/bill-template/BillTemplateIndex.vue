@@ -2,51 +2,32 @@
   <div class="app-container">
     <!-- 1. 顶部操作看板 -->
     <el-row :gutter="8" class="stat-row">
-      <el-col :span="6">
+      <el-col v-for="card in overviewCards" :key="card.key" :span="6">
         <div class="tech-card stat-card">
-          <div class="stat-icon primary"><el-icon><Document /></el-icon></div>
-          <div class="stat-info">
-            <div class="stat-label">今日新增</div>
-            <div class="stat-value">12 <span class="stat-unit">笔</span></div>
+          <div class="stat-icon" :class="card.theme">
+            <el-icon><component :is="overviewIconMap[card.icon]" /></el-icon>
           </div>
-          <div class="stat-footer">环比昨日 <span class="trend-up">+20% <el-icon><CaretTop /></el-icon></span></div>
-        </div>
-      </el-col>
-      <el-col :span="6">
-        <div class="tech-card stat-card">
-          <div class="stat-icon warning"><el-icon><Clock /></el-icon></div>
           <div class="stat-info">
-            <div class="stat-label">待审核</div>
-            <div class="stat-value">5 <span class="stat-unit">笔</span></div>
+            <div class="stat-label">{{ card.label }}</div>
+            <div class="stat-value">{{ card.value }} <span v-if="card.unit" class="stat-unit">{{ card.unit }}</span></div>
           </div>
-          <div class="stat-footer">等待主管处理</div>
-        </div>
-      </el-col>
-      <el-col :span="6">
-        <div class="tech-card stat-card">
-          <div class="stat-icon danger"><el-icon><Money /></el-icon></div>
-          <div class="stat-info">
-            <div class="stat-label">本月总金额</div>
-            <div class="stat-value">856,400 <span class="stat-unit">元</span></div>
+          <div class="stat-footer">
+            <template v-if="card.trendValue">
+              {{ card.footerText }}
+              <span :class="card.trendDirection === 'down' ? 'trend-down' : 'trend-up'">
+                {{ card.trendValue }}
+                <el-icon><component :is="card.trendDirection === 'down' ? CaretBottom : CaretTop" /></el-icon>
+              </span>
+            </template>
+            <template v-else>{{ card.footerText }}</template>
           </div>
-          <div class="stat-footer">较上月 <span class="trend-down">-5.2% <el-icon><CaretBottom /></el-icon></span></div>
-        </div>
-      </el-col>
-      <el-col :span="6">
-        <div class="tech-card stat-card">
-          <div class="stat-icon success"><el-icon><Finished /></el-icon></div>
-          <div class="stat-info">
-            <div class="stat-label">已入库</div>
-            <div class="stat-value">128 <span class="stat-unit">笔</span></div>
-          </div>
-          <div class="stat-footer">执行率 98.5%</div>
         </div>
       </el-col>
     </el-row>
 
     <!-- 2. 搜索过滤区域 -->
     <div class="tech-card search-wrapper">
-      <el-form :model="queryParams" ref="queryRef" label-width="80px">
+      <el-form ref="queryRef" :model="queryParams" label-width="80px">
         <el-row :gutter="20">
           <el-col :span="6">
             <el-form-item label="单据编号" prop="billNo">
@@ -56,8 +37,7 @@
           <el-col :span="6">
             <el-form-item label="供应商" prop="supplier">
               <el-select v-model="queryParams.supplier" placeholder="请选择" clearable style="width: 100%">
-                <el-option label="华为技术" value="1" />
-                <el-option label="小米通讯" value="2" />
+                <el-option v-for="item in supplierOptions" :key="item.value" :label="item.label" :value="item.value" />
               </el-select>
             </el-form-item>
           </el-col>
@@ -77,12 +57,12 @@
 
           <template v-if="showMoreSearch">
             <el-col :span="6">
-              <el-form-item label="业务员" prop="userName"><el-input v-model="queryParams.userName" clearable /></el-form-item>
+              <el-form-item label="业务员" prop="userName"><el-input v-model="queryParams.userName" clearable @keyup.enter="handleQuery" /></el-form-item>
             </el-col>
             <el-col :span="6">
               <el-form-item label="收货仓库" prop="warehouse">
                 <el-select v-model="queryParams.warehouse" clearable style="width: 100%">
-                  <el-option label="深圳仓" value="1" />
+                  <el-option v-for="item in warehouseOptions" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
               </el-form-item>
             </el-col>
@@ -108,22 +88,22 @@
         <el-tabs v-model="queryParams.status" @tab-change="handleQuery" class="custom-status-tabs">
           <el-tab-pane label="全部单据" name="" />
           <el-tab-pane label="未审核" name="0" />
-          <el-tab-pane label="待审核" name="1" />
+          <el-tab-pane label="已预审" name="1" />
           <el-tab-pane label="已审核" name="2" />
-          <el-tab-pane label="已作废" name="3" />
+          <el-tab-pane label="已发货" name="3" />
+          <el-tab-pane label="已完成" name="4" />
         </el-tabs>
       </div>
 
       <div class="table-operations">
         <div class="left-ops">
-          <!-- 修复新建按钮颜色 -->
           <el-button type="primary" icon="Plus" @click="handleAdd">新建采购单</el-button>
           <el-divider direction="vertical" />
           <el-button icon="Check" :disabled="!selectedRows.length" @click="handleBatchAudit">批量审核</el-button>
           <el-button icon="Delete" :disabled="!selectedRows.length" @click="handleBatchDelete">批量删除</el-button>
         </div>
         <div class="right-ops">
-          <el-tooltip content="刷新数据" placement="top"><el-button circle icon="RefreshRight" @click="handleQuery" /></el-tooltip>
+          <el-tooltip content="刷新数据" placement="top"><el-button circle icon="RefreshRight" @click="handleRefresh" /></el-tooltip>
           <BillTemplateColumnSetting
             v-model="visibleColumnKeys"
             :columns="columnOptions"
@@ -132,11 +112,18 @@
         </div>
       </div>
 
-      <!-- 表格内容 -->
       <div class="table-content">
         <el-table
-          v-loading="loading" :data="billList" border stripe highlight-current-row height="100%"
-          @selection-change="handleSelectionChange" @sort-change="handleSortChange" ref="tableRef" class="main-table"
+          ref="tableRef"
+          v-loading="loading"
+          :data="billList"
+          border
+          stripe
+          highlight-current-row
+          height="100%"
+          class="main-table"
+          @selection-change="handleSelectionChange"
+          @sort-change="handleSortChange"
         >
           <el-table-column type="selection" width="45" align="center" fixed="left" />
           <el-table-column type="index" label="序号" width="60" align="center" fixed="left" />
@@ -222,7 +209,6 @@
         </el-table>
       </div>
 
-      <!-- 嵌入卡片底部的分页 -->
       <div class="pagination-container">
         <el-pagination
           v-model:current-page="queryParams.pageNum"
@@ -230,8 +216,8 @@
           :page-sizes="[10, 20, 50]"
           layout="total, sizes, prev, pager, next"
           :total="total"
-          @size-change="handleQuery"
-          @current-change="handleQuery"
+          @size-change="handlePageSizeChange"
+          @current-change="handlePageChange"
         />
       </div>
     </div>
@@ -242,24 +228,32 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed, nextTick, watch } from 'vue';
+import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import {
-  Search, Refresh, Plus, ArrowUp, ArrowDown, Document, Clock, Money, Finished,
-  CaretTop, CaretBottom, Check, RefreshRight, MoreFilled
-} from '@element-plus/icons-vue';
-import { ElMessage, type TableInstance } from 'element-plus';
+import { CaretBottom, CaretTop, Clock, Document, Finished, Money, MoreFilled } from '@element-plus/icons-vue';
+import { ElMessage, type FormInstance, type TableInstance } from 'element-plus';
 import FooterSummary, { type SummaryItem } from '@/components/Bill/FooterSummaryCard.vue';
 import { useBillTemplateStore } from '@/store/modules/billTemplate';
 import BillTemplateColumnSetting from './components/BillTemplateColumnSetting.vue';
+import {
+  fetchBillTemplateListData,
+  type BillTemplateListItem,
+  type BillTemplateOverviewCard,
+  type BillTemplateOverviewIcon
+} from './billDataMock';
 import { buildTextFilters, compareNumber, matchTextFilter } from './components/tableHelper';
 
 const router = useRouter();
 const billTemplateStore = useBillTemplateStore();
+const queryRef = ref<FormInstance>();
 const tableRef = ref<TableInstance>();
 const loading = ref(false);
 const showMoreSearch = ref(false);
-const selectedRows = ref<any[]>([]);
+const selectedRows = ref<BillTemplateListItem[]>([]);
+const overviewCards = ref<BillTemplateOverviewCard[]>([]);
+const allBillList = ref<BillTemplateListItem[]>([]);
+const filteredBillList = ref<BillTemplateListItem[]>([]);
+const billList = ref<BillTemplateListItem[]>([]);
 const defaultVisibleColumnKeys = ['billNo', 'billType', 'supplierName', 'totalAmount', 'status'];
 const filterableColumnKeys = ['billNo', 'billType', 'supplierName', 'status'];
 const columnOptions = [
@@ -271,18 +265,12 @@ const columnOptions = [
 ];
 const visibleColumnKeys = ref([...defaultVisibleColumnKeys]);
 const currentSortProp = ref('');
-
-interface BillListItem {
-  billNo: string;
-  billType: string;
-  supplierName: string;
-  totalAmount: string;
-  netAmount: string;
-  taxAmount: string;
-  totalQty: number;
-  status: string;
-  statusName: string;
-}
+const overviewIconMap: Record<BillTemplateOverviewIcon, any> = {
+  document: Document,
+  clock: Clock,
+  money: Money,
+  finished: Finished
+};
 
 /**
  * 将金额字符串安全转换为数字。
@@ -303,211 +291,47 @@ const formatAmount = (value: number) => {
 };
 
 const queryParams = reactive({
-  pageNum: 1, pageSize: 20, billNo: '', supplier: '', status: '', billDate: [] as string[],
-  userName: '', warehouse: '', createBy: ''
+  pageNum: 1,
+  pageSize: 20,
+  billNo: '',
+  supplier: '',
+  status: '',
+  billDate: [] as string[],
+  userName: '',
+  warehouse: ''
 });
 
-const billList = ref<BillListItem[]>([
-  {
-    billNo: 'PO-20240322-001',
-    billType: '采购进货',
-    supplierName: '华为技术',
-    totalAmount: '128,500.00',
-    netAmount: '113,716.81',
-    taxAmount: '14,783.19',
-    totalQty: 1280,
-    status: '0',
-    statusName: '未审核'
-  },
-  {
-    billNo: 'PO-20240322-002',
-    billType: '采购进货',
-    supplierName: '小米通讯',
-    totalAmount: '45,000.00',
-    netAmount: '39,823.01',
-    taxAmount: '5,176.99',
-    totalQty: 620,
-    status: '1',
-    statusName: '待审核'
-  },
-  {
-    billNo: 'PO-20240322-003',
-    billType: '采购进货',
-    supplierName: '苹果贸易',
-    totalAmount: '22,000.00',
-    netAmount: '19,469.03',
-    taxAmount: '2,530.97',
-    totalQty: 400,
-    status: '2',
-    statusName: '已审核'
-  },  {
-    billNo: 'PO-20240322-001',
-    billType: '采购进货',
-    supplierName: '华为技术',
-    totalAmount: '128,500.00',
-    netAmount: '113,716.81',
-    taxAmount: '14,783.19',
-    totalQty: 1280,
-    status: '0',
-    statusName: '未审核'
-  },
-  {
-    billNo: 'PO-20240322-002',
-    billType: '采购进货',
-    supplierName: '小米通讯',
-    totalAmount: '45,000.00',
-    netAmount: '39,823.01',
-    taxAmount: '5,176.99',
-    totalQty: 620,
-    status: '1',
-    statusName: '待审核'
-  },
-  {
-    billNo: 'PO-20240322-003',
-    billType: '采购进货',
-    supplierName: '苹果贸易',
-    totalAmount: '22,000.00',
-    netAmount: '19,469.03',
-    taxAmount: '2,530.97',
-    totalQty: 400,
-    status: '2',
-    statusName: '已审核'
-  },  {
-    billNo: 'PO-20240322-001',
-    billType: '采购进货',
-    supplierName: '华为技术',
-    totalAmount: '128,500.00',
-    netAmount: '113,716.81',
-    taxAmount: '14,783.19',
-    totalQty: 1280,
-    status: '0',
-    statusName: '未审核'
-  },
-  {
-    billNo: 'PO-20240322-002',
-    billType: '采购进货',
-    supplierName: '小米通讯',
-    totalAmount: '45,000.00',
-    netAmount: '39,823.01',
-    taxAmount: '5,176.99',
-    totalQty: 620,
-    status: '1',
-    statusName: '待审核'
-  },
-  {
-    billNo: 'PO-20240322-003',
-    billType: '采购进货',
-    supplierName: '苹果贸易',
-    totalAmount: '22,000.00',
-    netAmount: '19,469.03',
-    taxAmount: '2,530.97',
-    totalQty: 400,
-    status: '2',
-    statusName: '已审核'
-  },{
-    billNo: 'PO-20240322-001',
-    billType: '采购进货',
-    supplierName: '华为技术',
-    totalAmount: '128,500.00',
-    netAmount: '113,716.81',
-    taxAmount: '14,783.19',
-    totalQty: 1280,
-    status: '0',
-    statusName: '未审核'
-  },
-  {
-    billNo: 'PO-20240322-002',
-    billType: '采购进货',
-    supplierName: '小米通讯',
-    totalAmount: '45,000.00',
-    netAmount: '39,823.01',
-    taxAmount: '5,176.99',
-    totalQty: 620,
-    status: '1',
-    statusName: '待审核'
-  },
-  {
-    billNo: 'PO-20240322-003',
-    billType: '采购进货',
-    supplierName: '苹果贸易',
-    totalAmount: '22,000.00',
-    netAmount: '19,469.03',
-    taxAmount: '2,530.97',
-    totalQty: 400,
-    status: '2',
-    statusName: '已审核'
-  },  {
-    billNo: 'PO-20240322-001',
-    billType: '采购进货',
-    supplierName: '华为技术',
-    totalAmount: '128,500.00',
-    netAmount: '113,716.81',
-    taxAmount: '14,783.19',
-    totalQty: 1280,
-    status: '0',
-    statusName: '未审核'
-  },
-  {
-    billNo: 'PO-20240322-002',
-    billType: '采购进货',
-    supplierName: '小米通讯',
-    totalAmount: '45,000.00',
-    netAmount: '39,823.01',
-    taxAmount: '5,176.99',
-    totalQty: 620,
-    status: '1',
-    statusName: '待审核'
-  },
-  {
-    billNo: 'PO-20240322-003',
-    billType: '采购进货',
-    supplierName: '苹果贸易',
-    totalAmount: '22,000.00',
-    netAmount: '19,469.03',
-    taxAmount: '2,530.97',
-    totalQty: 400,
-    status: '2',
-    statusName: '已审核'
-  },  {
-    billNo: 'PO-20240322-001',
-    billType: '采购进货',
-    supplierName: '华为技术',
-    totalAmount: '128,500.00',
-    netAmount: '113,716.81',
-    taxAmount: '14,783.19',
-    totalQty: 1280,
-    status: '0',
-    statusName: '未审核'
-  },
-  {
-    billNo: 'PO-20240322-002',
-    billType: '采购进货',
-    supplierName: '小米通讯',
-    totalAmount: '45,000.00',
-    netAmount: '39,823.01',
-    taxAmount: '5,176.99',
-    totalQty: 620,
-    status: '1',
-    statusName: '待审核'
-  },
-  {
-    billNo: 'PO-20240322-003',
-    billType: '采购进货',
-    supplierName: '苹果贸易',
-    totalAmount: '22,000.00',
-    netAmount: '19,469.03',
-    taxAmount: '2,530.97',
-    totalQty: 400,
-    status: '2',
-    statusName: '已审核'
-  }
-]);
+/**
+ * 生成供应商下拉选项。
+ */
+const supplierOptions = computed(() => {
+  const optionMap = new Map<string, string>();
+  allBillList.value.forEach((item) => {
+    optionMap.set(item.supplierId, item.supplierName);
+  });
+  return Array.from(optionMap.entries()).map(([value, label]) => {
+    return { value, label };
+  });
+});
+
+/**
+ * 生成仓库下拉选项。
+ */
+const warehouseOptions = computed(() => {
+  const optionMap = new Map<string, string>();
+  allBillList.value.forEach((item) => {
+    optionMap.set(item.warehouseId, item.warehouseName);
+  });
+  return Array.from(optionMap.entries()).map(([value, label]) => {
+    return { value, label };
+  });
+});
 
 /**
  * 生成单据编号筛选项。
  */
 const billNoFilters = computed(() => {
-  return buildTextFilters(billList.value, (item) => {
+  return buildTextFilters(filteredBillList.value, (item) => {
     return item.billNo;
   });
 });
@@ -516,7 +340,7 @@ const billNoFilters = computed(() => {
  * 生成单据类型筛选项。
  */
 const billTypeFilters = computed(() => {
-  return buildTextFilters(billList.value, (item) => {
+  return buildTextFilters(filteredBillList.value, (item) => {
     return item.billType;
   });
 });
@@ -525,7 +349,7 @@ const billTypeFilters = computed(() => {
  * 生成供应商筛选项。
  */
 const supplierFilters = computed(() => {
-  return buildTextFilters(billList.value, (item) => {
+  return buildTextFilters(filteredBillList.value, (item) => {
     return item.supplierName;
   });
 });
@@ -534,16 +358,16 @@ const supplierFilters = computed(() => {
  * 生成状态筛选项。
  */
 const statusFilters = computed(() => {
-  return buildTextFilters(billList.value, (item) => {
+  return buildTextFilters(filteredBillList.value, (item) => {
     return item.statusName;
   });
 });
 
 /**
- * 计算当前列表总数。
+ * 计算筛选后的总数。
  */
 const total = computed(() => {
-  return billList.value.length;
+  return filteredBillList.value.length;
 });
 
 /**
@@ -584,30 +408,131 @@ const listMoreSummary = computed<SummaryItem[]>(() => {
 });
 
 /**
- * 模拟查询列表数据。
+ * 根据当前筛选条件过滤列表数据并分页。
  */
-const handleQuery = () => {
+const applyQueryFilters = () => {
+  let nextList = [...allBillList.value];
+
+  if (queryParams.billNo.trim()) {
+    const keyword = queryParams.billNo.trim().toLowerCase();
+    nextList = nextList.filter((item) => {
+      return item.billNo.toLowerCase().includes(keyword);
+    });
+  }
+  if (queryParams.supplier) {
+    nextList = nextList.filter((item) => {
+      return item.supplierId === queryParams.supplier;
+    });
+  }
+  if (queryParams.status) {
+    nextList = nextList.filter((item) => {
+      return item.status === queryParams.status;
+    });
+  }
+  if (queryParams.billDate.length === 2) {
+    const startDate = queryParams.billDate[0];
+    const endDate = queryParams.billDate[1];
+    if (startDate && endDate) {
+      nextList = nextList.filter((item) => {
+        return item.billDate >= startDate && item.billDate <= endDate;
+      });
+    }
+  }
+  if (queryParams.userName.trim()) {
+    const keyword = queryParams.userName.trim().toLowerCase();
+    nextList = nextList.filter((item) => {
+      return item.userName.toLowerCase().includes(keyword);
+    });
+  }
+  if (queryParams.warehouse) {
+    nextList = nextList.filter((item) => {
+      return item.warehouseId === queryParams.warehouse;
+    });
+  }
+
+  filteredBillList.value = nextList;
+  const maxPage = Math.max(1, Math.ceil(nextList.length / queryParams.pageSize));
+  if (queryParams.pageNum > maxPage) {
+    queryParams.pageNum = maxPage;
+  }
+  const startIndex = (queryParams.pageNum - 1) * queryParams.pageSize;
+  billList.value = nextList.slice(startIndex, startIndex + queryParams.pageSize);
+  selectedRows.value = [];
+};
+
+/**
+ * 加载列表 mock 数据。
+ */
+const loadBillListData = async () => {
+  const data = await fetchBillTemplateListData();
+  overviewCards.value = data.overviewCards;
+  allBillList.value = data.items;
+};
+
+/**
+ * 按当前查询条件刷新列表。
+ */
+const refreshBillList = async (reload = false) => {
   loading.value = true;
-  setTimeout(() => {
+  try {
+    if (reload || !allBillList.value.length) {
+      await loadBillListData();
+    }
+    applyQueryFilters();
+  } finally {
     loading.value = false;
-  }, 200);
+  }
+};
+
+/**
+ * 执行查询并重置到第一页。
+ */
+const handleQuery = async () => {
+  queryParams.pageNum = 1;
+  await refreshBillList();
+};
+
+/**
+ * 刷新当前列表数据。
+ */
+const handleRefresh = async () => {
+  await refreshBillList(true);
+};
+
+/**
+ * 分页页码变化时刷新当前页数据。
+ */
+const handlePageChange = async () => {
+  await refreshBillList();
+};
+
+/**
+ * 分页大小变化时回到第一页后刷新。
+ */
+const handlePageSizeChange = async () => {
+  queryParams.pageNum = 1;
+  await refreshBillList();
 };
 
 /**
  * 重置查询条件并重新查询。
  */
-const resetQuery = () => {
+const resetQuery = async () => {
+  queryParams.pageNum = 1;
+  queryParams.pageSize = 20;
   queryParams.billNo = '';
   queryParams.supplier = '';
   queryParams.status = '';
   queryParams.billDate = [];
-  handleQuery();
+  queryParams.userName = '';
+  queryParams.warehouse = '';
+  await refreshBillList();
 };
 
 /**
  * 按单据编号筛选。
  */
-const filterByBillNo = (value: string, row: BillListItem) => {
+const filterByBillNo = (value: string, row: BillTemplateListItem) => {
   return matchTextFilter(value, row, (item) => {
     return item.billNo;
   });
@@ -616,7 +541,7 @@ const filterByBillNo = (value: string, row: BillListItem) => {
 /**
  * 按单据类型筛选。
  */
-const filterByBillType = (value: string, row: BillListItem) => {
+const filterByBillType = (value: string, row: BillTemplateListItem) => {
   return matchTextFilter(value, row, (item) => {
     return item.billType;
   });
@@ -625,7 +550,7 @@ const filterByBillType = (value: string, row: BillListItem) => {
 /**
  * 按供应商筛选。
  */
-const filterBySupplier = (value: string, row: BillListItem) => {
+const filterBySupplier = (value: string, row: BillTemplateListItem) => {
   return matchTextFilter(value, row, (item) => {
     return item.supplierName;
   });
@@ -634,7 +559,7 @@ const filterBySupplier = (value: string, row: BillListItem) => {
 /**
  * 按状态筛选。
  */
-const filterByStatus = (value: string, row: BillListItem) => {
+const filterByStatus = (value: string, row: BillTemplateListItem) => {
   return matchTextFilter(value, row, (item) => {
     return item.statusName;
   });
@@ -643,21 +568,21 @@ const filterByStatus = (value: string, row: BillListItem) => {
 /**
  * 同步表格勾选行。
  */
-const handleSelectionChange = (val: any[]) => {
+const handleSelectionChange = (val: BillTemplateListItem[]) => {
   selectedRows.value = val;
 };
 
 /**
  * 按金额排序。
  */
-const sortByTotalAmount = (left: BillListItem, right: BillListItem) => {
+const sortByTotalAmount = (left: BillTemplateListItem, right: BillTemplateListItem) => {
   return compareNumber(left.totalAmount, right.totalAmount);
 };
 
 /**
  * 按状态值排序。
  */
-const sortByStatus = (left: BillListItem, right: BillListItem) => {
+const sortByStatus = (left: BillTemplateListItem, right: BillTemplateListItem) => {
   return compareNumber(left.status, right.status);
 };
 
@@ -672,7 +597,7 @@ const handleSortChange = (payload: { prop?: string | null }) => {
  * 解析状态标签类型。
  */
 const getStatusType = (status: string) => {
-  return ({ '0': 'info', '1': 'warning', '2': 'success', '3': 'danger' }[status] || 'info');
+  return ({ '0': 'info', '1': 'warning', '2': 'primary', '3': 'success', '4': 'success' }[status] || 'info');
 };
 
 /**
@@ -686,14 +611,14 @@ const handleAdd = () => {
 /**
  * 跳转到单据详情页。
  */
-const handleView = (row: any) => {
+const handleView = (row: BillTemplateListItem) => {
   router.push({ path: '/purchase/bill-template/detail', query: { id: row.billNo } });
 };
 
 /**
  * 跳转到单据编辑页。
  */
-const handleEdit = (row: any) => {
+const handleEdit = (row: BillTemplateListItem) => {
   router.push({ path: '/purchase/bill-template/detail', query: { id: row.billNo, mode: 'edit' } });
 };
 
@@ -714,14 +639,14 @@ const handleBatchDelete = () => {
 /**
  * 处理行级更多操作。
  */
-const handleRowMore = (cmd: string, row: any) => {
+const handleRowMore = (cmd: string, row: BillTemplateListItem) => {
   ElMessage.info(`操作 ${cmd} 对于 ${row.billNo}`);
 };
 
 /**
  * 适配下拉菜单的命令回调。
  */
-const handleRowMoreCommand = (cmd: string, row: any) => {
+const handleRowMoreCommand = (cmd: string, row: BillTemplateListItem) => {
   handleRowMore(cmd, row);
 };
 
@@ -750,8 +675,8 @@ watch(visibleColumnKeys, (value, oldValue) => {
 /**
  * 初始化列表数据。
  */
-onMounted(() => {
-  handleQuery();
+onMounted(async () => {
+  await refreshBillList(true);
 });
 </script>
 
@@ -776,7 +701,11 @@ onMounted(() => {
     &.success { background: rgba(82, 196, 26, 0.1); color: #52c41a; }
   }
   .stat-info { flex: 1; .stat-label { font-size: 13px; color: #8c8c8c; } .stat-value { font-size: 20px; font-weight: bold; } }
-  .stat-footer { position: absolute; bottom: 8px; right: 16px; font-size: 12px; color: #bfbfbf; .trend-up { color: #52c41a; } }
+  .stat-footer {
+    position: absolute; bottom: 8px; right: 16px; font-size: 12px; color: #bfbfbf;
+    .trend-up { color: #52c41a; }
+    .trend-down { color: #ff4d4f; }
+  }
 }
 
 .search-wrapper { flex-shrink: 0; padding: 16px 16px 4px; .search-actions { text-align: right; } }

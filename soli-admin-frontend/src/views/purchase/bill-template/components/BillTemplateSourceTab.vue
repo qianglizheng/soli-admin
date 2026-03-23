@@ -22,7 +22,7 @@
 
         <el-table-column
           v-if="canShowColumn('sourceBillNo')"
-          :label="getFieldTitle('sourceBillNo')"
+          :label="permissionAccess.getFieldLabel('sourceBillNo')"
           prop="sourceBillNo"
           column-key="sourceBillNo"
           min-width="160"
@@ -33,7 +33,7 @@
 
         <el-table-column
           v-if="canShowColumn('sourceType')"
-          :label="getFieldTitle('sourceType')"
+          :label="permissionAccess.getFieldLabel('sourceType')"
           prop="sourceType"
           column-key="sourceType"
           width="120"
@@ -45,7 +45,7 @@
 
         <el-table-column
           v-if="canShowColumn('supplierName')"
-          :label="getFieldTitle('supplierName')"
+          :label="permissionAccess.getFieldLabel('supplierName')"
           prop="supplierName"
           column-key="supplierName"
           min-width="160"
@@ -57,7 +57,7 @@
 
         <el-table-column
           v-if="canShowColumn('billDate')"
-          :label="getFieldTitle('billDate')"
+          :label="permissionAccess.getFieldLabel('billDate')"
           prop="billDate"
           width="120"
           align="center"
@@ -66,7 +66,7 @@
 
         <el-table-column
           v-if="canShowColumn('totalAmount')"
-          :label="getFieldTitle('totalAmount')"
+          :label="permissionAccess.getFieldLabel('totalAmount')"
           prop="totalAmount"
           width="140"
           align="right"
@@ -80,7 +80,7 @@
 
         <el-table-column
           v-if="canShowColumn('status')"
-          :label="getFieldTitle('status')"
+          :label="permissionAccess.getFieldLabel('status')"
           prop="status"
           column-key="status"
           width="100"
@@ -96,7 +96,7 @@
 
         <el-table-column
           v-if="canShowColumn('remark')"
-          :label="getFieldTitle('remark')"
+          :label="permissionAccess.getFieldLabel('remark')"
           prop="remark"
           min-width="180"
           show-overflow-tooltip
@@ -111,12 +111,10 @@
 import { computed, nextTick, ref, watch } from 'vue';
 import { type TableInstance } from 'element-plus';
 import {
-  filterVisibleKeys,
-  getFieldLabel,
-  isPermissionVisible,
+  createBillPermissionAccessor,
   isSameStringArray,
   normalizeVisibleKeys,
-  type BillPermissionSet
+  type BillPermissionSource
 } from '@/components/Bill/billPermission';
 import BillTemplateColumnSetting from './BillTemplateColumnSetting.vue';
 import { buildTextFilters, compareNumber, matchTextFilter } from './tableHelper';
@@ -133,7 +131,7 @@ interface SourceBillRow {
 
 const props = defineProps<{
   rows: SourceBillRow[];
-  permissions?: BillPermissionSet;
+  permissions?: BillPermissionSource;
 }>();
 
 const defaultVisibleColumnKeys = ['sourceBillNo', 'sourceType', 'supplierName', 'billDate', 'totalAmount', 'status', 'remark'];
@@ -148,29 +146,19 @@ const defaultFieldLabels = {
   remark: '备注'
 } as const;
 const allColumnKeys = Object.keys(defaultFieldLabels) as Array<keyof typeof defaultFieldLabels>;
+const permissionAccess = createBillPermissionAccessor(() => props.permissions, {
+  fieldLabels: defaultFieldLabels
+});
 
 const tableRef = ref<TableInstance>();
 const visibleColumnKeys = ref([...defaultVisibleColumnKeys]);
 const currentSortProp = ref('');
-/**
- * 判断字段是否允许显示。
- */
-const isFieldVisible = (key: string) => {
-  return isPermissionVisible(props.permissions, 'fields', key);
-};
-
-/**
- * 读取字段标题，优先使用权限配置中的自定义标题。
- */
-const getFieldTitle = (key: keyof typeof defaultFieldLabels) => {
-  return getFieldLabel(props.permissions, key, defaultFieldLabels[key]);
-};
 
 /**
  * 判断当前列是否可显示。
  */
 const canShowColumn = (key: string) => {
-  return visibleColumnKeys.value.includes(key) && isFieldVisible(key);
+  return visibleColumnKeys.value.includes(key) && permissionAccess.isFieldVisible(key);
 };
 
 /**
@@ -179,12 +167,12 @@ const canShowColumn = (key: string) => {
 const columnOptions = computed(() => {
   return allColumnKeys
     .filter((key) => {
-      return isFieldVisible(key);
+      return permissionAccess.isFieldVisible(key);
     })
     .map((key) => {
       return {
         key,
-        label: getFieldTitle(key)
+        label: permissionAccess.getFieldLabel(key)
       };
     });
 });
@@ -193,7 +181,7 @@ const columnOptions = computed(() => {
  * 根据权限过滤默认可见列。
  */
 const permissionDefaultVisibleColumnKeys = computed(() => {
-  return filterVisibleKeys(defaultVisibleColumnKeys, props.permissions, 'fields');
+  return permissionAccess.filterVisibleFields(defaultVisibleColumnKeys);
 });
 
 /**

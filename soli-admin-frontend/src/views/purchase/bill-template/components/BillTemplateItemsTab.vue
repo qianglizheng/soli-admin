@@ -19,7 +19,7 @@
       <el-table-column
         v-if="canShowColumn('itemCode')"
         column-key="itemCode"
-        :label="getFieldTitle('itemCode')"
+        :label="permissionAccess.getFieldLabel('itemCode')"
         prop="itemCode"
         width="130"
         fixed="left"
@@ -31,14 +31,14 @@
           <el-input
             v-model="scope.row.itemCode"
             size="small"
-            :disabled="isFieldReadonly('itemCode')"
+            :disabled="permissionAccess.isFieldReadonly('itemCode')"
             data-enter-focus-stop
             @keydown.enter.stop.prevent="handleItemCodeEnter(scope.row, $event)"
           >
-            <template v-if="isButtonVisible('selectMaterial')" #append>
+            <template v-if="permissionAccess.isButtonVisible('selectMaterial')" #append>
               <el-button
                 icon="MoreFilled"
-                :disabled="isButtonReadonly('selectMaterial') || isFieldReadonly('itemCode')"
+                :disabled="permissionAccess.isButtonReadonly('selectMaterial') || permissionAccess.isFieldReadonly('itemCode')"
                 @click="showMaterialSelect(scope.$index)"
               />
             </template>
@@ -49,7 +49,7 @@
       <el-table-column
         v-if="canShowColumn('itemName')"
         column-key="itemName"
-        :label="getFieldTitle('itemName')"
+        :label="permissionAccess.getFieldLabel('itemName')"
         prop="itemName"
         min-width="180"
         show-overflow-tooltip
@@ -60,7 +60,7 @@
 
       <el-table-column
         v-if="canShowColumn('spec')"
-        :label="getFieldTitle('spec')"
+        :label="permissionAccess.getFieldLabel('spec')"
         prop="spec"
         min-width="120"
         show-overflow-tooltip
@@ -70,7 +70,7 @@
       <el-table-column
         v-if="canShowColumn('unit')"
         column-key="unit"
-        :label="getFieldTitle('unit')"
+        :label="permissionAccess.getFieldLabel('unit')"
         prop="unit"
         width="80"
         align="center"
@@ -81,7 +81,7 @@
 
       <el-table-column
         v-if="canShowColumn('qty')"
-        :label="getFieldTitle('qty')"
+        :label="permissionAccess.getFieldLabel('qty')"
         prop="qty"
         width="100"
         align="right"
@@ -92,7 +92,7 @@
           <el-input-number
             v-model="scope.row.qty"
             :controls="false"
-            :disabled="isFieldReadonly('qty')"
+            :disabled="permissionAccess.isFieldReadonly('qty')"
             size="small"
             style="width: 100%"
             @focus="handleFocus(scope.row, 'qty')"
@@ -103,7 +103,7 @@
 
       <el-table-column
         v-if="canShowColumn('priceExcl')"
-        :label="getFieldTitle('priceExcl')"
+        :label="permissionAccess.getFieldLabel('priceExcl')"
         prop="priceExcl"
         width="120"
         align="right"
@@ -115,7 +115,7 @@
             v-model="scope.row.priceExcl"
             :controls="false"
             :precision="4"
-            :disabled="isFieldReadonly('priceExcl')"
+            :disabled="permissionAccess.isFieldReadonly('priceExcl')"
             size="small"
             style="width: 100%"
             @focus="handleFocus(scope.row, 'priceExcl')"
@@ -127,7 +127,7 @@
       <el-table-column
         v-if="canShowColumn('taxRate')"
         column-key="taxRate"
-        :label="getFieldTitle('taxRate')"
+        :label="permissionAccess.getFieldLabel('taxRate')"
         prop="taxRate"
         width="90"
         align="right"
@@ -140,7 +140,7 @@
           <el-input-number
             v-model="scope.row.taxRate"
             :controls="false"
-            :disabled="isFieldReadonly('taxRate')"
+            :disabled="permissionAccess.isFieldReadonly('taxRate')"
             size="small"
             style="width: 100%"
             @focus="handleFocus(scope.row, 'taxRate')"
@@ -151,7 +151,7 @@
 
       <el-table-column
         v-if="canShowColumn('taxAmount')"
-        :label="getFieldTitle('taxAmount')"
+        :label="permissionAccess.getFieldLabel('taxAmount')"
         prop="taxAmount"
         width="100"
         align="right"
@@ -165,7 +165,7 @@
 
       <el-table-column
         v-if="canShowColumn('totalAmount')"
-        :label="getFieldTitle('totalAmount')"
+        :label="permissionAccess.getFieldLabel('totalAmount')"
         prop="totalAmount"
         width="120"
         align="right"
@@ -192,13 +192,10 @@ import { computed, nextTick, ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import BillDetailTable from '@/components/Bill/BillDetailTable.vue';
 import {
-  filterVisibleKeys,
-  getFieldLabel,
-  isPermissionReadonly,
-  isPermissionVisible,
+  createBillPermissionAccessor,
   isSameStringArray,
   normalizeVisibleKeys,
-  type BillPermissionSet
+  type BillPermissionSource
 } from '@/components/Bill/billPermission';
 import MaterialSelectDialog from '@/components/SearchTable/MaterialSelectDialog.vue';
 import { findMaterialByCode, type MaterialOption } from '@/components/SearchTable/materialMock.ts';
@@ -227,7 +224,7 @@ interface BillDetailTableExpose {
 
 const props = defineProps<{
   modelValue: BillTemplateItemRow[];
-  permissions?: BillPermissionSet;
+  permissions?: BillPermissionSource;
 }>();
 
 const emit = defineEmits<{
@@ -248,6 +245,9 @@ const defaultFieldLabels = {
   totalAmount: '价税合计'
 } as const;
 const allColumnKeys = Object.keys(defaultFieldLabels) as Array<keyof typeof defaultFieldLabels>;
+const permissionAccess = createBillPermissionAccessor(() => props.permissions, {
+  fieldLabels: defaultFieldLabels
+});
 
 const billTableRef = ref<BillDetailTableExpose>();
 const visibleColumnKeys = ref([...defaultVisibleColumnKeys]);
@@ -257,45 +257,10 @@ const currentMaterialRowIndex = ref(-1);
 const originalValues = new WeakMap<BillTemplateItemRow, Record<string, number | null>>();
 
 /**
- * 判断字段是否允许显示。
- */
-const isFieldVisible = (key: string) => {
-  return isPermissionVisible(props.permissions, 'fields', key);
-};
-
-/**
- * 判断字段是否处于只读状态。
- */
-const isFieldReadonly = (key: string) => {
-  return isPermissionReadonly(props.permissions, 'fields', key);
-};
-
-/**
- * 判断按钮是否允许显示。
- */
-const isButtonVisible = (key: string) => {
-  return isPermissionVisible(props.permissions, 'buttons', key);
-};
-
-/**
- * 判断按钮是否处于只读状态。
- */
-const isButtonReadonly = (key: string) => {
-  return isPermissionReadonly(props.permissions, 'buttons', key);
-};
-
-/**
- * 读取字段标题，优先使用权限返回的自定义标题。
- */
-const getFieldTitle = (key: keyof typeof defaultFieldLabels) => {
-  return getFieldLabel(props.permissions, key, defaultFieldLabels[key]);
-};
-
-/**
  * 判断当前列是否可显示。
  */
 const canShowColumn = (key: string) => {
-  return visibleColumnKeys.value.includes(key) && isFieldVisible(key);
+  return visibleColumnKeys.value.includes(key) && permissionAccess.isFieldVisible(key);
 };
 
 /**
@@ -304,12 +269,12 @@ const canShowColumn = (key: string) => {
 const columnOptions = computed(() => {
   return allColumnKeys
     .filter((key) => {
-      return isFieldVisible(key);
+      return permissionAccess.isFieldVisible(key);
     })
     .map((key) => {
       return {
         key,
-        label: getFieldTitle(key)
+        label: permissionAccess.getFieldLabel(key)
       };
     });
 });
@@ -318,7 +283,7 @@ const columnOptions = computed(() => {
  * 根据权限过滤默认可见列。
  */
 const permissionDefaultVisibleColumnKeys = computed(() => {
-  return filterVisibleKeys(defaultVisibleColumnKeys, props.permissions, 'fields');
+  return permissionAccess.filterVisibleFields(defaultVisibleColumnKeys);
 });
 
 const innerItems = computed({
@@ -490,7 +455,7 @@ const sortByTotalAmount = (left: BillTemplateItemRow, right: BillTemplateItemRow
  * 新增一行空明细。
  */
 const handleAdd = () => {
-  if (!isButtonVisible('add') || isButtonReadonly('add')) {
+  if (!permissionAccess.isButtonVisible('add') || permissionAccess.isButtonReadonly('add')) {
     return;
   }
   innerItems.value = [
@@ -510,7 +475,9 @@ const handleSortChange = (payload: { prop?: string | null }) => {
  * 打开物料选择弹窗。
  */
 const showMaterialSelect = (index: number) => {
-  if (!isButtonVisible('selectMaterial') || isButtonReadonly('selectMaterial') || isFieldReadonly('itemCode')) {
+  if (!permissionAccess.isButtonVisible('selectMaterial')
+    || permissionAccess.isButtonReadonly('selectMaterial')
+    || permissionAccess.isFieldReadonly('itemCode')) {
     return;
   }
   currentMaterialRowIndex.value = index;
@@ -531,7 +498,7 @@ const applyMaterialToRow = (row: BillTemplateItemRow, material: MaterialOption) 
  * 录入物料编码后按回车，尝试自动匹配 mock 物料。
  */
 const handleItemCodeEnter = (row: BillTemplateItemRow, event: KeyboardEvent) => {
-  if (isFieldReadonly('itemCode')) {
+  if (permissionAccess.isFieldReadonly('itemCode')) {
     return;
   }
   if (!row.itemCode.trim()) {

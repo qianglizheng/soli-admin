@@ -1,218 +1,282 @@
 {
   "header": {
     "standard": {
-      "fields": {
-        "billDate": {
-          "right": "只读",
-          "fieldLabel": "业务日期"
+      "billType": "purchase_order",
+      "currentState": "unaudited",
+      "permissions": {
+        "fields": {
+          "billDate": {
+            "label": "业务日期",
+            "visible": true,
+            "editable": false
+          },
+          "supplierId": {
+            "label": "往来单位",
+            "visible": true,
+            "editable": true
+          },
+          "settleType": {
+            "label": "结算方式",
+            "visible": true,
+            "editable": true
+          },
+          "warehouseId": {
+            "label": "收货仓库",
+            "visible": true,
+            "editable": true
+          },
+          "userName": {
+            "label": "采购员",
+            "visible": true,
+            "editable": false
+          },
+          "currency": {
+            "label": "结算币种",
+            "visible": true,
+            "editable": false
+          },
+          "remark": {
+            "label": "备注说明",
+            "visible": true,
+            "editable": false
+          },
+          "createByName": {
+            "label": "制单人",
+            "visible": true,
+            "editable": false
+          },
+          "statusName": {
+            "label": "单据状态",
+            "visible": true,
+            "editable": false
+          },
+          "descriptionText": {
+            "label": "说明",
+            "visible": true,
+            "editable": false
+          }
         },
-        "supplierId": {
-          "right": "读写",
-          "fieldLabel": "往来单位"
-        },
-        "settleType": {
-          "right": "读写",
-          "fieldLabel": "结算方式"
-        },
-        "warehouseId": {
-          "right": "读写",
-          "fieldLabel": "收货仓库"
-        },
-        "userName": {
-          "right": "只读",
-          "fieldLabel": "采购员"
-        },
-        "currency": {
-          "right": "只读",
-          "fieldLabel": "结算币种"
-        },
-        "remark": {
-          "right": "只读",
-          "fieldLabel": "备注说明"
-        },
-        "createByName": {
-          "right": "只读",
-          "fieldLabel": "制单人"
-        },
-        "statusName": {
-          "right": "只读",
-          "fieldLabel": "单据状态"
-        },
-        "descriptionText": {
-          "right": "只读",
-          "fieldLabel": "说明"
-        }
-      },
-      "buttons": {
-        "save": {
-          "right": "只读",
-          "fieldLabel": "保存"
-        },
-        "audit": {
-          "right": "不可见",
-          "fieldLabel": "审核通过"
-        },
-        "print": {
-          "right": "读写",
-          "fieldLabel": "打印"
-        },
-        "log": {
-          "right": "读写",
-          "fieldLabel": "操作日志"
-        },
-        "copy": {
-          "right": "读写",
-          "fieldLabel": "复制单据"
-        },
-        "void": {
-          "right": "读写",
-          "fieldLabel": "作废单据"
+        "buttons": {
+          "save": {
+            "label": "保存",
+            "visible": true,
+            "disabled": true
+          },
+          "audit": {
+            "label": "审核通过",
+            "visible": false,
+            "disabled": false
+          },
+          "print": {
+            "label": "打印",
+            "visible": true,
+            "disabled": false
+          },
+          "log": {
+            "label": "操作日志",
+            "visible": true,
+            "disabled": false
+          },
+          "copy": {
+            "label": "复制单据",
+            "visible": true,
+            "disabled": false
+          },
+          "void": {
+            "label": "作废单据",
+            "visible": true,
+            "disabled": false
+          }
         }
       }
     }
   },
   "detail": {
     "goodsDetail": {
-      "fields": {
-        "itemCode": {
-          "right": "读写",
-          "fieldLabel": "物料编码"
+      "billType": "purchase_order",
+      "currentState": "unaudited",
+      "permissions": {
+        "fields": {
+          "itemCode": {
+            "label": "物料编码",
+            "visible": true,
+            "editable": true
+          },
+          "itemName": {
+            "label": "物料名称",
+            "visible": true,
+            "editable": false
+          },
+          "spec": {
+            "label": "规格型号",
+            "visible": true,
+            "editable": false
+          },
+          "unit": {
+            "label": "单位",
+            "visible": true,
+            "editable": false
+          },
+          "qty": {
+            "label": "业务数量",
+            "visible": true,
+            "editable": false
+          },
+          "priceExcl": {
+            "label": "不含税单价",
+            "visible": false,
+            "editable": false
+          },
+          "taxRate": {
+            "label": "税率%",
+            "visible": true,
+            "editable": false
+          },
+          "taxAmount": {
+            "label": "税额",
+            "visible": true,
+            "editable": false
+          },
+          "totalAmount": {
+            "label": "价税合计",
+            "visible": true,
+            "editable": false
+          }
         },
-        "itemName": {
-          "right": "只读",
-          "fieldLabel": "物料名称"
-        },
-        "spec": {
-          "right": "只读",
-          "fieldLabel": "规格型号"
-        },
-        "unit": {
-          "right": "只读",
-          "fieldLabel": "单位"
-        },
-        "qty": {
-          "right": "只读",
-          "fieldLabel": "业务数量"
-        },
-        "priceExcl": {
-          "right": "不可见",
-          "fieldLabel": "不含税单价"
-        },
-        "taxRate": {
-          "right": "只读",
-          "fieldLabel": "税率%"
-        },
-        "taxAmount": {
-          "right": "只读",
-          "fieldLabel": "税额"
-        },
-        "totalAmount": {
-          "right": "只读",
-          "fieldLabel": "价税合计"
-        }
-      },
-      "buttons": {
-        "add": {
-          "right": "读写",
-          "fieldLabel": "添加行"
-        },
-        "copy": {
-          "right": "读写",
-          "fieldLabel": "复制行"
-        },
-        "delete": {
-          "right": "读写",
-          "fieldLabel": "批量删除"
-        },
-        "import": {
-          "right": "不可见",
-          "fieldLabel": "导入"
-        },
-        "export": {
-          "right": "读写",
-          "fieldLabel": "导出"
-        },
-        "columnSetting": {
-          "right": "读写",
-          "fieldLabel": "列显示"
-        },
-        "selectMaterial": {
-          "right": "读写",
-          "fieldLabel": "选择物料"
+        "buttons": {
+          "add": {
+            "label": "添加行",
+            "visible": true,
+            "disabled": false
+          },
+          "copy": {
+            "label": "复制行",
+            "visible": true,
+            "disabled": false
+          },
+          "delete": {
+            "label": "批量删除",
+            "visible": true,
+            "disabled": false
+          },
+          "import": {
+            "label": "导入",
+            "visible": false,
+            "disabled": false
+          },
+          "export": {
+            "label": "导出",
+            "visible": true,
+            "disabled": false
+          },
+          "columnSetting": {
+            "label": "列显示",
+            "visible": true,
+            "disabled": false
+          },
+          "selectMaterial": {
+            "label": "选择物料",
+            "visible": true,
+            "disabled": false
+          }
         }
       }
     },
     "sourceDetail": {
-      "fields": {
-        "sourceBillNo": {
-          "right": "只读",
-          "fieldLabel": "来源单据号"
+      "billType": "purchase_order",
+      "currentState": "unaudited",
+      "permissions": {
+        "fields": {
+          "sourceBillNo": {
+            "label": "来源单据号",
+            "visible": true,
+            "editable": false
+          },
+          "sourceType": {
+            "label": "来源类型",
+            "visible": true,
+            "editable": false
+          },
+          "supplierName": {
+            "label": "来源供应商",
+            "visible": true,
+            "editable": false
+          },
+          "billDate": {
+            "label": "来源日期",
+            "visible": true,
+            "editable": false
+          },
+          "totalAmount": {
+            "label": "来源金额",
+            "visible": true,
+            "editable": false
+          },
+          "status": {
+            "label": "来源状态",
+            "visible": true,
+            "editable": false
+          },
+          "remark": {
+            "label": "来源备注",
+            "visible": true,
+            "editable": false
+          }
         },
-        "sourceType": {
-          "right": "只读",
-          "fieldLabel": "来源类型"
-        },
-        "supplierName": {
-          "right": "只读",
-          "fieldLabel": "来源供应商"
-        },
-        "billDate": {
-          "right": "只读",
-          "fieldLabel": "来源日期"
-        },
-        "totalAmount": {
-          "right": "只读",
-          "fieldLabel": "来源金额"
-        },
-        "status": {
-          "right": "只读",
-          "fieldLabel": "来源状态"
-        },
-        "remark": {
-          "right": "只读",
-          "fieldLabel": "来源备注"
-        }
-      },
-      "buttons": {
-        "columnSetting": {
-          "right": "读写",
-          "fieldLabel": "列显示"
+        "buttons": {
+          "columnSetting": {
+            "label": "列显示",
+            "visible": true,
+            "disabled": false
+          }
         }
       }
     },
     "attachmentDetail": {
-      "fields": {
-        "fileName": {
-          "right": "只读",
-          "fieldLabel": "附件名称"
+      "billType": "purchase_order",
+      "currentState": "unaudited",
+      "permissions": {
+        "fields": {
+          "fileName": {
+            "label": "附件名称",
+            "visible": true,
+            "editable": false
+          },
+          "fileType": {
+            "label": "附件类型",
+            "visible": true,
+            "editable": false
+          },
+          "fileSize": {
+            "label": "附件大小",
+            "visible": true,
+            "editable": false
+          },
+          "uploadUser": {
+            "label": "上传人",
+            "visible": true,
+            "editable": false
+          },
+          "uploadTime": {
+            "label": "上传时间",
+            "visible": true,
+            "editable": false
+          },
+          "remark": {
+            "label": "附件备注",
+            "visible": true,
+            "editable": false
+          }
         },
-        "fileType": {
-          "right": "只读",
-          "fieldLabel": "附件类型"
-        },
-        "fileSize": {
-          "right": "只读",
-          "fieldLabel": "附件大小"
-        },
-        "uploadUser": {
-          "right": "只读",
-          "fieldLabel": "上传人"
-        },
-        "uploadTime": {
-          "right": "只读",
-          "fieldLabel": "上传时间"
-        },
-        "remark": {
-          "right": "只读",
-          "fieldLabel": "附件备注"
-        }
-      },
-      "buttons": {
-        "columnSetting": {
-          "right": "读写",
-          "fieldLabel": "列显示"
+        "buttons": {
+          "columnSetting": {
+            "label": "列显示",
+            "visible": true,
+            "disabled": false
+          }
         }
       }
     }
   }
 }
+
