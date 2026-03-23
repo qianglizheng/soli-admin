@@ -32,6 +32,24 @@ const systemRoute: RouteRecordRaw = {
       path: 'menu'
     },
     {
+      component: () => import('@/views/system/module-center/index.vue'),
+      meta: { icon: 'Grid', title: '模块中心' },
+      name: 'ModuleCenter',
+      path: 'module-center'
+    },
+    {
+      component: () => import('@/views/system/post-manage/index.vue'),
+      meta: { icon: 'OfficeBuilding', title: '岗位管理' },
+      name: 'PostManage',
+      path: 'post-manage'
+    },
+    {
+      component: () => import('@/views/system/function-auth/index.vue'),
+      meta: { icon: 'Lock', title: '功能授权' },
+      name: 'FunctionAuth',
+      path: 'function-auth'
+    },
+    {
       component: () => import('@/views/system/dict/index.vue'),
       meta: { icon: 'Reading', title: '字典管理' },
       name: 'Dict',
