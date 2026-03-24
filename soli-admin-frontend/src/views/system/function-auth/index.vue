@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="app-container function-auth-page">
     <el-row :gutter="16" style="height: 100%">
       <el-col :span="6" class="org-tree-col">
@@ -61,7 +61,7 @@
                     </el-tag>
                   </div>
                   <div class="overview-subtitle">
-                    当前组织：{{ selectedPost.orgName }}，左侧岗位树和右侧模块树均为 mock 数据，当前页只配置岗位基线权限。
+                    当前组织：{{ selectedPost.orgName }}，左侧岗位树和右侧模块树均为 mock 数据，当前页用于配置岗位基础功能权限。
                   </div>
                 </div>
 
@@ -141,7 +141,7 @@
               </div>
 
               <div class="editor-panel">
-                <el-empty v-if="!selectedModule" description="请选择右侧模块后配置权限" />
+                <el-empty v-if="!selectedModule" description="请选择模块后配置权限" />
 
                 <template v-else>
                   <div class="editor-header">
@@ -186,15 +186,15 @@
                             <el-card shadow="never" class="inner-card">
                               <template #header>权限说明</template>
                               <el-alert
-                                title="当前页配置的是岗位基线权限，不放大权限。状态权限中心只允许在岗位基线上继续收紧。"
+                                title="当前页面配置的是岗位基线权限，不放大权限。状态权限中心只允许在岗位基线上继续收紧。"
                                 type="info"
                                 :closable="false"
                                 show-icon
                               />
                               <div class="tips-list">
-                                <div>1. 模块隐藏后，运行时模块入口直接不可见。</div>
-                                <div>2. 按钮权限支持不可见、禁用、可用三档。</div>
-                                <div>3. 字段权限支持不可见、只读、可写三档。</div>
+                                <div>1. 模块隐藏后，运行时模块入口将不可见。</div>
+                                <div>2. 按钮权限支持不可见、禁用、可用三个级别。</div>
+                                <div>3. 字段权限支持不可见、只读、可写三个级别。</div>
                               </div>
                             </el-card>
                           </el-col>
@@ -247,8 +247,8 @@
                     <el-tab-pane label="字段权限" name="field">
                       <div class="editor-pane">
                         <el-tabs v-model="activeFieldScope" class="field-scope-tabs">
-                          <el-tab-pane label="单头字段" name="header">
-                            <el-empty v-if="!selectedModule.headerTabs.length" description="当前模块暂无单头字段" />
+                          <el-tab-pane label="表头字段" name="header">
+                            <el-empty v-if="!selectedModule.headerTabs.length" description="当前模块暂无表头字段" />
                             <template v-else>
                               <el-tabs v-model="activeHeaderTab" type="border-card" class="field-tabs">
                                 <el-tab-pane
@@ -373,7 +373,7 @@ import {
   findModuleNode,
   type ModuleNode,
   type ModuleTabDefinition
-} from '../module-center/moduleCenterMock';
+} from '../module-center/moduleCenterFixture';
 import {
   buildFunctionAuthPreview,
   buttonPermissionLabelMap,
@@ -1029,3 +1029,4 @@ onMounted(() => {
   }
 }
 </style>
+

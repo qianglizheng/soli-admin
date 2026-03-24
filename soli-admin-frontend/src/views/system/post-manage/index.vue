@@ -191,7 +191,6 @@ import PostManageForm from './components/PostManageForm.vue';
 import {
   createOrgUnit,
   createOrgPost,
-  type CreateOrgUnitPayload,
   getOrgNodeTypeLabel,
   getOrgPostDetail,
   getOrgPostTree,
@@ -200,6 +199,7 @@ import {
   POST_TYPE_OPTIONS,
   updateOrgPost,
   type CreateOrgPostPayload,
+  type CreateOrgUnitPayload,
   type OrgPostDetail,
   type OrgPostFormModel,
   type OrgPostTreeNode,
@@ -233,21 +233,7 @@ const orgFormInitial = ref<Partial<OrgUnitFormModel>>({});
 const assignDialogVisible = ref(false);
 const viewDialogVisible = ref(false);
 
-const selectedNode = computed(() => findTreeNode(postTree.value, selectedNodeKey.value));
-const selectedPostNode = computed(() => (selectedNode.value?.nodeType === 'POST' ? selectedNode.value : undefined));
-const postCount = computed(() => countPostNodes(postTree.value));
-const currentPostTypeLabel = computed(() => getPostTypeLabel(selectedPostDetail.value?.postType));
-const currentOrgTypeLabel = computed(() => getOrgNodeTypeLabel(selectedPostDetail.value?.orgType || selectedNode.value?.nodeType));
-const currentStatus = computed(() => selectedPostDetail.value?.status || selectedPostNode.value?.status || '0');
-
-const filterNode = (value: string, data: OrgPostTreeNode) => {
-  if (!value) {
-    return true;
-  }
-  return data.nodeName.includes(value) || data.nodeCode.includes(value);
-};
-
-const findTreeNode = (nodes: OrgPostTreeNode[], nodeKey?: string): OrgPostTreeNode | undefined => {
+function findTreeNode(nodes: OrgPostTreeNode[], nodeKey?: string): OrgPostTreeNode | undefined {
   if (!nodeKey) {
     return undefined;
   }
@@ -263,9 +249,9 @@ const findTreeNode = (nodes: OrgPostTreeNode[], nodeKey?: string): OrgPostTreeNo
     }
   }
   return undefined;
-};
+}
 
-const findFirstPostNode = (nodes: OrgPostTreeNode[]): OrgPostTreeNode | undefined => {
+function findFirstPostNode(nodes: OrgPostTreeNode[]): OrgPostTreeNode | undefined {
   for (const node of nodes) {
     if (node.nodeType === 'POST') {
       return node;
@@ -278,16 +264,30 @@ const findFirstPostNode = (nodes: OrgPostTreeNode[]): OrgPostTreeNode | undefine
     }
   }
   return undefined;
-};
+}
 
-const countPostNodes = (nodes: OrgPostTreeNode[]) => {
+function countPostNodes(nodes: OrgPostTreeNode[]) {
   return nodes.reduce((count, node) => {
     const current = node.nodeType === 'POST' ? 1 : 0;
     return count + current + (node.children?.length ? countPostNodes(node.children) : 0);
   }, 0);
-};
+}
 
-const getNodeTagType = (nodeType: string) => {
+const selectedNode = computed(() => findTreeNode(postTree.value, selectedNodeKey.value));
+const selectedPostNode = computed(() => (selectedNode.value?.nodeType === 'POST' ? selectedNode.value : undefined));
+const postCount = computed(() => countPostNodes(postTree.value));
+const currentPostTypeLabel = computed(() => getPostTypeLabel(selectedPostDetail.value?.postType));
+const currentOrgTypeLabel = computed(() => getOrgNodeTypeLabel(selectedPostDetail.value?.orgType || selectedNode.value?.nodeType));
+const currentStatus = computed(() => selectedPostDetail.value?.status || selectedPostNode.value?.status || '0');
+
+function filterNode(value: string, data: OrgPostTreeNode) {
+  if (!value) {
+    return true;
+  }
+  return data.nodeName.includes(value) || data.nodeCode.includes(value);
+}
+
+function getNodeTagType(nodeType: string) {
   if (nodeType === 'GROUP') {
     return 'info';
   }
@@ -295,9 +295,9 @@ const getNodeTagType = (nodeType: string) => {
     return 'warning';
   }
   return 'success';
-};
+}
 
-const resetWorkspace = () => {
+function resetWorkspace() {
   selectedPostDetail.value = undefined;
   employeePreviewResult.value = {
     list: [],
@@ -305,9 +305,9 @@ const resetWorkspace = () => {
     pageSize: 6,
     total: 0
   };
-};
+}
 
-const loadPostWorkspace = async (postId: number) => {
+async function loadPostWorkspace(postId: number) {
   workspaceLoading.value = true;
   try {
     const [detailResponse, previewResponse] = await Promise.all([
@@ -326,9 +326,9 @@ const loadPostWorkspace = async (postId: number) => {
   } finally {
     workspaceLoading.value = false;
   }
-};
+}
 
-const handleNodeSelection = async (nodeKey?: string) => {
+async function handleNodeSelection(nodeKey?: string) {
   selectedNodeKey.value = nodeKey;
   if (!nodeKey) {
     resetWorkspace();
@@ -343,9 +343,9 @@ const handleNodeSelection = async (nodeKey?: string) => {
   }
   resetWorkspace();
   await loadPostWorkspace(node.id);
-};
+}
 
-const loadTree = async (preferNodeKey?: string) => {
+async function loadTree(preferNodeKey?: string) {
   treeLoading.value = true;
   try {
     const { data } = await getOrgPostTree();
@@ -359,25 +359,25 @@ const loadTree = async (preferNodeKey?: string) => {
   } finally {
     treeLoading.value = false;
   }
-};
+}
 
-const handleNodeClick = (node: OrgPostTreeNode) => {
+function handleNodeClick(node: OrgPostTreeNode) {
   void handleNodeSelection(node.nodeKey);
-};
+}
 
-const resolveNextSort = (parentNodeKey: string) => {
+function resolveNextSort(parentNodeKey: string) {
   const parentNode = findTreeNode(postTree.value, parentNodeKey);
   const children = parentNode?.children || [];
   return children.length ? Math.max(...children.map((item) => item.sort || 0)) + 1 : 1;
-};
+}
 
-const resolveNextOrgSort = (parentNodeKey: string) => {
+function resolveNextOrgSort(parentNodeKey: string) {
   const parentNode = findTreeNode(postTree.value, parentNodeKey);
   const orgChildren = (parentNode?.children || []).filter((item) => item.nodeType !== 'POST');
   return orgChildren.length ? Math.max(...orgChildren.map((item) => item.sort || 0)) + 1 : 1;
-};
+}
 
-const getCreateParentNodeKey = () => {
+function getCreateParentNodeKey() {
   if (!selectedNode.value) {
     return postTree.value[0]?.nodeKey || '';
   }
@@ -385,9 +385,9 @@ const getCreateParentNodeKey = () => {
     return selectedNode.value.parentNodeKey || '';
   }
   return selectedNode.value.nodeKey;
-};
+}
 
-const getCreateOrgParentNodeKey = () => {
+function getCreateOrgParentNodeKey() {
   if (!selectedNode.value) {
     return postTree.value[0]?.nodeKey || '';
   }
@@ -395,9 +395,9 @@ const getCreateOrgParentNodeKey = () => {
     return `ORG_${selectedNode.value.orgUnitId}`;
   }
   return selectedNode.value.nodeKey;
-};
+}
 
-const buildFormPayload = (formData: OrgPostFormModel): CreateOrgPostPayload => {
+function buildFormPayload(formData: OrgPostFormModel): CreateOrgPostPayload {
   const parentNode = findTreeNode(postTree.value, formData.parentNodeKey);
   if (!parentNode) {
     throw new Error('上级节点不存在');
@@ -413,9 +413,9 @@ const buildFormPayload = (formData: OrgPostFormModel): CreateOrgPostPayload => {
     sort: formData.sort,
     status: formData.status
   };
-};
+}
 
-const buildOrgFormPayload = (formData: OrgUnitFormModel): CreateOrgUnitPayload => {
+function buildOrgFormPayload(formData: OrgUnitFormModel): CreateOrgUnitPayload {
   const parentNode = findTreeNode(postTree.value, formData.parentNodeKey);
   if (!parentNode || parentNode.nodeType === 'POST') {
     throw new Error('上级组织不存在');
@@ -429,9 +429,9 @@ const buildOrgFormPayload = (formData: OrgUnitFormModel): CreateOrgUnitPayload =
     sort: formData.sort,
     status: formData.status
   };
-};
+}
 
-const handleCreateRoot = () => {
+function handleCreateRoot() {
   const parentNodeKey = getCreateParentNodeKey();
   if (!parentNodeKey) {
     ElMessage.warning('请先初始化组织节点后再新增岗位');
@@ -448,9 +448,9 @@ const handleCreateRoot = () => {
     status: '0'
   };
   formVisible.value = true;
-};
+}
 
-const handleCreateOrgUnit = () => {
+function handleCreateOrgUnit() {
   const parentNodeKey = getCreateOrgParentNodeKey();
   if (!parentNodeKey) {
     ElMessage.warning('请先初始化组织节点后再新增分公司');
@@ -465,9 +465,9 @@ const handleCreateOrgUnit = () => {
     status: '0'
   };
   orgFormVisible.value = true;
-};
+}
 
-const handleCreateChild = () => {
+function handleCreateChild() {
   if (!selectedNode.value) {
     return;
   }
@@ -482,9 +482,9 @@ const handleCreateChild = () => {
     status: '0'
   };
   formVisible.value = true;
-};
+}
 
-const handleEditPost = () => {
+function handleEditPost() {
   if (!selectedPostNode.value || !selectedPostDetail.value) {
     return;
   }
@@ -501,9 +501,9 @@ const handleEditPost = () => {
     status: (selectedPostDetail.value.status || '0') as '0' | '1'
   };
   formVisible.value = true;
-};
+}
 
-const handleFormSubmit = async (formData: OrgPostFormModel) => {
+async function handleFormSubmit(formData: OrgPostFormModel) {
   try {
     const payload = buildFormPayload(formData);
     if (formMode.value === 'create') {
@@ -521,17 +521,17 @@ const handleFormSubmit = async (formData: OrgPostFormModel) => {
     formVisible.value = false;
     await loadTree(`POST_${formData.id}`);
   } catch (error) {
-    if (error instanceof Error && error.message === '上级节点不存在') {
+    if (error instanceof Error) {
       ElMessage.error(error.message);
     }
   }
-};
+}
 
-const handleFormCancel = () => {
+function handleFormCancel() {
   formVisible.value = false;
-};
+}
 
-const handleOrgFormSubmit = async (formData: OrgUnitFormModel) => {
+async function handleOrgFormSubmit(formData: OrgUnitFormModel) {
   try {
     const payload = buildOrgFormPayload(formData);
     const { data } = await createOrgUnit(payload);
@@ -543,32 +543,32 @@ const handleOrgFormSubmit = async (formData: OrgUnitFormModel) => {
       ElMessage.error(error.message);
     }
   }
-};
+}
 
-const handleOrgFormCancel = () => {
+function handleOrgFormCancel() {
   orgFormVisible.value = false;
-};
+}
 
-const openAssignEmployeeDialog = () => {
+function openAssignEmployeeDialog() {
   if (!selectedPostDetail.value?.id) {
     return;
   }
   assignDialogVisible.value = true;
-};
+}
 
-const openViewEmployeeDialog = () => {
+function openViewEmployeeDialog() {
   if (!selectedPostDetail.value?.id) {
     return;
   }
   viewDialogVisible.value = true;
-};
+}
 
-const handleEmployeeChanged = async () => {
+async function handleEmployeeChanged() {
   if (!selectedPostDetail.value?.id) {
     return;
   }
   await loadPostWorkspace(selectedPostDetail.value.id);
-};
+}
 
 watch(treeKeyword, (value) => {
   treeRef.value?.filter(value);
@@ -660,6 +660,9 @@ onMounted(() => {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.tree-toolbar {
   margin-bottom: 12px;
 }
 

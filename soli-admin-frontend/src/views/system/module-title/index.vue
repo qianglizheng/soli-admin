@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="app-container module-title-page">
     <el-row :gutter="16" style="height: 100%">
       <el-col :span="6" class="module-tree-col">
@@ -121,16 +121,16 @@
                       </el-tag>
                     </div>
                     <div class="editor-subtitle">
-                      默认标题取自模块中心，当前页仅维护 `displayTitle`、`placeholder` 和帮助说明。
+                      默认标题取自模块中心，当前页仅维护 `displayTitle`、`placeholder` 和 `helpText`。
                     </div>
                   </div>
                   <el-tag type="success" effect="plain">上下文版本 v{{ selectedModule.contextVersion }}</el-tag>
                 </div>
 
                 <el-tabs v-model="activeFieldScope" class="field-scope-tabs">
-                  <el-tab-pane label="单头字段" name="header">
+                  <el-tab-pane label="表头字段" name="header">
                     <div class="editor-pane">
-                      <el-empty v-if="!headerTabs.length" description="当前模块暂无单头字段" />
+                      <el-empty v-if="!headerTabs.length" description="当前模块暂无表头字段" />
                       <template v-else>
                         <el-tabs v-model="activeHeaderTab" type="border-card" class="field-tabs">
                           <el-tab-pane
@@ -183,6 +183,7 @@
                       </template>
                     </div>
                   </el-tab-pane>
+
                   <el-tab-pane label="明细字段" name="detail">
                     <div class="editor-pane">
                       <el-empty v-if="!detailTabs.length" description="当前模块暂无明细字段" />
@@ -260,7 +261,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
-import type { ModuleFieldDefinition, ModuleNode, ModuleTabDefinition } from '../module-center/moduleCenterMock';
+import type { ModuleFieldDefinition, ModuleNode, ModuleTabDefinition } from '../module-center/moduleCenterFixture';
 import {
   buildModuleTitlePreview,
   cloneModuleTitleStore,
@@ -737,3 +738,4 @@ onMounted(() => {
   }
 }
 </style>
+

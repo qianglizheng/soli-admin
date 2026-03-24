@@ -1,10 +1,10 @@
-import {
+﻿import {
   buttonAreaLabelMap,
   cloneModuleCenterTree,
   findModuleNode,
   type ModuleNode,
   type YesNo
-} from '../module-center/moduleCenterMock';
+} from '../module-center/moduleCenterFixture';
 
 export type StateFieldLimitLevel = 0 | 1 | 2;
 export type StateButtonLimitLevel = 0 | 1 | 2;
@@ -144,7 +144,6 @@ const standardTransitionSeed: Array<Omit<ModuleStateTransition, 'id'>> = [
 ];
 
 export const stateFieldLimitLevelOptions = [...stateFieldLimitLevelOptionsSeed];
-
 export const stateButtonLimitLevelOptions = [...stateButtonLimitLevelOptionsSeed];
 
 export const stateFieldLimitTagTypeMap: Record<StateFieldLimitLevel, 'danger' | 'warning' | 'success'> = {
@@ -206,9 +205,7 @@ const flattenModules = (nodes: ModuleNode[]): ModuleNode[] => {
 };
 
 const collectFieldCodes = (module: ModuleNode) => {
-  return [...module.headerTabs, ...module.detailTabs].flatMap((tab) => {
-    return tab.fields.map((field) => field.fieldCode);
-  });
+  return [...module.headerTabs, ...module.detailTabs].flatMap((tab) => tab.fields.map((field) => field.fieldCode));
 };
 
 const collectButtonCodes = (module: ModuleNode) => {
@@ -442,7 +439,7 @@ export const buildStateAuthPreview = (
             label: field.defaultTitle,
             limitLabel: stateFieldLimitLabelMap[limitLevel],
             limitLevel,
-            scope: module.headerTabs.includes(tab) ? 'HEADER' : 'DETAIL',
+            scope: tab.tabInfo.tabScope,
             tabInfo: { ...tab.tabInfo }
           };
         });

@@ -1,15 +1,14 @@
-<template>
+﻿<template>
   <div class="app-container module-center-page">
     <el-row :gutter="16" style="height: 100%">
       <el-col :span="6" class="module-tree-col">
-        <el-card shadow="never" class="module-tree-card">
+        <el-card v-loading="treeLoading" shadow="never" class="module-tree-card">
           <template #header>
             <div class="card-header">
               <span>模块树</span>
               <el-button link type="primary" @click="handleCreateRoot">新增模块</el-button>
             </div>
           </template>
-
           <el-input
             v-model="moduleKeyword"
             clearable
@@ -17,13 +16,11 @@
             prefix-icon="Search"
             class="module-search"
           />
-
           <div class="tree-toolbar">
-            <el-button type="primary" plain icon="Plus" @click="handleCreateRoot">新增模块</el-button>
-            <el-button plain icon="DocumentAdd" :disabled="!selectedModule" @click="handleCreateChild">新增子级</el-button>
-            <el-button plain icon="Edit" :disabled="!selectedModule" @click="handleEditModule">编辑</el-button>
+            <el-button type="primary" plain icon="Plus" @click="handleCreateRoot">新增根模块</el-button>
+            <el-button plain icon="DocumentAdd" :disabled="!selectedModule" @click="handleCreateChild">新增子模块</el-button>
+            <el-button plain icon="Edit" :disabled="!selectedModule" @click="handleEditModule">编辑模块</el-button>
           </div>
-
           <el-scrollbar class="module-tree-scrollbar">
             <el-tree
               ref="treeRef"
@@ -51,119 +48,100 @@
       </el-col>
 
       <el-col :span="18" class="module-workspace-col">
-        <el-empty v-if="!selectedModule" description="请选择左侧模块查看详情" />
-
-        <template v-else>
-          <el-card shadow="never" class="module-workspace-card">
+        <el-card v-loading="workspaceLoading" shadow="never" class="module-workspace-card">
+          <template v-if="selectedModule">
             <div class="workspace-overview">
               <div class="overview-header">
                 <div>
-                <div class="overview-title">
-                  <span>{{ selectedModule.moduleName }}</span>
-                  <el-tag size="small" :type="getModuleTypeTagType(selectedModule.moduleType)" effect="plain">
-                    {{ getModuleTypeLabel(selectedModule.moduleType) }}
-                  </el-tag>
-                  <el-tag size="small" :type="selectedModule.status === '0' ? 'success' : 'danger'" effect="plain">
-                    {{ selectedModule.status === '0' ? '启用' : '停用' }}
-                  </el-tag>
-                  <el-tag v-if="selectedModule.statefulFlag === '1'" size="small" type="warning" effect="plain">
-                    状态型模块
-                  </el-tag>
-                </div>
-                <div class="overview-subtitle">{{ selectedModule.note || '当前模块暂未填写说明。' }}</div>
-              </div>
-
-              <div class="overview-actions">
-                <el-button icon="Edit" @click="handleEditModule">编辑模块</el-button>
-                <el-button type="primary" icon="View" @click="openContextPreview">预览上下文</el-button>
-              </div>
-            </div>
-
-            <el-row :gutter="12" class="metric-row">
-              <el-col :span="6">
-                <div class="metric-card">
-                  <div class="metric-card__label">单头 Tab</div>
-                  <div class="metric-card__value">{{ selectedModule.headerTabs.length }}</div>
-                </div>
-              </el-col>
-              <el-col :span="6">
-                <div class="metric-card">
-                  <div class="metric-card__label">明细 Tab</div>
-                  <div class="metric-card__value">{{ selectedModule.detailTabs.length }}</div>
-                </div>
-              </el-col>
-              <el-col :span="6">
-                <div class="metric-card">
-                  <div class="metric-card__label">字段总数</div>
-                  <div class="metric-card__value">{{ selectedFieldCount }}</div>
-                </div>
-              </el-col>
-              <el-col :span="6">
-                <div class="metric-card">
-                  <div class="metric-card__label">按钮总数</div>
-                  <div class="metric-card__value">{{ selectedModule.buttons.length }}</div>
-                </div>
-              </el-col>
-            </el-row>
-
-            <el-descriptions :column="3" border class="module-descriptions">
-              <el-descriptions-item label="模块编码">{{ selectedModule.moduleCode }}</el-descriptions-item>
-              <el-descriptions-item label="路由地址">{{ selectedModule.routePath || '-' }}</el-descriptions-item>
-              <el-descriptions-item label="组件路径">{{ selectedModule.componentPath || '-' }}</el-descriptions-item>
-              <el-descriptions-item label="导航可见">{{ selectedModule.navVisible === '1' ? '显示' : '隐藏' }}</el-descriptions-item>
-              <el-descriptions-item label="状态字段">{{ selectedModule.stateFieldCode || '-' }}</el-descriptions-item>
-              <el-descriptions-item label="上下文版本">v{{ selectedModule.contextVersion }}</el-descriptions-item>
-            </el-descriptions>
-            </div>
-
-            <div class="workspace-main">
-              <el-tabs v-model="activePane" class="workspace-tabs">
-              <el-tab-pane label="基础信息" name="basic">
-                <div class="tab-toolbar">
-                  <div class="tab-toolbar__title">模块基础信息</div>
-                  <div class="tab-toolbar__actions">
-                    <el-button icon="Edit" @click="handleEditModule">编辑基础信息</el-button>
+                  <div class="overview-title">
+                    <span>{{ selectedModule.moduleName }}</span>
+                    <el-tag size="small" :type="getModuleTypeTagType(selectedModule.moduleType)" effect="plain">
+                      {{ getModuleTypeLabel(selectedModule.moduleType) }}
+                    </el-tag>
+                    <el-tag size="small" :type="selectedModule.status === '0' ? 'success' : 'danger'" effect="plain">
+                      {{ selectedModule.status === '0' ? '启用' : '停用' }}
+                    </el-tag>
+                    <el-tag v-if="selectedModule.statefulFlag === '1'" size="small" type="warning" effect="plain">
+                      状态型模块
+                    </el-tag>
+                  </div>
+                  <div class="overview-subtitle">
+                    {{ selectedModule.note || '暂无模块说明，建议补充当前模块的业务用途、适用单据或页面范围。' }}
                   </div>
                 </div>
+                <div class="overview-actions">
+                  <el-button icon="Edit" @click="handleEditModule">编辑模块</el-button>
+                  <el-button type="danger" plain icon="Delete" @click="handleDeleteModule">删除模块</el-button>
+                  <el-button type="primary" icon="View" @click="openContextPreview">上下文预览</el-button>
+                </div>
+              </div>
 
-                <el-row :gutter="16">
-                  <el-col :span="12">
-                    <el-card shadow="never" class="inner-card">
-                      <template #header>结构摘要</template>
-                      <el-descriptions :column="1" size="large">
-                        <el-descriptions-item label="模块类型">{{ getModuleTypeLabel(selectedModule.moduleType) }}</el-descriptions-item>
-                        <el-descriptions-item label="状态型模块">{{ selectedModule.statefulFlag === '1' ? '是' : '否' }}</el-descriptions-item>
-                        <el-descriptions-item label="默认图标">{{ selectedModule.icon || '-' }}</el-descriptions-item>
-                        <el-descriptions-item label="排序">{{ selectedModule.sort }}</el-descriptions-item>
-                      </el-descriptions>
-                    </el-card>
-                  </el-col>
-                  <el-col :span="12">
-                    <el-card shadow="never" class="inner-card">
-                      <template #header>实施提示</template>
-                      <el-alert type="info" :closable="false" show-icon title="当前模块中心原型仅接本地 mock，用于确认页面结构与交互方式。" />
-                      <div class="tips-list">
-                        <div>1. 左侧选择模块，右侧按基础信息、单头、明细、按钮四类工作区查看。</div>
-                        <div>2. 当前页面已经按模块上下文思路组织字段和按钮元数据。</div>
-                        <div>3. 确认方向后，下一步可以继续补字段、Tab、按钮的增删改。</div>
-                      </div>
-                    </el-card>
-                  </el-col>
-                </el-row>
+              <el-row :gutter="12" class="metric-row">
+                <el-col :span="6">
+                  <div class="metric-card">
+                    <div class="metric-card__label">表头 Tab</div>
+                    <div class="metric-card__value">{{ selectedModule.headerTabs.length }}</div>
+                  </div>
+                </el-col>
+                <el-col :span="6">
+                  <div class="metric-card">
+                    <div class="metric-card__label">明细 Tab</div>
+                    <div class="metric-card__value">{{ selectedModule.detailTabs.length }}</div>
+                  </div>
+                </el-col>
+                <el-col :span="6">
+                  <div class="metric-card">
+                    <div class="metric-card__label">字段总数</div>
+                    <div class="metric-card__value">{{ selectedFieldCount }}</div>
+                  </div>
+                </el-col>
+                <el-col :span="6">
+                  <div class="metric-card">
+                    <div class="metric-card__label">按钮总数</div>
+                    <div class="metric-card__value">{{ selectedModule.buttons.length }}</div>
+                  </div>
+                </el-col>
+              </el-row>
+
+              <el-descriptions :column="3" border class="module-descriptions">
+                <el-descriptions-item label="模块编码">{{ selectedModule.moduleCode }}</el-descriptions-item>
+                <el-descriptions-item label="路由地址">{{ selectedModule.routePath || '-' }}</el-descriptions-item>
+                <el-descriptions-item label="组件路径">{{ selectedModule.componentPath || '-' }}</el-descriptions-item>
+                <el-descriptions-item label="导航可见">
+                  {{ selectedModule.navVisible === '1' ? '显示' : '隐藏' }}
+                </el-descriptions-item>
+                <el-descriptions-item label="状态字段">{{ selectedModule.stateFieldCode || '-' }}</el-descriptions-item>
+                <el-descriptions-item label="上下文版本">v{{ selectedModule.contextVersion }}</el-descriptions-item>
+              </el-descriptions>
+            </div>
+
+            <el-tabs v-model="activePane" class="workspace-tabs">
+              <el-tab-pane label="基础说明" name="basic">
+                <el-alert
+                  type="info"
+                  :closable="false"
+                  show-icon
+                  title="模块中心采用树摘要 + 详情懒加载的方式组织数据。左侧仅加载模块树，选中节点后再加载 Tab、字段和按钮详情，避免一次性加载全部配置。"
+                />
               </el-tab-pane>
 
-              <el-tab-pane label="单头设计" name="header">
+              <el-tab-pane label="表头 Tab" name="header">
                 <div class="tab-toolbar">
-                  <div class="tab-toolbar__title">单头 Tab 与字段</div>
-                    <div class="tab-toolbar__actions">
+                  <div class="tab-toolbar__title">表头 Tab 管理</div>
+                  <div class="tab-toolbar__actions">
                     <el-button icon="Plus" @click="handleCreateTab('header')">新增 Tab</el-button>
-                    <el-button icon="Edit" :disabled="!activeHeaderTabDef" @click="handleEditTab('header')">编辑当前 Tab</el-button>
-                    <el-button type="danger" plain icon="Delete" :disabled="!activeHeaderTabDef" @click="handleDeleteTab('header')">删除当前 Tab</el-button>
-                    <el-button type="primary" icon="Plus" :disabled="!activeHeaderTabDef" @click="handleCreateField('header')">新增字段</el-button>
+                    <el-button icon="Edit" :disabled="!activeHeaderTabDef" @click="handleEditTab('header')">
+                      编辑当前 Tab
+                    </el-button>
+                    <el-button type="danger" plain icon="Delete" :disabled="!activeHeaderTabDef" @click="handleDeleteTab('header')">
+                      删除当前 Tab
+                    </el-button>
+                    <el-button type="primary" icon="Plus" :disabled="!activeHeaderTabDef" @click="handleCreateField('header')">
+                      新增字段
+                    </el-button>
                   </div>
                 </div>
-
-                <el-empty v-if="!selectedModule.headerTabs.length" description="当前模块还没有单头 Tab" />
+                <el-empty v-if="!selectedModule.headerTabs.length" description="当前模块还没有配置表头 Tab" />
                 <template v-else>
                   <el-tabs v-model="activeHeaderTab" type="border-card" class="sub-tabs">
                     <el-tab-pane
@@ -173,18 +151,17 @@
                       :name="tab.tabInfo.tabCode"
                     >
                       <div class="sub-tab-summary">
-                        <div>Tab 编码：{{ tab.tabInfo.tabCode }}</div>
-                        <div>排序：{{ tab.tabInfo.sort }}</div>
-                        <div>说明：{{ tab.tabInfo.note || '-' }}</div>
+                        <span>Tab 编码：{{ tab.tabInfo.tabCode }}</span>
+                        <span>排序：{{ tab.tabInfo.sort }}</span>
+                        <span>说明：{{ tab.tabInfo.note || '-' }}</span>
                       </div>
-
                       <el-table :data="tab.fields.slice().sort(sortBySort)" border>
                         <el-table-column prop="fieldCode" label="字段编码" min-width="180" />
                         <el-table-column prop="defaultTitle" label="默认标题" min-width="140" />
                         <el-table-column prop="componentType" label="组件类型" width="120" />
                         <el-table-column prop="dataPath" label="数据路径" min-width="220" show-overflow-tooltip />
                         <el-table-column prop="valueType" label="值类型" width="120" />
-                        <el-table-column label="必填" align="center" width="90">
+                        <el-table-column label="必填" width="90" align="center">
                           <template #default="scope">
                             <el-tag size="small" :type="scope.row.requiredFlag === '1' ? 'danger' : 'info'" effect="plain">
                               {{ scope.row.requiredFlag === '1' ? '是' : '否' }}
@@ -194,8 +171,12 @@
                         <el-table-column prop="sort" label="排序" width="80" align="center" />
                         <el-table-column label="操作" width="180" fixed="right" align="center">
                           <template #default="scope">
-                            <el-button link type="primary" @click="handleEditField('header', tab.tabInfo.tabCode, scope.row)">编辑</el-button>
-                            <el-button link type="danger" @click="handleDeleteField('header', tab.tabInfo.tabCode, scope.row)">删除</el-button>
+                            <el-button link type="primary" @click="handleEditField('header', tab.tabInfo.tabCode, scope.row)">
+                              编辑
+                            </el-button>
+                            <el-button link type="danger" @click="handleDeleteField('header', tab.tabInfo.tabCode, scope.row)">
+                              删除
+                            </el-button>
                           </template>
                         </el-table-column>
                       </el-table>
@@ -204,18 +185,23 @@
                 </template>
               </el-tab-pane>
 
-              <el-tab-pane label="明细设计" name="detail">
+              <el-tab-pane label="明细 Tab" name="detail">
                 <div class="tab-toolbar">
-                  <div class="tab-toolbar__title">明细 Tab 与字段</div>
+                  <div class="tab-toolbar__title">明细 Tab 管理</div>
                   <div class="tab-toolbar__actions">
                     <el-button icon="Plus" @click="handleCreateTab('detail')">新增 Tab</el-button>
-                    <el-button icon="Edit" :disabled="!activeDetailTabDef" @click="handleEditTab('detail')">编辑当前 Tab</el-button>
-                    <el-button type="danger" plain icon="Delete" :disabled="!activeDetailTabDef" @click="handleDeleteTab('detail')">删除当前 Tab</el-button>
-                    <el-button type="primary" icon="Plus" :disabled="!activeDetailTabDef" @click="handleCreateField('detail')">新增字段</el-button>
+                    <el-button icon="Edit" :disabled="!activeDetailTabDef" @click="handleEditTab('detail')">
+                      编辑当前 Tab
+                    </el-button>
+                    <el-button type="danger" plain icon="Delete" :disabled="!activeDetailTabDef" @click="handleDeleteTab('detail')">
+                      删除当前 Tab
+                    </el-button>
+                    <el-button type="primary" icon="Plus" :disabled="!activeDetailTabDef" @click="handleCreateField('detail')">
+                      新增字段
+                    </el-button>
                   </div>
                 </div>
-
-                <el-empty v-if="!selectedModule.detailTabs.length" description="当前模块还没有明细 Tab" />
+                <el-empty v-if="!selectedModule.detailTabs.length" description="当前模块还没有配置明细 Tab" />
                 <template v-else>
                   <el-tabs v-model="activeDetailTab" type="border-card" class="sub-tabs">
                     <el-tab-pane
@@ -225,18 +211,17 @@
                       :name="tab.tabInfo.tabCode"
                     >
                       <div class="sub-tab-summary">
-                        <div>Tab 编码：{{ tab.tabInfo.tabCode }}</div>
-                        <div>排序：{{ tab.tabInfo.sort }}</div>
-                        <div>说明：{{ tab.tabInfo.note || '-' }}</div>
+                        <span>Tab 编码：{{ tab.tabInfo.tabCode }}</span>
+                        <span>排序：{{ tab.tabInfo.sort }}</span>
+                        <span>说明：{{ tab.tabInfo.note || '-' }}</span>
                       </div>
-
                       <el-table :data="tab.fields.slice().sort(sortBySort)" border>
                         <el-table-column prop="fieldCode" label="字段编码" min-width="180" />
                         <el-table-column prop="defaultTitle" label="默认标题" min-width="140" />
                         <el-table-column prop="componentType" label="组件类型" width="120" />
                         <el-table-column prop="dataPath" label="数据路径" min-width="220" show-overflow-tooltip />
                         <el-table-column prop="valueType" label="值类型" width="120" />
-                        <el-table-column label="必填" align="center" width="90">
+                        <el-table-column label="必填" width="90" align="center">
                           <template #default="scope">
                             <el-tag size="small" :type="scope.row.requiredFlag === '1' ? 'danger' : 'info'" effect="plain">
                               {{ scope.row.requiredFlag === '1' ? '是' : '否' }}
@@ -246,8 +231,12 @@
                         <el-table-column prop="sort" label="排序" width="80" align="center" />
                         <el-table-column label="操作" width="180" fixed="right" align="center">
                           <template #default="scope">
-                            <el-button link type="primary" @click="handleEditField('detail', tab.tabInfo.tabCode, scope.row)">编辑</el-button>
-                            <el-button link type="danger" @click="handleDeleteField('detail', tab.tabInfo.tabCode, scope.row)">删除</el-button>
+                            <el-button link type="primary" @click="handleEditField('detail', tab.tabInfo.tabCode, scope.row)">
+                              编辑
+                            </el-button>
+                            <el-button link type="danger" @click="handleDeleteField('detail', tab.tabInfo.tabCode, scope.row)">
+                              删除
+                            </el-button>
                           </template>
                         </el-table-column>
                       </el-table>
@@ -256,15 +245,14 @@
                 </template>
               </el-tab-pane>
 
-              <el-tab-pane label="按钮设计" name="button">
+              <el-tab-pane label="按钮定义" name="button">
                 <div class="tab-toolbar">
-                  <div class="tab-toolbar__title">按钮分组定义</div>
+                  <div class="tab-toolbar__title">按钮定义管理</div>
                   <div class="tab-toolbar__actions">
                     <el-button type="primary" icon="Plus" @click="handleCreateButton">新增按钮</el-button>
                   </div>
                 </div>
-
-                <el-empty v-if="!selectedModule.buttons.length" description="当前模块还没有按钮定义" />
+                <el-empty v-if="!selectedModule.buttons.length" description="当前模块还没有配置按钮定义" />
                 <template v-else>
                   <div v-for="group in buttonGroups" :key="group.area" class="button-group-card">
                     <div class="button-group-card__header">
@@ -275,9 +263,7 @@
                       <el-table-column prop="buttonCode" label="按钮编码" min-width="180" />
                       <el-table-column prop="defaultTitle" label="默认标题" min-width="140" />
                       <el-table-column label="所属区域" width="160">
-                        <template #default="scope">
-                          {{ getButtonAreaLabel(scope.row.area) }}
-                        </template>
+                        <template #default="scope">{{ getButtonAreaLabel(scope.row.area) }}</template>
                       </el-table-column>
                       <el-table-column prop="sort" label="排序" width="90" align="center" />
                       <el-table-column prop="note" label="说明" min-width="200" show-overflow-tooltip />
@@ -292,9 +278,12 @@
                 </template>
               </el-tab-pane>
             </el-tabs>
-            </div>
-          </el-card>
-        </template>
+          </template>
+
+          <div v-else class="workspace-empty">
+            <el-empty description="请选择左侧模块节点查看详情" />
+          </div>
+        </el-card>
       </el-col>
     </el-row>
 
@@ -307,7 +296,6 @@
       @submit="handleFormSubmit"
       @cancel="handleFormCancel"
     />
-
     <module-tab-form
       v-model="tabFormVisible"
       :mode="tabFormMode"
@@ -316,7 +304,6 @@
       @submit="handleTabFormSubmit"
       @cancel="handleTabFormCancel"
     />
-
     <module-field-form
       v-model="fieldFormVisible"
       :mode="fieldFormMode"
@@ -325,7 +312,6 @@
       @submit="handleFieldFormSubmit"
       @cancel="handleFieldFormCancel"
     />
-
     <module-button-form
       v-model="buttonFormVisible"
       :mode="buttonFormMode"
@@ -334,13 +320,7 @@
       @submit="handleButtonFormSubmit"
       @cancel="handleButtonFormCancel"
     />
-
     <el-drawer v-model="contextPreviewVisible" title="模块上下文预览" size="46%">
-      <div class="preview-header">
-        <el-tag type="primary" effect="plain">{{ selectedModule?.moduleName }}</el-tag>
-        <el-tag v-if="selectedModule?.statefulFlag === '1'" type="warning" effect="plain">状态：未审核</el-tag>
-        <el-tag type="info" effect="plain">岗位：采购员</el-tag>
-      </div>
       <pre class="context-preview">{{ contextPreviewJson }}</pre>
     </el-drawer>
   </div>
@@ -354,21 +334,49 @@ import ModuleCenterForm from './components/ModuleCenterForm.vue';
 import ModuleFieldForm from './components/ModuleFieldForm.vue';
 import ModuleTabForm from './components/ModuleTabForm.vue';
 import {
-  buildModuleContextPreview,
   buttonAreaLabelMap,
-  cloneModuleCenterTree,
-  findFirstEditableModule,
-  findModuleNode,
+  createModule,
+  createModuleButton,
+  createModuleField,
+  createModuleTab,
+  deleteModule,
+  deleteModuleButton,
+  deleteModuleField,
+  deleteModuleTab,
+  getModuleContextPreview,
+  getModuleDetail,
+  getModuleTree,
+  moduleTypeLabelMap,
+  updateModule,
+  updateModuleButton,
+  updateModuleField,
+  updateModuleTab,
   type ModuleButtonArea,
   type ModuleButtonDefinition,
+  type ModuleDetail,
   type ModuleFieldDefinition,
-  type ModuleNode,
-  type ModuleTabDefinition
-} from './moduleCenterMock';
+  type ModuleFormModel,
+  type ModuleTabDefinition,
+  type ModuleTreeNode,
+  type ModuleType,
+  type YesNo
+} from '@/api/moduleCenter';
 
-defineOptions({
-  name: 'SystemModuleCenter'
-});
+defineOptions({ name: 'SystemModuleCenter' });
+
+interface ModuleNode extends ModuleTreeNode {
+  routePath: string;
+  componentPath: string;
+  icon: string;
+  navVisible: YesNo;
+  stateFieldCode: string;
+  contextVersion: number;
+  note: string;
+  headerTabs: ModuleTabDefinition[];
+  detailTabs: ModuleTabDefinition[];
+  buttons: ModuleButtonDefinition[];
+  children?: ModuleNode[];
+}
 
 interface ModuleTabFormModel {
   id?: number;
@@ -378,23 +386,20 @@ interface ModuleTabFormModel {
   tabName?: string;
 }
 
-const moduleTypeLabelMap = {
-  BILL: '单据模块',
-  CATALOG: '目录',
-  PAGE: '页面'
-} as const;
-
 const treeRef = ref();
+const treeLoading = ref(false);
+const workspaceLoading = ref(false);
 const moduleKeyword = ref('');
-const moduleTree = ref<ModuleNode[]>(cloneModuleCenterTree());
+const moduleTree = ref<ModuleNode[]>([]);
 const selectedModuleId = ref<number>();
 const activePane = ref<'basic' | 'header' | 'detail' | 'button'>('basic');
 const activeHeaderTab = ref('');
 const activeDetailTab = ref('');
 const contextPreviewVisible = ref(false);
+const contextPreviewJson = ref('');
 const formVisible = ref(false);
 const formMode = ref<'create' | 'edit'>('create');
-const formInitial = ref<Partial<ModuleNode>>({});
+const formInitial = ref<Partial<ModuleFormModel>>({});
 const tabFormVisible = ref(false);
 const tabFormMode = ref<'create' | 'edit'>('create');
 const tabFormInitial = ref<Partial<ModuleTabFormModel>>({});
@@ -408,67 +413,92 @@ const buttonFormVisible = ref(false);
 const buttonFormMode = ref<'create' | 'edit'>('create');
 const buttonFormInitial = ref<Partial<ModuleButtonDefinition>>({});
 
-const selectedModule = computed(() => {
-  return findModuleNode(moduleTree.value, selectedModuleId.value);
-});
+function findModuleNode(nodes: ModuleNode[], id?: number): ModuleNode | undefined {
+  if (id === undefined) {
+    return undefined;
+  }
+  for (const node of nodes) {
+    if (node.id === id) {
+      return node;
+    }
+    if (node.children?.length) {
+      const matched = findModuleNode(node.children, id);
+      if (matched) {
+        return matched;
+      }
+    }
+  }
+  return undefined;
+}
 
+function findFirstEditableModule(nodes: ModuleNode[]): ModuleNode | undefined {
+  for (const node of nodes) {
+    if (node.moduleType !== 'CATALOG') {
+      return node;
+    }
+    if (node.children?.length) {
+      const matched = findFirstEditableModule(node.children);
+      if (matched) {
+        return matched;
+      }
+    }
+  }
+  return undefined;
+}
+
+function mapTreeNode(node: ModuleTreeNode): ModuleNode {
+  return {
+    ...node,
+    buttons: [],
+    children: node.children?.map(mapTreeNode),
+    componentPath: '',
+    contextVersion: 0,
+    detailTabs: [],
+    headerTabs: [],
+    icon: 'Document',
+    navVisible: '1',
+    note: '',
+    routePath: '',
+    stateFieldCode: ''
+  };
+}
+
+function resolveActiveTabCode(tabs: ModuleTabDefinition[], preferred?: string) {
+  if (preferred && tabs.some((item) => item.tabInfo.tabCode === preferred)) {
+    return preferred;
+  }
+  return tabs[0]?.tabInfo.tabCode || '';
+}
+
+const selectedModule = computed(() => findModuleNode(moduleTree.value, selectedModuleId.value));
 const selectedFieldCount = computed(() => {
   if (!selectedModule.value) {
     return 0;
   }
-  const headerCount = selectedModule.value.headerTabs.reduce((sum, tab) => sum + tab.fields.length, 0);
-  const detailCount = selectedModule.value.detailTabs.reduce((sum, tab) => sum + tab.fields.length, 0);
-  return headerCount + detailCount;
+  return [...selectedModule.value.headerTabs, ...selectedModule.value.detailTabs].reduce((sum, tab) => sum + tab.fields.length, 0);
 });
-
 const buttonGroups = computed(() => {
   if (!selectedModule.value) {
     return [] as Array<{ area: ModuleButtonArea; buttons: ModuleButtonDefinition[] }>;
   }
-  return (Object.keys(buttonAreaLabelMap) as ModuleButtonArea[]).map((area) => ({
-    area,
-    buttons: selectedModule.value?.buttons.filter((button) => button.area === area) || []
-  })).filter((group) => group.buttons.length > 0);
+  return (Object.keys(buttonAreaLabelMap) as ModuleButtonArea[])
+    .map((area) => ({
+      area,
+      buttons: selectedModule.value?.buttons.filter((button) => button.area === area) || []
+    }))
+    .filter((item) => item.buttons.length > 0);
 });
+const activeHeaderTabDef = computed(() => selectedModule.value?.headerTabs.find((tab) => tab.tabInfo.tabCode === activeHeaderTab.value));
+const activeDetailTabDef = computed(() => selectedModule.value?.detailTabs.find((tab) => tab.tabInfo.tabCode === activeDetailTab.value));
+const tabFormTitle = computed(() => `${tabFormMode.value === 'create' ? '新增' : '编辑'}${tabFormScope.value === 'header' ? '表头' : '明细'} Tab`);
+const fieldFormTitle = computed(() => `${fieldFormMode.value === 'create' ? '新增' : '编辑'}${fieldFormScope.value === 'header' ? '表头' : '明细'}字段`);
+const buttonFormTitle = computed(() => (buttonFormMode.value === 'create' ? '新增按钮' : '编辑按钮'));
 
-const activeHeaderTabDef = computed(() => {
-  return selectedModule.value?.headerTabs.find((tab) => tab.tabInfo.tabCode === activeHeaderTab.value);
-});
-
-const activeDetailTabDef = computed(() => {
-  return selectedModule.value?.detailTabs.find((tab) => tab.tabInfo.tabCode === activeDetailTab.value);
-});
-
-const tabFormTitle = computed(() => {
-  const scopeLabel = tabFormScope.value === 'header' ? '单头' : '明细';
-  return tabFormMode.value === 'create' ? `新增${scopeLabel} Tab` : `编辑${scopeLabel} Tab`;
-});
-
-const fieldFormTitle = computed(() => {
-  const scopeLabel = fieldFormScope.value === 'header' ? '单头' : '明细';
-  return fieldFormMode.value === 'create' ? `新增${scopeLabel}字段` : `编辑${scopeLabel}字段`;
-});
-
-const buttonFormTitle = computed(() => {
-  return buttonFormMode.value === 'create' ? '新增按钮' : '编辑按钮';
-});
-
-const contextPreviewJson = computed(() => {
-  if (!selectedModule.value) {
-    return '';
-  }
-  return JSON.stringify(buildModuleContextPreview(selectedModule.value), null, 2);
-});
-
-const sortBySort = <T extends { sort: number }>(left: T, right: T) => {
+function sortBySort<T extends { sort: number }>(left: T, right: T) {
   return left.sort - right.sort;
-};
+}
 
-const sortTabsByInfo = (left: ModuleTabDefinition, right: ModuleTabDefinition) => {
-  return left.tabInfo.sort - right.tabInfo.sort;
-};
-
-const getModuleTypeTagType = (type: ModuleNode['moduleType']) => {
+function getModuleTypeTagType(type: ModuleType) {
   if (type === 'BILL') {
     return 'success';
   }
@@ -476,77 +506,94 @@ const getModuleTypeTagType = (type: ModuleNode['moduleType']) => {
     return 'warning';
   }
   return 'info';
-};
+}
 
-const getModuleTypeLabel = (type: ModuleNode['moduleType']) => {
+function getModuleTypeLabel(type: ModuleType) {
   return moduleTypeLabelMap[type];
-};
+}
 
-const getButtonAreaLabel = (area: ModuleButtonArea) => {
+function getButtonAreaLabel(area: ModuleButtonArea) {
   return buttonAreaLabelMap[area];
-};
+}
 
-const nextEntityId = () => {
-  const collectMaxId = (nodes: ModuleNode[]): number => {
-    return nodes.reduce((max, node) => {
-      const headerMax = node.headerTabs.reduce((tabMax, tab) => {
-        const fieldMax = tab.fields.reduce((fieldInnerMax, field) => Math.max(fieldInnerMax, field.id), 0);
-        return Math.max(tabMax, tab.tabInfo.id, fieldMax);
-      }, 0);
-      const detailMax = node.detailTabs.reduce((tabMax, tab) => {
-        const fieldMax = tab.fields.reduce((fieldInnerMax, field) => Math.max(fieldInnerMax, field.id), 0);
-        return Math.max(tabMax, tab.tabInfo.id, fieldMax);
-      }, 0);
-      const buttonMax = node.buttons.reduce((buttonInnerMax, button) => Math.max(buttonInnerMax, button.id), 0);
-      const childMax = node.children?.length ? collectMaxId(node.children) : 0;
-      return Math.max(max, node.id, headerMax, detailMax, buttonMax, childMax);
-    }, 0);
-  };
-  return collectMaxId(moduleTree.value) + 1;
-};
-
-const getTabList = (scope: 'header' | 'detail', module = selectedModule.value) => {
+function getTabList(scope: 'header' | 'detail', module = selectedModule.value) {
   if (!module) {
     return undefined;
   }
   return scope === 'header' ? module.headerTabs : module.detailTabs;
-};
+}
 
-const getActiveTab = (scope: 'header' | 'detail', module = selectedModule.value) => {
+function getActiveTab(scope: 'header' | 'detail', module = selectedModule.value) {
   const list = getTabList(scope, module);
   if (!list) {
     return undefined;
   }
-  const activeCode = scope === 'header' ? activeHeaderTab.value : activeDetailTab.value;
-  return list.find((tab) => tab.tabInfo.tabCode === activeCode);
-};
+  return list.find((tab) => tab.tabInfo.tabCode === (scope === 'header' ? activeHeaderTab.value : activeDetailTab.value));
+}
 
-const touchModuleVersion = (module = selectedModule.value) => {
-  if (!module) {
-    return;
-  }
-  module.contextVersion += 1;
-};
+function filterNode(value: string, data: ModuleNode) {
+  return !value || data.moduleName.includes(value) || data.moduleCode.includes(value);
+}
 
-const filterNode = (value: string, data: ModuleNode) => {
-  if (!value) {
-    return true;
-  }
-  return data.moduleName.includes(value) || data.moduleCode.includes(value);
-};
-
-const selectModule = (id?: number) => {
+function selectModule(id?: number) {
   selectedModuleId.value = id;
   if (id !== undefined) {
     treeRef.value?.setCurrentKey(id);
   }
-};
+}
 
-const handleNodeClick = (node: ModuleNode) => {
-  selectModule(node.id);
-};
+function hydrateModuleDetail(detail: ModuleDetail, preferredHeader?: string, preferredDetail?: string) {
+  const currentNode = findModuleNode(moduleTree.value, detail.id);
+  if (!currentNode) {
+    return;
+  }
+  Object.assign(currentNode, detail);
+  activeHeaderTab.value = resolveActiveTabCode(detail.headerTabs, preferredHeader || activeHeaderTab.value);
+  activeDetailTab.value = resolveActiveTabCode(detail.detailTabs, preferredDetail || activeDetailTab.value);
+}
 
-const handleCreateRoot = () => {
+async function loadModuleDetail(id: number, preferredHeader?: string, preferredDetail?: string) {
+  workspaceLoading.value = true;
+  try {
+    const { data } = await getModuleDetail(id);
+    if (selectedModuleId.value === id) {
+      hydrateModuleDetail(data, preferredHeader, preferredDetail);
+    }
+  } finally {
+    workspaceLoading.value = false;
+  }
+}
+
+async function handleModuleSelection(id?: number) {
+  selectModule(id);
+  if (id === undefined) {
+    activeHeaderTab.value = '';
+    activeDetailTab.value = '';
+    return;
+  }
+  await loadModuleDetail(id);
+}
+
+async function loadTree(preferId?: number) {
+  treeLoading.value = true;
+  try {
+    const { data } = await getModuleTree();
+    moduleTree.value = data.map(mapTreeNode);
+    const nextId = findModuleNode(moduleTree.value, preferId)?.id
+      || findModuleNode(moduleTree.value, selectedModuleId.value)?.id
+      || findFirstEditableModule(moduleTree.value)?.id
+      || moduleTree.value[0]?.id;
+    await handleModuleSelection(nextId);
+  } finally {
+    treeLoading.value = false;
+  }
+}
+
+function handleNodeClick(node: ModuleNode) {
+  void handleModuleSelection(node.id);
+}
+
+function handleCreateRoot() {
   formMode.value = 'create';
   formInitial.value = {
     componentPath: '',
@@ -564,9 +611,9 @@ const handleCreateRoot = () => {
     status: '0'
   };
   formVisible.value = true;
-};
+}
 
-const handleCreateChild = () => {
+function handleCreateChild() {
   if (!selectedModule.value) {
     return;
   }
@@ -587,156 +634,74 @@ const handleCreateChild = () => {
     status: '0'
   };
   formVisible.value = true;
-};
+}
 
-const handleEditModule = () => {
+function handleEditModule() {
   if (!selectedModule.value) {
     return;
   }
   formMode.value = 'edit';
   formInitial.value = { ...selectedModule.value };
   formVisible.value = true;
-};
+}
 
-const findMaxId = (nodes: ModuleNode[]): number => {
-  return nodes.reduce((max, node) => {
-    const childMax = node.children?.length ? findMaxId(node.children) : node.id;
-    return Math.max(max, node.id, childMax);
-  }, 0);
-};
-
-const appendChildModule = (nodes: ModuleNode[], parentId: number, child: ModuleNode): boolean => {
-  for (const node of nodes) {
-    if (node.id === parentId) {
-      node.children = node.children || [];
-      node.children.push(child);
-      node.children.sort(sortBySort);
-      return true;
-    }
-    if (node.children?.length && appendChildModule(node.children, parentId, child)) {
-      return true;
-    }
-  }
-  return false;
-};
-
-const removeModuleNode = (nodes: ModuleNode[], id: number): ModuleNode | undefined => {
-  for (let index = 0; index < nodes.length; index += 1) {
-    const node = nodes[index]!;
-    if (node.id === id) {
-      return nodes.splice(index, 1)[0];
-    }
-    if (node.children?.length) {
-      const removed = removeModuleNode(node.children, id);
-      if (removed) {
-        return removed;
-      }
-    }
-  }
-  return undefined;
-};
-
-const updateModuleNode = (nodes: ModuleNode[], payload: ModuleNode): boolean => {
-  for (let index = 0; index < nodes.length; index += 1) {
-    const node = nodes[index]!;
-    if (node.id === payload.id) {
-      nodes[index] = {
-        ...node,
-        ...payload,
-        children: node.children
-      };
-      return true;
-    }
-    if (node.children?.length && updateModuleNode(node.children, payload)) {
-      return true;
-    }
-  }
-  return false;
-};
-
-const sortTreeNodes = (nodes: ModuleNode[]) => {
-  nodes.sort(sortBySort);
-  nodes.forEach((node) => {
-    if (node.children?.length) {
-      sortTreeNodes(node.children);
-    }
-  });
-};
-
-const handleFormSubmit = (payload: Partial<ModuleNode>) => {
-  if (formMode.value === 'create') {
-    const newId = findMaxId(moduleTree.value) + 1;
-    const nextModule: ModuleNode = {
-      buttons: [],
-      children: [],
-      contextVersion: 1,
-      detailTabs: [],
-      headerTabs: [],
-      id: newId,
-      moduleCode: payload.moduleCode || `module_${newId}`,
-      moduleName: payload.moduleName || '未命名模块',
-      moduleType: payload.moduleType || 'PAGE',
-      navVisible: payload.navVisible || '1',
-      note: payload.note || '',
-      parentId: payload.parentId || 0,
-      routePath: payload.routePath || '',
-      componentPath: payload.componentPath || '',
-      icon: payload.icon || 'Document',
-      sort: payload.sort || 1,
-      stateFieldCode: payload.stateFieldCode || '',
-      statefulFlag: payload.statefulFlag || '0',
-      status: payload.status || '0'
-    };
-
-    if (nextModule.parentId === 0) {
-      moduleTree.value.push(nextModule);
-      moduleTree.value.sort(sortBySort);
-    } else {
-      appendChildModule(moduleTree.value, nextModule.parentId, nextModule);
-    }
-
-    sortTreeNodes(moduleTree.value);
-    selectModule(newId);
-    ElMessage.success('模块已加入本地原型数据');
+async function handleDeleteModule() {
+  if (!selectedModule.value) {
     return;
   }
-
-  if (payload.id === undefined) {
+  const currentId = selectedModule.value.id;
+  const parentId = selectedModule.value.parentId;
+  try {
+    await ElMessageBox.confirm(`确认删除模块「${selectedModule.value.moduleName}」吗？`, '删除提示', {
+      cancelButtonText: '取消',
+      confirmButtonText: '确定删除',
+      type: 'warning'
+    });
+  } catch {
     return;
   }
+  await deleteModule(currentId);
+  ElMessage.success('模块删除成功');
+  await loadTree(parentId > 0 ? parentId : undefined);
+}
 
-  const currentModule = findModuleNode(moduleTree.value, payload.id);
-  if (!currentModule) {
-    return;
-  }
-
-  const nextModule: ModuleNode = {
-    ...currentModule,
-    ...payload,
-    children: currentModule.children || []
+async function handleFormSubmit(payload: ModuleFormModel) {
+  const requestPayload: ModuleFormModel = {
+    componentPath: payload.componentPath || '',
+    icon: payload.icon || 'Document',
+    moduleCode: payload.moduleCode || '',
+    moduleName: payload.moduleName || '',
+    moduleType: payload.moduleType || 'PAGE',
+    navVisible: payload.navVisible || '1',
+    note: payload.note || '',
+    parentId: payload.parentId || 0,
+    routePath: payload.routePath || '',
+    sort: payload.sort || 1,
+    stateFieldCode: payload.stateFieldCode || '',
+    statefulFlag: payload.statefulFlag || '0',
+    status: payload.status || '0'
   };
-
-  if (currentModule.parentId !== nextModule.parentId) {
-    removeModuleNode(moduleTree.value, nextModule.id);
-    if (nextModule.parentId === 0) {
-      moduleTree.value.push(nextModule);
-    } else {
-      appendChildModule(moduleTree.value, nextModule.parentId, nextModule);
-    }
-  } else {
-    updateModuleNode(moduleTree.value, nextModule);
+  if (formMode.value === 'create') {
+    const { data } = await createModule(requestPayload);
+    ElMessage.success('模块新增成功');
+    formVisible.value = false;
+    await loadTree(data);
+    return;
   }
-
-  sortTreeNodes(moduleTree.value);
-  selectModule(payload.id);
-  ElMessage.success('模块信息已更新');
-};
-
-const handleFormCancel = () => {
+  if (!payload.id) {
+    return;
+  }
+  await updateModule({ ...requestPayload, id: payload.id });
+  ElMessage.success('模块编辑成功');
   formVisible.value = false;
-};
+  await loadTree(payload.id);
+}
 
-const handleCreateTab = (scope: 'header' | 'detail') => {
+function handleFormCancel() {
+  formVisible.value = false;
+}
+
+function handleCreateTab(scope: 'header' | 'detail') {
   tabFormScope.value = scope;
   tabFormMode.value = 'create';
   tabFormInitial.value = {
@@ -746,106 +711,87 @@ const handleCreateTab = (scope: 'header' | 'detail') => {
     tabName: ''
   };
   tabFormVisible.value = true;
-};
+}
 
-const handleEditTab = (scope: 'header' | 'detail') => {
+function handleEditTab(scope: 'header' | 'detail') {
   const currentTab = getActiveTab(scope);
   if (!currentTab) {
-    ElMessage.warning('请先选择一个 Tab');
+    ElMessage.warning('请先选择需要编辑的 Tab');
     return;
   }
   tabFormScope.value = scope;
   tabFormMode.value = 'edit';
   tabFormInitial.value = { ...currentTab.tabInfo };
   tabFormVisible.value = true;
-};
+}
 
-const handleDeleteTab = async (scope: 'header' | 'detail') => {
+async function handleDeleteTab(scope: 'header' | 'detail') {
   const module = selectedModule.value;
   const currentTab = getActiveTab(scope);
   if (!module || !currentTab) {
-    ElMessage.warning('请先选择一个 Tab');
+    ElMessage.warning('请先选择需要删除的 Tab');
     return;
   }
-
-  await ElMessageBox.confirm(`确认删除 Tab “${currentTab.tabInfo.tabName}” 吗？`, '提示', {
-    cancelButtonText: '取消',
-    confirmButtonText: '确定',
-    type: 'warning'
-  });
-
-  const tabList = getTabList(scope, module);
-  if (!tabList) {
+  try {
+    await ElMessageBox.confirm(`确认删除 Tab「${currentTab.tabInfo.tabName}」吗？`, '删除提示', {
+      cancelButtonText: '取消',
+      confirmButtonText: '确定删除',
+      type: 'warning'
+    });
+  } catch {
     return;
   }
-  const index = tabList.findIndex((tab) => tab.tabInfo.id === currentTab.tabInfo.id);
-  if (index >= 0) {
-    tabList.splice(index, 1);
-  }
-  if (scope === 'header') {
-    activeHeaderTab.value = tabList[0]?.tabInfo.tabCode || '';
-  } else {
-    activeDetailTab.value = tabList[0]?.tabInfo.tabCode || '';
-  }
-  touchModuleVersion(module);
-  ElMessage.success('Tab 已删除');
-};
+  await deleteModuleTab(currentTab.tabInfo.id);
+  ElMessage.success('Tab 删除成功');
+  await loadModuleDetail(module.id);
+}
 
-const handleTabFormSubmit = (payload: Partial<ModuleTabFormModel>) => {
+async function handleTabFormSubmit(payload: Partial<ModuleTabFormModel>) {
   const module = selectedModule.value;
-  const tabList = getTabList(tabFormScope.value, module);
-  if (!module || !tabList) {
+  if (!module) {
     return;
   }
-
+  const tabScope = tabFormScope.value === 'header' ? 'HEADER' : 'DETAIL';
   if (tabFormMode.value === 'create') {
-    const nextTab: ModuleTabDefinition = {
-      fields: [],
-      tabInfo: {
-        id: nextEntityId(),
-        note: payload.note || '',
-        sort: payload.sort || tabList.length + 1,
-        tabCode: payload.tabCode || `tab_${Date.now()}`,
-        tabName: payload.tabName || '未命名 Tab'
-      }
-    };
-    tabList.push(nextTab);
-    tabList.sort(sortTabsByInfo);
-    if (tabFormScope.value === 'header') {
-      activeHeaderTab.value = nextTab.tabInfo.tabCode;
-    } else {
-      activeDetailTab.value = nextTab.tabInfo.tabCode;
-    }
-    touchModuleVersion(module);
-    ElMessage.success('Tab 已新增');
-    return;
+    await createModuleTab({
+      moduleId: module.id,
+      note: payload.note || '',
+      sort: payload.sort || (getTabList(tabFormScope.value)?.length || 0) + 1,
+      status: '0',
+      tabCode: payload.tabCode || '',
+      tabName: payload.tabName || '',
+      tabScope
+    });
+    ElMessage.success('Tab 新增成功');
+  } else if (payload.id) {
+    await updateModuleTab({
+      id: payload.id,
+      moduleId: module.id,
+      note: payload.note || '',
+      sort: payload.sort || 1,
+      status: '0',
+      tabCode: payload.tabCode || '',
+      tabName: payload.tabName || '',
+      tabScope
+    });
+    ElMessage.success('Tab 编辑成功');
   }
-
-  const currentTab = tabList.find((tab) => tab.tabInfo.id === payload.id);
-  if (!currentTab) {
-    return;
-  }
-  const previousCode = currentTab.tabInfo.tabCode;
-  Object.assign(currentTab.tabInfo, payload);
-  tabList.sort(sortTabsByInfo);
-  if (tabFormScope.value === 'header' && activeHeaderTab.value === previousCode) {
-    activeHeaderTab.value = currentTab.tabInfo.tabCode;
-  }
-  if (tabFormScope.value === 'detail' && activeDetailTab.value === previousCode) {
-    activeDetailTab.value = currentTab.tabInfo.tabCode;
-  }
-  touchModuleVersion(module);
-  ElMessage.success('Tab 已更新');
-};
-
-const handleTabFormCancel = () => {
   tabFormVisible.value = false;
-};
+  await loadModuleDetail(
+    module.id,
+    tabFormScope.value === 'header' ? payload.tabCode : activeHeaderTab.value,
+    tabFormScope.value === 'detail' ? payload.tabCode : activeDetailTab.value
+  );
+}
 
-const handleCreateField = (scope: 'header' | 'detail') => {
+function handleTabFormCancel() {
+  tabFormVisible.value = false;
+}
+
+function handleCreateField(scope: 'header' | 'detail') {
   const currentTab = getActiveTab(scope);
   if (!currentTab) {
-    ElMessage.warning('请先新增并选中一个 Tab');
+    ElMessage.warning('请先选择一个 Tab，再新增字段');
     return;
   }
   fieldFormScope.value = scope;
@@ -862,80 +808,79 @@ const handleCreateField = (scope: 'header' | 'detail') => {
     valueType: 'string'
   };
   fieldFormVisible.value = true;
-};
+}
 
-const handleEditField = (scope: 'header' | 'detail', tabCode: string, field: ModuleFieldDefinition) => {
+function handleEditField(scope: 'header' | 'detail', tabCode: string, field: ModuleFieldDefinition) {
   fieldFormScope.value = scope;
   fieldFormTabCode.value = tabCode;
   fieldFormMode.value = 'edit';
   fieldFormInitial.value = { ...field };
   fieldFormVisible.value = true;
-};
+}
 
-const handleDeleteField = async (scope: 'header' | 'detail', tabCode: string, field: ModuleFieldDefinition) => {
+async function handleDeleteField(scope: 'header' | 'detail', tabCode: string, field: ModuleFieldDefinition) {
   const module = selectedModule.value;
-  const tabList = getTabList(scope, module);
-  const currentTab = tabList?.find((tab) => tab.tabInfo.tabCode === tabCode);
+  if (!module) {
+    return;
+  }
+  try {
+    await ElMessageBox.confirm(`确认删除字段「${field.defaultTitle}」吗？`, '删除提示', {
+      cancelButtonText: '取消',
+      confirmButtonText: '确定删除',
+      type: 'warning'
+    });
+  } catch {
+    return;
+  }
+  await deleteModuleField(field.id);
+  ElMessage.success('字段删除成功');
+  await loadModuleDetail(
+    module.id,
+    scope === 'header' ? tabCode : activeHeaderTab.value,
+    scope === 'detail' ? tabCode : activeDetailTab.value
+  );
+}
+
+async function handleFieldFormSubmit(payload: Partial<ModuleFieldDefinition>) {
+  const module = selectedModule.value;
+  const currentTab = getTabList(fieldFormScope.value, module)?.find((tab) => tab.tabInfo.tabCode === fieldFormTabCode.value);
   if (!module || !currentTab) {
     return;
   }
-
-  await ElMessageBox.confirm(`确认删除字段 “${field.defaultTitle}” 吗？`, '提示', {
-    cancelButtonText: '取消',
-    confirmButtonText: '确定',
-    type: 'warning'
-  });
-
-  const index = currentTab.fields.findIndex((item) => item.id === field.id);
-  if (index >= 0) {
-    currentTab.fields.splice(index, 1);
-  }
-  touchModuleVersion(module);
-  ElMessage.success('字段已删除');
-};
-
-const handleFieldFormSubmit = (payload: Partial<ModuleFieldDefinition>) => {
-  const module = selectedModule.value;
-  const tabList = getTabList(fieldFormScope.value, module);
-  const currentTab = tabList?.find((tab) => tab.tabInfo.tabCode === fieldFormTabCode.value);
-  if (!module || !currentTab) {
-    return;
-  }
-
+  const requestPayload = {
+    componentType: payload.componentType || 'input',
+    dataPath: payload.dataPath || '',
+    defaultTitle: payload.defaultTitle || '',
+    fieldCode: payload.fieldCode || '',
+    fieldScope: currentTab.tabInfo.tabScope,
+    moduleId: module.id,
+    note: payload.note || '',
+    requiredFlag: (payload.requiredFlag || '0') as YesNo,
+    sort: payload.sort || currentTab.fields.length + 1,
+    status: '0' as YesNo,
+    tabId: currentTab.tabInfo.id,
+    valueType: payload.valueType || 'string'
+  };
   if (fieldFormMode.value === 'create') {
-    const nextField: ModuleFieldDefinition = {
-      componentType: payload.componentType || 'input',
-      dataPath: payload.dataPath || '',
-      defaultTitle: payload.defaultTitle || '未命名字段',
-      fieldCode: payload.fieldCode || `field_${Date.now()}`,
-      id: nextEntityId(),
-      note: payload.note || '',
-      requiredFlag: payload.requiredFlag || '0',
-      sort: payload.sort || currentTab.fields.length + 1,
-      valueType: payload.valueType || 'string'
-    };
-    currentTab.fields.push(nextField);
-    currentTab.fields.sort(sortBySort);
-    touchModuleVersion(module);
-    ElMessage.success('字段已新增');
-    return;
+    await createModuleField(requestPayload);
+    ElMessage.success('字段新增成功');
+  } else if (payload.id) {
+    await updateModuleField({ ...requestPayload, id: payload.id });
+    ElMessage.success('字段编辑成功');
   }
-
-  const currentField = currentTab.fields.find((field) => field.id === payload.id);
-  if (!currentField) {
-    return;
-  }
-  Object.assign(currentField, payload);
-  currentTab.fields.sort(sortBySort);
-  touchModuleVersion(module);
-  ElMessage.success('字段已更新');
-};
-
-const handleFieldFormCancel = () => {
   fieldFormVisible.value = false;
-};
+  await loadModuleDetail(
+    module.id,
+    fieldFormScope.value === 'header' ? fieldFormTabCode.value : activeHeaderTab.value,
+    fieldFormScope.value === 'detail' ? fieldFormTabCode.value : activeDetailTab.value
+  );
+}
 
-const handleCreateButton = () => {
+function handleFieldFormCancel() {
+  fieldFormVisible.value = false;
+}
+
+function handleCreateButton() {
   if (!selectedModule.value) {
     return;
   }
@@ -948,447 +893,115 @@ const handleCreateButton = () => {
     sort: selectedModule.value.buttons.length + 1
   };
   buttonFormVisible.value = true;
-};
+}
 
-const handleEditButton = (button: ModuleButtonDefinition) => {
+function handleEditButton(button: ModuleButtonDefinition) {
   buttonFormMode.value = 'edit';
   buttonFormInitial.value = { ...button };
   buttonFormVisible.value = true;
-};
+}
 
-const handleDeleteButton = async (button: ModuleButtonDefinition) => {
+async function handleDeleteButton(button: ModuleButtonDefinition) {
   const module = selectedModule.value;
   if (!module) {
     return;
   }
-
-  await ElMessageBox.confirm(`确认删除按钮 “${button.defaultTitle}” 吗？`, '提示', {
-    cancelButtonText: '取消',
-    confirmButtonText: '确定',
-    type: 'warning'
-  });
-
-  const index = module.buttons.findIndex((item) => item.id === button.id);
-  if (index >= 0) {
-    module.buttons.splice(index, 1);
+  try {
+    await ElMessageBox.confirm(`确认删除按钮「${button.defaultTitle}」吗？`, '删除提示', {
+      cancelButtonText: '取消',
+      confirmButtonText: '确定删除',
+      type: 'warning'
+    });
+  } catch {
+    return;
   }
-  touchModuleVersion(module);
-  ElMessage.success('按钮已删除');
-};
+  await deleteModuleButton(button.id);
+  ElMessage.success('按钮删除成功');
+  await loadModuleDetail(module.id, activeHeaderTab.value, activeDetailTab.value);
+}
 
-const handleButtonFormSubmit = (payload: Partial<ModuleButtonDefinition>) => {
+async function handleButtonFormSubmit(payload: Partial<ModuleButtonDefinition>) {
   const module = selectedModule.value;
   if (!module) {
     return;
   }
-
+  const requestPayload = {
+    area: (payload.area || 'HEADER_TOOLBAR') as ModuleButtonArea,
+    buttonCode: payload.buttonCode || '',
+    defaultTitle: payload.defaultTitle || '',
+    moduleId: module.id,
+    note: payload.note || '',
+    sort: payload.sort || module.buttons.length + 1,
+    status: '0' as YesNo
+  };
   if (buttonFormMode.value === 'create') {
-    const nextButton: ModuleButtonDefinition = {
-      area: payload.area || 'HEADER_TOOLBAR',
-      buttonCode: payload.buttonCode || `button_${Date.now()}`,
-      defaultTitle: payload.defaultTitle || '未命名按钮',
-      id: nextEntityId(),
-      note: payload.note || '',
-      sort: payload.sort || module.buttons.length + 1
-    };
-    module.buttons.push(nextButton);
-    module.buttons.sort(sortBySort);
-    touchModuleVersion(module);
-    ElMessage.success('按钮已新增');
-    return;
+    await createModuleButton(requestPayload);
+    ElMessage.success('按钮新增成功');
+  } else if (payload.id) {
+    await updateModuleButton({ ...requestPayload, id: payload.id });
+    ElMessage.success('按钮编辑成功');
   }
-
-  const currentButton = module.buttons.find((button) => button.id === payload.id);
-  if (!currentButton) {
-    return;
-  }
-  Object.assign(currentButton, payload);
-  module.buttons.sort(sortBySort);
-  touchModuleVersion(module);
-  ElMessage.success('按钮已更新');
-};
-
-const handleButtonFormCancel = () => {
   buttonFormVisible.value = false;
-};
+  await loadModuleDetail(module.id, activeHeaderTab.value, activeDetailTab.value);
+}
 
-const openContextPreview = () => {
+function handleButtonFormCancel() {
+  buttonFormVisible.value = false;
+}
+
+async function openContextPreview() {
   if (!selectedModule.value) {
     return;
   }
+  const { data } = await getModuleContextPreview(selectedModule.value.id);
+  contextPreviewJson.value = JSON.stringify(data, null, 2);
   contextPreviewVisible.value = true;
-};
-
-watch(moduleKeyword, (val) => {
-  treeRef.value?.filter(val);
-});
-
-watch(selectedModule, (module) => {
-  if (!module) {
-    activeHeaderTab.value = '';
-    activeDetailTab.value = '';
-    return;
-  }
-  activeHeaderTab.value = module.headerTabs[0]?.tabInfo.tabCode || '';
-  activeDetailTab.value = module.detailTabs[0]?.tabInfo.tabCode || '';
-}, { immediate: true });
-
-const firstModule = findFirstEditableModule(moduleTree.value) || moduleTree.value[0];
-if (firstModule) {
-  selectModule(firstModule.id);
 }
 
+watch(moduleKeyword, (value) => {
+  treeRef.value?.filter(value);
+});
+
 onMounted(() => {
-  nextTick(() => {
-    if (selectedModuleId.value !== undefined) {
-      treeRef.value?.setCurrentKey(selectedModuleId.value);
-    }
+  void loadTree().then(() => {
+    nextTick(() => {
+      if (selectedModuleId.value !== undefined) {
+        treeRef.value?.setCurrentKey(selectedModuleId.value);
+      }
+    });
   });
 });
 </script>
 
 <style scoped>
-.module-center-page {
-  box-sizing: border-box;
-  height: 100%;
-  overflow: hidden;
-}
-
-:deep(.module-center-page > .el-row) {
-  height: 100%;
-}
-
-.module-tree-col,
-.module-workspace-col {
-  display: flex;
-  height: 100%;
-  min-height: 0;
-  flex-direction: column;
-}
-
-.module-tree-card,
-.module-workspace-card {
-  border-radius: 12px;
-}
-
-.module-tree-card,
-.module-workspace-card {
-  display: flex;
-  height: 100%;
-  min-height: 0;
-  flex: 1;
-  flex-direction: column;
-}
-
-:deep(.module-tree-card .el-card__body),
-:deep(.module-workspace-card .el-card__body) {
-  display: flex;
-  min-height: 0;
-  flex: 1;
-  overflow: hidden;
-  flex-direction: column;
-}
-
-.card-header,
-.overview-header,
-.tab-toolbar,
-.button-group-card__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.module-search {
-  margin-bottom: 12px;
-}
-
-.tree-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.module-tree-scrollbar {
-  min-height: 0;
-  flex: 1;
-}
-
-.tree-node {
-  display: block;
-  width: 100%;
-  min-width: 0;
-  padding-right: 8px;
-}
-
-.tree-node__head {
-  display: flex;
-  width: 100%;
-  min-width: 0;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.tree-node__label {
-  min-width: 0;
-  flex: 1;
-  color: var(--el-text-color-primary);
-  font-weight: 500;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.tree-node__code {
-  width: 100%;
-  margin-top: 4px;
-  color: var(--el-text-color-secondary);
-  font-size: 12px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  line-height: 1.35;
-}
-
-.tree-node__meta {
-  flex-shrink: 0;
-}
-
-:deep(.module-tree-card .el-tree-node__content) {
-  height: auto;
-  align-items: flex-start;
-  padding: 8px 0 8px 2px;
-}
-
-:deep(.module-tree-card .el-tree-node__expand-icon) {
-  margin-top: 10px;
-}
-
-:deep(.module-tree-card .el-tree-node) {
-  min-width: 0;
-}
-
-.overview-title {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-  font-size: 20px;
-  font-weight: 600;
-}
-
-.overview-subtitle {
-  color: var(--el-text-color-secondary);
-  line-height: 1.7;
-}
-
-.overview-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.metric-row {
-  margin: 18px 0 8px;
-}
-
-.metric-card,
-.inner-card {
-  height: 100%;
-  border: 1px solid var(--el-border-color-lighter);
-  border-radius: 12px;
-  background: linear-gradient(180deg, #fcfdff 0%, #f8fafc 100%);
-}
-
-.metric-card {
-  padding: 16px 18px;
-}
-
-.metric-card__label {
-  color: var(--el-text-color-secondary);
-  font-size: 13px;
-}
-
-.metric-card__value {
-  margin-top: 10px;
-  color: var(--el-text-color-primary);
-  font-size: 28px;
-  font-weight: 600;
-}
-
-.module-descriptions {
-  margin-top: 16px;
-}
-
-.module-workspace-col :deep(.el-empty) {
-  display: flex;
-  height: 100%;
-  align-items: center;
-  justify-content: center;
-}
-
-.workspace-overview {
-  display: flex;
-  flex-shrink: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding-right: 4px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--el-border-color-lighter);
-  flex-direction: column;
-}
-
-.workspace-main {
-  display: flex;
-  min-height: 0;
-  flex: 1;
-  flex-direction: column;
-  overflow: hidden;
-  padding-top: 16px;
-}
-
-.tab-toolbar {
-  margin-bottom: 16px;
-  flex-shrink: 0;
-}
-
-.tab-toolbar__title {
-  color: var(--el-text-color-primary);
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.tab-toolbar__actions {
-  display: flex;
-  gap: 8px;
-}
-
-.tips-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 14px;
-  color: var(--el-text-color-regular);
-  line-height: 1.7;
-}
-
-.sub-tabs {
-  background: #fff;
-  display: flex;
-  min-height: 0;
-  height: 100%;
-  flex: 1;
-  overflow: hidden;
-  flex-direction: column;
-}
-
-.sub-tab-summary {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 14px;
-  color: var(--el-text-color-secondary);
-  font-size: 13px;
-}
-
-.button-group-card + .button-group-card {
-  margin-top: 18px;
-}
-
-.button-group-card__header {
-  margin-bottom: 10px;
-  color: var(--el-text-color-primary);
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.preview-header {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.context-preview {
-  min-height: calc(100vh - 220px);
-  overflow: auto;
-  margin: 0;
-  padding: 16px;
-  border-radius: 12px;
-  background: #0f172a;
-  color: #dbeafe;
-  font-size: 13px;
-  line-height: 1.65;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-.workspace-tabs {
-  display: flex;
-  min-height: 0;
-  height: 100%;
-  flex: 1;
-  overflow: hidden;
-  flex-direction: column;
-}
-
-:deep(.workspace-tabs > .el-tabs__header),
-:deep(.sub-tabs > .el-tabs__header) {
-  flex-shrink: 0;
-}
-
-:deep(.workspace-tabs > .el-tabs__content),
-:deep(.sub-tabs > .el-tabs__content) {
-  display: flex;
-  min-height: 0;
-  flex: 1;
-  overflow: hidden;
-}
-
-:deep(.workspace-tabs > .el-tabs__content > .el-tab-pane) {
-  display: flex;
-  min-height: 0;
-  height: 100%;
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding-right: 4px;
-  flex-direction: column;
-}
-
-:deep(.sub-tabs > .el-tabs__content > .el-tab-pane) {
-  min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding-right: 4px;
-}
-
-@media (max-width: 1280px) {
-  .overview-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .overview-actions {
-    width: 100%;
-  }
-
-  .module-center-page {
-    height: auto;
-    min-height: calc(100vh - 84px);
-  }
-
-  :deep(.module-center-page > .el-row) {
-    height: auto;
-  }
-
-  .module-tree-col,
-  .module-workspace-col,
-  .module-tree-card,
-  .module-workspace-card {
-    min-height: auto;
-  }
-}
+.module-center-page,.module-tree-col,.module-workspace-col,.module-tree-card,.module-workspace-card{height:100%;min-height:0}
+.module-center-page{box-sizing:border-box;overflow:hidden}
+:deep(.module-center-page > .el-row),:deep(.module-tree-card .el-card__body),:deep(.module-workspace-card .el-card__body){height:100%}
+.module-tree-col,.module-workspace-col,.module-tree-card,.module-workspace-card,:deep(.module-tree-card .el-card__body),:deep(.module-workspace-card .el-card__body),.workspace-overview{display:flex;flex-direction:column}
+.module-tree-col,.module-workspace-col,:deep(.module-tree-card .el-card__body),:deep(.module-workspace-card .el-card__body),.module-tree-card,.module-workspace-card,.module-tree-scrollbar,.workspace-tabs{flex:1}
+.module-tree-card,.module-workspace-card,.metric-card{border-radius:12px}
+.card-header,.overview-header,.tab-toolbar,.button-group-card__header,.overview-actions,.tree-toolbar,.tab-toolbar__actions,.sub-tab-summary{display:flex;gap:8px}
+.card-header,.overview-header,.tab-toolbar,.button-group-card__header{align-items:center;justify-content:space-between}
+.overview-actions,.tree-toolbar,.tab-toolbar__actions,.sub-tab-summary{flex-wrap:wrap}
+.module-search,.tree-toolbar,.tab-toolbar,.module-descriptions,.button-group-card + .button-group-card{margin-bottom:12px}
+.tree-node__head,.workspace-empty{display:flex}
+.tree-node__head{justify-content:space-between;gap:8px}
+.tree-node,.tree-node__head,.tree-node__label{min-width:0}
+.tree-node__label{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tree-node__code,.overview-subtitle,.sub-tab-summary{color:var(--el-text-color-secondary);font-size:13px}
+.tree-node__code{margin-top:4px;line-height:1.35}
+:deep(.module-tree-card .el-tree-node__content){height:auto;align-items:flex-start;padding:8px 0 8px 2px}
+:deep(.module-tree-card .el-tree-node__expand-icon){margin-top:10px}
+.workspace-empty{min-height:0;align-items:center;justify-content:center}
+.workspace-overview{flex-shrink:0;padding-bottom:16px;border-bottom:1px solid var(--el-border-color-lighter)}
+.overview-title{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px;font-size:20px;font-weight:600}
+.metric-row{margin:18px 0 12px}
+.metric-card{height:100%;border:1px solid var(--el-border-color-lighter);background:linear-gradient(180deg,#fcfdff 0%,#f8fafc 100%);padding:16px 18px}
+.metric-card__label{color:var(--el-text-color-secondary);font-size:13px}
+.metric-card__value{margin-top:10px;font-size:28px;font-weight:600}
+.workspace-tabs,:deep(.workspace-tabs > .el-tabs__content),.sub-tabs,:deep(.sub-tabs > .el-tabs__content){display:flex;min-height:0;overflow:hidden}
+.workspace-tabs,.sub-tabs,:deep(.workspace-tabs > .el-tabs__content),:deep(.sub-tabs > .el-tabs__content){flex:1}
+:deep(.workspace-tabs > .el-tabs__content > .el-tab-pane),:deep(.sub-tabs > .el-tabs__content > .el-tab-pane){min-height:0;overflow:auto;padding-right:4px}
+.context-preview{min-height:calc(100vh - 220px);overflow:auto;margin:0;padding:16px;border-radius:12px;background:#0f172a;color:#dbeafe;font-size:13px;line-height:1.65;white-space:pre-wrap;word-break:break-word}
+@media (max-width:1280px){.module-center-page{height:auto;min-height:calc(100vh - 84px)}:deep(.module-center-page > .el-row){height:auto}.overview-header{flex-direction:column;align-items:flex-start}.overview-actions{width:100%}}
 </style>

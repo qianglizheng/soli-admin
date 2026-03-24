@@ -61,13 +61,22 @@ export interface ModuleButtonDefinition {
   note?: string;
 }
 
-export interface ModuleNode extends ModuleTreeNode {
+export interface ModuleDetail {
+  id: number;
+  parentId: number;
+  ancestors?: string;
+  moduleCode: string;
+  moduleName: string;
+  moduleType: ModuleType;
   routePath: string;
   componentPath: string;
   icon: string;
+  sort: number;
   navVisible: YesNo;
+  statefulFlag: YesNo;
   stateFieldCode: string;
   contextVersion: number;
+  status: YesNo;
   note: string;
   headerTabs: ModuleTabDefinition[];
   detailTabs: ModuleTabDefinition[];
@@ -158,7 +167,7 @@ export function getModuleTree() {
 }
 
 export function getModuleDetail(id: number) {
-  return request<ApiResponse<ModuleNode>>({
+  return request<ApiResponse<ModuleDetail>>({
     method: 'get',
     url: `/sys/module/${id}`
   });

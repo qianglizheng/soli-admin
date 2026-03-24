@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="app-container state-auth-page">
     <el-row :gutter="16" style="height: 100%">
       <el-col :span="6" class="module-tree-col">
@@ -11,7 +11,7 @@
           </template>
 
           <el-alert
-            title="当前页只维护状态维度附加限制，只展示状态型模块，不维护岗位基线。"
+            title="当前页只维护状态维度的附加限制，只展示状态型模块，不维护岗位基线。"
             type="info"
             :closable="false"
             show-icon
@@ -71,7 +71,7 @@
                     </el-tag>
                   </div>
                   <div class="overview-subtitle">
-                    当前页只维护状态附加限制，选择“不收紧”表示保留岗位基线结果；最终权限按 `min(岗位基线, 状态限制)` 合并。
+                    当前页面只维护状态附加限制，选择“不收紧”表示保留岗位基线结果；最终权限按 `min(岗位基线, 状态限制)` 合并。
                   </div>
                 </div>
 
@@ -235,6 +235,7 @@
                       </el-row>
                     </div>
                   </el-tab-pane>
+
                   <el-tab-pane label="流转规则" name="transition">
                     <div class="editor-pane">
                       <el-table :data="transitionList" border>
@@ -244,7 +245,7 @@
                           <template #default="scope">
                             <div class="transition-cell">
                               <el-tag size="small" effect="plain">{{ scope.row.fromStateCode }}</el-tag>
-                              <span class="transition-cell__arrow">→</span>
+                              <span class="transition-cell__arrow">-&gt;</span>
                               <el-tag size="small" type="success" effect="plain">{{ scope.row.toStateCode }}</el-tag>
                             </div>
                           </template>
@@ -307,8 +308,8 @@
                   <el-tab-pane label="字段权限" name="field">
                     <div class="editor-pane">
                       <el-tabs v-model="activeFieldScope" class="field-scope-tabs">
-                        <el-tab-pane label="单头字段" name="header">
-                          <el-empty v-if="!headerTabs.length" description="当前模块暂无单头字段" />
+                        <el-tab-pane label="表头字段" name="header">
+                          <el-empty v-if="!headerTabs.length" description="当前模块暂无表头字段" />
                           <template v-else>
                             <el-tabs v-model="activeHeaderTab" type="border-card" class="field-tabs">
                               <el-tab-pane
@@ -429,8 +430,8 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
-import type { ModuleNode, ModuleTabDefinition } from '../module-center/moduleCenterMock';
-import { buttonAreaLabelMap } from '../module-center/moduleCenterMock';
+import type { ModuleNode, ModuleTabDefinition } from '../module-center/moduleCenterFixture';
+import { buttonAreaLabelMap } from '../module-center/moduleCenterFixture';
 import { groupModuleButtons } from '../function-auth/functionAuthMock';
 import {
   buildStateAuthPreview,
@@ -1096,3 +1097,4 @@ onMounted(() => {
   }
 }
 </style>
+

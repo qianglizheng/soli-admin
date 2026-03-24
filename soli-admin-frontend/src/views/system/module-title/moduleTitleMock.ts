@@ -1,10 +1,10 @@
-import {
+﻿import {
   cloneModuleCenterTree,
   findFirstEditableModule,
   findModuleNode,
   type ModuleFieldDefinition,
   type ModuleNode
-} from '../module-center/moduleCenterMock';
+} from '../module-center/moduleCenterFixture';
 
 export interface ModuleFieldTitleConfig {
   displayTitle: string;

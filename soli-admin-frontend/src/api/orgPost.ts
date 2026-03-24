@@ -128,15 +128,15 @@ export const POST_TYPE_OPTIONS = [
   { label: '财务岗', value: 'FINANCE' }
 ] as const;
 
-const ORG_NODE_TYPE_LABEL_MAP: Record<OrgNodeType, string> = {
+const orgNodeTypeLabelMap: Record<OrgNodeType, string> = {
   BRANCH: '分公司',
   DEPT: '部门',
   GROUP: '集团',
-  HEADQUARTERS: '总公司',
+  HEADQUARTERS: '总部',
   POST: '岗位'
 };
 
-const POST_TYPE_LABEL_MAP = POST_TYPE_OPTIONS.reduce<Record<string, string>>((result, item) => {
+const postTypeLabelMap = POST_TYPE_OPTIONS.reduce<Record<string, string>>((result, item) => {
   result[item.value] = item.label;
   return result;
 }, {});
@@ -145,14 +145,14 @@ export function getOrgNodeTypeLabel(nodeType?: string) {
   if (!nodeType) {
     return '岗位';
   }
-  return ORG_NODE_TYPE_LABEL_MAP[nodeType as OrgNodeType] || nodeType;
+  return orgNodeTypeLabelMap[nodeType as OrgNodeType] || nodeType;
 }
 
 export function getPostTypeLabel(postType?: string) {
   if (!postType) {
     return '岗位';
   }
-  return POST_TYPE_LABEL_MAP[postType] || postType;
+  return postTypeLabelMap[postType] || postType;
 }
 
 export function getOrgPostTree() {

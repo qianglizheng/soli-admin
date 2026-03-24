@@ -83,20 +83,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         preview.setModuleCode(detail.getModuleCode());
         preview.setModuleName(detail.getModuleName());
         preview.setContextVersion(detail.getContextVersion());
-
-        SysModuleContextPreviewDTO.CurrentPost currentPost = new SysModuleContextPreviewDTO.CurrentPost();
-        currentPost.setPostId(3L);
-        currentPost.setPostCode("buyer");
-        currentPost.setPostName("采购员");
-        preview.setCurrentPost(currentPost);
-
-        if ("1".equals(detail.getStatefulFlag())) {
-            SysModuleContextPreviewDTO.CurrentState currentState = new SysModuleContextPreviewDTO.CurrentState();
-            currentState.setCurrentValue("unaudited");
-            currentState.setCurrentLabel("未审核");
-            currentState.setStateField(detail.getStateFieldCode());
-            preview.setState(currentState);
-        }
+        // 模块中心只预览模块结构元数据，不拼装岗位或状态的假上下文。
 
         preview.setHeaderTabs(buildPreviewTabs(detail.getHeaderTabs()));
         preview.setDetailTabs(buildPreviewTabs(detail.getDetailTabs()));

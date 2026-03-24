@@ -44,12 +44,7 @@
                 placeholder="请输入账号搜索负责人"
                 style="width: 100%"
               >
-                <el-option
-                  v-for="item in managerOptions"
-                  :key="item.id"
-                  :label="item.label"
-                  :value="item.id"
-                />
+                <el-option v-for="item in managerOptions" :key="item.id" :label="item.label" :value="item.id" />
               </el-select>
             </el-form-item>
           </el-col>
@@ -121,15 +116,17 @@ const visible = computed({
   set: (value: boolean) => emit('update:modelValue', value)
 });
 
-const createDefaultForm = (): OrgPostFormModel => ({
-  note: '',
-  parentNodeKey: '',
-  postCode: '',
-  postName: '',
-  postType: POST_TYPE_OPTIONS[0]!.value,
-  sort: 1,
-  status: '0'
-});
+function createDefaultForm(): OrgPostFormModel {
+  return {
+    note: '',
+    parentNodeKey: '',
+    postCode: '',
+    postName: '',
+    postType: POST_TYPE_OPTIONS[0]!.value,
+    sort: 1,
+    status: '0'
+  };
+}
 
 const formRef = ref<FormInstance>();
 const form = reactive<OrgPostFormModel>(createDefaultForm());
@@ -151,11 +148,21 @@ const treeSelectProps = {
   value: 'nodeKey'
 };
 
-const collectDisabledNodeKeys = (
+function collectChildNodeKeys(nodes: OrgPostTreeNode[] | undefined, bucket: Set<string>) {
+  if (!nodes) {
+    return;
+  }
+  nodes.forEach((node) => {
+    bucket.add(node.nodeKey);
+    collectChildNodeKeys(node.children, bucket);
+  });
+}
+
+function collectDisabledNodeKeys(
   nodes: OrgPostTreeNode[] | undefined,
   currentNodeKey?: string,
   bucket: Set<string> = new Set()
-): Set<string> => {
+): Set<string> {
   if (!nodes || !currentNodeKey) {
     return bucket;
   }
@@ -168,19 +175,9 @@ const collectDisabledNodeKeys = (
     collectDisabledNodeKeys(node.children, currentNodeKey, bucket);
   }
   return bucket;
-};
+}
 
-const collectChildNodeKeys = (nodes: OrgPostTreeNode[] | undefined, bucket: Set<string>) => {
-  if (!nodes) {
-    return;
-  }
-  nodes.forEach((node) => {
-    bucket.add(node.nodeKey);
-    collectChildNodeKeys(node.children, bucket);
-  });
-};
-
-const markDisabled = (nodes: OrgPostTreeNode[] | undefined, disabledKeys: Set<string>): TreeOption[] => {
+function markDisabled(nodes: OrgPostTreeNode[] | undefined, disabledKeys: Set<string>): TreeOption[] {
   if (!nodes) {
     return [];
   }
@@ -189,7 +186,7 @@ const markDisabled = (nodes: OrgPostTreeNode[] | undefined, disabledKeys: Set<st
     children: markDisabled(node.children, disabledKeys),
     disabled: disabledKeys.has(node.nodeKey)
   }));
-};
+}
 
 const treeOptions = computed(() => {
   const disabledKeys = collectDisabledNodeKeys(props.treeData, props.currentNodeKey);
@@ -212,7 +209,7 @@ watch(
 
 const dialogTitle = computed(() => (props.mode === 'create' ? '新增岗位' : '编辑岗位'));
 
-const loadManagerOptions = async (keyword = '') => {
+async function loadManagerOptions(keyword = '') {
   managerLoading.value = true;
   try {
     const { data } = await getUserPage({
@@ -227,13 +224,10 @@ const loadManagerOptions = async (keyword = '') => {
   } finally {
     managerLoading.value = false;
   }
-};
+}
 
-const ensureManagerOption = async (managerUserId?: number) => {
-  if (!managerUserId) {
-    return;
-  }
-  if (managerOptions.value.some((item) => item.id === managerUserId)) {
+async function ensureManagerOption(managerUserId?: number) {
+  if (!managerUserId || managerOptions.value.some((item) => item.id === managerUserId)) {
     return;
   }
   const { data } = await getUserDetail(managerUserId);
@@ -241,24 +235,24 @@ const ensureManagerOption = async (managerUserId?: number) => {
     id: data.id,
     label: data.nickname ? `${data.nickname} / ${data.username}` : data.username
   });
-};
+}
 
-const handleManagerSearch = (keyword: string) => {
+function handleManagerSearch(keyword: string) {
   void loadManagerOptions(keyword);
-};
+}
 
-const handleCancel = () => {
+function handleCancel() {
   emit('cancel');
   visible.value = false;
-};
+}
 
-const handleSubmit = async () => {
+async function handleSubmit() {
   if (!formRef.value) {
     return;
   }
   await formRef.value.validate();
   emit('submit', { ...form, status: form.status as YesNo });
-};
+}
 </script>
 
 <style scoped>

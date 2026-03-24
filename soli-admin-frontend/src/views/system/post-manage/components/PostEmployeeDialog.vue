@@ -3,7 +3,7 @@
     <div v-if="postId" class="employee-dialog">
       <el-alert
         v-if="mode === 'assign'"
-        title="左侧是可选员工，右侧是已分配员工，两侧都按分页实时加载，不再一次性拉全量数据。"
+        title="左侧为可选员工，右侧为已分配员工，两侧列表都按分页实时加载。"
         type="info"
         :closable="false"
         show-icon
@@ -186,12 +186,14 @@ const emit = defineEmits<{
   (e: 'cancel'): void;
 }>();
 
-const createEmptyPageResult = (): PageResult<OrgPostUser> => ({
-  list: [],
-  pageNum: 1,
-  pageSize: 10,
-  total: 0
-});
+function createEmptyPageResult(): PageResult<OrgPostUser> {
+  return {
+    list: [],
+    pageNum: 1,
+    pageSize: 10,
+    total: 0
+  };
+}
 
 const visible = computed({
   get: () => props.modelValue,
@@ -228,13 +230,14 @@ watch(
 );
 
 const dialogTitle = computed(() => {
+  const suffix = props.postName ? ` - ${props.postName}` : '';
   if (props.mode === 'assign') {
-    return `给岗位分配员工${props.postName ? ` - ${props.postName}` : ''}`;
+    return `给岗位分配员工${suffix}`;
   }
-  return `岗位员工列表${props.postName ? ` - ${props.postName}` : ''}`;
+  return `岗位员工列表${suffix}`;
 });
 
-const loadOptionUsers = async (pageNum = optionResult.value.pageNum || 1) => {
+async function loadOptionUsers(pageNum = optionResult.value.pageNum || 1) {
   if (!props.postId) {
     return;
   }
@@ -250,9 +253,9 @@ const loadOptionUsers = async (pageNum = optionResult.value.pageNum || 1) => {
   } finally {
     optionLoading.value = false;
   }
-};
+}
 
-const loadAssignedUsers = async (pageNum = assignedResult.value.pageNum || 1) => {
+async function loadAssignedUsers(pageNum = assignedResult.value.pageNum || 1) {
   if (!props.postId) {
     return;
   }
@@ -268,29 +271,29 @@ const loadAssignedUsers = async (pageNum = assignedResult.value.pageNum || 1) =>
   } finally {
     assignedLoading.value = false;
   }
-};
+}
 
-const handleOptionSelectionChange = (rows: OrgPostUser[]) => {
+function handleOptionSelectionChange(rows: OrgPostUser[]) {
   selectedOptionUserIds.value = rows.map((item) => item.userId);
-};
+}
 
-const handleOptionSearch = () => {
+function handleOptionSearch() {
   void loadOptionUsers(1);
-};
+}
 
-const handleAssignedSearch = () => {
+function handleAssignedSearch() {
   void loadAssignedUsers(1);
-};
+}
 
-const handleOptionPageChange = (pageNum: number) => {
+function handleOptionPageChange(pageNum: number) {
   void loadOptionUsers(pageNum);
-};
+}
 
-const handleAssignedPageChange = (pageNum: number) => {
+function handleAssignedPageChange(pageNum: number) {
   void loadAssignedUsers(pageNum);
-};
+}
 
-const handleBindUsers = async () => {
+async function handleBindUsers() {
   if (!props.postId || !selectedOptionUserIds.value.length) {
     return;
   }
@@ -308,9 +311,9 @@ const handleBindUsers = async () => {
   } finally {
     actionLoading.value = false;
   }
-};
+}
 
-const handleUnbindUsers = async (userIds: number[]) => {
+async function handleUnbindUsers(userIds: number[]) {
   if (!props.postId || !userIds.length) {
     return;
   }
@@ -336,12 +339,12 @@ const handleUnbindUsers = async (userIds: number[]) => {
   } finally {
     actionLoading.value = false;
   }
-};
+}
 
-const handleClose = () => {
+function handleClose() {
   emit('cancel');
   visible.value = false;
-};
+}
 </script>
 
 <style scoped>

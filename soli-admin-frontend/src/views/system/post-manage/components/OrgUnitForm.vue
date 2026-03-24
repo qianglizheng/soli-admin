@@ -102,14 +102,16 @@ const visible = computed({
   set: (value: boolean) => emit('update:modelValue', value)
 });
 
-const createDefaultForm = (): OrgUnitFormModel => ({
-  note: '',
-  orgCode: '',
-  orgName: '',
-  parentNodeKey: '',
-  sort: 1,
-  status: '0'
-});
+function createDefaultForm(): OrgUnitFormModel {
+  return {
+    note: '',
+    orgCode: '',
+    orgName: '',
+    parentNodeKey: '',
+    sort: 1,
+    status: '0'
+  };
+}
 
 const formRef = ref<FormInstance>();
 const form = reactive<OrgUnitFormModel>(createDefaultForm());
@@ -130,7 +132,7 @@ const treeSelectProps = {
   value: 'nodeKey'
 };
 
-const mapOrgTreeOptions = (nodes: OrgPostTreeNode[] | undefined): TreeOption[] => {
+function mapOrgTreeOptions(nodes: OrgPostTreeNode[] | undefined): TreeOption[] {
   if (!nodes) {
     return [];
   }
@@ -140,7 +142,7 @@ const mapOrgTreeOptions = (nodes: OrgPostTreeNode[] | undefined): TreeOption[] =
       ...node,
       children: mapOrgTreeOptions(node.children)
     }));
-};
+}
 
 const treeOptions = computed(() => mapOrgTreeOptions(props.treeData));
 
@@ -158,7 +160,7 @@ watch(
   { deep: true, immediate: true }
 );
 
-const loadLeaderOptions = async (keyword = '') => {
+async function loadLeaderOptions(keyword = '') {
   leaderLoading.value = true;
   try {
     const { data } = await getUserPage({
@@ -173,9 +175,9 @@ const loadLeaderOptions = async (keyword = '') => {
   } finally {
     leaderLoading.value = false;
   }
-};
+}
 
-const ensureLeaderOption = async (leaderUserId?: number) => {
+async function ensureLeaderOption(leaderUserId?: number) {
   if (!leaderUserId || leaderOptions.value.some((item) => item.id === leaderUserId)) {
     return;
   }
@@ -184,24 +186,24 @@ const ensureLeaderOption = async (leaderUserId?: number) => {
     id: data.id,
     label: data.nickname ? `${data.nickname} / ${data.username}` : data.username
   });
-};
+}
 
-const handleLeaderSearch = (keyword: string) => {
+function handleLeaderSearch(keyword: string) {
   void loadLeaderOptions(keyword);
-};
+}
 
-const handleCancel = () => {
+function handleCancel() {
   emit('cancel');
   visible.value = false;
-};
+}
 
-const handleSubmit = async () => {
+async function handleSubmit() {
   if (!formRef.value) {
     return;
   }
   await formRef.value.validate();
   emit('submit', { ...form });
-};
+}
 </script>
 
 <style scoped>

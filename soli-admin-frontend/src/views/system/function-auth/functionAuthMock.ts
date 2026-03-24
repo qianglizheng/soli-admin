@@ -1,10 +1,10 @@
-import {
+﻿import {
   buttonAreaLabelMap,
   cloneModuleCenterTree,
   type ModuleButtonArea,
   type ModuleNode,
   type YesNo
-} from '../module-center/moduleCenterMock';
+} from '../module-center/moduleCenterFixture';
 
 export type OrgNodeType = 'GROUP' | 'HEADQUARTERS' | 'BRANCH' | 'POST';
 export type FieldPermissionLevel = 0 | 1 | 2;
@@ -66,18 +66,18 @@ const orgPostTreeSeed: OrgPostTreeNode[] = [
             id: 102,
             parentId: 10,
             nodeCode: 'hq_pre_auditor',
-            nodeName: '预审岗',
+            nodeName: '预审员',
             nodeType: 'POST',
             status: '0',
             orgName: '总公司',
             orgTypeLabel: '总公司',
-            postTypeLabel: '审核岗'
+            postTypeLabel: '预审岗'
           },
           {
             id: 103,
             parentId: 10,
             nodeCode: 'hq_auditor',
-            nodeName: '审核岗',
+            nodeName: '审核员',
             nodeType: 'POST',
             status: '0',
             orgName: '总公司',
@@ -221,34 +221,27 @@ const resolveFieldPermission = (postCode: string, moduleCode: string, fieldCode:
   if (postCode === 'south_branch_manager') {
     return 2;
   }
-
   if (postCode === 'east_sales_manager') {
     return isSalesModule(moduleCode) ? 2 : 0;
   }
-
   if (!isPurchaseModule(moduleCode)) {
     return 0;
   }
-
   if (postCode === 'hq_buyer') {
     return ['status', 'auditUserName', 'auditTime', 'sourceBillNo', 'sourceType'].includes(fieldCode) ? 1 : 2;
   }
-
   if (postCode === 'east_branch_buyer') {
     if (['amount', 'status', 'auditUserName', 'auditTime'].includes(fieldCode)) {
       return 1;
     }
     return 2;
   }
-
   if (postCode === 'hq_pre_auditor') {
     return 1;
   }
-
   if (postCode === 'hq_auditor') {
     return ['auditUserName', 'auditTime'].includes(fieldCode) ? 2 : 1;
   }
-
   return 0;
 };
 
@@ -256,46 +249,39 @@ const resolveButtonPermission = (postCode: string, moduleCode: string, buttonCod
   if (postCode === 'south_branch_manager') {
     return 2;
   }
-
   if (postCode === 'east_sales_manager') {
     if (!isSalesModule(moduleCode)) {
       return 0;
     }
     return ['create', 'detail', 'edit', 'save'].includes(buttonCode) ? 2 : 1;
   }
-
   if (!isPurchaseModule(moduleCode)) {
     return 0;
   }
-
   if (postCode === 'hq_buyer') {
     if (['create', 'export', 'detail', 'edit', 'save', 'submit', 'addRow', 'removeRow'].includes(buttonCode)) {
       return 2;
     }
     return 0;
   }
-
   if (postCode === 'east_branch_buyer') {
     if (['create', 'detail', 'save', 'addRow', 'removeRow'].includes(buttonCode)) {
       return 2;
     }
     return ['submit', 'edit'].includes(buttonCode) ? 1 : 0;
   }
-
   if (postCode === 'hq_pre_auditor') {
     if (['detail', 'export'].includes(buttonCode)) {
       return 2;
     }
     return ['submit', 'audit'].includes(buttonCode) ? 1 : 0;
   }
-
   if (postCode === 'hq_auditor') {
     if (['detail', 'export', 'audit'].includes(buttonCode)) {
       return 2;
     }
     return ['submit', 'save'].includes(buttonCode) ? 1 : 0;
   }
-
   return 0;
 };
 
@@ -470,8 +456,10 @@ export const buildFunctionAuthPreview = (
 };
 
 export const groupModuleButtons = (module: ModuleNode) => {
-  return (Object.keys(buttonAreaLabelMap) as ModuleButtonArea[]).map((area) => ({
-    area,
-    buttons: module.buttons.filter((button) => button.area === area).sort((left, right) => left.sort - right.sort)
-  }));
+  return (Object.keys(buttonAreaLabelMap) as ModuleButtonArea[])
+    .map((area) => ({
+      area,
+      buttons: module.buttons.filter((button) => button.area === area).sort((left, right) => left.sort - right.sort)
+    }))
+    .filter((item) => item.buttons.length > 0);
 };
