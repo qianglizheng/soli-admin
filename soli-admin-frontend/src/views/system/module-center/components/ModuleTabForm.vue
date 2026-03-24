@@ -25,12 +25,19 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue';
-import type { ModuleTabDefinition } from '../moduleCenterMock';
+
+interface ModuleTabFormModel {
+  id?: number;
+  note?: string;
+  sort?: number;
+  tabCode?: string;
+  tabName?: string;
+}
 
 interface Props {
   modelValue: boolean;
   mode: 'create' | 'edit';
-  initialData?: Partial<ModuleTabDefinition>;
+  initialData?: Partial<ModuleTabFormModel>;
   title?: string;
 }
 
@@ -42,7 +49,7 @@ const visible = computed({
   set: (val: boolean) => emit('update:modelValue', val)
 });
 
-const createDefaultForm = (): Partial<ModuleTabDefinition> => ({
+const createDefaultForm = (): Partial<ModuleTabFormModel> => ({
   note: '',
   sort: 1,
   tabCode: '',
@@ -50,7 +57,7 @@ const createDefaultForm = (): Partial<ModuleTabDefinition> => ({
 });
 
 const formRef = ref();
-const form = reactive<Partial<ModuleTabDefinition>>(createDefaultForm());
+const form = reactive<Partial<ModuleTabFormModel>>(createDefaultForm());
 
 const rules = {
   tabCode: [{ message: '请输入 Tab 编码', required: true, trigger: 'blur' }],

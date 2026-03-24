@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.soli.system.core.mapper.SysOrgPostMapper">
+
+    <resultMap id="SysOrgPostResultMap" type="com.soli.system.core.service.impl.sysorgpost.SysOrgPostEntity">
+        <id property="id" column="id"/>
+        <result property="orgUnitId" column="org_unit_id"/>
+        <result property="parentPostId" column="parent_post_id"/>
+        <result property="ancestors" column="ancestors"/>
+        <result property="postCode" column="post_code"/>
+        <result property="postName" column="post_name"/>
+        <result property="postType" column="post_type"/>
+        <result property="managerUserId" column="manager_user_id"/>
+        <result property="sort" column="sort"/>
+        <result property="status" column="status"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="note" column="note"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, org_unit_id, parent_post_id, ancestors, post_code, post_name, post_type, manager_user_id, sort, status, create_by, create_time, update_by, update_time, note
+    </sql>
+
+    <insert id="insert" parameterType="com.soli.system.core.service.impl.sysorgpost.SysOrgPostEntity">
+        insert into sys_org_post (
+            id, org_unit_id, parent_post_id, ancestors, post_code, post_name, post_type, manager_user_id, sort, status, create_by, create_time, update_by, update_time, note
+        ) values (
+            #{id}, #{orgUnitId}, #{parentPostId}, #{ancestors}, #{postCode}, #{postName}, #{postType}, #{managerUserId}, #{sort}, #{status}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.soli.system.core.service.impl.sysorgpost.SysOrgPostEntity">
+        update sys_org_post
+        <set>
+            <if test="orgUnitId != null">org_unit_id = #{orgUnitId},</if>
+            <if test="parentPostId != null">parent_post_id = #{parentPostId},</if>
+            <if test="ancestors != null">ancestors = #{ancestors},</if>
+            <if test="postCode != null">post_code = #{postCode},</if>
+            <if test="postName != null">post_name = #{postName},</if>
+            <if test="postType != null">post_type = #{postType},</if>
+            <if test="managerUserId != null">manager_user_id = #{managerUserId},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="note != null">note = #{note},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        delete from sys_org_post
+        where id = #{id}
+    </delete>
+
+    <select id="select" resultMap="SysOrgPostResultMap">
+        select <include refid="Base_Column_List"/>
+        from sys_org_post
+        <where>
+            <if test="orgUnitId != null">
+                and org_unit_id = #{orgUnitId}
+            </if>
+            <if test="parentPostId != null">
+                and parent_post_id = #{parentPostId}
+            </if>
+            <if test="postCode != null and postCode != ''">
+                and post_code like concat('%', #{postCode}, '%')
+            </if>
+            <if test="postName != null and postName != ''">
+                and post_name like concat('%', #{postName}, '%')
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status}
+            </if>
+        </where>
+        order by sort asc, id asc
+    </select>
+
+    <select id="selectById" resultMap="SysOrgPostResultMap">
+        select <include refid="Base_Column_List"/>
+        from sys_org_post
+        where id = #{id}
+    </select>
+
+    <select id="selectOrgUnitTreeNodes" resultType="com.soli.system.core.service.impl.sysorgpost.SysOrgPostTreeNodeModel">
+        select concat('ORG_', id) as nodeKey,
+               id as id,
+               case when parent_id = 0 then null else concat('ORG_', parent_id) end as parentNodeKey,
+               org_type as nodeType,
+               org_code as nodeCode,
+               org_name as nodeName,
+               status as status,
+               id as orgUnitId,
+               0 as parentPostId,
+               sort as sort,
+               0 as employeeCount,
+               0 as childPostCount
+        from sys_org_unit
+        order by sort asc, id asc
+    </select>
+
+    <select id="selectPostTreeNodes" resultType="com.soli.system.core.service.impl.sysorgpost.SysOrgPostTreeNodeModel">
+        select concat('POST_', op.id) as nodeKey,
+               op.id as id,
+               case when op.parent_post_id = 0 then concat('ORG_', op.org_unit_id) else concat('POST_', op.parent_post_id) end as parentNodeKey,
+               'POST' as nodeType,
+               op.post_code as nodeCode,
+               op.post_name as nodeName,
+               op.status as status,
+               op.org_unit_id as orgUnitId,
+               op.parent_post_id as parentPostId,
+               op.sort as sort,
+               (select count(1)
+                from sys_user_org_post uop
+                where uop.org_post_id = op.id
+                  and uop.status = '0') as employeeCount,
+               (select count(1)
+                from sys_org_post child
+                where child.parent_post_id = op.id
+                  and child.status = '0') as childPostCount
+        from sys_org_post op
+        order by op.sort asc, op.id asc
+    </select>
+
+    <select id="selectDetailById" resultType="com.soli.system.core.service.impl.sysorgpost.SysOrgPostDetailModel">
+        select op.id as id,
+               op.org_unit_id as orgUnitId,
+               op.parent_post_id as parentPostId,
+               op.post_code as postCode,
+               op.post_name as postName,
+               op.post_type as postType,
+               op.manager_user_id as managerUserId,
+               coalesce(mu.nickname, mu.username) as managerName,
+               ou.org_name as orgName,
+               ou.org_type as orgType,
+               case when op.parent_post_id = 0 then ou.org_name else parent.post_name end as parentNodeName,
+               op.sort as sort,
+               op.status as status,
+               (select count(1)
+                from sys_org_post child
+                where child.parent_post_id = op.id
+                  and child.status = '0') as childPostCount,
+               (select count(1)
+                from sys_user_org_post uop
+                where uop.org_post_id = op.id
+                  and uop.status = '0') as employeeCount,
+               op.note as note
+        from sys_org_post op
+        left join sys_org_unit ou on op.org_unit_id = ou.id
+        left join sys_org_post parent on op.parent_post_id = parent.id
+        left join sys_user mu on op.manager_user_id = mu.id
+        where op.id = #{id}
+    </select>
+
+    <select id="selectByOrgUnitIdAndPostCode" resultMap="SysOrgPostResultMap">
+        select <include refid="Base_Column_List"/>
+        from sys_org_post
+        where org_unit_id = #{orgUnitId}
+          and post_code = #{postCode}
+        limit 1
+    </select>
+
+    <select id="countOrgUnitById" resultType="int">
+        select count(1)
+        from sys_org_unit
+        where id = #{orgUnitId}
+    </select>
+
+    <select id="selectOrgUnitById" resultType="com.soli.system.core.service.impl.sysorgpost.SysOrgUnitEntity">
+        select id,
+               parent_id as parentId,
+               ancestors,
+               org_code as orgCode,
+               org_name as orgName,
+               org_type as orgType,
+               sort,
+               leader_user_id as leaderUserId,
+               status,
+               create_by as createBy,
+               create_time as createTime,
+               update_by as updateBy,
+               update_time as updateTime,
+               note
+        from sys_org_unit
+        where id = #{id}
+    </select>
+
+    <select id="selectOrgUnitByCode" resultType="com.soli.system.core.service.impl.sysorgpost.SysOrgUnitEntity">
+        select id,
+               parent_id as parentId,
+               ancestors,
+               org_code as orgCode,
+               org_name as orgName,
+               org_type as orgType,
+               sort,
+               leader_user_id as leaderUserId,
+               status,
+               create_by as createBy,
+               create_time as createTime,
+               update_by as updateBy,
+               update_time as updateTime,
+               note
+        from sys_org_unit
+        where org_code = #{orgCode}
+        limit 1
+    </select>
+
+    <insert id="insertOrgUnit" parameterType="com.soli.system.core.service.impl.sysorgpost.SysOrgUnitEntity">
+        insert into sys_org_unit (
+            id, parent_id, ancestors, org_code, org_name, org_type, sort, leader_user_id, status, create_by, create_time, update_by, update_time, note
+        ) values (
+            #{id}, #{parentId}, #{ancestors}, #{orgCode}, #{orgName}, #{orgType}, #{sort}, #{leaderUserId}, #{status}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
+        )
+    </insert>
+
+    <select id="countUserById" resultType="int">
+        select count(1)
+        from sys_user
+        where id = #{userId}
+    </select>
+
+    <select id="countUsersByIds" resultType="int">
+        select count(1)
+        from sys_user
+        where id in
+        <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </select>
+
+    <select id="countChildPostByParentId" resultType="int">
+        select count(1)
+        from sys_org_post
+        where parent_post_id = #{parentPostId}
+    </select>
+
+    <select id="countUserRelationByOrgPostId" resultType="int">
+        select count(1)
+        from sys_user_org_post
+        where org_post_id = #{orgPostId}
+          and status = '0'
+    </select>
+
+    <update id="updateDescendantAncestors">
+        update sys_org_post
+        set ancestors = replace(ancestors, #{oldPath}, #{newPath}),
+            update_time = #{updateTime}
+        where ancestors = #{oldPath}
+           or ancestors like concat(#{oldPath}, ',%')
+    </update>
+
+    <select id="selectUserPage" resultType="com.soli.system.core.service.impl.sysorgpost.SysOrgPostUserModel">
+        select su.id as id,
+               su.id as userId,
+               su.username as username,
+               su.nickname as nickname,
+               su.phone as phone,
+               su.email as email,
+               uop.org_post_id as orgPostId,
+               uop.primary_flag as primaryFlag,
+               su.status as status,
+               uop.create_time as createTime
+        from sys_user_org_post uop
+        inner join sys_user su on uop.user_id = su.id
+        where uop.org_post_id = #{orgPostId}
+          and uop.status = '0'
+        <if test="keyword != null and keyword != ''">
+            and (su.username like concat('%', #{keyword}, '%')
+                or su.nickname like concat('%', #{keyword}, '%')
+                or su.phone like concat('%', #{keyword}, '%'))
+        </if>
+        <if test="status != null and status != ''">
+            and su.status = #{status}
+        </if>
+        order by uop.create_time desc, su.id desc
+    </select>
+
+    <select id="selectUserOptionPage" resultType="com.soli.system.core.service.impl.sysorgpost.SysOrgPostUserModel">
+        select su.id as id,
+               su.id as userId,
+               su.username as username,
+               su.nickname as nickname,
+               su.phone as phone,
+               su.email as email,
+               #{orgPostId} as orgPostId,
+               'N' as primaryFlag,
+               su.status as status,
+               su.create_time as createTime
+        from sys_user su
+        where not exists (
+            select 1
+            from sys_user_org_post uop
+            where uop.user_id = su.id
+              and uop.org_post_id = #{orgPostId}
+              and uop.status = '0'
+        )
+        <if test="keyword != null and keyword != ''">
+            and (su.username like concat('%', #{keyword}, '%')
+                or su.nickname like concat('%', #{keyword}, '%')
+                or su.phone like concat('%', #{keyword}, '%'))
+        </if>
+        <if test="status != null and status != ''">
+            and su.status = #{status}
+        </if>
+        order by su.create_time desc, su.id desc
+    </select>
+
+    <select id="selectExistingRelationUserIds" resultType="java.lang.Long">
+        select user_id
+        from sys_user_org_post
+        where org_post_id = #{orgPostId}
+          and user_id in
+        <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </select>
+
+    <insert id="insertUserRelations">
+        insert into sys_user_org_post (
+            id, user_id, org_post_id, primary_flag, status, create_by, create_time, update_by, update_time, note
+        ) values
+        <foreach collection="relationList" item="item" separator=",">
+            (#{item.id}, #{item.userId}, #{item.orgPostId}, #{item.primaryFlag}, #{item.status}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime}, #{item.note})
+        </foreach>
+    </insert>
+
+    <delete id="deleteUserRelations">
+        delete from sys_user_org_post
+        where org_post_id = #{orgPostId}
+          and user_id in
+        <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </delete>
+
+</mapper>

@@ -168,14 +168,14 @@
                   <el-tabs v-model="activeHeaderTab" type="border-card" class="sub-tabs">
                     <el-tab-pane
                       v-for="tab in selectedModule.headerTabs"
-                      :key="tab.tabCode"
-                      :label="`${tab.tabName} (${tab.fields.length})`"
-                      :name="tab.tabCode"
+                      :key="tab.tabInfo.tabCode"
+                      :label="`${tab.tabInfo.tabName} (${tab.fields.length})`"
+                      :name="tab.tabInfo.tabCode"
                     >
                       <div class="sub-tab-summary">
-                        <div>Tab 编码：{{ tab.tabCode }}</div>
-                        <div>排序：{{ tab.sort }}</div>
-                        <div>说明：{{ tab.note || '-' }}</div>
+                        <div>Tab 编码：{{ tab.tabInfo.tabCode }}</div>
+                        <div>排序：{{ tab.tabInfo.sort }}</div>
+                        <div>说明：{{ tab.tabInfo.note || '-' }}</div>
                       </div>
 
                       <el-table :data="tab.fields.slice().sort(sortBySort)" border>
@@ -194,8 +194,8 @@
                         <el-table-column prop="sort" label="排序" width="80" align="center" />
                         <el-table-column label="操作" width="180" fixed="right" align="center">
                           <template #default="scope">
-                            <el-button link type="primary" @click="handleEditField('header', tab.tabCode, scope.row)">编辑</el-button>
-                            <el-button link type="danger" @click="handleDeleteField('header', tab.tabCode, scope.row)">删除</el-button>
+                            <el-button link type="primary" @click="handleEditField('header', tab.tabInfo.tabCode, scope.row)">编辑</el-button>
+                            <el-button link type="danger" @click="handleDeleteField('header', tab.tabInfo.tabCode, scope.row)">删除</el-button>
                           </template>
                         </el-table-column>
                       </el-table>
@@ -220,14 +220,14 @@
                   <el-tabs v-model="activeDetailTab" type="border-card" class="sub-tabs">
                     <el-tab-pane
                       v-for="tab in selectedModule.detailTabs"
-                      :key="tab.tabCode"
-                      :label="`${tab.tabName} (${tab.fields.length})`"
-                      :name="tab.tabCode"
+                      :key="tab.tabInfo.tabCode"
+                      :label="`${tab.tabInfo.tabName} (${tab.fields.length})`"
+                      :name="tab.tabInfo.tabCode"
                     >
                       <div class="sub-tab-summary">
-                        <div>Tab 编码：{{ tab.tabCode }}</div>
-                        <div>排序：{{ tab.sort }}</div>
-                        <div>说明：{{ tab.note || '-' }}</div>
+                        <div>Tab 编码：{{ tab.tabInfo.tabCode }}</div>
+                        <div>排序：{{ tab.tabInfo.sort }}</div>
+                        <div>说明：{{ tab.tabInfo.note || '-' }}</div>
                       </div>
 
                       <el-table :data="tab.fields.slice().sort(sortBySort)" border>
@@ -246,8 +246,8 @@
                         <el-table-column prop="sort" label="排序" width="80" align="center" />
                         <el-table-column label="操作" width="180" fixed="right" align="center">
                           <template #default="scope">
-                            <el-button link type="primary" @click="handleEditField('detail', tab.tabCode, scope.row)">编辑</el-button>
-                            <el-button link type="danger" @click="handleDeleteField('detail', tab.tabCode, scope.row)">删除</el-button>
+                            <el-button link type="primary" @click="handleEditField('detail', tab.tabInfo.tabCode, scope.row)">编辑</el-button>
+                            <el-button link type="danger" @click="handleDeleteField('detail', tab.tabInfo.tabCode, scope.row)">删除</el-button>
                           </template>
                         </el-table-column>
                       </el-table>
@@ -370,6 +370,14 @@ defineOptions({
   name: 'SystemModuleCenter'
 });
 
+interface ModuleTabFormModel {
+  id?: number;
+  note?: string;
+  sort?: number;
+  tabCode?: string;
+  tabName?: string;
+}
+
 const moduleTypeLabelMap = {
   BILL: '单据模块',
   CATALOG: '目录',
@@ -389,7 +397,7 @@ const formMode = ref<'create' | 'edit'>('create');
 const formInitial = ref<Partial<ModuleNode>>({});
 const tabFormVisible = ref(false);
 const tabFormMode = ref<'create' | 'edit'>('create');
-const tabFormInitial = ref<Partial<ModuleTabDefinition>>({});
+const tabFormInitial = ref<Partial<ModuleTabFormModel>>({});
 const tabFormScope = ref<'header' | 'detail'>('header');
 const fieldFormVisible = ref(false);
 const fieldFormMode = ref<'create' | 'edit'>('create');
@@ -424,11 +432,11 @@ const buttonGroups = computed(() => {
 });
 
 const activeHeaderTabDef = computed(() => {
-  return selectedModule.value?.headerTabs.find((tab) => tab.tabCode === activeHeaderTab.value);
+  return selectedModule.value?.headerTabs.find((tab) => tab.tabInfo.tabCode === activeHeaderTab.value);
 });
 
 const activeDetailTabDef = computed(() => {
-  return selectedModule.value?.detailTabs.find((tab) => tab.tabCode === activeDetailTab.value);
+  return selectedModule.value?.detailTabs.find((tab) => tab.tabInfo.tabCode === activeDetailTab.value);
 });
 
 const tabFormTitle = computed(() => {
@@ -456,6 +464,10 @@ const sortBySort = <T extends { sort: number }>(left: T, right: T) => {
   return left.sort - right.sort;
 };
 
+const sortTabsByInfo = (left: ModuleTabDefinition, right: ModuleTabDefinition) => {
+  return left.tabInfo.sort - right.tabInfo.sort;
+};
+
 const getModuleTypeTagType = (type: ModuleNode['moduleType']) => {
   if (type === 'BILL') {
     return 'success';
@@ -479,11 +491,11 @@ const nextEntityId = () => {
     return nodes.reduce((max, node) => {
       const headerMax = node.headerTabs.reduce((tabMax, tab) => {
         const fieldMax = tab.fields.reduce((fieldInnerMax, field) => Math.max(fieldInnerMax, field.id), 0);
-        return Math.max(tabMax, tab.id, fieldMax);
+        return Math.max(tabMax, tab.tabInfo.id, fieldMax);
       }, 0);
       const detailMax = node.detailTabs.reduce((tabMax, tab) => {
         const fieldMax = tab.fields.reduce((fieldInnerMax, field) => Math.max(fieldInnerMax, field.id), 0);
-        return Math.max(tabMax, tab.id, fieldMax);
+        return Math.max(tabMax, tab.tabInfo.id, fieldMax);
       }, 0);
       const buttonMax = node.buttons.reduce((buttonInnerMax, button) => Math.max(buttonInnerMax, button.id), 0);
       const childMax = node.children?.length ? collectMaxId(node.children) : 0;
@@ -506,7 +518,7 @@ const getActiveTab = (scope: 'header' | 'detail', module = selectedModule.value)
     return undefined;
   }
   const activeCode = scope === 'header' ? activeHeaderTab.value : activeDetailTab.value;
-  return list.find((tab) => tab.tabCode === activeCode);
+  return list.find((tab) => tab.tabInfo.tabCode === activeCode);
 };
 
 const touchModuleVersion = (module = selectedModule.value) => {
@@ -744,7 +756,7 @@ const handleEditTab = (scope: 'header' | 'detail') => {
   }
   tabFormScope.value = scope;
   tabFormMode.value = 'edit';
-  tabFormInitial.value = { ...currentTab };
+  tabFormInitial.value = { ...currentTab.tabInfo };
   tabFormVisible.value = true;
 };
 
@@ -756,7 +768,7 @@ const handleDeleteTab = async (scope: 'header' | 'detail') => {
     return;
   }
 
-  await ElMessageBox.confirm(`确认删除 Tab “${currentTab.tabName}” 吗？`, '提示', {
+  await ElMessageBox.confirm(`确认删除 Tab “${currentTab.tabInfo.tabName}” 吗？`, '提示', {
     cancelButtonText: '取消',
     confirmButtonText: '确定',
     type: 'warning'
@@ -766,20 +778,20 @@ const handleDeleteTab = async (scope: 'header' | 'detail') => {
   if (!tabList) {
     return;
   }
-  const index = tabList.findIndex((tab) => tab.id === currentTab.id);
+  const index = tabList.findIndex((tab) => tab.tabInfo.id === currentTab.tabInfo.id);
   if (index >= 0) {
     tabList.splice(index, 1);
   }
   if (scope === 'header') {
-    activeHeaderTab.value = tabList[0]?.tabCode || '';
+    activeHeaderTab.value = tabList[0]?.tabInfo.tabCode || '';
   } else {
-    activeDetailTab.value = tabList[0]?.tabCode || '';
+    activeDetailTab.value = tabList[0]?.tabInfo.tabCode || '';
   }
   touchModuleVersion(module);
   ElMessage.success('Tab 已删除');
 };
 
-const handleTabFormSubmit = (payload: Partial<ModuleTabDefinition>) => {
+const handleTabFormSubmit = (payload: Partial<ModuleTabFormModel>) => {
   const module = selectedModule.value;
   const tabList = getTabList(tabFormScope.value, module);
   if (!module || !tabList) {
@@ -789,36 +801,38 @@ const handleTabFormSubmit = (payload: Partial<ModuleTabDefinition>) => {
   if (tabFormMode.value === 'create') {
     const nextTab: ModuleTabDefinition = {
       fields: [],
-      id: nextEntityId(),
-      note: payload.note || '',
-      sort: payload.sort || tabList.length + 1,
-      tabCode: payload.tabCode || `tab_${Date.now()}`,
-      tabName: payload.tabName || '未命名 Tab'
+      tabInfo: {
+        id: nextEntityId(),
+        note: payload.note || '',
+        sort: payload.sort || tabList.length + 1,
+        tabCode: payload.tabCode || `tab_${Date.now()}`,
+        tabName: payload.tabName || '未命名 Tab'
+      }
     };
     tabList.push(nextTab);
-    tabList.sort(sortBySort);
+    tabList.sort(sortTabsByInfo);
     if (tabFormScope.value === 'header') {
-      activeHeaderTab.value = nextTab.tabCode;
+      activeHeaderTab.value = nextTab.tabInfo.tabCode;
     } else {
-      activeDetailTab.value = nextTab.tabCode;
+      activeDetailTab.value = nextTab.tabInfo.tabCode;
     }
     touchModuleVersion(module);
     ElMessage.success('Tab 已新增');
     return;
   }
 
-  const currentTab = tabList.find((tab) => tab.id === payload.id);
+  const currentTab = tabList.find((tab) => tab.tabInfo.id === payload.id);
   if (!currentTab) {
     return;
   }
-  const previousCode = currentTab.tabCode;
-  Object.assign(currentTab, payload);
-  tabList.sort(sortBySort);
+  const previousCode = currentTab.tabInfo.tabCode;
+  Object.assign(currentTab.tabInfo, payload);
+  tabList.sort(sortTabsByInfo);
   if (tabFormScope.value === 'header' && activeHeaderTab.value === previousCode) {
-    activeHeaderTab.value = currentTab.tabCode;
+    activeHeaderTab.value = currentTab.tabInfo.tabCode;
   }
   if (tabFormScope.value === 'detail' && activeDetailTab.value === previousCode) {
-    activeDetailTab.value = currentTab.tabCode;
+    activeDetailTab.value = currentTab.tabInfo.tabCode;
   }
   touchModuleVersion(module);
   ElMessage.success('Tab 已更新');
@@ -835,7 +849,7 @@ const handleCreateField = (scope: 'header' | 'detail') => {
     return;
   }
   fieldFormScope.value = scope;
-  fieldFormTabCode.value = currentTab.tabCode;
+  fieldFormTabCode.value = currentTab.tabInfo.tabCode;
   fieldFormMode.value = 'create';
   fieldFormInitial.value = {
     componentType: 'input',
@@ -861,7 +875,7 @@ const handleEditField = (scope: 'header' | 'detail', tabCode: string, field: Mod
 const handleDeleteField = async (scope: 'header' | 'detail', tabCode: string, field: ModuleFieldDefinition) => {
   const module = selectedModule.value;
   const tabList = getTabList(scope, module);
-  const currentTab = tabList?.find((tab) => tab.tabCode === tabCode);
+  const currentTab = tabList?.find((tab) => tab.tabInfo.tabCode === tabCode);
   if (!module || !currentTab) {
     return;
   }
@@ -883,7 +897,7 @@ const handleDeleteField = async (scope: 'header' | 'detail', tabCode: string, fi
 const handleFieldFormSubmit = (payload: Partial<ModuleFieldDefinition>) => {
   const module = selectedModule.value;
   const tabList = getTabList(fieldFormScope.value, module);
-  const currentTab = tabList?.find((tab) => tab.tabCode === fieldFormTabCode.value);
+  const currentTab = tabList?.find((tab) => tab.tabInfo.tabCode === fieldFormTabCode.value);
   if (!module || !currentTab) {
     return;
   }
@@ -1015,8 +1029,8 @@ watch(selectedModule, (module) => {
     activeDetailTab.value = '';
     return;
   }
-  activeHeaderTab.value = module.headerTabs[0]?.tabCode || '';
-  activeDetailTab.value = module.detailTabs[0]?.tabCode || '';
+  activeHeaderTab.value = module.headerTabs[0]?.tabInfo.tabCode || '';
+  activeDetailTab.value = module.detailTabs[0]?.tabInfo.tabCode || '';
 }, { immediate: true });
 
 const firstModule = findFirstEditableModule(moduleTree.value) || moduleTree.value[0];

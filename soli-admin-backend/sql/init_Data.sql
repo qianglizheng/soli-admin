@@ -5,6 +5,9 @@ insert into sys_role (id, name, code, sort, data_scope, status, create_by, creat
 -- 用户初始化
 delete from sys_user;
 insert into sys_user (id, username, password, nickname, email, phone, avatar, type, sex, login_ip, login_time, status, create_by, create_time, update_by, update_time, note) values (1, 'admin', '123456', '超级管理员', 'superadmin@test.com', '13800000001', null, '0', '0', null, null, '0', 'system', now(), null, null, null);
+insert into sys_user (id, username, password, nickname, email, phone, avatar, type, sex, login_ip, login_time, status, create_by, create_time, update_by, update_time, note) values (2, 'zhangsan', '123456', '张三', 'zhangsan@test.com', '13800000002', null, '1', '0', null, null, '0', 'system', now(), null, null, '采购岗位示例用户');
+insert into sys_user (id, username, password, nickname, email, phone, avatar, type, sex, login_ip, login_time, status, create_by, create_time, update_by, update_time, note) values (3, 'lisi', '123456', '李四', 'lisi@test.com', '13800000003', null, '1', '0', null, null, '0', 'system', now(), null, null, '销售岗位示例用户');
+insert into sys_user (id, username, password, nickname, email, phone, avatar, type, sex, login_ip, login_time, status, create_by, create_time, update_by, update_time, note) values (4, 'wangwu', '123456', '王五', 'wangwu@test.com', '13800000004', null, '1', '0', null, null, '0', 'system', now(), null, null, '未分配岗位示例用户');
 
 -- 用户角色关联
 delete from sys_user_role;
@@ -58,6 +61,15 @@ insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, i
 insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1623, '登录日志修改', 1620, 3, null, null, '2', 'sys:logininfor:modify', null, '0', 'system', now(), null, null, null);
 insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1624, '登录日志分页', 1620, 4, null, null, '2', 'sys:logininfor:page', null, '0', 'system', now(), null, null, null);
 
+insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1700, '岗位管理', 1000, 7, 'post-manage', 'system/post-manage/index', '1', null, 'OfficeBuilding', '0', 'system', now(), null, null, null);
+insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1701, '岗位新增', 1700, 1, null, null, '2', 'sys:org-post:create', null, '0', 'system', now(), null, null, null);
+insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1702, '岗位删除', 1700, 2, null, null, '2', 'sys:org-post:remove', null, '0', 'system', now(), null, null, null);
+insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1703, '岗位修改', 1700, 3, null, null, '2', 'sys:org-post:modify', null, '0', 'system', now(), null, null, null);
+insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1704, '岗位查询', 1700, 4, null, null, '2', 'sys:org-post:page', null, '0', 'system', now(), null, null, null);
+insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1705, '岗位员工查询', 1700, 5, null, null, '2', 'sys:org-post:user:page', null, '0', 'system', now(), null, null, null);
+insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1706, '岗位员工绑定', 1700, 6, null, null, '2', 'sys:org-post:user:bind', null, '0', 'system', now(), null, null, null);
+insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1707, '岗位员工解绑', 1700, 7, null, null, '2', 'sys:org-post:user:unbind', null, '0', 'system', now(), null, null, null);
+
 -- 超级管理员拥有全部菜单权限
 delete from sys_role_menu;
 insert into sys_role_menu (role_id, menu_id) values (1, 1000);
@@ -98,6 +110,14 @@ insert into sys_role_menu (role_id, menu_id) values (1, 1621);
 insert into sys_role_menu (role_id, menu_id) values (1, 1622);
 insert into sys_role_menu (role_id, menu_id) values (1, 1623);
 insert into sys_role_menu (role_id, menu_id) values (1, 1624);
+insert into sys_role_menu (role_id, menu_id) values (1, 1700);
+insert into sys_role_menu (role_id, menu_id) values (1, 1701);
+insert into sys_role_menu (role_id, menu_id) values (1, 1702);
+insert into sys_role_menu (role_id, menu_id) values (1, 1703);
+insert into sys_role_menu (role_id, menu_id) values (1, 1704);
+insert into sys_role_menu (role_id, menu_id) values (1, 1705);
+insert into sys_role_menu (role_id, menu_id) values (1, 1706);
+insert into sys_role_menu (role_id, menu_id) values (1, 1707);
 
 -- 字典初始化
 delete from sys_dict_type;
@@ -122,3 +142,20 @@ delete from sys_config;
 insert into sys_config (id, config_name, config_key, config_value, config_type, create_by, create_time, update_by, update_time, note) values (5001, '主框架页-默认皮肤样式名称', 'sys.index.skinName', 'skin-blue', 'Y', 'system', now(), null, null, '蓝色 skin-blue、绿色 skin-green、紫色 skin-purple、红色 skin-red、黄色 skin-yellow');
 insert into sys_config (id, config_name, config_key, config_value, config_type, create_by, create_time, update_by, update_time, note) values (5002, '用户管理-账号初始密码', 'sys.user.initPassword', '123456', 'Y', 'system', now(), null, null, '初始化密码 123456');
 insert into sys_config (id, config_name, config_key, config_value, config_type, create_by, create_time, update_by, update_time, note) values (5003, '账号自助-验证码开关', 'sys.account.captchaEnabled', 'true', 'Y', 'system', now(), null, null, '是否开启验证码');
+
+-- 岗位管理初始化
+delete from sys_user_org_post;
+delete from sys_org_post;
+delete from sys_org_unit;
+
+insert into sys_org_unit (id, parent_id, ancestors, org_code, org_name, org_type, sort, leader_user_id, status, create_by, create_time, update_by, update_time, note) values (9001, 0, '0', 'SOLI_GROUP', 'Soli集团', 'GROUP', 1, 1, '0', 'system', now(), null, null, '岗位管理组织树根节点');
+insert into sys_org_unit (id, parent_id, ancestors, org_code, org_name, org_type, sort, leader_user_id, status, create_by, create_time, update_by, update_time, note) values (9002, 9001, '0,9001', 'SOLI_HQ', '总公司', 'HEADQUARTERS', 1, 1, '0', 'system', now(), null, null, '总部组织节点');
+insert into sys_org_unit (id, parent_id, ancestors, org_code, org_name, org_type, sort, leader_user_id, status, create_by, create_time, update_by, update_time, note) values (9003, 9001, '0,9001', 'SOLI_EAST', '华东分公司', 'BRANCH', 2, 3, '0', 'system', now(), null, null, '华东业务组织节点');
+
+insert into sys_org_post (id, org_unit_id, parent_post_id, ancestors, post_code, post_name, post_type, manager_user_id, sort, status, create_by, create_time, update_by, update_time, note) values (9101, 9002, 0, '0', 'PURCHASE_CENTER', '采购中心', 'MANAGER', 1, 1, '0', 'system', now(), null, null, '总部采购中心');
+insert into sys_org_post (id, org_unit_id, parent_post_id, ancestors, post_code, post_name, post_type, manager_user_id, sort, status, create_by, create_time, update_by, update_time, note) values (9102, 9002, 9101, '0,9101', 'BUYER', '采购员', 'BUYER', 2, 1, '0', 'system', now(), null, null, '采购执行岗位');
+insert into sys_org_post (id, org_unit_id, parent_post_id, ancestors, post_code, post_name, post_type, manager_user_id, sort, status, create_by, create_time, update_by, update_time, note) values (9103, 9003, 0, '0', 'SALES_CENTER', '销售中心', 'MANAGER', 3, 1, '0', 'system', now(), null, null, '华东销售中心');
+
+insert into sys_user_org_post (id, user_id, org_post_id, primary_flag, status, create_by, create_time, update_by, update_time, note) values (9201, 1, 9101, 'Y', '0', 'system', now(), null, null, 'admin 兼岗采购中心');
+insert into sys_user_org_post (id, user_id, org_post_id, primary_flag, status, create_by, create_time, update_by, update_time, note) values (9202, 2, 9102, 'Y', '0', 'system', now(), null, null, '张三分配到采购员');
+insert into sys_user_org_post (id, user_id, org_post_id, primary_flag, status, create_by, create_time, update_by, update_time, note) values (9203, 3, 9103, 'Y', '0', 'system', now(), null, null, '李四分配到销售中心');

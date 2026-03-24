@@ -1,0 +1,432 @@
+package com.soli.system.core.service.impl.sysorgpost;
+
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.github.yitter.idgen.YitIdHelper;
+import com.soli.common.api.exception.BusinessException;
+import com.soli.common.api.vo.PageResult;
+import com.soli.system.core.mapper.SysOrgPostMapper;
+import com.soli.system.core.service.impl.BaseCrudServiceImpl;
+import com.soli.system.service.sysorgpost.SysOrgPostDTO;
+import com.soli.system.service.sysorgpost.SysOrgPostDetailDTO;
+import com.soli.system.service.sysorgpost.SysOrgPostQuery;
+import com.soli.system.service.sysorgpost.SysOrgPostService;
+import com.soli.system.service.sysorgpost.SysOrgPostTreeNodeDTO;
+import com.soli.system.service.sysorgpost.SysOrgPostUserDTO;
+import com.soli.system.service.sysorgpost.SysOrgPostUserQuery;
+import com.soli.system.service.sysorgpost.SysOrgUnitDTO;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
+/**
+ * 岗位管理服务实现
+ *
+ * @author lizhengqiang
+ * @since 2026-03-24 21:00
+ */
+@Service
+public class SysOrgPostServiceImpl extends BaseCrudServiceImpl<SysOrgPostDTO, SysOrgPostEntity, SysOrgPostQuery>
+        implements SysOrgPostService {
+
+    private static final int DEFAULT_PAGE_NUM = 1;
+
+    private static final int DEFAULT_PAGE_SIZE = 10;
+
+    private static final int MAX_PAGE_SIZE = 100;
+
+    private final SysOrgPostMapper sysOrgPostMapper;
+
+    private final SysOrgPostConverter sysOrgPostConverter;
+
+    private final SysOrgUnitConverter sysOrgUnitConverter;
+
+    public SysOrgPostServiceImpl(final SysOrgPostMapper mapper,
+                                 final SysOrgPostConverter converter,
+                                 final SysOrgUnitConverter sysOrgUnitConverter) {
+        super(mapper, converter);
+        this.sysOrgPostMapper = mapper;
+        this.sysOrgPostConverter = converter;
+        this.sysOrgUnitConverter = sysOrgUnitConverter;
+    }
+
+    @Override
+    public List<SysOrgPostTreeNodeDTO> queryTreeList() {
+        List<SysOrgPostTreeNodeDTO> orgNodes = sysOrgPostConverter.toTreeNodeDTOList(sysOrgPostMapper.selectOrgUnitTreeNodes());
+        List<SysOrgPostTreeNodeDTO> postNodes = sysOrgPostConverter.toTreeNodeDTOList(sysOrgPostMapper.selectPostTreeNodes());
+        Map<String, SysOrgPostTreeNodeDTO> nodeMap = new LinkedHashMap<>();
+        List<SysOrgPostTreeNodeDTO> rootList = new ArrayList<>();
+
+        orgNodes.forEach(node -> {
+            node.setChildren(new ArrayList<>());
+            nodeMap.put(node.getNodeKey(), node);
+        });
+        orgNodes.forEach(node -> appendNode(rootList, nodeMap, node));
+
+        postNodes.forEach(node -> {
+            node.setChildren(new ArrayList<>());
+            nodeMap.put(node.getNodeKey(), node);
+        });
+        postNodes.forEach(node -> appendNode(rootList, nodeMap, node));
+
+        sortTree(rootList);
+        return rootList;
+    }
+
+    @Override
+    public SysOrgPostDetailDTO queryDetailById(Long id) {
+        SysOrgPostDetailDTO detail = sysOrgPostConverter.toDetailDTO(sysOrgPostMapper.selectDetailById(id));
+        if (detail == null) {
+            throw new BusinessException("Post does not exist");
+        }
+        return detail;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void createOrgUnit(SysOrgUnitDTO dto) {
+        normalizeOrgUnit(dto);
+        SysOrgUnitEntity parentOrgUnit = resolveParentOrgUnit(dto.getParentId());
+        validateLeaderUser(dto.getLeaderUserId());
+        validateOrgUnitCodeUnique(dto.getOrgCode(), null);
+        dto.setOrgType("BRANCH");
+        dto.setAncestors(resolveOrgUnitAncestors(parentOrgUnit));
+        dto.setCreateTime(LocalDateTime.now());
+
+        SysOrgUnitEntity entity = sysOrgUnitConverter.toEntity(dto);
+        entity.setId(YitIdHelper.nextId());
+        if (sysOrgPostMapper.insertOrgUnit(entity) == 0) {
+            throw new BusinessException("组织单元创建失败");
+        }
+        dto.setId(entity.getId());
+    }
+
+    @Override
+    public PageResult<SysOrgPostUserDTO> queryUserPage(SysOrgPostUserQuery query) {
+        validateUserPageQuery(query);
+        PageHelper.startPage(query.getPageNum(), query.getPageSize());
+        List<SysOrgPostUserModel> modelList = sysOrgPostMapper.selectUserPage(query);
+        List<SysOrgPostUserDTO> dtoList = sysOrgPostConverter.toUserDTOList(modelList);
+        PageInfo<SysOrgPostUserModel> pageInfo = new PageInfo<>(modelList);
+        return PageResult.of(pageInfo.getPageNum(), pageInfo.getPageSize(), pageInfo.getTotal(), dtoList);
+    }
+
+    @Override
+    public PageResult<SysOrgPostUserDTO> queryUserOptionPage(SysOrgPostUserQuery query) {
+        validateUserPageQuery(query);
+        PageHelper.startPage(query.getPageNum(), query.getPageSize());
+        List<SysOrgPostUserModel> modelList = sysOrgPostMapper.selectUserOptionPage(query);
+        List<SysOrgPostUserDTO> dtoList = sysOrgPostConverter.toUserDTOList(modelList);
+        PageInfo<SysOrgPostUserModel> pageInfo = new PageInfo<>(modelList);
+        return PageResult.of(pageInfo.getPageNum(), pageInfo.getPageSize(), pageInfo.getTotal(), dtoList);
+    }
+
+    @Override
+    public void bindUsers(Long orgPostId, List<Long> userIds) {
+        validatePostExists(orgPostId);
+        List<Long> distinctUserIds = distinctValidIds(userIds);
+        if (distinctUserIds.isEmpty()) {
+            return;
+        }
+        if (sysOrgPostMapper.countUsersByIds(distinctUserIds) != distinctUserIds.size()) {
+            throw new BusinessException("绑定用户存在无效数据");
+        }
+        Set<Long> existingUserIdSet = new HashSet<>(sysOrgPostMapper.selectExistingRelationUserIds(orgPostId, distinctUserIds));
+        List<SysUserOrgPostEntity> relationList = distinctUserIds.stream()
+                .filter(userId -> !existingUserIdSet.contains(userId))
+                .map(userId -> buildRelationEntity(orgPostId, userId))
+                .toList();
+        if (relationList.isEmpty()) {
+            return;
+        }
+        sysOrgPostMapper.insertUserRelations(relationList);
+    }
+
+    @Override
+    public void unbindUsers(Long orgPostId, List<Long> userIds) {
+        validatePostExists(orgPostId);
+        List<Long> distinctUserIds = distinctValidIds(userIds);
+        if (distinctUserIds.isEmpty()) {
+            return;
+        }
+        sysOrgPostMapper.deleteUserRelations(orgPostId, distinctUserIds);
+    }
+
+    @Override
+    protected String moduleName() {
+        return "岗位管理";
+    }
+
+    @Override
+    protected void beforeCreate(SysOrgPostDTO dto) {
+        normalizePost(dto);
+        validateOrgUnitExists(dto.getOrgUnitId());
+        validateManagerUser(dto.getManagerUserId());
+        SysOrgPostEntity parentPost = resolveParentPost(dto.getParentPostId());
+        if (parentPost != null) {
+            dto.setOrgUnitId(parentPost.getOrgUnitId());
+        }
+        validatePostCodeUnique(dto.getOrgUnitId(), dto.getPostCode(), null);
+        dto.setAncestors(resolveAncestors(parentPost));
+        dto.setCreateTime(LocalDateTime.now());
+    }
+
+    @Override
+    protected void afterCreate(SysOrgPostDTO dto, SysOrgPostEntity entity) {
+        dto.setId(entity.getId());
+    }
+
+    @Override
+    protected void beforeModify(SysOrgPostDTO dto) {
+        normalizePost(dto);
+        SysOrgPostEntity currentEntity = sysOrgPostMapper.selectById(dto.getId());
+        if (currentEntity == null) {
+            throw new BusinessException("Post does not exist");
+        }
+        validateManagerUser(dto.getManagerUserId());
+        SysOrgPostEntity parentPost = resolveParentPost(dto.getParentPostId());
+        if (parentPost != null) {
+            if (Objects.equals(parentPost.getId(), dto.getId()) || containsId(parentPost.getAncestors(), dto.getId())) {
+                throw new BusinessException("上级岗位不能选择当前岗位或其下级岗位");
+            }
+            if (!Objects.equals(currentEntity.getOrgUnitId(), parentPost.getOrgUnitId())) {
+                throw new BusinessException("Cross-org post moving is not supported");
+            }
+            dto.setOrgUnitId(parentPost.getOrgUnitId());
+        }
+        if (!Objects.equals(currentEntity.getOrgUnitId(), dto.getOrgUnitId())) {
+            throw new BusinessException("Cross-org post moving is not supported");
+        }
+        validateOrgUnitExists(dto.getOrgUnitId());
+        validatePostCodeUnique(dto.getOrgUnitId(), dto.getPostCode(), dto.getId());
+
+        String newAncestors = resolveAncestors(parentPost);
+        dto.setAncestors(newAncestors);
+        dto.setUpdateTime(LocalDateTime.now());
+
+        String oldPath = buildSelfPath(currentEntity.getAncestors(), currentEntity.getId());
+        String newPath = buildSelfPath(newAncestors, currentEntity.getId());
+        if (!Objects.equals(oldPath, newPath)) {
+            sysOrgPostMapper.updateDescendantAncestors(oldPath, newPath, LocalDateTime.now());
+        }
+    }
+
+    @Override
+    protected void beforeRemove(Long id) {
+        validatePostExists(id);
+        if (sysOrgPostMapper.countChildPostByParentId(id) > 0) {
+            throw new BusinessException("Current post has child posts and cannot be removed");
+        }
+        if (sysOrgPostMapper.countUserRelationByOrgPostId(id) > 0) {
+            throw new BusinessException("当前岗位已绑定员工，不能删除");
+        }
+    }
+
+    private void validateUserPageQuery(SysOrgPostUserQuery query) {
+        if (query == null || query.getOrgPostId() == null) {
+            throw new BusinessException("岗位ID不能为空");
+        }
+        validatePostExists(query.getOrgPostId());
+        normalizePageQuery(query);
+    }
+
+    private void normalizePageQuery(SysOrgPostUserQuery query) {
+        if (query.getPageNum() == null || query.getPageNum() <= 0) {
+            query.setPageNum(DEFAULT_PAGE_NUM);
+        }
+        if (query.getPageSize() == null || query.getPageSize() <= 0) {
+            query.setPageSize(DEFAULT_PAGE_SIZE);
+        }
+        if (query.getPageSize() > MAX_PAGE_SIZE) {
+            query.setPageSize(MAX_PAGE_SIZE);
+        }
+    }
+
+    private void normalizePost(SysOrgPostDTO dto) {
+        if (dto.getParentPostId() == null) {
+            dto.setParentPostId(0L);
+        }
+        if (dto.getSort() == null || dto.getSort() <= 0) {
+            dto.setSort(1);
+        }
+        if (!StringUtils.hasText(dto.getStatus())) {
+            dto.setStatus("0");
+        }
+        if (StringUtils.hasText(dto.getPostCode())) {
+            dto.setPostCode(dto.getPostCode().trim());
+        }
+        if (StringUtils.hasText(dto.getPostName())) {
+            dto.setPostName(dto.getPostName().trim());
+        }
+    }
+
+    private void normalizeOrgUnit(SysOrgUnitDTO dto) {
+        if (dto.getSort() == null || dto.getSort() <= 0) {
+            dto.setSort(1);
+        }
+        if (!StringUtils.hasText(dto.getStatus())) {
+            dto.setStatus("0");
+        }
+        if (StringUtils.hasText(dto.getOrgCode())) {
+            dto.setOrgCode(dto.getOrgCode().trim());
+        }
+        if (StringUtils.hasText(dto.getOrgName())) {
+            dto.setOrgName(dto.getOrgName().trim());
+        }
+    }
+
+    private void validateOrgUnitExists(Long orgUnitId) {
+        if (orgUnitId == null || sysOrgPostMapper.countOrgUnitById(orgUnitId) == 0) {
+            throw new BusinessException("所属组织不存在");
+        }
+    }
+
+    private void validateManagerUser(Long managerUserId) {
+        if (managerUserId == null) {
+            return;
+        }
+        if (sysOrgPostMapper.countUserById(managerUserId) == 0) {
+            throw new BusinessException("岗位负责人不存在");
+        }
+    }
+
+    private void validateLeaderUser(Long leaderUserId) {
+        if (leaderUserId == null) {
+            return;
+        }
+        if (sysOrgPostMapper.countUserById(leaderUserId) == 0) {
+            throw new BusinessException("组织负责人不存在");
+        }
+    }
+
+    private void validateOrgUnitCodeUnique(String orgCode, Long currentId) {
+        SysOrgUnitEntity entity = sysOrgPostMapper.selectOrgUnitByCode(orgCode);
+        if (entity == null) {
+            return;
+        }
+        if (currentId != null && Objects.equals(entity.getId(), currentId)) {
+            return;
+        }
+        throw new BusinessException("组织编码已存在");
+    }
+
+    private void validatePostCodeUnique(Long orgUnitId, String postCode, Long currentId) {
+        SysOrgPostEntity entity = sysOrgPostMapper.selectByOrgUnitIdAndPostCode(orgUnitId, postCode);
+        if (entity == null) {
+            return;
+        }
+        if (currentId != null && Objects.equals(entity.getId(), currentId)) {
+            return;
+        }
+        throw new BusinessException("Post code already exists in the same org");
+    }
+
+    private void validatePostExists(Long orgPostId) {
+        if (orgPostId == null || sysOrgPostMapper.selectById(orgPostId) == null) {
+            throw new BusinessException("Post does not exist");
+        }
+    }
+
+    private SysOrgPostEntity resolveParentPost(Long parentPostId) {
+        if (parentPostId == null || parentPostId <= 0) {
+            return null;
+        }
+        SysOrgPostEntity parentPost = sysOrgPostMapper.selectById(parentPostId);
+        if (parentPost == null) {
+            throw new BusinessException("Parent post does not exist");
+        }
+        return parentPost;
+    }
+
+    private SysOrgUnitEntity resolveParentOrgUnit(Long parentId) {
+        if (parentId == null || parentId <= 0) {
+            throw new BusinessException("上级组织不存在");
+        }
+        SysOrgUnitEntity parentOrgUnit = sysOrgPostMapper.selectOrgUnitById(parentId);
+        if (parentOrgUnit == null) {
+            throw new BusinessException("上级组织不存在");
+        }
+        return parentOrgUnit;
+    }
+
+    private String resolveAncestors(SysOrgPostEntity parentPost) {
+        if (parentPost == null) {
+            return "0";
+        }
+        return buildSelfPath(parentPost.getAncestors(), parentPost.getId());
+    }
+
+    private String resolveOrgUnitAncestors(SysOrgUnitEntity parentOrgUnit) {
+        return buildSelfPath(parentOrgUnit.getAncestors(), parentOrgUnit.getId());
+    }
+
+    private String buildSelfPath(String ancestors, Long id) {
+        if (!StringUtils.hasText(ancestors)) {
+            return String.valueOf(id);
+        }
+        return ancestors + "," + id;
+    }
+
+    private boolean containsId(String ancestors, Long id) {
+        if (!StringUtils.hasText(ancestors) || id == null) {
+            return false;
+        }
+        return ("," + ancestors + ",").contains("," + id + ",");
+    }
+
+    private List<Long> distinctValidIds(List<Long> ids) {
+        if (ids == null) {
+            return List.of();
+        }
+        return ids.stream()
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+    }
+
+    private SysUserOrgPostEntity buildRelationEntity(Long orgPostId, Long userId) {
+        SysUserOrgPostEntity entity = new SysUserOrgPostEntity();
+        entity.setId(YitIdHelper.nextId());
+        entity.setOrgPostId(orgPostId);
+        entity.setUserId(userId);
+        entity.setPrimaryFlag("N");
+        entity.setStatus("0");
+        entity.setCreateTime(LocalDateTime.now());
+        return entity;
+    }
+
+    private void appendNode(List<SysOrgPostTreeNodeDTO> rootList, Map<String, SysOrgPostTreeNodeDTO> nodeMap, SysOrgPostTreeNodeDTO currentNode) {
+        if (!StringUtils.hasText(currentNode.getParentNodeKey())) {
+            rootList.add(currentNode);
+            return;
+        }
+        SysOrgPostTreeNodeDTO parentNode = nodeMap.get(currentNode.getParentNodeKey());
+        if (parentNode == null) {
+            rootList.add(currentNode);
+            return;
+        }
+        parentNode.getChildren().add(currentNode);
+    }
+
+    private void sortTree(List<SysOrgPostTreeNodeDTO> nodes) {
+        nodes.sort(Comparator
+                .comparing(SysOrgPostTreeNodeDTO::getSort, Comparator.nullsLast(Integer::compareTo))
+                .thenComparing(SysOrgPostTreeNodeDTO::getNodeKey));
+        nodes.forEach(node -> {
+            if (node.getChildren() != null && !node.getChildren().isEmpty()) {
+                sortTree(node.getChildren());
+            }
+        });
+    }
+
+}

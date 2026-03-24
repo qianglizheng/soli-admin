@@ -14,12 +14,16 @@ export interface ModuleFieldDefinition {
   note?: string;
 }
 
-export interface ModuleTabDefinition {
+export interface ModuleTabInfo {
   id: number;
   tabCode: string;
   tabName: string;
   sort: number;
   note?: string;
+}
+
+export interface ModuleTabDefinition {
+  tabInfo: ModuleTabInfo;
   fields: ModuleFieldDefinition[];
 }
 
@@ -113,11 +117,13 @@ const moduleTreeSeed: ModuleNode[] = [
             note: '标准采购订单模块，支持列表、单头、明细、状态流转。',
             headerTabs: [
               {
-                id: 11101,
-                tabCode: 'basic',
-                tabName: '基础信息',
-                sort: 1,
-                note: '采购订单基础单头字段。',
+                tabInfo: {
+                  id: 11101,
+                  tabCode: 'basic',
+                  tabName: '基础信息',
+                  sort: 1,
+                  note: '采购订单基础单头字段。'
+                },
                 fields: [
                   {
                     id: 1110101,
@@ -162,11 +168,13 @@ const moduleTreeSeed: ModuleNode[] = [
                 ]
               },
               {
-                id: 11102,
-                tabCode: 'audit',
-                tabName: '审核信息',
-                sort: 2,
-                note: '状态流转和审核留痕信息。',
+                tabInfo: {
+                  id: 11102,
+                  tabCode: 'audit',
+                  tabName: '审核信息',
+                  sort: 2,
+                  note: '状态流转和审核留痕信息。'
+                },
                 fields: [
                   {
                     id: 1110201,
@@ -203,11 +211,13 @@ const moduleTreeSeed: ModuleNode[] = [
             ],
             detailTabs: [
               {
-                id: 11111,
-                tabCode: 'items',
-                tabName: '物料明细',
-                sort: 1,
-                note: '采购订单主明细。',
+                tabInfo: {
+                  id: 11111,
+                  tabCode: 'items',
+                  tabName: '物料明细',
+                  sort: 1,
+                  note: '采购订单主明细。'
+                },
                 fields: [
                   {
                     id: 1111101,
@@ -252,11 +262,13 @@ const moduleTreeSeed: ModuleNode[] = [
                 ]
               },
               {
-                id: 11112,
-                tabCode: 'source',
-                tabName: '来源单据',
-                sort: 2,
-                note: '采购申请或询价单关联信息。',
+                tabInfo: {
+                  id: 11112,
+                  tabCode: 'source',
+                  tabName: '来源单据',
+                  sort: 2,
+                  note: '采购申请或询价单关联信息。'
+                },
                 fields: [
                   {
                     id: 1111201,
@@ -312,10 +324,12 @@ const moduleTreeSeed: ModuleNode[] = [
             note: '采购退货业务模块。',
             headerTabs: [
               {
-                id: 11201,
-                tabCode: 'basic',
-                tabName: '基础信息',
-                sort: 1,
+                tabInfo: {
+                  id: 11201,
+                  tabCode: 'basic',
+                  tabName: '基础信息',
+                  sort: 1
+                },
                 fields: [
                   {
                     id: 1120101,
@@ -332,10 +346,12 @@ const moduleTreeSeed: ModuleNode[] = [
             ],
             detailTabs: [
               {
-                id: 11211,
-                tabCode: 'items',
-                tabName: '退货明细',
-                sort: 1,
+                tabInfo: {
+                  id: 11211,
+                  tabCode: 'items',
+                  tabName: '退货明细',
+                  sort: 1
+                },
                 fields: [
                   {
                     id: 1121101,
@@ -396,10 +412,12 @@ const moduleTreeSeed: ModuleNode[] = [
             note: '销售订单模块原型。',
             headerTabs: [
               {
-                id: 12101,
-                tabCode: 'basic',
-                tabName: '基础信息',
-                sort: 1,
+                tabInfo: {
+                  id: 12101,
+                  tabCode: 'basic',
+                  tabName: '基础信息',
+                  sort: 1
+                },
                 fields: [
                   {
                     id: 1210101,
@@ -511,8 +529,7 @@ export const buildModuleContextPreview = (module: ModuleNode) => {
         required: field.requiredFlag === '1',
         visible: true
       })),
-      tabCode: tab.tabCode,
-      tabName: tab.tabName,
+      tabInfo: { ...tab.tabInfo },
       visible: tab.fields.length > 0
     })),
     detailTabs: module.detailTabs.map((tab) => ({
@@ -524,8 +541,7 @@ export const buildModuleContextPreview = (module: ModuleNode) => {
         required: field.requiredFlag === '1',
         visible: true
       })),
-      tabCode: tab.tabCode,
-      tabName: tab.tabName,
+      tabInfo: { ...tab.tabInfo },
       visible: tab.fields.length > 0
     })),
     buttons: {

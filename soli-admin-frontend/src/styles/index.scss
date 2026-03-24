@@ -9,6 +9,9 @@
   --app-border-color: #d9d9d9;
   --app-card-bg: #ffffff;
   --app-card-radius: 4px;
+  --app-scrollbar-size: 5px;
+  --app-scrollbar-thumb: rgba(15, 23, 42, 0.18);
+  --app-scrollbar-thumb-hover: rgba(15, 23, 42, 0.32);
   --sidebar-width: 210px;
   --sidebar-width-collapsed: 64px;
 }
@@ -70,5 +73,3 @@
 .el-form-item__label { font-weight: 500; color: #595959; }
 
 /* 滚动条美化 */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-thumb { background: #bfbfbf; border-radius: 10px; }

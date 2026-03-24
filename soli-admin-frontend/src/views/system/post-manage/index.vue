@@ -2,21 +2,13 @@
   <div class="app-container post-manage-page">
     <el-row :gutter="16" style="height: 100%">
       <el-col :span="8" class="tree-col">
-        <el-card shadow="never" class="tree-card">
+        <el-card v-loading="treeLoading" shadow="never" class="tree-card">
           <template #header>
             <div class="card-header">
               <span>岗位树</span>
               <el-tag type="info" effect="plain">{{ postCount }} 个岗位</el-tag>
             </div>
           </template>
-
-          <el-alert
-            title="当前页面为前端 mock 原型，左侧维护岗位树，右侧维护岗位详情与员工。"
-            type="info"
-            :closable="false"
-            show-icon
-            class="page-alert"
-          />
 
           <el-input
             v-model="treeKeyword"
@@ -28,8 +20,9 @@
 
           <div class="tree-toolbar">
             <el-button type="primary" plain icon="Plus" @click="handleCreateRoot">新增岗位</el-button>
+            <el-button plain icon="OfficeBuilding" @click="handleCreateOrgUnit">新增分公司</el-button>
             <el-button plain icon="DocumentAdd" :disabled="!selectedNode" @click="handleCreateChild">新增下级</el-button>
-            <el-button plain icon="Edit" :disabled="!selectedPost" @click="handleEditPost">编辑岗位</el-button>
+            <el-button plain icon="Edit" :disabled="!selectedPostNode" @click="handleEditPost">编辑岗位</el-button>
           </div>
 
           <el-scrollbar class="tree-scrollbar">
@@ -39,7 +32,7 @@
               :expand-on-click-node="false"
               :filter-node-method="filterNode"
               :highlight-current="true"
-              node-key="id"
+              node-key="nodeKey"
               @node-click="handleNodeClick"
             >
               <template #default="{ data }">
@@ -59,20 +52,20 @@
       </el-col>
 
       <el-col :span="16" class="workspace-col">
-        <el-card shadow="never" class="workspace-card">
-          <template v-if="selectedPost">
+        <el-card v-loading="workspaceLoading" shadow="never" class="workspace-card">
+          <template v-if="selectedPostNode">
             <div class="workspace-overview">
               <div class="overview-header">
                 <div>
                   <div class="overview-title">
-                    <span>{{ selectedPost.nodeName }}</span>
-                    <el-tag size="small" type="primary" effect="plain">{{ selectedPost.postTypeLabel || '岗位' }}</el-tag>
-                    <el-tag size="small" type="info" effect="plain">{{ selectedPost.orgTypeLabel }}</el-tag>
-                    <el-tag size="small" :type="selectedPost.status === '0' ? 'success' : 'danger'" effect="plain">
-                      {{ selectedPost.status === '0' ? '启用' : '停用' }}
+                    <span>{{ selectedPostDetail?.postName || selectedPostNode.nodeName }}</span>
+                    <el-tag size="small" type="primary" effect="plain">{{ currentPostTypeLabel }}</el-tag>
+                    <el-tag size="small" type="info" effect="plain">{{ currentOrgTypeLabel }}</el-tag>
+                    <el-tag size="small" :type="currentStatus === '0' ? 'success' : 'danger'" effect="plain">
+                      {{ currentStatus === '0' ? '启用' : '停用' }}
                     </el-tag>
                   </div>
-                  <div class="overview-subtitle">{{ selectedPost.note || '当前岗位暂未填写说明。' }}</div>
+                  <div class="overview-subtitle">{{ selectedPostDetail?.note || '当前岗位暂未填写说明。' }}</div>
                 </div>
 
                 <div class="overview-actions">
@@ -85,54 +78,54 @@
                 <el-col :span="8">
                   <div class="metric-card">
                     <div class="metric-card__label">岗位员工</div>
-                    <div class="metric-card__value">{{ assignedEmployees.length }}</div>
+                    <div class="metric-card__value">{{ selectedPostDetail?.employeeCount || 0 }}</div>
                   </div>
                 </el-col>
                 <el-col :span="8">
                   <div class="metric-card">
                     <div class="metric-card__label">下级岗位</div>
-                    <div class="metric-card__value">{{ childPostCount }}</div>
+                    <div class="metric-card__value">{{ selectedPostDetail?.childPostCount || 0 }}</div>
                   </div>
                 </el-col>
                 <el-col :span="8">
                   <div class="metric-card">
                     <div class="metric-card__label">显示顺序</div>
-                    <div class="metric-card__value">{{ selectedPost.sort }}</div>
+                    <div class="metric-card__value">{{ selectedPostDetail?.sort || 0 }}</div>
                   </div>
                 </el-col>
               </el-row>
 
               <el-descriptions :column="2" border class="post-descriptions">
-                <el-descriptions-item label="岗位编码">{{ selectedPost.nodeCode }}</el-descriptions-item>
-                <el-descriptions-item label="所属组织">{{ selectedPost.orgName }}</el-descriptions-item>
-                <el-descriptions-item label="上级节点">{{ parentNodeName }}</el-descriptions-item>
-                <el-descriptions-item label="岗位负责人">{{ selectedPost.managerName || '-' }}</el-descriptions-item>
+                <el-descriptions-item label="岗位编码">{{ selectedPostDetail?.postCode || '-' }}</el-descriptions-item>
+                <el-descriptions-item label="所属组织">{{ selectedPostDetail?.orgName || '-' }}</el-descriptions-item>
+                <el-descriptions-item label="上级节点">{{ selectedPostDetail?.parentNodeName || '-' }}</el-descriptions-item>
+                <el-descriptions-item label="岗位负责人">{{ selectedPostDetail?.managerName || '-' }}</el-descriptions-item>
               </el-descriptions>
             </div>
 
             <div class="employee-panel">
               <div class="panel-header">
                 <span>岗位员工预览</span>
-                <el-tag size="small" effect="plain">{{ assignedEmployees.length }} 人</el-tag>
+                <el-tag size="small" effect="plain">{{ employeePreviewResult.total }} 人</el-tag>
               </div>
 
-              <el-empty v-if="!assignedEmployees.length" description="当前岗位暂无员工" />
-              <el-table v-else :data="employeePreviewList" border height="100%">
-                <el-table-column prop="employeeNo" label="工号" min-width="110" />
-                <el-table-column prop="employeeName" label="姓名" min-width="100" />
-                <el-table-column prop="deptName" label="部门" min-width="120" />
-                <el-table-column prop="mobile" label="手机号" min-width="130" />
+              <el-empty v-if="!employeePreviewResult.list.length" description="当前岗位暂无员工" />
+              <el-table v-else :data="employeePreviewResult.list" border height="100%">
+                <el-table-column prop="username" label="账号" min-width="120" />
+                <el-table-column prop="nickname" label="姓名" min-width="110" />
+                <el-table-column prop="phone" label="手机号" min-width="140" />
+                <el-table-column prop="email" label="邮箱" min-width="180" show-overflow-tooltip />
                 <el-table-column label="状态" width="90" align="center">
                   <template #default="scope">
                     <el-tag size="small" :type="scope.row.status === '0' ? 'success' : 'danger'" effect="plain">
-                      {{ scope.row.status === '0' ? '在岗' : '停用' }}
+                      {{ scope.row.status === '0' ? '启用' : '停用' }}
                     </el-tag>
                   </template>
                 </el-table-column>
               </el-table>
 
-              <div v-if="assignedEmployees.length > employeePreviewList.length" class="employee-hint">
-                当前仅预览前 {{ employeePreviewList.length }} 人，可点击“查看员工”查看完整列表。
+              <div v-if="employeePreviewResult.total > employeePreviewResult.list.length" class="employee-hint">
+                当前仅预览前 {{ employeePreviewResult.list.length }} 人，可点击“查看员工”查看完整分页列表。
               </div>
             </div>
           </template>
@@ -156,26 +149,34 @@
       :mode="formMode"
       :initial-data="formInitial"
       :tree-data="postTree"
-      :current-id="formMode === 'edit' ? formInitial.id : undefined"
+      :current-node-key="formMode === 'edit' ? selectedPostNode?.nodeKey : undefined"
       @submit="handleFormSubmit"
       @cancel="handleFormCancel"
+    />
+
+    <org-unit-form
+      v-model="orgFormVisible"
+      :initial-data="orgFormInitial"
+      :tree-data="postTree"
+      @submit="handleOrgFormSubmit"
+      @cancel="handleOrgFormCancel"
     />
 
     <post-employee-dialog
       v-model="assignDialogVisible"
       mode="assign"
-      :post-name="dialogTargetPost?.nodeName"
-      :employees="employeeList"
-      :selected-ids="dialogTargetPost?.employeeIds || []"
-      @submit="handleAssignEmployeeSubmit"
+      :post-id="selectedPostDetail?.id"
+      :post-name="selectedPostDetail?.postName"
+      @submit="handleEmployeeChanged"
       @cancel="assignDialogVisible = false"
     />
 
     <post-employee-dialog
       v-model="viewDialogVisible"
       mode="view"
-      :post-name="dialogTargetPost?.nodeName"
-      :employees="dialogTargetEmployees"
+      :post-id="selectedPostDetail?.id"
+      :post-name="selectedPostDetail?.postName"
+      @submit="handleEmployeeChanged"
       @cancel="viewDialogVisible = false"
     />
   </div>
@@ -184,19 +185,28 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
+import OrgUnitForm from './components/OrgUnitForm.vue';
 import PostEmployeeDialog from './components/PostEmployeeDialog.vue';
 import PostManageForm from './components/PostManageForm.vue';
 import {
-  clonePostManageEmployees,
-  clonePostManageTree,
-  countPostNodes,
-  findFirstPostNode,
-  findPostManageNode,
+  createOrgUnit,
+  createOrgPost,
+  type CreateOrgUnitPayload,
   getOrgNodeTypeLabel,
-  postTypeOptions,
-  type OrgNodeType,
-  type PostManageTreeNode
-} from './postManageMock';
+  getOrgPostDetail,
+  getOrgPostTree,
+  getOrgPostUserPage,
+  getPostTypeLabel,
+  POST_TYPE_OPTIONS,
+  updateOrgPost,
+  type CreateOrgPostPayload,
+  type OrgPostDetail,
+  type OrgPostFormModel,
+  type OrgPostTreeNode,
+  type OrgPostUser,
+  type OrgUnitFormModel
+} from '@/api/orgPost';
+import type { PageResult } from '@/types/global';
 
 defineOptions({
   name: 'SystemPostManage'
@@ -204,59 +214,80 @@ defineOptions({
 
 const treeRef = ref();
 const treeKeyword = ref('');
-const postTree = ref(clonePostManageTree());
-const employeeList = ref(clonePostManageEmployees());
-const selectedNodeId = ref<number>();
+const treeLoading = ref(false);
+const workspaceLoading = ref(false);
+const postTree = ref<OrgPostTreeNode[]>([]);
+const selectedNodeKey = ref<string>();
+const selectedPostDetail = ref<OrgPostDetail>();
+const employeePreviewResult = ref<PageResult<OrgPostUser>>({
+  list: [],
+  pageNum: 1,
+  pageSize: 6,
+  total: 0
+});
 const formVisible = ref(false);
 const formMode = ref<'create' | 'edit'>('create');
-const formInitial = ref<Partial<PostManageTreeNode>>({});
+const formInitial = ref<Partial<OrgPostFormModel>>({});
+const orgFormVisible = ref(false);
+const orgFormInitial = ref<Partial<OrgUnitFormModel>>({});
 const assignDialogVisible = ref(false);
 const viewDialogVisible = ref(false);
-const dialogTargetPostId = ref<number>();
 
-const sortBySort = <T extends { sort: number }>(left: T, right: T) => left.sort - right.sort;
-
-const selectedNode = computed(() => {
-  return findPostManageNode(postTree.value, selectedNodeId.value);
-});
-
-const selectedPost = computed(() => {
-  return selectedNode.value?.nodeType === 'POST' ? selectedNode.value : undefined;
-});
-
-const dialogTargetPost = computed(() => {
-  const node = findPostManageNode(postTree.value, dialogTargetPostId.value);
-  return node?.nodeType === 'POST' ? node : undefined;
-});
-
-const dialogTargetEmployees = computed(() => {
-  const employeeIds = new Set(dialogTargetPost.value?.employeeIds || []);
-  return employeeList.value.filter((item) => employeeIds.has(item.id));
-});
-
-const assignedEmployees = computed(() => {
-  const employeeIds = new Set(selectedPost.value?.employeeIds || []);
-  return employeeList.value.filter((item) => employeeIds.has(item.id));
-});
-
-const employeePreviewList = computed(() => {
-  return assignedEmployees.value.slice(0, 6);
-});
-
+const selectedNode = computed(() => findTreeNode(postTree.value, selectedNodeKey.value));
+const selectedPostNode = computed(() => (selectedNode.value?.nodeType === 'POST' ? selectedNode.value : undefined));
 const postCount = computed(() => countPostNodes(postTree.value));
+const currentPostTypeLabel = computed(() => getPostTypeLabel(selectedPostDetail.value?.postType));
+const currentOrgTypeLabel = computed(() => getOrgNodeTypeLabel(selectedPostDetail.value?.orgType || selectedNode.value?.nodeType));
+const currentStatus = computed(() => selectedPostDetail.value?.status || selectedPostNode.value?.status || '0');
 
-const childPostCount = computed(() => {
-  return selectedPost.value?.children?.filter((item) => item.nodeType === 'POST').length || 0;
-});
-
-const parentNodeName = computed(() => {
-  if (!selectedPost.value) {
-    return '-';
+const filterNode = (value: string, data: OrgPostTreeNode) => {
+  if (!value) {
+    return true;
   }
-  return findPostManageNode(postTree.value, selectedPost.value.parentId)?.nodeName || '-';
-});
+  return data.nodeName.includes(value) || data.nodeCode.includes(value);
+};
 
-const getNodeTagType = (nodeType: OrgNodeType) => {
+const findTreeNode = (nodes: OrgPostTreeNode[], nodeKey?: string): OrgPostTreeNode | undefined => {
+  if (!nodeKey) {
+    return undefined;
+  }
+  for (const node of nodes) {
+    if (node.nodeKey === nodeKey) {
+      return node;
+    }
+    if (node.children?.length) {
+      const matched = findTreeNode(node.children, nodeKey);
+      if (matched) {
+        return matched;
+      }
+    }
+  }
+  return undefined;
+};
+
+const findFirstPostNode = (nodes: OrgPostTreeNode[]): OrgPostTreeNode | undefined => {
+  for (const node of nodes) {
+    if (node.nodeType === 'POST') {
+      return node;
+    }
+    if (node.children?.length) {
+      const matched = findFirstPostNode(node.children);
+      if (matched) {
+        return matched;
+      }
+    }
+  }
+  return undefined;
+};
+
+const countPostNodes = (nodes: OrgPostTreeNode[]) => {
+  return nodes.reduce((count, node) => {
+    const current = node.nodeType === 'POST' ? 1 : 0;
+    return count + current + (node.children?.length ? countPostNodes(node.children) : 0);
+  }, 0);
+};
+
+const getNodeTagType = (nodeType: string) => {
   if (nodeType === 'GROUP') {
     return 'info';
   }
@@ -266,139 +297,174 @@ const getNodeTagType = (nodeType: OrgNodeType) => {
   return 'success';
 };
 
-const filterNode = (value: string, data: PostManageTreeNode) => {
-  if (!value) {
-    return true;
-  }
-  return data.nodeName.includes(value) || data.nodeCode.includes(value);
-};
-
-const selectNode = (id?: number) => {
-  selectedNodeId.value = id;
-  if (id !== undefined) {
-    treeRef.value?.setCurrentKey(id);
-  }
-};
-
-const handleNodeClick = (node: PostManageTreeNode) => {
-  selectNode(node.id);
-};
-
-const findMaxId = (nodes: PostManageTreeNode[]): number => {
-  return nodes.reduce((max, node) => {
-    const childMax = node.children?.length ? findMaxId(node.children) : node.id;
-    return Math.max(max, node.id, childMax);
-  }, 0);
-};
-
-const appendChildNode = (nodes: PostManageTreeNode[], parentId: number, child: PostManageTreeNode): boolean => {
-  for (const node of nodes) {
-    if (node.id === parentId) {
-      node.children = node.children || [];
-      node.children.push(child);
-      node.children.sort(sortBySort);
-      return true;
-    }
-    if (node.children?.length && appendChildNode(node.children, parentId, child)) {
-      return true;
-    }
-  }
-  return false;
-};
-
-const removeNode = (nodes: PostManageTreeNode[], id: number): PostManageTreeNode | undefined => {
-  for (let index = 0; index < nodes.length; index += 1) {
-    const node = nodes[index]!;
-    if (node.id === id) {
-      return nodes.splice(index, 1)[0];
-    }
-    if (node.children?.length) {
-      const removed = removeNode(node.children, id);
-      if (removed) {
-        return removed;
-      }
-    }
-  }
-  return undefined;
-};
-
-const updateNode = (nodes: PostManageTreeNode[], payload: PostManageTreeNode): boolean => {
-  for (let index = 0; index < nodes.length; index += 1) {
-    const node = nodes[index]!;
-    if (node.id === payload.id) {
-      nodes[index] = {
-        ...node,
-        ...payload,
-        children: node.children
-      };
-      return true;
-    }
-    if (node.children?.length && updateNode(node.children, payload)) {
-      return true;
-    }
-  }
-  return false;
-};
-
-const sortTreeNodes = (nodes: PostManageTreeNode[]) => {
-  nodes.sort(sortBySort);
-  nodes.forEach((node) => {
-    if (node.children?.length) {
-      sortTreeNodes(node.children);
-    }
-  });
-};
-
-const resolveOrgContext = (parentId: number) => {
-  const parentNode = findPostManageNode(postTree.value, parentId);
-  if (!parentNode) {
-    return {
-      orgName: 'Soli集团',
-      orgTypeLabel: '集团'
-    };
-  }
-  if (parentNode.nodeType === 'POST') {
-    return {
-      orgName: parentNode.orgName,
-      orgTypeLabel: parentNode.orgTypeLabel
-    };
-  }
-  return {
-    orgName: parentNode.orgName || parentNode.nodeName,
-    orgTypeLabel: parentNode.orgTypeLabel || getOrgNodeTypeLabel(parentNode.nodeType)
+const resetWorkspace = () => {
+  selectedPostDetail.value = undefined;
+  employeePreviewResult.value = {
+    list: [],
+    pageNum: 1,
+    pageSize: 6,
+    total: 0
   };
 };
 
-const resolveNextSort = (parentId: number) => {
-  const parentNode = findPostManageNode(postTree.value, parentId);
-  const siblingList = parentNode?.children || [];
-  return siblingList.length ? Math.max(...siblingList.map((item) => item.sort)) + 1 : 1;
+const loadPostWorkspace = async (postId: number) => {
+  workspaceLoading.value = true;
+  try {
+    const [detailResponse, previewResponse] = await Promise.all([
+      getOrgPostDetail(postId),
+      getOrgPostUserPage({
+        orgPostId: postId,
+        pageNum: 1,
+        pageSize: 6
+      })
+    ]);
+    if (selectedPostNode.value?.id !== postId) {
+      return;
+    }
+    selectedPostDetail.value = detailResponse.data;
+    employeePreviewResult.value = previewResponse.data;
+  } finally {
+    workspaceLoading.value = false;
+  }
 };
 
-const getCreateParentId = () => {
+const handleNodeSelection = async (nodeKey?: string) => {
+  selectedNodeKey.value = nodeKey;
+  if (!nodeKey) {
+    resetWorkspace();
+    return;
+  }
+  await nextTick();
+  treeRef.value?.setCurrentKey(nodeKey);
+  const node = findTreeNode(postTree.value, nodeKey);
+  if (!node || node.nodeType !== 'POST') {
+    resetWorkspace();
+    return;
+  }
+  resetWorkspace();
+  await loadPostWorkspace(node.id);
+};
+
+const loadTree = async (preferNodeKey?: string) => {
+  treeLoading.value = true;
+  try {
+    const { data } = await getOrgPostTree();
+    postTree.value = data;
+    const nextNodeKey = findTreeNode(data, preferNodeKey)
+      ? preferNodeKey
+      : findTreeNode(data, selectedNodeKey.value)
+        ? selectedNodeKey.value
+        : findFirstPostNode(data)?.nodeKey || data[0]?.nodeKey;
+    await handleNodeSelection(nextNodeKey);
+  } finally {
+    treeLoading.value = false;
+  }
+};
+
+const handleNodeClick = (node: OrgPostTreeNode) => {
+  void handleNodeSelection(node.nodeKey);
+};
+
+const resolveNextSort = (parentNodeKey: string) => {
+  const parentNode = findTreeNode(postTree.value, parentNodeKey);
+  const children = parentNode?.children || [];
+  return children.length ? Math.max(...children.map((item) => item.sort || 0)) + 1 : 1;
+};
+
+const resolveNextOrgSort = (parentNodeKey: string) => {
+  const parentNode = findTreeNode(postTree.value, parentNodeKey);
+  const orgChildren = (parentNode?.children || []).filter((item) => item.nodeType !== 'POST');
+  return orgChildren.length ? Math.max(...orgChildren.map((item) => item.sort || 0)) + 1 : 1;
+};
+
+const getCreateParentNodeKey = () => {
   if (!selectedNode.value) {
-    return postTree.value[0]?.id || 1;
+    return postTree.value[0]?.nodeKey || '';
   }
   if (selectedNode.value.nodeType === 'POST') {
-    return selectedNode.value.parentId;
+    return selectedNode.value.parentNodeKey || '';
   }
-  return selectedNode.value.id;
+  return selectedNode.value.nodeKey;
+};
+
+const getCreateOrgParentNodeKey = () => {
+  if (!selectedNode.value) {
+    return postTree.value[0]?.nodeKey || '';
+  }
+  if (selectedNode.value.nodeType === 'POST') {
+    return `ORG_${selectedNode.value.orgUnitId}`;
+  }
+  return selectedNode.value.nodeKey;
+};
+
+const buildFormPayload = (formData: OrgPostFormModel): CreateOrgPostPayload => {
+  const parentNode = findTreeNode(postTree.value, formData.parentNodeKey);
+  if (!parentNode) {
+    throw new Error('上级节点不存在');
+  }
+  return {
+    managerUserId: formData.managerUserId,
+    note: formData.note,
+    orgUnitId: parentNode.nodeType === 'POST' ? parentNode.orgUnitId : parentNode.id,
+    parentPostId: parentNode.nodeType === 'POST' ? parentNode.id : 0,
+    postCode: formData.postCode,
+    postName: formData.postName,
+    postType: formData.postType,
+    sort: formData.sort,
+    status: formData.status
+  };
+};
+
+const buildOrgFormPayload = (formData: OrgUnitFormModel): CreateOrgUnitPayload => {
+  const parentNode = findTreeNode(postTree.value, formData.parentNodeKey);
+  if (!parentNode || parentNode.nodeType === 'POST') {
+    throw new Error('上级组织不存在');
+  }
+  return {
+    leaderUserId: formData.leaderUserId,
+    note: formData.note,
+    orgCode: formData.orgCode,
+    orgName: formData.orgName,
+    parentId: parentNode.id,
+    sort: formData.sort,
+    status: formData.status
+  };
 };
 
 const handleCreateRoot = () => {
-  const parentId = getCreateParentId();
+  const parentNodeKey = getCreateParentNodeKey();
+  if (!parentNodeKey) {
+    ElMessage.warning('请先初始化组织节点后再新增岗位');
+    return;
+  }
   formMode.value = 'create';
   formInitial.value = {
-    managerName: '',
-    nodeCode: '',
-    nodeName: '',
     note: '',
-    parentId,
-    postTypeLabel: postTypeOptions[0],
-    sort: resolveNextSort(parentId),
+    parentNodeKey,
+    postCode: '',
+    postName: '',
+    postType: POST_TYPE_OPTIONS[0]!.value,
+    sort: resolveNextSort(parentNodeKey),
     status: '0'
   };
   formVisible.value = true;
+};
+
+const handleCreateOrgUnit = () => {
+  const parentNodeKey = getCreateOrgParentNodeKey();
+  if (!parentNodeKey) {
+    ElMessage.warning('请先初始化组织节点后再新增分公司');
+    return;
+  }
+  orgFormInitial.value = {
+    note: '',
+    orgCode: '',
+    orgName: '',
+    parentNodeKey,
+    sort: resolveNextOrgSort(parentNodeKey),
+    status: '0'
+  };
+  orgFormVisible.value = true;
 };
 
 const handleCreateChild = () => {
@@ -407,142 +473,109 @@ const handleCreateChild = () => {
   }
   formMode.value = 'create';
   formInitial.value = {
-    managerName: '',
-    nodeCode: '',
-    nodeName: '',
     note: '',
-    parentId: selectedNode.value.id,
-    postTypeLabel: postTypeOptions[0],
-    sort: resolveNextSort(selectedNode.value.id),
+    parentNodeKey: selectedNode.value.nodeKey,
+    postCode: '',
+    postName: '',
+    postType: POST_TYPE_OPTIONS[0]!.value,
+    sort: resolveNextSort(selectedNode.value.nodeKey),
     status: '0'
   };
   formVisible.value = true;
 };
 
 const handleEditPost = () => {
-  if (!selectedPost.value) {
+  if (!selectedPostNode.value || !selectedPostDetail.value) {
     return;
   }
   formMode.value = 'edit';
   formInitial.value = {
-    id: selectedPost.value.id,
-    managerName: selectedPost.value.managerName,
-    nodeCode: selectedPost.value.nodeCode,
-    nodeName: selectedPost.value.nodeName,
-    note: selectedPost.value.note,
-    parentId: selectedPost.value.parentId,
-    postTypeLabel: selectedPost.value.postTypeLabel,
-    sort: selectedPost.value.sort,
-    status: selectedPost.value.status
+    id: selectedPostDetail.value.id,
+    managerUserId: selectedPostDetail.value.managerUserId,
+    note: selectedPostDetail.value.note || '',
+    parentNodeKey: selectedPostNode.value.parentNodeKey || '',
+    postCode: selectedPostDetail.value.postCode,
+    postName: selectedPostDetail.value.postName,
+    postType: selectedPostDetail.value.postType || POST_TYPE_OPTIONS[0]!.value,
+    sort: selectedPostDetail.value.sort,
+    status: (selectedPostDetail.value.status || '0') as '0' | '1'
   };
   formVisible.value = true;
 };
 
-const handleFormSubmit = (payload: Partial<PostManageTreeNode>) => {
-  const parentId = payload.parentId || postTree.value[0]?.id || 1;
-  const orgContext = resolveOrgContext(parentId);
-
-  if (formMode.value === 'create') {
-    const newId = findMaxId(postTree.value) + 1;
-    const nextNode: PostManageTreeNode = {
-      children: [],
-      employeeIds: [],
-      id: newId,
-      managerName: payload.managerName || '',
-      nodeCode: payload.nodeCode || `post_${newId}`,
-      nodeName: payload.nodeName || '未命名岗位',
-      nodeType: 'POST',
-      note: payload.note || '',
-      orgName: orgContext.orgName,
-      orgTypeLabel: orgContext.orgTypeLabel,
-      parentId,
-      postTypeLabel: payload.postTypeLabel || postTypeOptions[0],
-      sort: payload.sort || resolveNextSort(parentId),
-      status: payload.status || '0'
-    };
-
-    appendChildNode(postTree.value, parentId, nextNode);
-    sortTreeNodes(postTree.value);
-    selectNode(newId);
-    ElMessage.success('岗位已加入本地 mock 数据');
-    return;
+const handleFormSubmit = async (formData: OrgPostFormModel) => {
+  try {
+    const payload = buildFormPayload(formData);
+    if (formMode.value === 'create') {
+      const { data } = await createOrgPost(payload);
+      ElMessage.success('岗位新增成功');
+      formVisible.value = false;
+      await loadTree(data ? `POST_${data}` : undefined);
+      return;
+    }
+    await updateOrgPost({
+      ...payload,
+      id: formData.id!
+    });
+    ElMessage.success('岗位信息已更新');
+    formVisible.value = false;
+    await loadTree(`POST_${formData.id}`);
+  } catch (error) {
+    if (error instanceof Error && error.message === '上级节点不存在') {
+      ElMessage.error(error.message);
+    }
   }
-
-  if (payload.id === undefined) {
-    return;
-  }
-
-  const currentNode = findPostManageNode(postTree.value, payload.id);
-  if (!currentNode || currentNode.nodeType !== 'POST') {
-    return;
-  }
-
-  const nextNode: PostManageTreeNode = {
-    ...currentNode,
-    ...payload,
-    children: currentNode.children || [],
-    employeeIds: currentNode.employeeIds || [],
-    nodeType: 'POST',
-    orgName: orgContext.orgName,
-    orgTypeLabel: orgContext.orgTypeLabel,
-    parentId
-  };
-
-  if (currentNode.parentId !== parentId) {
-    removeNode(postTree.value, nextNode.id);
-    appendChildNode(postTree.value, parentId, nextNode);
-  } else {
-    updateNode(postTree.value, nextNode);
-  }
-
-  sortTreeNodes(postTree.value);
-  selectNode(nextNode.id);
-  ElMessage.success('岗位信息已更新');
 };
 
 const handleFormCancel = () => {
   formVisible.value = false;
 };
 
+const handleOrgFormSubmit = async (formData: OrgUnitFormModel) => {
+  try {
+    const payload = buildOrgFormPayload(formData);
+    const { data } = await createOrgUnit(payload);
+    ElMessage.success('分公司新增成功');
+    orgFormVisible.value = false;
+    await loadTree(data ? `ORG_${data}` : undefined);
+  } catch (error) {
+    if (error instanceof Error) {
+      ElMessage.error(error.message);
+    }
+  }
+};
+
+const handleOrgFormCancel = () => {
+  orgFormVisible.value = false;
+};
+
 const openAssignEmployeeDialog = () => {
-  if (!selectedPost.value) {
+  if (!selectedPostDetail.value?.id) {
     return;
   }
-  dialogTargetPostId.value = selectedPost.value.id;
   assignDialogVisible.value = true;
 };
 
 const openViewEmployeeDialog = () => {
-  if (!selectedPost.value) {
+  if (!selectedPostDetail.value?.id) {
     return;
   }
-  dialogTargetPostId.value = selectedPost.value.id;
   viewDialogVisible.value = true;
 };
 
-const handleAssignEmployeeSubmit = (employeeIds: number[]) => {
-  if (!dialogTargetPost.value) {
+const handleEmployeeChanged = async () => {
+  if (!selectedPostDetail.value?.id) {
     return;
   }
-  dialogTargetPost.value.employeeIds = [...employeeIds];
-  ElMessage.success('岗位员工已更新到本地 mock 数据');
+  await loadPostWorkspace(selectedPostDetail.value.id);
 };
 
 watch(treeKeyword, (value) => {
   treeRef.value?.filter(value);
 });
 
-const firstPost = findFirstPostNode(postTree.value);
-if (firstPost) {
-  selectNode(firstPost.id);
-}
-
 onMounted(() => {
-  nextTick(() => {
-    if (selectedNodeId.value !== undefined) {
-      treeRef.value?.setCurrentKey(selectedNodeId.value);
-    }
-  });
+  void loadTree();
 });
 </script>
 
@@ -627,6 +660,7 @@ onMounted(() => {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  margin-bottom: 12px;
 }
 
 .metric-row {
@@ -673,7 +707,6 @@ onMounted(() => {
   line-height: 1.6;
 }
 
-.page-alert,
 .tree-search {
   margin-bottom: 12px;
 }

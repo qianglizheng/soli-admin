@@ -8,7 +8,7 @@ create table sys_user (
     email          varchar(50)       default null             comment '用户邮箱',
     phone          varchar(11)       default null             comment '用户手机',
     avatar         varchar(100)      default null             comment '用户头像',
-    type           char(1)           default '1' not null     comment '用户类型（0超管-拥有所有权限 1普通用户）',
+    type           char(1)           default '1' not null     comment '用户类型（0超级管理员 1普通用户）',
     sex            char(1)           default '0' not null     comment '用户性别（0男 1女）',
     login_ip       varchar(128)      default null             comment '最后登录IP',
     login_time     datetime          default null             comment '最后登录时间',
@@ -19,7 +19,7 @@ create table sys_user (
     update_time    datetime          default null             comment '更新时间',
     note           varchar(500)      default null             comment '备注',
     primary key (id)
-) engine=innodb comment '系统用户表';
+) engine=innodb comment = '系统用户表';
 
 -- 系统角色表
 drop table if exists sys_role;
@@ -28,7 +28,7 @@ create table sys_role (
     name           varchar(30)       not null                 comment '角色名称',
     code           varchar(100)      not null                 comment '角色权限字符',
     sort           int(4)            default 1 not null       comment '显示顺序',
-    data_scope     char(1)           default '1' not null     comment '数据范围（1全部数据权限 2自定义数据权限 3本部门数据权限 4本部门及以下数据权限）',
+    data_scope     char(1)           default '1' not null     comment '数据范围（1全部 2自定义 3本部门 4本部门及以下）',
     status         char(1)           default '0' not null     comment '角色状态（0正常 1停用）',
     create_by      varchar(32)       default null             comment '创建者',
     create_time    datetime          default null             comment '创建时间',
@@ -43,7 +43,7 @@ drop table if exists sys_user_role;
 create table sys_user_role (
     user_id        bigint(20)        not null                 comment '用户ID',
     role_id        bigint(20)        not null                 comment '角色ID',
-    primary key(user_id, role_id)
+    primary key (user_id, role_id)
 ) engine=innodb comment = '系统用户角色关联表';
 
 -- 系统菜单表
@@ -70,9 +70,9 @@ create table sys_menu (
 -- 系统角色菜单关联表
 drop table if exists sys_role_menu;
 create table sys_role_menu (
-    role_id   bigint(20) not null comment '角色ID',
-    menu_id   bigint(20) not null comment '菜单ID',
-    primary key(role_id, menu_id)
+    role_id        bigint(20)        not null                 comment '角色ID',
+    menu_id        bigint(20)        not null                 comment '菜单ID',
+    primary key (role_id, menu_id)
 ) engine=innodb comment = '角色和菜单关联表';
 
 -- 字典类型表
@@ -129,3 +129,69 @@ create table sys_config (
     primary key (id),
     unique key uk_sys_config_key (config_key)
 ) engine=innodb auto_increment=5000 comment = '参数配置表';
+
+-- 组织单元表
+drop table if exists sys_org_unit;
+create table sys_org_unit (
+    id             bigint(20)        not null                 comment '组织ID',
+    parent_id      bigint(20)        default 0 not null       comment '父组织ID',
+    ancestors      varchar(500)      default '0'              comment '祖级路径',
+    org_code       varchar(64)       not null                 comment '组织编码',
+    org_name       varchar(128)      not null                 comment '组织名称',
+    org_type       varchar(32)       not null                 comment '组织类型',
+    sort           int(11)           default 1 not null       comment '显示顺序',
+    leader_user_id bigint(20)        default null             comment '负责人用户ID',
+    status         char(1)           default '0' not null     comment '状态（0正常 1停用）',
+    create_by      varchar(32)       default null             comment '创建者',
+    create_time    datetime          default null             comment '创建时间',
+    update_by      varchar(32)       default null             comment '更新者',
+    update_time    datetime          default null             comment '更新时间',
+    note           varchar(500)      default null             comment '备注',
+    primary key (id),
+    unique key uk_sys_org_unit_code (org_code),
+    key idx_sys_org_unit_parent (parent_id, sort),
+    key idx_sys_org_unit_type_status (org_type, status)
+) engine=innodb comment = '组织单元表';
+
+-- 组织岗位表
+drop table if exists sys_org_post;
+create table sys_org_post (
+    id              bigint(20)        not null                 comment '岗位ID',
+    org_unit_id     bigint(20)        not null                 comment '所属组织ID',
+    parent_post_id  bigint(20)        default 0 not null       comment '父岗位ID',
+    ancestors       varchar(500)      default '0'              comment '岗位祖级路径',
+    post_code       varchar(64)       not null                 comment '岗位编码',
+    post_name       varchar(128)      not null                 comment '岗位名称',
+    post_type       varchar(32)       default null             comment '岗位类型',
+    manager_user_id bigint(20)        default null             comment '岗位负责人用户ID',
+    sort            int(11)           default 1 not null       comment '显示顺序',
+    status          char(1)           default '0' not null     comment '状态（0正常 1停用）',
+    create_by       varchar(32)       default null             comment '创建者',
+    create_time     datetime          default null             comment '创建时间',
+    update_by       varchar(32)       default null             comment '更新者',
+    update_time     datetime          default null             comment '更新时间',
+    note            varchar(500)      default null             comment '备注',
+    primary key (id),
+    unique key uk_sys_org_post_unit_code (org_unit_id, post_code),
+    key idx_sys_org_post_parent (parent_post_id, sort),
+    key idx_sys_org_post_unit_status (org_unit_id, status)
+) engine=innodb comment = '组织岗位表';
+
+-- 用户组织岗位关联表
+drop table if exists sys_user_org_post;
+create table sys_user_org_post (
+    id            bigint(20)        not null                 comment '主键ID',
+    user_id       bigint(20)        not null                 comment '用户ID',
+    org_post_id   bigint(20)        not null                 comment '组织岗位ID',
+    primary_flag  char(1)           default 'N' not null     comment '是否主岗位（Y是 N否）',
+    status        char(1)           default '0' not null     comment '状态（0正常 1停用）',
+    create_by     varchar(32)       default null             comment '创建者',
+    create_time   datetime          default null             comment '创建时间',
+    update_by     varchar(32)       default null             comment '更新者',
+    update_time   datetime          default null             comment '更新时间',
+    note          varchar(500)      default null             comment '备注',
+    primary key (id),
+    unique key uk_sys_user_org_post (user_id, org_post_id),
+    key idx_sys_user_org_post_post (org_post_id, status),
+    key idx_sys_user_org_post_user (user_id, status)
+) engine=innodb comment = '用户组织岗位关联表';

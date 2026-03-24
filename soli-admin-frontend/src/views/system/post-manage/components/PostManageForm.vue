@@ -2,9 +2,9 @@
   <el-dialog v-model="visible" :title="dialogTitle" width="620px" top="6vh" destroy-on-close>
     <div class="dialog-scroll-body">
       <el-form ref="formRef" :model="form" :rules="rules" label-width="110px">
-        <el-form-item label="上级节点" prop="parentId">
+        <el-form-item label="上级节点" prop="parentNodeKey">
           <el-tree-select
-            v-model="form.parentId"
+            v-model="form.parentNodeKey"
             :data="treeOptions"
             :props="treeSelectProps"
             check-strictly
@@ -13,32 +13,55 @@
             style="width: 100%"
           />
         </el-form-item>
-        <el-form-item label="岗位名称" prop="nodeName">
-          <el-input v-model="form.nodeName" placeholder="请输入岗位名称" />
+
+        <el-form-item label="岗位名称" prop="postName">
+          <el-input v-model="form.postName" placeholder="请输入岗位名称" />
         </el-form-item>
-        <el-form-item label="岗位编码" prop="nodeCode">
-          <el-input v-model="form.nodeCode" placeholder="请输入岗位编码" />
+
+        <el-form-item label="岗位编码" prop="postCode">
+          <el-input v-model="form.postCode" placeholder="请输入岗位编码" />
         </el-form-item>
+
         <el-row :gutter="16">
           <el-col :span="12">
-            <el-form-item label="岗位类型" prop="postTypeLabel">
-              <el-select v-model="form.postTypeLabel" placeholder="请选择岗位类型" style="width: 100%">
-                <el-option v-for="item in postTypeOptions" :key="item" :label="item" :value="item" />
+            <el-form-item label="岗位类型" prop="postType">
+              <el-select v-model="form.postType" placeholder="请选择岗位类型" style="width: 100%">
+                <el-option v-for="item in POST_TYPE_OPTIONS" :key="item.value" :label="item.label" :value="item.value" />
               </el-select>
             </el-form-item>
           </el-col>
+
           <el-col :span="12">
-            <el-form-item label="岗位负责人" prop="managerName">
-              <el-input v-model="form.managerName" placeholder="请输入负责人姓名" />
+            <el-form-item label="岗位负责人" prop="managerUserId">
+              <el-select
+                v-model="form.managerUserId"
+                clearable
+                filterable
+                remote
+                reserve-keyword
+                :loading="managerLoading"
+                :remote-method="handleManagerSearch"
+                placeholder="请输入账号搜索负责人"
+                style="width: 100%"
+              >
+                <el-option
+                  v-for="item in managerOptions"
+                  :key="item.id"
+                  :label="item.label"
+                  :value="item.id"
+                />
+              </el-select>
             </el-form-item>
           </el-col>
         </el-row>
+
         <el-row :gutter="16">
           <el-col :span="12">
             <el-form-item label="显示顺序" prop="sort">
               <el-input-number v-model="form.sort" :min="1" controls-position="right" style="width: 100%" />
             </el-form-item>
           </el-col>
+
           <el-col :span="12">
             <el-form-item label="岗位状态" prop="status">
               <el-select v-model="form.status" placeholder="请选择岗位状态" style="width: 100%">
@@ -48,11 +71,13 @@
             </el-form-item>
           </el-col>
         </el-row>
+
         <el-form-item label="岗位说明" prop="note">
           <el-input v-model="form.note" type="textarea" :rows="3" placeholder="请输入岗位说明" />
         </el-form-item>
       </el-form>
     </div>
+
     <template #footer>
       <el-button @click="handleCancel">取消</el-button>
       <el-button type="primary" @click="handleSubmit">确定</el-button>
@@ -63,32 +88,31 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
-import { postTypeOptions, type PostManageTreeNode, type YesNo } from '../postManageMock';
+import { POST_TYPE_OPTIONS, type OrgPostFormModel, type OrgPostTreeNode, type YesNo } from '@/api/orgPost';
+import { getUserDetail, getUserPage } from '@/api/user';
 
-interface PostManageFormModel {
-  id?: number;
-  parentId: number;
-  nodeCode: string;
-  nodeName: string;
-  postTypeLabel: string;
-  managerName: string;
-  sort: number;
-  status: YesNo;
-  note: string;
+interface TreeOption extends OrgPostTreeNode {
+  disabled?: boolean;
+  children?: TreeOption[];
+}
+
+interface ManagerOption {
+  id: number;
+  label: string;
 }
 
 interface Props {
   modelValue: boolean;
   mode: 'create' | 'edit';
-  initialData?: Partial<PostManageFormModel>;
-  treeData?: PostManageTreeNode[];
-  currentId?: number;
+  initialData?: Partial<OrgPostFormModel>;
+  treeData?: OrgPostTreeNode[];
+  currentNodeKey?: string;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
-  (e: 'submit', value: PostManageFormModel): void;
+  (e: 'submit', value: OrgPostFormModel): void;
   (e: 'cancel'): void;
 }>();
 
@@ -97,25 +121,26 @@ const visible = computed({
   set: (value: boolean) => emit('update:modelValue', value)
 });
 
-const createDefaultForm = (): PostManageFormModel => ({
-  managerName: '',
-  nodeCode: '',
-  nodeName: '',
+const createDefaultForm = (): OrgPostFormModel => ({
   note: '',
-  parentId: 1,
-  postTypeLabel: postTypeOptions[0],
+  parentNodeKey: '',
+  postCode: '',
+  postName: '',
+  postType: POST_TYPE_OPTIONS[0]!.value,
   sort: 1,
   status: '0'
 });
 
 const formRef = ref<FormInstance>();
-const form = reactive<PostManageFormModel>(createDefaultForm());
+const form = reactive<OrgPostFormModel>(createDefaultForm());
+const managerOptions = ref<ManagerOption[]>([]);
+const managerLoading = ref(false);
 
-const rules: FormRules<PostManageFormModel> = {
-  nodeCode: [{ message: '请输入岗位编码', required: true, trigger: 'blur' }],
-  nodeName: [{ message: '请输入岗位名称', required: true, trigger: 'blur' }],
-  parentId: [{ message: '请选择上级节点', required: true, trigger: 'change' }],
-  postTypeLabel: [{ message: '请选择岗位类型', required: true, trigger: 'change' }],
+const rules: FormRules<OrgPostFormModel> = {
+  parentNodeKey: [{ message: '请选择上级节点', required: true, trigger: 'change' }],
+  postCode: [{ message: '请输入岗位编码', required: true, trigger: 'blur' }],
+  postName: [{ message: '请输入岗位名称', required: true, trigger: 'blur' }],
+  postType: [{ message: '请选择岗位类型', required: true, trigger: 'change' }],
   status: [{ message: '请选择岗位状态', required: true, trigger: 'change' }]
 };
 
@@ -123,69 +148,104 @@ const treeSelectProps = {
   children: 'children',
   disabled: 'disabled',
   label: 'nodeName',
-  value: 'id'
+  value: 'nodeKey'
 };
 
-const collectDisabledIds = (
-  nodes: PostManageTreeNode[] | undefined,
-  currentId?: number,
-  bucket: Set<number> = new Set()
-): Set<number> => {
-  if (!nodes) {
+const collectDisabledNodeKeys = (
+  nodes: OrgPostTreeNode[] | undefined,
+  currentNodeKey?: string,
+  bucket: Set<string> = new Set()
+): Set<string> => {
+  if (!nodes || !currentNodeKey) {
     return bucket;
   }
   for (const node of nodes) {
-    if (node.id === currentId) {
-      bucket.add(node.id);
-      const collectChildren = (children: PostManageTreeNode[] | undefined) => {
-        if (!children) {
-          return;
-        }
-        children.forEach((child) => {
-          bucket.add(child.id);
-          collectChildren(child.children);
-        });
-      };
-      collectChildren(node.children);
+    if (node.nodeKey === currentNodeKey) {
+      bucket.add(node.nodeKey);
+      collectChildNodeKeys(node.children, bucket);
       break;
     }
-    collectDisabledIds(node.children, currentId, bucket);
+    collectDisabledNodeKeys(node.children, currentNodeKey, bucket);
   }
   return bucket;
 };
 
-const markDisabled = (
-  nodes: PostManageTreeNode[] | undefined,
-  disabledIds: Set<number>
-): Array<PostManageTreeNode & { disabled?: boolean }> => {
+const collectChildNodeKeys = (nodes: OrgPostTreeNode[] | undefined, bucket: Set<string>) => {
+  if (!nodes) {
+    return;
+  }
+  nodes.forEach((node) => {
+    bucket.add(node.nodeKey);
+    collectChildNodeKeys(node.children, bucket);
+  });
+};
+
+const markDisabled = (nodes: OrgPostTreeNode[] | undefined, disabledKeys: Set<string>): TreeOption[] => {
   if (!nodes) {
     return [];
   }
   return nodes.map((node) => ({
     ...node,
-    children: markDisabled(node.children, disabledIds),
-    disabled: disabledIds.has(node.id)
+    children: markDisabled(node.children, disabledKeys),
+    disabled: disabledKeys.has(node.nodeKey)
   }));
 };
 
 const treeOptions = computed(() => {
-  const disabledIds = collectDisabledIds(props.treeData, props.currentId);
-  return markDisabled(props.treeData, disabledIds);
+  const disabledKeys = collectDisabledNodeKeys(props.treeData, props.currentNodeKey);
+  return markDisabled(props.treeData, disabledKeys);
 });
 
 watch(
   () => [props.modelValue, props.initialData],
-  ([open]) => {
+  async ([open]) => {
     if (!open) {
       return;
     }
     Object.assign(form, createDefaultForm(), props.initialData || {});
     formRef.value?.clearValidate();
+    await loadManagerOptions();
+    await ensureManagerOption(form.managerUserId);
   },
   { deep: true, immediate: true }
 );
 
 const dialogTitle = computed(() => (props.mode === 'create' ? '新增岗位' : '编辑岗位'));
+
+const loadManagerOptions = async (keyword = '') => {
+  managerLoading.value = true;
+  try {
+    const { data } = await getUserPage({
+      pageNum: 1,
+      pageSize: 20,
+      username: keyword || undefined
+    });
+    managerOptions.value = data.list.map((item) => ({
+      id: item.id,
+      label: item.nickname ? `${item.nickname} / ${item.username}` : item.username
+    }));
+  } finally {
+    managerLoading.value = false;
+  }
+};
+
+const ensureManagerOption = async (managerUserId?: number) => {
+  if (!managerUserId) {
+    return;
+  }
+  if (managerOptions.value.some((item) => item.id === managerUserId)) {
+    return;
+  }
+  const { data } = await getUserDetail(managerUserId);
+  managerOptions.value.unshift({
+    id: data.id,
+    label: data.nickname ? `${data.nickname} / ${data.username}` : data.username
+  });
+};
+
+const handleManagerSearch = (keyword: string) => {
+  void loadManagerOptions(keyword);
+};
 
 const handleCancel = () => {
   emit('cancel');
@@ -197,7 +257,7 @@ const handleSubmit = async () => {
     return;
   }
   await formRef.value.validate();
-  emit('submit', { ...form });
+  emit('submit', { ...form, status: form.status as YesNo });
 };
 </script>
 

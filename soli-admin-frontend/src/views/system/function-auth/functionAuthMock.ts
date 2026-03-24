@@ -449,13 +449,11 @@ export const buildFunctionAuthPreview = (
     layout: {
       detailTabs: module.detailTabs.map((tab) => ({
         fieldCodes: tab.fields.map((field) => field.fieldCode),
-        tabCode: tab.tabCode,
-        tabName: tab.tabName
+        tabInfo: { ...tab.tabInfo }
       })),
       headerTabs: module.headerTabs.map((tab) => ({
         fieldCodes: tab.fields.map((field) => field.fieldCode),
-        tabCode: tab.tabCode,
-        tabName: tab.tabName
+        tabInfo: { ...tab.tabInfo }
       }))
     },
     moduleCode: module.moduleCode,

@@ -253,14 +253,14 @@
                               <el-tabs v-model="activeHeaderTab" type="border-card" class="field-tabs">
                                 <el-tab-pane
                                   v-for="tab in headerTabs"
-                                  :key="tab.tabCode"
-                                  :label="`${tab.tabName} (${tab.fields.length})`"
-                                  :name="tab.tabCode"
+                                  :key="tab.tabInfo.tabCode"
+                                  :label="`${tab.tabInfo.tabName} (${tab.fields.length})`"
+                                  :name="tab.tabInfo.tabCode"
                                 >
                                   <div class="sub-tab-summary">
-                                    <div>Tab 编码：{{ tab.tabCode }}</div>
-                                    <div>排序：{{ tab.sort }}</div>
-                                    <div>说明：{{ tab.note || '-' }}</div>
+                                    <div>Tab 编码：{{ tab.tabInfo.tabCode }}</div>
+                                    <div>排序：{{ tab.tabInfo.sort }}</div>
+                                    <div>说明：{{ tab.tabInfo.note || '-' }}</div>
                                   </div>
                                   <el-table :data="tab.fields.slice().sort(sortBySort)" border>
                                     <el-table-column prop="fieldCode" label="字段编码" min-width="160" />
@@ -301,14 +301,14 @@
                               <el-tabs v-model="activeDetailTab" type="border-card" class="field-tabs">
                                 <el-tab-pane
                                   v-for="tab in detailTabs"
-                                  :key="tab.tabCode"
-                                  :label="`${tab.tabName} (${tab.fields.length})`"
-                                  :name="tab.tabCode"
+                                  :key="tab.tabInfo.tabCode"
+                                  :label="`${tab.tabInfo.tabName} (${tab.fields.length})`"
+                                  :name="tab.tabInfo.tabCode"
                                 >
                                   <div class="sub-tab-summary">
-                                    <div>Tab 编码：{{ tab.tabCode }}</div>
-                                    <div>排序：{{ tab.sort }}</div>
-                                    <div>说明：{{ tab.note || '-' }}</div>
+                                    <div>Tab 编码：{{ tab.tabInfo.tabCode }}</div>
+                                    <div>排序：{{ tab.tabInfo.sort }}</div>
+                                    <div>说明：{{ tab.tabInfo.note || '-' }}</div>
                                   </div>
                                   <el-table :data="tab.fields.slice().sort(sortBySort)" border>
                                     <el-table-column prop="fieldCode" label="字段编码" min-width="160" />
@@ -371,7 +371,8 @@ import { ElMessage } from 'element-plus';
 import {
   buttonAreaLabelMap,
   findModuleNode,
-  type ModuleNode
+  type ModuleNode,
+  type ModuleTabDefinition
 } from '../module-center/moduleCenterMock';
 import {
   buildFunctionAuthPreview,
@@ -424,6 +425,7 @@ const activeDetailTab = ref('');
 const previewVisible = ref(false);
 
 const sortBySort = <T extends { sort: number }>(left: T, right: T) => left.sort - right.sort;
+const sortTabsByInfo = (left: ModuleTabDefinition, right: ModuleTabDefinition) => left.tabInfo.sort - right.tabInfo.sort;
 
 const selectedPost = computed(() => {
   const node = findOrgPostNode(orgPostTree.value, selectedPostId.value);
@@ -442,11 +444,11 @@ const currentModuleConfig = computed<ModulePermissionConfig | undefined>(() => {
 });
 
 const headerTabs = computed(() => {
-  return selectedModule.value?.headerTabs.slice().sort(sortBySort) || [];
+  return selectedModule.value?.headerTabs.slice().sort(sortTabsByInfo) || [];
 });
 
 const detailTabs = computed(() => {
-  return selectedModule.value?.detailTabs.slice().sort(sortBySort) || [];
+  return selectedModule.value?.detailTabs.slice().sort(sortTabsByInfo) || [];
 });
 
 const buttonGroups = computed(() => {
@@ -655,8 +657,8 @@ watch(moduleKeyword, (value) => {
 });
 
 watch(selectedModule, (module) => {
-  activeHeaderTab.value = module?.headerTabs[0]?.tabCode || '';
-  activeDetailTab.value = module?.detailTabs[0]?.tabCode || '';
+  activeHeaderTab.value = module?.headerTabs[0]?.tabInfo.tabCode || '';
+  activeDetailTab.value = module?.detailTabs[0]?.tabInfo.tabCode || '';
 }, { immediate: true });
 
 const firstPost = findFirstPostLeaf(orgPostTree.value);

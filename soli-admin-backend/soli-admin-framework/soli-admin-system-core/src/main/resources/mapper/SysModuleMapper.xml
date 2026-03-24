@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.soli.system.core.mapper.SysModuleMapper">
+
+    <resultMap id="SysModuleResultMap" type="com.soli.system.core.service.impl.sysmodule.SysModuleEntity">
+        <id property="id" column="id"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="ancestors" column="ancestors"/>
+        <result property="moduleCode" column="module_code"/>
+        <result property="moduleName" column="module_name"/>
+        <result property="moduleType" column="module_type"/>
+        <result property="routePath" column="route_path"/>
+        <result property="componentPath" column="component_path"/>
+        <result property="icon" column="icon"/>
+        <result property="sort" column="sort"/>
+        <result property="navVisible" column="nav_visible"/>
+        <result property="statefulFlag" column="stateful_flag"/>
+        <result property="stateFieldCode" column="state_field_code"/>
+        <result property="contextVersion" column="context_version"/>
+        <result property="status" column="status"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="note" column="note"/>
+    </resultMap>
+
+    <resultMap id="SysModuleTabResultMap" type="com.soli.system.core.service.impl.sysmodule.SysModuleTabEntity">
+        <id property="id" column="id"/>
+        <result property="moduleId" column="module_id"/>
+        <result property="tabScope" column="tab_scope"/>
+        <result property="tabCode" column="tab_code"/>
+        <result property="tabName" column="tab_name"/>
+        <result property="sort" column="sort"/>
+        <result property="status" column="status"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="note" column="note"/>
+    </resultMap>
+
+    <resultMap id="SysModuleFieldResultMap" type="com.soli.system.core.service.impl.sysmodule.SysModuleFieldEntity">
+        <id property="id" column="id"/>
+        <result property="moduleId" column="module_id"/>
+        <result property="tabId" column="tab_id"/>
+        <result property="fieldScope" column="field_scope"/>
+        <result property="fieldCode" column="field_code"/>
+        <result property="defaultTitle" column="default_title"/>
+        <result property="componentType" column="component_type"/>
+        <result property="dataPath" column="data_path"/>
+        <result property="valueType" column="value_type"/>
+        <result property="requiredFlag" column="required_flag"/>
+        <result property="sort" column="sort"/>
+        <result property="status" column="status"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="note" column="note"/>
+    </resultMap>
+
+    <resultMap id="SysModuleButtonResultMap" type="com.soli.system.core.service.impl.sysmodule.SysModuleButtonEntity">
+        <id property="id" column="id"/>
+        <result property="moduleId" column="module_id"/>
+        <result property="buttonCode" column="button_code"/>
+        <result property="defaultTitle" column="default_title"/>
+        <result property="area" column="button_area"/>
+        <result property="sort" column="sort"/>
+        <result property="status" column="status"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="note" column="note"/>
+    </resultMap>
+
+    <sql id="Module_Column_List">
+        id, parent_id, ancestors, module_code, module_name, module_type, route_path, component_path, icon, sort,
+        nav_visible, stateful_flag, state_field_code, context_version, status, create_by, create_time, update_by, update_time, note
+    </sql>
+
+    <insert id="insert" parameterType="com.soli.system.core.service.impl.sysmodule.SysModuleEntity">
+        insert into sys_module (
+            id, parent_id, ancestors, module_code, module_name, module_type, route_path, component_path, icon, sort,
+            nav_visible, stateful_flag, state_field_code, context_version, status, create_by, create_time, update_by, update_time, note
+        ) values (
+            #{id}, #{parentId}, #{ancestors}, #{moduleCode}, #{moduleName}, #{moduleType}, #{routePath}, #{componentPath}, #{icon}, #{sort},
+            #{navVisible}, #{statefulFlag}, #{stateFieldCode}, #{contextVersion}, #{status}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.soli.system.core.service.impl.sysmodule.SysModuleEntity">
+        update sys_module
+        <set>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="ancestors != null">ancestors = #{ancestors},</if>
+            <if test="moduleCode != null">module_code = #{moduleCode},</if>
+            <if test="moduleName != null">module_name = #{moduleName},</if>
+            <if test="moduleType != null">module_type = #{moduleType},</if>
+            <if test="routePath != null">route_path = #{routePath},</if>
+            <if test="componentPath != null">component_path = #{componentPath},</if>
+            <if test="icon != null">icon = #{icon},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="navVisible != null">nav_visible = #{navVisible},</if>
+            <if test="statefulFlag != null">stateful_flag = #{statefulFlag},</if>
+            <if test="stateFieldCode != null">state_field_code = #{stateFieldCode},</if>
+            <if test="contextVersion != null">context_version = #{contextVersion},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="note != null">note = #{note},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        delete from sys_module
+        where id = #{id}
+    </delete>
+
+    <select id="select" resultMap="SysModuleResultMap">
+        select <include refid="Module_Column_List"/>
+        from sys_module
+        <where>
+            <if test="parentId != null">
+                and parent_id = #{parentId}
+            </if>
+            <if test="moduleCode != null and moduleCode != ''">
+                and module_code like concat('%', #{moduleCode}, '%')
+            </if>
+            <if test="moduleName != null and moduleName != ''">
+                and module_name like concat('%', #{moduleName}, '%')
+            </if>
+            <if test="moduleType != null and moduleType != ''">
+                and module_type = #{moduleType}
+            </if>
+            <if test="statefulFlag != null and statefulFlag != ''">
+                and stateful_flag = #{statefulFlag}
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status}
+            </if>
+        </where>
+        order by sort asc, id asc
+    </select>
+
+    <select id="selectById" resultMap="SysModuleResultMap">
+        select <include refid="Module_Column_List"/>
+        from sys_module
+        where id = #{id}
+    </select>
+
+    <select id="selectTreeNodes" resultType="com.soli.system.core.service.impl.sysmodule.SysModuleTreeNodeModel">
+        select id,
+               parent_id as parentId,
+               module_code as moduleCode,
+               module_name as moduleName,
+               module_type as moduleType,
+               sort,
+               stateful_flag as statefulFlag,
+               status
+        from sys_module
+        order by sort asc, id asc
+    </select>
+
+    <select id="selectByModuleCode" resultMap="SysModuleResultMap">
+        select <include refid="Module_Column_List"/>
+        from sys_module
+        where module_code = #{moduleCode}
+        limit 1
+    </select>
+
+    <select id="countChildModuleByParentId" resultType="int">
+        select count(1)
+        from sys_module
+        where parent_id = #{parentId}
+    </select>
+
+    <update id="updateDescendantAncestors">
+        update sys_module
+        set ancestors = replace(ancestors, #{oldPath}, #{newPath}),
+            update_time = #{updateTime}
+        where ancestors = #{oldPath}
+           or ancestors like concat(#{oldPath}, ',%')
+    </update>
+
+    <update id="incrementContextVersion">
+        update sys_module
+        set context_version = ifnull(context_version, 0) + 1,
+            update_time = #{updateTime}
+        where id = #{moduleId}
+    </update>
+
+    <select id="selectTabsByModuleId" resultMap="SysModuleTabResultMap">
+        select id, module_id, tab_scope, tab_code, tab_name, sort, status, create_by, create_time, update_by, update_time, note
+        from sys_module_tab
+        where module_id = #{moduleId}
+        order by tab_scope asc, sort asc, id asc
+    </select>
+
+    <select id="selectTabById" resultMap="SysModuleTabResultMap">
+        select id, module_id, tab_scope, tab_code, tab_name, sort, status, create_by, create_time, update_by, update_time, note
+        from sys_module_tab
+        where id = #{id}
+    </select>
+
+    <select id="selectTabByModuleIdAndScopeAndCode" resultMap="SysModuleTabResultMap">
+        select id, module_id, tab_scope, tab_code, tab_name, sort, status, create_by, create_time, update_by, update_time, note
+        from sys_module_tab
+        where module_id = #{moduleId}
+          and tab_scope = #{tabScope}
+          and tab_code = #{tabCode}
+        limit 1
+    </select>
+
+    <insert id="insertTab" parameterType="com.soli.system.core.service.impl.sysmodule.SysModuleTabEntity">
+        insert into sys_module_tab (
+            id, module_id, tab_scope, tab_code, tab_name, sort, status, create_by, create_time, update_by, update_time, note
+        ) values (
+            #{id}, #{moduleId}, #{tabScope}, #{tabCode}, #{tabName}, #{sort}, #{status}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
+        )
+    </insert>
+
+    <update id="updateTab" parameterType="com.soli.system.core.service.impl.sysmodule.SysModuleTabEntity">
+        update sys_module_tab
+        <set>
+            <if test="tabScope != null">tab_scope = #{tabScope},</if>
+            <if test="tabCode != null">tab_code = #{tabCode},</if>
+            <if test="tabName != null">tab_name = #{tabName},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="note != null">note = #{note},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTabById">
+        delete from sys_module_tab
+        where id = #{id}
+    </delete>
+
+    <select id="countTabByModuleId" resultType="int">
+        select count(1)
+        from sys_module_tab
+        where module_id = #{moduleId}
+    </select>
+
+    <select id="selectFieldsByModuleId" resultMap="SysModuleFieldResultMap">
+        select id, module_id, tab_id, field_scope, field_code, default_title, component_type, data_path, value_type,
+               required_flag, sort, status, create_by, create_time, update_by, update_time, note
+        from sys_module_field
+        where module_id = #{moduleId}
+        order by field_scope asc, sort asc, id asc
+    </select>
+
+    <select id="selectFieldById" resultMap="SysModuleFieldResultMap">
+        select id, module_id, tab_id, field_scope, field_code, default_title, component_type, data_path, value_type,
+               required_flag, sort, status, create_by, create_time, update_by, update_time, note
+        from sys_module_field
+        where id = #{id}
+    </select>
+
+    <select id="selectFieldByModuleIdAndCode" resultMap="SysModuleFieldResultMap">
+        select id, module_id, tab_id, field_scope, field_code, default_title, component_type, data_path, value_type,
+               required_flag, sort, status, create_by, create_time, update_by, update_time, note
+        from sys_module_field
+        where module_id = #{moduleId}
+          and field_code = #{fieldCode}
+        limit 1
+    </select>
+
+    <insert id="insertField" parameterType="com.soli.system.core.service.impl.sysmodule.SysModuleFieldEntity">
+        insert into sys_module_field (
+            id, module_id, tab_id, field_scope, field_code, default_title, component_type, data_path, value_type,
+            required_flag, sort, status, create_by, create_time, update_by, update_time, note
+        ) values (
+            #{id}, #{moduleId}, #{tabId}, #{fieldScope}, #{fieldCode}, #{defaultTitle}, #{componentType}, #{dataPath}, #{valueType},
+            #{requiredFlag}, #{sort}, #{status}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
+        )
+    </insert>
+
+    <update id="updateField" parameterType="com.soli.system.core.service.impl.sysmodule.SysModuleFieldEntity">
+        update sys_module_field
+        <set>
+            <if test="tabId != null">tab_id = #{tabId},</if>
+            <if test="fieldScope != null">field_scope = #{fieldScope},</if>
+            <if test="fieldCode != null">field_code = #{fieldCode},</if>
+            <if test="defaultTitle != null">default_title = #{defaultTitle},</if>
+            <if test="componentType != null">component_type = #{componentType},</if>
+            <if test="dataPath != null">data_path = #{dataPath},</if>
+            <if test="valueType != null">value_type = #{valueType},</if>
+            <if test="requiredFlag != null">required_flag = #{requiredFlag},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="note != null">note = #{note},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteFieldById">
+        delete from sys_module_field
+        where id = #{id}
+    </delete>
+
+    <select id="countFieldByModuleId" resultType="int">
+        select count(1)
+        from sys_module_field
+        where module_id = #{moduleId}
+    </select>
+
+    <select id="countFieldByTabId" resultType="int">
+        select count(1)
+        from sys_module_field
+        where tab_id = #{tabId}
+    </select>
+
+    <select id="selectButtonsByModuleId" resultMap="SysModuleButtonResultMap">
+        select id, module_id, button_code, default_title, button_area, sort, status, create_by, create_time, update_by, update_time, note
+        from sys_module_button
+        where module_id = #{moduleId}
+        order by button_area asc, sort asc, id asc
+    </select>
+
+    <select id="selectButtonById" resultMap="SysModuleButtonResultMap">
+        select id, module_id, button_code, default_title, button_area, sort, status, create_by, create_time, update_by, update_time, note
+        from sys_module_button
+        where id = #{id}
+    </select>
+
+    <select id="selectButtonByModuleIdAndCode" resultMap="SysModuleButtonResultMap">
+        select id, module_id, button_code, default_title, button_area, sort, status, create_by, create_time, update_by, update_time, note
+        from sys_module_button
+        where module_id = #{moduleId}
+          and button_code = #{buttonCode}
+        limit 1
+    </select>
+
+    <insert id="insertButton" parameterType="com.soli.system.core.service.impl.sysmodule.SysModuleButtonEntity">
+        insert into sys_module_button (
+            id, module_id, button_code, default_title, button_area, sort, status, create_by, create_time, update_by, update_time, note
+        ) values (
+            #{id}, #{moduleId}, #{buttonCode}, #{defaultTitle}, #{area}, #{sort}, #{status}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
+        )
+    </insert>
+
+    <update id="updateButton" parameterType="com.soli.system.core.service.impl.sysmodule.SysModuleButtonEntity">
+        update sys_module_button
+        <set>
+            <if test="buttonCode != null">button_code = #{buttonCode},</if>
+            <if test="defaultTitle != null">default_title = #{defaultTitle},</if>
+            <if test="area != null">button_area = #{area},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="note != null">note = #{note},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteButtonById">
+        delete from sys_module_button
+        where id = #{id}
+    </delete>
+
+    <select id="countButtonByModuleId" resultType="int">
+        select count(1)
+        from sys_module_button
+        where module_id = #{moduleId}
+    </select>
+
+</mapper>

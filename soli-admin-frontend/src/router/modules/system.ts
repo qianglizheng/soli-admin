@@ -50,6 +50,18 @@ const systemRoute: RouteRecordRaw = {
       path: 'function-auth'
     },
     {
+      component: () => import('@/views/system/module-title/index.vue'),
+      meta: { icon: 'EditPen', title: '字段标题中心' },
+      name: 'ModuleTitle',
+      path: 'module-title'
+    },
+    {
+      component: () => import('@/views/system/state-auth/index.vue'),
+      meta: { icon: 'SetUp', title: '状态权限中心' },
+      name: 'StateAuth',
+      path: 'state-auth'
+    },
+    {
       component: () => import('@/views/system/dict/index.vue'),
       meta: { icon: 'Reading', title: '字典管理' },
       name: 'Dict',

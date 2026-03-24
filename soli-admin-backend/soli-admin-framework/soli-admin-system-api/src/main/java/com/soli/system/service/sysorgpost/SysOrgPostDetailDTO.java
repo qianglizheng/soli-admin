@@ -1,0 +1,64 @@
+package com.soli.system.service.sysorgpost;
+
+import lombok.Getter;
+import lombok.Setter;
+
+/**
+ * 岗位详情对象
+ *
+ * @author lizhengqiang
+ * @since 2026-03-24 21:00
+ */
+@Getter
+@Setter
+public class SysOrgPostDetailDTO {
+
+    /** 岗位 ID */
+    private Long id;
+
+    /** 所属组织 ID */
+    private Long orgUnitId;
+
+    /** 父岗位 ID */
+    private Long parentPostId;
+
+    /** 岗位编码 */
+    private String postCode;
+
+    /** 岗位名称 */
+    private String postName;
+
+    /** 岗位类型 */
+    private String postType;
+
+    /** 岗位负责人用户 ID */
+    private Long managerUserId;
+
+    /** 岗位负责人名称 */
+    private String managerName;
+
+    /** 所属组织名称 */
+    private String orgName;
+
+    /** 所属组织类型 */
+    private String orgType;
+
+    /** 上级节点名称 */
+    private String parentNodeName;
+
+    /** 显示顺序 */
+    private Integer sort;
+
+    /** 状态 */
+    private String status;
+
+    /** 下级岗位数量 */
+    private Long childPostCount;
+
+    /** 岗位员工数量 */
+    private Long employeeCount;
+
+    /** 备注 */
+    private String note;
+
+}
