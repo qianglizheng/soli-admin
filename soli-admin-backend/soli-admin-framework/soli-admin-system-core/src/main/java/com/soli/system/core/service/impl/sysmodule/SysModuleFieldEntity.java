@@ -24,6 +24,12 @@ public class SysModuleFieldEntity extends BaseEntity {
 
     private String defaultTitle;
 
+    private String displayTitle;
+
+    private String placeholder;
+
+    private String helpText;
+
     private String componentType;
 
     private String dataPath;

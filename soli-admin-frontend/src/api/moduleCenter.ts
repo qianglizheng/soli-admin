@@ -25,6 +25,9 @@ export interface ModuleFieldDefinition {
   fieldScope: ModuleTabScope;
   fieldCode: string;
   defaultTitle: string;
+  displayTitle?: string | null;
+  placeholder?: string | null;
+  helpText?: string | null;
   componentType: string;
   dataPath: string;
   valueType: string;
@@ -61,6 +64,30 @@ export interface ModuleButtonDefinition {
   note?: string;
 }
 
+export interface ModuleStateDefinition {
+  id: number;
+  moduleId: number;
+  stateCode: string;
+  stateName: string;
+  sort: number;
+  isInitial: YesNo;
+  isFinal: YesNo;
+  status: YesNo;
+  note?: string;
+}
+
+export interface ModuleStateTransition {
+  id: number;
+  moduleId: number;
+  actionButtonCode: string;
+  actionButtonName?: string;
+  fromStateCode: string;
+  toStateCode: string;
+  sort: number;
+  status: YesNo;
+  note?: string;
+}
+
 export interface ModuleDetail {
   id: number;
   parentId: number;
@@ -81,6 +108,8 @@ export interface ModuleDetail {
   headerTabs: ModuleTabDefinition[];
   detailTabs: ModuleTabDefinition[];
   buttons: ModuleButtonDefinition[];
+  states: ModuleStateDefinition[];
+  transitions: ModuleStateTransition[];
 }
 
 export interface ModuleContextPreview {

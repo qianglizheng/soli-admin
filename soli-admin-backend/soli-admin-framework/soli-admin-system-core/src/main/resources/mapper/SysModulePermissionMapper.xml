@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.soli.system.core.mapper.SysModulePermissionMapper">
+
+    <resultMap id="SysOrgPostModuleAuthResultMap" type="com.soli.system.core.service.impl.sysmodulepermission.SysOrgPostModuleAuthEntity">
+        <id property="id" column="id"/>
+        <result property="orgPostId" column="org_post_id"/>
+        <result property="moduleId" column="module_id"/>
+        <result property="moduleVisible" column="module_visible"/>
+        <result property="navVisible" column="nav_visible"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="note" column="note"/>
+    </resultMap>
+
+    <resultMap id="SysOrgPostFieldAuthResultMap" type="com.soli.system.core.service.impl.sysmodulepermission.SysOrgPostFieldAuthEntity">
+        <id property="id" column="id"/>
+        <result property="orgPostId" column="org_post_id"/>
+        <result property="moduleId" column="module_id"/>
+        <result property="fieldId" column="field_id"/>
+        <result property="permissionLevel" column="permission_level"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="note" column="note"/>
+    </resultMap>
+
+    <resultMap id="SysOrgPostButtonAuthResultMap" type="com.soli.system.core.service.impl.sysmodulepermission.SysOrgPostButtonAuthEntity">
+        <id property="id" column="id"/>
+        <result property="orgPostId" column="org_post_id"/>
+        <result property="moduleId" column="module_id"/>
+        <result property="buttonId" column="button_id"/>
+        <result property="permissionLevel" column="permission_level"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="note" column="note"/>
+    </resultMap>
+
+    <resultMap id="SysModuleStateFieldAuthResultMap" type="com.soli.system.core.service.impl.sysmodulepermission.SysModuleStateFieldAuthEntity">
+        <id property="id" column="id"/>
+        <result property="moduleId" column="module_id"/>
+        <result property="stateCode" column="state_code"/>
+        <result property="fieldId" column="field_id"/>
+        <result property="permissionLevel" column="permission_level"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="note" column="note"/>
+    </resultMap>
+
+    <resultMap id="SysModuleStateButtonAuthResultMap" type="com.soli.system.core.service.impl.sysmodulepermission.SysModuleStateButtonAuthEntity">
+        <id property="id" column="id"/>
+        <result property="moduleId" column="module_id"/>
+        <result property="stateCode" column="state_code"/>
+        <result property="buttonId" column="button_id"/>
+        <result property="permissionLevel" column="permission_level"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="note" column="note"/>
+    </resultMap>
+
+    <select id="selectOrgPostModuleAuth" resultMap="SysOrgPostModuleAuthResultMap">
+        select id, org_post_id, module_id, module_visible, nav_visible, create_by, create_time, update_by, update_time, note
+        from sys_org_post_module_auth
+        where org_post_id = #{orgPostId}
+          and module_id = #{moduleId}
+        limit 1
+    </select>
+
+    <select id="countVisibleModuleByOrgPostId" resultType="int">
+        select count(1)
+        from sys_org_post_module_auth
+        where org_post_id = #{orgPostId}
+          and module_visible = '1'
+    </select>
+
+    <select id="selectOrgPostFieldAuthList" resultMap="SysOrgPostFieldAuthResultMap">
+        select id, org_post_id, module_id, field_id, permission_level, create_by, create_time, update_by, update_time, note
+        from sys_org_post_field_auth
+        where org_post_id = #{orgPostId}
+          and module_id = #{moduleId}
+        order by id asc
+    </select>
+
+    <select id="selectOrgPostButtonAuthList" resultMap="SysOrgPostButtonAuthResultMap">
+        select id, org_post_id, module_id, button_id, permission_level, create_by, create_time, update_by, update_time, note
+        from sys_org_post_button_auth
+        where org_post_id = #{orgPostId}
+          and module_id = #{moduleId}
+        order by id asc
+    </select>
+
+    <delete id="deleteOrgPostModuleAuth">
+        delete from sys_org_post_module_auth
+        where org_post_id = #{orgPostId}
+          and module_id = #{moduleId}
+    </delete>
+
+    <delete id="deleteOrgPostFieldAuthList">
+        delete from sys_org_post_field_auth
+        where org_post_id = #{orgPostId}
+          and module_id = #{moduleId}
+    </delete>
+
+    <delete id="deleteOrgPostButtonAuthList">
+        delete from sys_org_post_button_auth
+        where org_post_id = #{orgPostId}
+          and module_id = #{moduleId}
+    </delete>
+
+    <insert id="insertOrgPostModuleAuth" parameterType="com.soli.system.core.service.impl.sysmodulepermission.SysOrgPostModuleAuthEntity">
+        insert into sys_org_post_module_auth (
+            id, org_post_id, module_id, module_visible, nav_visible, create_by, create_time, update_by, update_time, note
+        ) values (
+            #{id}, #{orgPostId}, #{moduleId}, #{moduleVisible}, #{navVisible}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
+        )
+    </insert>
+
+    <insert id="insertOrgPostFieldAuthBatch">
+        insert into sys_org_post_field_auth (
+            id, org_post_id, module_id, field_id, permission_level, create_by, create_time, update_by, update_time, note
+        ) values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id}, #{item.orgPostId}, #{item.moduleId}, #{item.fieldId}, #{item.permissionLevel}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime}, #{item.note})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrgPostButtonAuthBatch">
+        insert into sys_org_post_button_auth (
+            id, org_post_id, module_id, button_id, permission_level, create_by, create_time, update_by, update_time, note
+        ) values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id}, #{item.orgPostId}, #{item.moduleId}, #{item.buttonId}, #{item.permissionLevel}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime}, #{item.note})
+        </foreach>
+    </insert>
+
+    <select id="selectStateFieldAuthList" resultMap="SysModuleStateFieldAuthResultMap">
+        select id, module_id, state_code, field_id, permission_level, create_by, create_time, update_by, update_time, note
+        from sys_module_state_field_auth
+        where module_id = #{moduleId}
+        order by id asc
+    </select>
+
+    <select id="selectStateButtonAuthList" resultMap="SysModuleStateButtonAuthResultMap">
+        select id, module_id, state_code, button_id, permission_level, create_by, create_time, update_by, update_time, note
+        from sys_module_state_button_auth
+        where module_id = #{moduleId}
+        order by id asc
+    </select>
+
+    <delete id="deleteStateFieldAuthList">
+        delete from sys_module_state_field_auth
+        where module_id = #{moduleId}
+    </delete>
+
+    <delete id="deleteStateButtonAuthList">
+        delete from sys_module_state_button_auth
+        where module_id = #{moduleId}
+    </delete>
+
+    <insert id="insertStateFieldAuthBatch">
+        insert into sys_module_state_field_auth (
+            id, module_id, state_code, field_id, permission_level, create_by, create_time, update_by, update_time, note
+        ) values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id}, #{item.moduleId}, #{item.stateCode}, #{item.fieldId}, #{item.permissionLevel}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime}, #{item.note})
+        </foreach>
+    </insert>
+
+    <insert id="insertStateButtonAuthBatch">
+        insert into sys_module_state_button_auth (
+            id, module_id, state_code, button_id, permission_level, create_by, create_time, update_by, update_time, note
+        ) values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id}, #{item.moduleId}, #{item.stateCode}, #{item.buttonId}, #{item.permissionLevel}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime}, #{item.note})
+        </foreach>
+    </insert>
+
+</mapper>

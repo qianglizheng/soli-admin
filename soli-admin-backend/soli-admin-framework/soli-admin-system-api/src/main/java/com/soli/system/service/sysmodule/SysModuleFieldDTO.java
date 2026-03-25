@@ -29,6 +29,15 @@ public class SysModuleFieldDTO extends BaseDTO {
     /** 默认标题 */
     private String defaultTitle;
 
+    /** 显示标题 */
+    private String displayTitle;
+
+    /** 占位提示 */
+    private String placeholder;
+
+    /** 帮助说明 */
+    private String helpText;
+
     /** 组件类型 */
     private String componentType;
 

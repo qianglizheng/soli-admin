@@ -50,6 +50,9 @@
         <result property="fieldScope" column="field_scope"/>
         <result property="fieldCode" column="field_code"/>
         <result property="defaultTitle" column="default_title"/>
+        <result property="displayTitle" column="display_title"/>
+        <result property="placeholder" column="placeholder"/>
+        <result property="helpText" column="help_text"/>
         <result property="componentType" column="component_type"/>
         <result property="dataPath" column="data_path"/>
         <result property="valueType" column="value_type"/>
@@ -69,6 +72,38 @@
         <result property="buttonCode" column="button_code"/>
         <result property="defaultTitle" column="default_title"/>
         <result property="area" column="button_area"/>
+        <result property="sort" column="sort"/>
+        <result property="status" column="status"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="note" column="note"/>
+    </resultMap>
+
+    <resultMap id="SysModuleStateResultMap" type="com.soli.system.core.service.impl.sysmodule.SysModuleStateEntity">
+        <id property="id" column="id"/>
+        <result property="moduleId" column="module_id"/>
+        <result property="stateCode" column="state_code"/>
+        <result property="stateName" column="state_name"/>
+        <result property="sort" column="sort"/>
+        <result property="isInitial" column="is_initial"/>
+        <result property="isFinal" column="is_final"/>
+        <result property="status" column="status"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="note" column="note"/>
+    </resultMap>
+
+    <resultMap id="SysModuleTransitionResultMap" type="com.soli.system.core.service.impl.sysmodule.SysModuleTransitionEntity">
+        <id property="id" column="id"/>
+        <result property="moduleId" column="module_id"/>
+        <result property="actionButtonCode" column="action_button_code"/>
+        <result property="actionButtonName" column="action_button_name"/>
+        <result property="fromStateCode" column="from_state_code"/>
+        <result property="toStateCode" column="to_state_code"/>
         <result property="sort" column="sort"/>
         <result property="status" column="status"/>
         <result property="createBy" column="create_by"/>
@@ -252,7 +287,7 @@
     </select>
 
     <select id="selectFieldsByModuleId" resultMap="SysModuleFieldResultMap">
-        select id, module_id, tab_id, field_scope, field_code, default_title, component_type, data_path, value_type,
+        select id, module_id, tab_id, field_scope, field_code, default_title, display_title, placeholder, help_text, component_type, data_path, value_type,
                required_flag, sort, status, create_by, create_time, update_by, update_time, note
         from sys_module_field
         where module_id = #{moduleId}
@@ -260,14 +295,14 @@
     </select>
 
     <select id="selectFieldById" resultMap="SysModuleFieldResultMap">
-        select id, module_id, tab_id, field_scope, field_code, default_title, component_type, data_path, value_type,
+        select id, module_id, tab_id, field_scope, field_code, default_title, display_title, placeholder, help_text, component_type, data_path, value_type,
                required_flag, sort, status, create_by, create_time, update_by, update_time, note
         from sys_module_field
         where id = #{id}
     </select>
 
     <select id="selectFieldByModuleIdAndCode" resultMap="SysModuleFieldResultMap">
-        select id, module_id, tab_id, field_scope, field_code, default_title, component_type, data_path, value_type,
+        select id, module_id, tab_id, field_scope, field_code, default_title, display_title, placeholder, help_text, component_type, data_path, value_type,
                required_flag, sort, status, create_by, create_time, update_by, update_time, note
         from sys_module_field
         where module_id = #{moduleId}
@@ -301,6 +336,18 @@
             <if test="updateBy != null">update_by = #{updateBy},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
             <if test="note != null">note = #{note},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateFieldTitleById" parameterType="com.soli.system.core.service.impl.sysmodule.SysModuleFieldEntity">
+        update sys_module_field
+        <set>
+            display_title = #{displayTitle},
+            placeholder = #{placeholder},
+            help_text = #{helpText},
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
         </set>
         where id = #{id}
     </update>
@@ -375,6 +422,36 @@
         select count(1)
         from sys_module_button
         where module_id = #{moduleId}
+    </select>
+
+    <select id="selectStatesByModuleId" resultMap="SysModuleStateResultMap">
+        select id, module_id, state_code, state_name, sort, is_initial, is_final, status,
+               create_by, create_time, update_by, update_time, note
+        from sys_module_state
+        where module_id = #{moduleId}
+        order by sort asc, id asc
+    </select>
+
+    <select id="selectTransitionsByModuleId" resultMap="SysModuleTransitionResultMap">
+        select t.id,
+               t.module_id,
+               t.action_button_code,
+               b.default_title as action_button_name,
+               t.from_state_code,
+               t.to_state_code,
+               t.sort,
+               t.status,
+               t.create_by,
+               t.create_time,
+               t.update_by,
+               t.update_time,
+               t.note
+        from sys_module_transition t
+                 left join sys_module_button b
+                           on b.module_id = t.module_id
+                               and b.button_code = t.action_button_code
+        where t.module_id = #{moduleId}
+        order by t.sort asc, t.id asc
     </select>
 
 </mapper>

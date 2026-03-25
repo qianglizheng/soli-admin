@@ -76,7 +76,7 @@
 
                 <div class="overview-actions">
                   <el-button icon="RefreshLeft" @click="handleResetCurrentModule">恢复当前模块</el-button>
-                  <el-button type="primary" icon="DocumentChecked" @click="handleSaveMock">保存 Mock</el-button>
+                  <el-button type="primary" icon="DocumentChecked" @click="handleSave">保存</el-button>
                   <el-button type="primary" plain icon="View" @click="openPreviewDrawer">预览上下文</el-button>
                 </div>
               </div>
@@ -261,32 +261,36 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
-import type { ModuleFieldDefinition, ModuleNode, ModuleTabDefinition } from '../module-center/moduleCenterFixture';
 import {
-  buildModuleTitlePreview,
-  cloneModuleTitleStore,
-  cloneModuleTitleTree,
-  findFirstModuleTitleLeaf,
-  findFirstModuleTitleLeafInNode,
-  findModuleTitleNode,
-  getFieldDefaultHelpText,
-  getFieldDefaultPlaceholder,
-  getModuleTypeLabel,
-  getModuleTypeTagType,
-  isFieldConfigCustomized,
-  type ModuleFieldTitleConfig,
-  type ModuleTitleStore
-} from './moduleTitleMock';
+  moduleTypeLabelMap,
+  type ModuleDetail,
+  type ModuleFieldDefinition,
+  type ModuleTabDefinition,
+  type ModuleTreeNode,
+  type ModuleType
+} from '@/api/moduleCenter';
+import {
+  getModuleTitleDetail,
+  getModuleTitleTree,
+  saveModuleTitle
+} from '@/api/moduleTitle';
 
 defineOptions({
   name: 'SystemModuleTitle'
 });
 
+interface ModuleFieldTitleConfig {
+  displayTitle: string;
+  placeholder: string;
+  helpText: string;
+}
+
 const moduleTreeRef = ref();
 const moduleKeyword = ref('');
-const moduleTree = ref(cloneModuleTitleTree());
-const savedTitleStore = ref(cloneModuleTitleStore());
-const titleStore = ref(cloneModuleTitleStore());
+const moduleTree = ref<ModuleTreeNode[]>([]);
+const currentDetail = ref<ModuleDetail>();
+const savedTitleStore = ref<Record<string, ModuleFieldTitleConfig>>({});
+const titleStore = ref<Record<string, ModuleFieldTitleConfig>>({});
 const selectedModuleId = ref<number>();
 const activeFieldScope = ref<'header' | 'detail'>('header');
 const activeHeaderTab = ref('');
@@ -296,16 +300,15 @@ const previewVisible = ref(false);
 const sortBySort = <T extends { sort: number }>(left: T, right: T) => left.sort - right.sort;
 const sortTabsByInfo = (left: ModuleTabDefinition, right: ModuleTabDefinition) => left.tabInfo.sort - right.tabInfo.sort;
 
-const selectedModule = computed(() => {
-  return findModuleTitleNode(moduleTree.value, selectedModuleId.value);
+const selectedModule = computed<ModuleDetail | undefined>(() => {
+  const detail = currentDetail.value;
+  if (!detail || detail.id !== selectedModuleId.value) {
+    return undefined;
+  }
+  return detail;
 });
 
-const currentModuleTitleMap = computed<Record<string, ModuleFieldTitleConfig>>(() => {
-  if (!selectedModule.value) {
-    return {};
-  }
-  return titleStore.value[selectedModule.value.moduleCode] || {};
-});
+const currentModuleTitleMap = computed<Record<string, ModuleFieldTitleConfig>>(() => titleStore.value);
 
 const headerTabs = computed(() => {
   return selectedModule.value?.headerTabs.slice().sort(sortTabsByInfo) || [];
@@ -316,41 +319,28 @@ const detailTabs = computed(() => {
 });
 
 const currentModuleFields = computed(() => {
-  return selectedModule.value ? [...selectedModule.value.headerTabs, ...selectedModule.value.detailTabs].flatMap((tab) => tab.fields) : [];
+  return selectedModule.value ? flattenFields(selectedModule.value) : [];
 });
 
-const moduleLeafCount = computed(() => {
-  const countLeaves = (nodes: ModuleNode[]): number => {
-    return nodes.reduce((sum, node) => {
-      if (node.moduleType !== 'CATALOG') {
-        return sum + 1;
-      }
-      return sum + (node.children?.length ? countLeaves(node.children) : 0);
-    }, 0);
-  };
-  return countLeaves(moduleTree.value);
-});
+const moduleLeafCount = computed(() => countModuleLeaves(moduleTree.value));
 
 const currentModuleFieldCount = computed(() => currentModuleFields.value.length);
 
 const customDisplayTitleCount = computed(() => {
   return currentModuleFields.value.filter((field) => {
-    const config = currentModuleTitleMap.value[field.fieldCode];
-    return config && config.displayTitle !== field.defaultTitle;
+    return getFieldConfig(field.fieldCode).displayTitle !== field.defaultTitle;
   }).length;
 });
 
 const customPlaceholderCount = computed(() => {
   return currentModuleFields.value.filter((field) => {
-    const config = currentModuleTitleMap.value[field.fieldCode];
-    return config && config.placeholder !== getFieldDefaultPlaceholder(field);
+    return getFieldConfig(field.fieldCode).placeholder !== getFieldDefaultPlaceholder(field);
   }).length;
 });
 
 const customHelpTextCount = computed(() => {
   return currentModuleFields.value.filter((field) => {
-    const config = currentModuleTitleMap.value[field.fieldCode];
-    return config && config.helpText !== getFieldDefaultHelpText(field);
+    return getFieldConfig(field.fieldCode).helpText !== getFieldDefaultHelpText(field);
   }).length;
 });
 
@@ -358,14 +348,10 @@ const previewJson = computed(() => {
   if (!selectedModule.value) {
     return '';
   }
-  return JSON.stringify(
-    buildModuleTitlePreview(selectedModule.value, currentModuleTitleMap.value),
-    null,
-    2
-  );
+  return JSON.stringify(buildModuleTitlePreview(selectedModule.value, currentModuleTitleMap.value), null, 2);
 });
 
-const filterModuleNode = (value: string, data: ModuleNode) => {
+const filterModuleNode = (value: string, data: ModuleTreeNode) => {
   if (!value) {
     return true;
   }
@@ -379,35 +365,66 @@ const selectModule = (id?: number) => {
   }
 };
 
-const handleModuleNodeClick = (node: ModuleNode) => {
-  const targetNode = node.moduleType === 'CATALOG' ? findFirstModuleTitleLeafInNode(node) : node;
+const handleModuleNodeClick = (node: ModuleTreeNode) => {
+  const targetNode = node.moduleType === 'CATALOG' ? findFirstModuleLeafInNode(node) : node;
   if (targetNode) {
     selectModule(targetNode.id);
   }
 };
 
-const getFieldConfig = (fieldCode: string) => {
-  return currentModuleTitleMap.value[fieldCode];
-};
+function getModuleTypeLabel(moduleType: ModuleType) {
+  return moduleTypeLabelMap[moduleType];
+}
 
-const isFieldCustomized = (field: ModuleFieldDefinition) => {
-  return isFieldConfigCustomized(field, currentModuleTitleMap.value[field.fieldCode]);
-};
+function getModuleTypeTagType(moduleType: ModuleType) {
+  if (moduleType === 'CATALOG') {
+    return 'info';
+  }
+  if (moduleType === 'BILL') {
+    return 'warning';
+  }
+  return 'success';
+}
+
+function getFieldConfig(fieldCode: string) {
+  if (!titleStore.value[fieldCode]) {
+    titleStore.value[fieldCode] = {
+      displayTitle: '',
+      helpText: '',
+      placeholder: ''
+    };
+  }
+  return titleStore.value[fieldCode];
+}
+
+function isFieldCustomized(field: ModuleFieldDefinition) {
+  const config = getFieldConfig(field.fieldCode);
+  return config.displayTitle !== field.defaultTitle
+    || config.placeholder !== getFieldDefaultPlaceholder(field)
+    || config.helpText !== getFieldDefaultHelpText(field);
+}
 
 const handleResetCurrentModule = () => {
-  if (!selectedModule.value) {
-    return;
-  }
-  titleStore.value[selectedModule.value.moduleCode] = JSON.parse(JSON.stringify(
-    savedTitleStore.value[selectedModule.value.moduleCode]
-  )) as ModuleTitleStore[string];
+  titleStore.value = deepClone(savedTitleStore.value);
   ElMessage.success('当前模块字段标题配置已恢复到最近一次保存结果');
 };
 
-const handleSaveMock = () => {
-  savedTitleStore.value = JSON.parse(JSON.stringify(titleStore.value));
-  ElMessage.success('字段标题 mock 数据已保存');
-};
+async function handleSave() {
+  if (!selectedModule.value) {
+    return;
+  }
+  await saveModuleTitle({
+    fields: flattenFields(selectedModule.value).map((field) => ({
+      displayTitle: getFieldConfig(field.fieldCode).displayTitle,
+      fieldId: field.id,
+      helpText: getFieldConfig(field.fieldCode).helpText,
+      placeholder: getFieldConfig(field.fieldCode).placeholder
+    })),
+    moduleId: selectedModule.value.id
+  });
+  await loadModuleDetail(selectedModule.value.id);
+  ElMessage.success('字段标题配置已保存');
+}
 
 const openPreviewDrawer = () => {
   if (!selectedModule.value) {
@@ -420,6 +437,13 @@ watch(moduleKeyword, (value) => {
   moduleTreeRef.value?.filter(value);
 });
 
+watch(selectedModuleId, async (moduleId) => {
+  if (!moduleId) {
+    return;
+  }
+  await loadModuleDetail(moduleId);
+});
+
 watch(selectedModule, (module) => {
   if (!module) {
     activeHeaderTab.value = '';
@@ -430,18 +454,133 @@ watch(selectedModule, (module) => {
   activeDetailTab.value = module.detailTabs[0]?.tabInfo.tabCode || '';
 }, { immediate: true });
 
-const firstModule = findFirstModuleTitleLeaf(moduleTree.value);
-if (firstModule) {
-  selectModule(firstModule.id);
-}
-
-onMounted(() => {
+onMounted(async () => {
+  await loadInitialData();
   nextTick(() => {
     if (selectedModuleId.value !== undefined) {
       moduleTreeRef.value?.setCurrentKey(selectedModuleId.value);
     }
   });
 });
+
+async function loadInitialData() {
+  const { data } = await getModuleTitleTree();
+  moduleTree.value = data;
+  const firstModule = findFirstModuleLeaf(moduleTree.value);
+  if (firstModule) {
+    selectedModuleId.value = firstModule.id;
+  }
+}
+
+async function loadModuleDetail(moduleId: number) {
+  const { data } = await getModuleTitleDetail(moduleId);
+  currentDetail.value = data;
+  titleStore.value = buildTitleStore(data);
+  savedTitleStore.value = deepClone(titleStore.value);
+}
+
+function buildTitleStore(moduleDetail: ModuleDetail) {
+  return flattenFields(moduleDetail).reduce<Record<string, ModuleFieldTitleConfig>>((result, field) => {
+    result[field.fieldCode] = {
+      displayTitle: field.displayTitle ?? field.defaultTitle,
+      helpText: field.helpText ?? getFieldDefaultHelpText(field),
+      placeholder: field.placeholder ?? getFieldDefaultPlaceholder(field)
+    };
+    return result;
+  }, {});
+}
+
+function buildModuleTitlePreview(moduleDetail: ModuleDetail, titleMap: Record<string, ModuleFieldTitleConfig>) {
+  const mapFields = (fields: ModuleFieldDefinition[]) => {
+    return fields.map((field) => ({
+      componentType: field.componentType,
+      dataPath: field.dataPath,
+      defaultTitle: field.defaultTitle,
+      displayTitle: titleMap[field.fieldCode]?.displayTitle ?? field.defaultTitle,
+      fieldCode: field.fieldCode,
+      helpText: titleMap[field.fieldCode]?.helpText ?? getFieldDefaultHelpText(field),
+      placeholder: titleMap[field.fieldCode]?.placeholder ?? getFieldDefaultPlaceholder(field),
+      required: field.requiredFlag === '1'
+    }));
+  };
+
+  return {
+    contextVersion: moduleDetail.contextVersion,
+    detailTabs: moduleDetail.detailTabs.map((tab) => ({
+      fields: mapFields(tab.fields),
+      tabInfo: { ...tab.tabInfo }
+    })),
+    headerTabs: moduleDetail.headerTabs.map((tab) => ({
+      fields: mapFields(tab.fields),
+      tabInfo: { ...tab.tabInfo }
+    })),
+    moduleCode: moduleDetail.moduleCode,
+    moduleName: moduleDetail.moduleName
+  };
+}
+
+function getFieldDefaultPlaceholder(field: ModuleFieldDefinition) {
+  if (field.componentType === 'tag' || field.componentType === 'text') {
+    return '';
+  }
+  if (['date', 'datetime', 'search-select'].includes(field.componentType)) {
+    return `请选择${field.defaultTitle}`;
+  }
+  return `请输入${field.defaultTitle}`;
+}
+
+function getFieldDefaultHelpText(field: ModuleFieldDefinition) {
+  if (field.note) {
+    return field.note;
+  }
+  if (field.requiredFlag === '1') {
+    return `${field.defaultTitle}为必填项，请按业务规范维护。`;
+  }
+  return `${field.defaultTitle}用于补充当前业务单据信息。`;
+}
+
+function flattenFields(moduleDetail: ModuleDetail) {
+  return [...moduleDetail.headerTabs, ...moduleDetail.detailTabs].flatMap((tab) => tab.fields);
+}
+
+function countModuleLeaves(nodes: ModuleTreeNode[]): number {
+  return nodes.reduce((sum, node) => {
+    if (node.moduleType !== 'CATALOG') {
+      return sum + 1;
+    }
+    return sum + (node.children?.length ? countModuleLeaves(node.children) : 0);
+  }, 0);
+}
+
+function findFirstModuleLeaf(nodes: ModuleTreeNode[]): ModuleTreeNode | undefined {
+  for (const node of nodes) {
+    const matched = findFirstModuleLeafInNode(node);
+    if (matched) {
+      return matched;
+    }
+  }
+  return undefined;
+}
+
+function findFirstModuleLeafInNode(node: ModuleTreeNode): ModuleTreeNode | undefined {
+  if (node.moduleType !== 'CATALOG') {
+    return node;
+  }
+  if (!node.children?.length) {
+    return undefined;
+  }
+  for (const child of node.children) {
+    const matched = findFirstModuleLeafInNode(child);
+    if (matched) {
+      return matched;
+    }
+  }
+  return undefined;
+}
+
+function deepClone<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
+}
 </script>
 
 <style scoped>

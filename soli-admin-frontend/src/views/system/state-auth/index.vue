@@ -77,7 +77,7 @@
 
                 <div class="overview-actions">
                   <el-button icon="RefreshLeft" @click="handleResetCurrentModule">恢复当前模块</el-button>
-                  <el-button type="primary" icon="DocumentChecked" @click="handleSaveMock">保存 Mock</el-button>
+                  <el-button type="primary" icon="DocumentChecked" @click="handleSave">保存</el-button>
                   <el-button type="primary" plain icon="View" @click="openPreviewDrawer">预览规则</el-button>
                 </div>
               </div>
@@ -430,46 +430,83 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
-import type { ModuleNode, ModuleTabDefinition } from '../module-center/moduleCenterFixture';
-import { buttonAreaLabelMap } from '../module-center/moduleCenterFixture';
-import { groupModuleButtons } from '../function-auth/functionAuthMock';
 import {
-  buildStateAuthPreview,
-  cloneStateAuthModuleTree,
-  cloneStateAuthStore,
-  findFirstStatefulModule,
-  findFirstStatefulModuleInNode,
-  findStateAuthModuleNode,
-  getRestrictedButtonCount,
-  getRestrictedFieldCount,
-  getStateSummaryTagType,
-  stateButtonLimitLabelMap,
-  stateButtonLimitLevelOptions,
-  stateButtonLimitTagTypeMap,
-  stateFieldLimitLabelMap,
-  stateFieldLimitLevelOptions,
-  stateFieldLimitTagTypeMap,
-  type ModuleStateAuthConfig,
+  buttonAreaLabelMap,
+  moduleTypeLabelMap,
+  type ModuleButtonArea,
+  type ModuleButtonDefinition,
+  type ModuleDetail,
   type ModuleStateDefinition,
-  type StateButtonLimitLevel,
-  type StateFieldLimitLevel
-} from './stateAuthMock';
+  type ModuleTabDefinition,
+  type ModuleTreeNode,
+  type ModuleType
+} from '@/api/moduleCenter';
+import {
+  getStateAuthDetail,
+  getStateAuthTree,
+  saveStateAuth,
+  type StateAuthConfig,
+  type StateAuthPageDetail
+} from '@/api/stateAuth';
 
 defineOptions({
   name: 'SystemStateAuth'
 });
 
-const moduleTypeLabelMap = {
-  BILL: '单据模块',
-  CATALOG: '目录',
-  PAGE: '页面'
-} as const;
+type StateFieldLimitLevel = 0 | 1 | 2;
+type StateButtonLimitLevel = 0 | 1 | 2;
+
+interface ModuleStatePermissionConfig {
+  fieldPermissions: Record<string, StateFieldLimitLevel>;
+  buttonPermissions: Record<string, StateButtonLimitLevel>;
+}
+
+interface ModuleStateAuthConfig {
+  permissionsByState: Record<string, ModuleStatePermissionConfig>;
+}
+
+const stateFieldLimitLevelOptions = [
+  { label: '隐藏', value: 0 },
+  { label: '只读', value: 1 },
+  { label: '不收紧', value: 2 }
+] as const;
+
+const stateButtonLimitLevelOptions = [
+  { label: '隐藏', value: 0 },
+  { label: '禁用', value: 1 },
+  { label: '不收紧', value: 2 }
+] as const;
+
+const stateFieldLimitTagTypeMap: Record<StateFieldLimitLevel, 'danger' | 'warning' | 'success'> = {
+  0: 'danger',
+  1: 'warning',
+  2: 'success'
+};
+
+const stateButtonLimitTagTypeMap: Record<StateButtonLimitLevel, 'danger' | 'warning' | 'success'> = {
+  0: 'danger',
+  1: 'warning',
+  2: 'success'
+};
+
+const stateFieldLimitLabelMap: Record<StateFieldLimitLevel, string> = {
+  0: '隐藏',
+  1: '只读',
+  2: '不收紧'
+};
+
+const stateButtonLimitLabelMap: Record<StateButtonLimitLevel, string> = {
+  0: '隐藏',
+  1: '禁用',
+  2: '不收紧'
+};
 
 const moduleTreeRef = ref();
 const moduleKeyword = ref('');
-const moduleTree = ref(cloneStateAuthModuleTree());
-const savedStateAuthStore = ref(cloneStateAuthStore());
-const stateAuthStore = ref(cloneStateAuthStore());
+const moduleTree = ref<ModuleTreeNode[]>([]);
+const pageDetail = ref<StateAuthPageDetail>();
+const savedPermissionConfig = ref<ModuleStateAuthConfig>();
+const permissionConfig = ref<ModuleStateAuthConfig>();
 const selectedModuleId = ref<number>();
 const selectedStateCode = ref('');
 const activePane = ref<'state' | 'transition' | 'button' | 'field'>('state');
@@ -481,26 +518,25 @@ const previewVisible = ref(false);
 const sortBySort = <T extends { sort: number }>(left: T, right: T) => left.sort - right.sort;
 const sortTabsByInfo = (left: ModuleTabDefinition, right: ModuleTabDefinition) => left.tabInfo.sort - right.tabInfo.sort;
 
-const selectedModule = computed(() => {
-  return findStateAuthModuleNode(moduleTree.value, selectedModuleId.value);
+const selectedModule = computed<ModuleDetail | undefined>(() => {
+  const detail = pageDetail.value?.moduleDetail;
+  if (!detail || detail.id !== selectedModuleId.value) {
+    return undefined;
+  }
+  return detail;
 });
 
-const currentModuleConfig = computed<ModuleStateAuthConfig | undefined>(() => {
+const currentModuleConfig = computed<ModuleStateAuthConfig | undefined>(() => permissionConfig.value);
+
+const selectedState = computed<ModuleStateDefinition | undefined>(() => {
   if (!selectedModule.value) {
     return undefined;
   }
-  return stateAuthStore.value[selectedModule.value.moduleCode];
+  return selectedModule.value.states.find((item) => item.stateCode === selectedStateCode.value)
+    || selectedModule.value.states[0];
 });
 
-const selectedState = computed<ModuleStateDefinition | undefined>(() => {
-  if (!currentModuleConfig.value) {
-    return undefined;
-  }
-  return currentModuleConfig.value.states.find((item) => item.stateCode === selectedStateCode.value)
-    || currentModuleConfig.value.states[0];
-});
-
-const currentStatePermission = computed(() => {
+const currentStatePermission = computed<ModuleStatePermissionConfig | undefined>(() => {
   if (!currentModuleConfig.value || !selectedState.value) {
     return undefined;
   }
@@ -508,11 +544,11 @@ const currentStatePermission = computed(() => {
 });
 
 const stateList = computed(() => {
-  return currentModuleConfig.value?.states.slice().sort(sortBySort) || [];
+  return selectedModule.value?.states.slice().sort(sortBySort) || [];
 });
 
 const transitionList = computed(() => {
-  return currentModuleConfig.value?.transitions.slice().sort(sortBySort) || [];
+  return selectedModule.value?.transitions.slice().sort(sortBySort) || [];
 });
 
 const headerTabs = computed(() => {
@@ -524,20 +560,10 @@ const detailTabs = computed(() => {
 });
 
 const buttonGroups = computed(() => {
-  return selectedModule.value ? groupModuleButtons(selectedModule.value) : [];
+  return selectedModule.value ? groupModuleButtons(selectedModule.value.buttons) : [];
 });
 
-const moduleLeafCount = computed(() => {
-  const countLeaves = (nodes: ModuleNode[]): number => {
-    return nodes.reduce((sum, node) => {
-      if (node.moduleType !== 'CATALOG') {
-        return sum + 1;
-      }
-      return sum + (node.children?.length ? countLeaves(node.children) : 0);
-    }, 0);
-  };
-  return countLeaves(moduleTree.value);
-});
+const moduleLeafCount = computed(() => countModuleLeaves(moduleTree.value));
 
 const stateCount = computed(() => stateList.value.length);
 
@@ -546,17 +572,11 @@ const enabledTransitionCount = computed(() => {
 });
 
 const currentRestrictedFieldCount = computed(() => {
-  if (!currentModuleConfig.value || !selectedState.value) {
-    return 0;
-  }
-  return getRestrictedFieldCount(currentModuleConfig.value, selectedState.value.stateCode);
+  return countRestrictedFieldPermissions(currentStatePermission.value);
 });
 
 const currentRestrictedButtonCount = computed(() => {
-  if (!currentModuleConfig.value || !selectedState.value) {
-    return 0;
-  }
-  return getRestrictedButtonCount(currentModuleConfig.value, selectedState.value.stateCode);
+  return countRestrictedButtonPermissions(currentStatePermission.value);
 });
 
 const previewJson = computed(() => {
@@ -570,11 +590,11 @@ const previewJson = computed(() => {
   );
 });
 
-const getModuleTypeLabel = (moduleType: ModuleNode['moduleType']) => {
+function getModuleTypeLabel(moduleType: ModuleType) {
   return moduleTypeLabelMap[moduleType];
-};
+}
 
-const getModuleTypeTagType = (moduleType: ModuleNode['moduleType']) => {
+function getModuleTypeTagType(moduleType: ModuleType) {
   if (moduleType === 'CATALOG') {
     return 'info';
   }
@@ -582,87 +602,109 @@ const getModuleTypeTagType = (moduleType: ModuleNode['moduleType']) => {
     return 'warning';
   }
   return 'success';
-};
+}
 
-const filterModuleNode = (value: string, data: ModuleNode) => {
+function getStateSummaryTagType(state: ModuleStateDefinition): 'primary' | 'success' | 'warning' | 'info' {
+  if (state.isInitial === '1') {
+    return 'primary';
+  }
+  if (state.isFinal === '1') {
+    return 'success';
+  }
+  if (state.stateCode === 'pre_audited') {
+    return 'warning';
+  }
+  return 'info';
+}
+
+function filterModuleNode(value: string, data: ModuleTreeNode) {
   if (!value) {
     return true;
   }
   return data.moduleName.includes(value) || data.moduleCode.includes(value);
-};
+}
 
-const selectModule = (id?: number) => {
+function selectModule(id?: number) {
   selectedModuleId.value = id;
   if (id !== undefined) {
     moduleTreeRef.value?.setCurrentKey(id);
   }
-};
+}
 
-const selectState = (stateCode: string) => {
+function selectState(stateCode: string) {
   selectedStateCode.value = stateCode;
-};
+}
 
-const handleModuleNodeClick = (node: ModuleNode) => {
+function handleModuleNodeClick(node: ModuleTreeNode) {
   const targetNode = node.moduleType === 'CATALOG' ? findFirstStatefulModuleInNode(node) : node;
   if (targetNode) {
     selectModule(targetNode.id);
   }
-};
+}
 
-const getFieldPermission = (fieldCode: string): StateFieldLimitLevel => {
+function getFieldPermission(fieldCode: string): StateFieldLimitLevel {
   return currentStatePermission.value?.fieldPermissions[fieldCode] ?? 2;
-};
+}
 
-const getButtonPermission = (buttonCode: string): StateButtonLimitLevel => {
+function getButtonPermission(buttonCode: string): StateButtonLimitLevel {
   return currentStatePermission.value?.buttonPermissions[buttonCode] ?? 2;
-};
+}
 
-const handleFieldPermissionChange = (fieldCode: string, level: StateFieldLimitLevel) => {
+function handleFieldPermissionChange(fieldCode: string, level: StateFieldLimitLevel) {
   if (!currentStatePermission.value) {
     return;
   }
   currentStatePermission.value.fieldPermissions[fieldCode] = level;
-};
+}
 
-const handleButtonPermissionChange = (buttonCode: string, level: StateButtonLimitLevel) => {
+function handleButtonPermissionChange(buttonCode: string, level: StateButtonLimitLevel) {
   if (!currentStatePermission.value) {
     return;
   }
   currentStatePermission.value.buttonPermissions[buttonCode] = level;
-};
+}
 
-const getStateFieldTightenCount = (stateCode: string) => {
-  return getRestrictedFieldCount(currentModuleConfig.value, stateCode);
-};
+function getStateFieldTightenCount(stateCode: string) {
+  return countRestrictedFieldPermissions(currentModuleConfig.value?.permissionsByState[stateCode]);
+}
 
-const getStateButtonTightenCount = (stateCode: string) => {
-  return getRestrictedButtonCount(currentModuleConfig.value, stateCode);
-};
+function getStateButtonTightenCount(stateCode: string) {
+  return countRestrictedButtonPermissions(currentModuleConfig.value?.permissionsByState[stateCode]);
+}
 
-const handleResetCurrentModule = () => {
-  if (!selectedModule.value) {
+function handleResetCurrentModule() {
+  if (!savedPermissionConfig.value) {
     return;
   }
-  stateAuthStore.value[selectedModule.value.moduleCode] = JSON.parse(JSON.stringify(
-    savedStateAuthStore.value[selectedModule.value.moduleCode]
-  )) as ModuleStateAuthConfig;
+  permissionConfig.value = deepClone(savedPermissionConfig.value);
   ElMessage.success('当前模块状态权限已恢复到最近一次保存结果');
-};
+}
 
-const handleSaveMock = () => {
-  savedStateAuthStore.value = JSON.parse(JSON.stringify(stateAuthStore.value));
-  ElMessage.success('状态权限 mock 数据已保存');
-};
+async function handleSave() {
+  if (!selectedModule.value || !currentModuleConfig.value) {
+    return;
+  }
+  await saveStateAuth(buildStateAuthPayload(selectedModule.value, currentModuleConfig.value));
+  await loadPageDetail(selectedModule.value.id);
+  ElMessage.success('状态权限已保存');
+}
 
-const openPreviewDrawer = () => {
+function openPreviewDrawer() {
   if (!selectedModule.value || !selectedState.value) {
     return;
   }
   previewVisible.value = true;
-};
+}
 
 watch(moduleKeyword, (value) => {
   moduleTreeRef.value?.filter(value);
+});
+
+watch(selectedModuleId, async (moduleId) => {
+  if (!moduleId) {
+    return;
+  }
+  await loadPageDetail(moduleId);
 });
 
 watch(selectedModule, (module) => {
@@ -672,24 +714,260 @@ watch(selectedModule, (module) => {
     activeDetailTab.value = '';
     return;
   }
-  const moduleConfig = stateAuthStore.value[module.moduleCode];
-  selectedStateCode.value = moduleConfig?.states[0]?.stateCode || '';
-  activeHeaderTab.value = module.headerTabs[0]?.tabInfo.tabCode || '';
-  activeDetailTab.value = module.detailTabs[0]?.tabInfo.tabCode || '';
+  selectedStateCode.value = module.states.find((item) => item.stateCode === selectedStateCode.value)?.stateCode
+    || module.states[0]?.stateCode
+    || '';
+  activeHeaderTab.value = module.headerTabs.find((item) => item.tabInfo.tabCode === activeHeaderTab.value)?.tabInfo.tabCode
+    || module.headerTabs[0]?.tabInfo.tabCode
+    || '';
+  activeDetailTab.value = module.detailTabs.find((item) => item.tabInfo.tabCode === activeDetailTab.value)?.tabInfo.tabCode
+    || module.detailTabs[0]?.tabInfo.tabCode
+    || '';
 }, { immediate: true });
 
-const firstModule = findFirstStatefulModule(moduleTree.value);
-if (firstModule) {
-  selectModule(firstModule.id);
-}
-
-onMounted(() => {
+onMounted(async () => {
+  await loadInitialData();
   nextTick(() => {
     if (selectedModuleId.value !== undefined) {
       moduleTreeRef.value?.setCurrentKey(selectedModuleId.value);
     }
   });
 });
+
+async function loadInitialData() {
+  const { data } = await getStateAuthTree();
+  moduleTree.value = data;
+  const firstModule = findFirstStatefulModule(moduleTree.value);
+  if (firstModule) {
+    selectedModuleId.value = firstModule.id;
+  }
+}
+
+async function loadPageDetail(moduleId: number) {
+  const { data } = await getStateAuthDetail(moduleId);
+  pageDetail.value = data;
+  permissionConfig.value = mapStateAuthConfig(data.config, data.moduleDetail);
+  savedPermissionConfig.value = deepClone(permissionConfig.value);
+}
+
+function mapStateAuthConfig(config: StateAuthConfig, moduleDetail: ModuleDetail): ModuleStateAuthConfig {
+  const fieldCodeMap = flattenFields(moduleDetail).reduce<Record<number, string>>((result, field) => {
+    result[field.id] = field.fieldCode;
+    return result;
+  }, {});
+  const buttonCodeMap = (moduleDetail.buttons || []).reduce<Record<number, string>>((result, button) => {
+    result[button.id] = button.buttonCode;
+    return result;
+  }, {});
+  const permissionByStateMap = (config.permissionsByState || []).reduce<Record<string, typeof config.permissionsByState[number]>>((result, item) => {
+    result[item.stateCode] = item;
+    return result;
+  }, {});
+
+  const permissionsByState = (moduleDetail.states || []).reduce<Record<string, ModuleStatePermissionConfig>>((result, state) => {
+    const stateConfig = permissionByStateMap[state.stateCode];
+    const fieldPermissions = (stateConfig?.fieldPermissions || []).reduce<Record<string, StateFieldLimitLevel>>((fieldResult, item) => {
+      const fieldCode = fieldCodeMap[item.fieldId];
+      if (fieldCode) {
+        fieldResult[fieldCode] = normalizeStatePermissionLevel(item.permissionLevel);
+      }
+      return fieldResult;
+    }, {});
+    flattenFields(moduleDetail).forEach((field) => {
+      if (fieldPermissions[field.fieldCode] === undefined) {
+        fieldPermissions[field.fieldCode] = 2;
+      }
+    });
+
+    const buttonPermissions = (stateConfig?.buttonPermissions || []).reduce<Record<string, StateButtonLimitLevel>>((buttonResult, item) => {
+      const buttonCode = buttonCodeMap[item.buttonId];
+      if (buttonCode) {
+        buttonResult[buttonCode] = normalizeStatePermissionLevel(item.permissionLevel);
+      }
+      return buttonResult;
+    }, {});
+    (moduleDetail.buttons || []).forEach((button) => {
+      if (buttonPermissions[button.buttonCode] === undefined) {
+        buttonPermissions[button.buttonCode] = 2;
+      }
+    });
+
+    result[state.stateCode] = {
+      buttonPermissions,
+      fieldPermissions
+    };
+    return result;
+  }, {});
+
+  return {
+    permissionsByState
+  };
+}
+
+function buildStateAuthPayload(moduleDetail: ModuleDetail, config: ModuleStateAuthConfig): StateAuthConfig {
+  return {
+    moduleId: moduleDetail.id,
+    permissionsByState: (moduleDetail.states || []).map((state) => ({
+      buttonPermissions: (moduleDetail.buttons || []).map((button) => ({
+        buttonId: button.id,
+        permissionLevel: config.permissionsByState[state.stateCode]?.buttonPermissions[button.buttonCode] ?? 2
+      })),
+      fieldPermissions: flattenFields(moduleDetail).map((field) => ({
+        fieldId: field.id,
+        permissionLevel: config.permissionsByState[state.stateCode]?.fieldPermissions[field.fieldCode] ?? 2
+      })),
+      stateCode: state.stateCode
+    }))
+  };
+}
+
+function buildStateAuthPreview(
+  moduleDetail: ModuleDetail,
+  state: ModuleStateDefinition,
+  config: ModuleStateAuthConfig
+) {
+  const currentPermissions = config.permissionsByState[state.stateCode];
+
+  return {
+    currentState: {
+      stateCode: state.stateCode,
+      stateName: state.stateName
+    },
+    moduleCode: moduleDetail.moduleCode,
+    moduleName: moduleDetail.moduleName,
+    permissions: {
+      buttons: (moduleDetail.buttons || []).reduce<Record<string, { area: string; label: string; limitLevel: StateButtonLimitLevel; limitLabel: string }>>((result, button) => {
+        const limitLevel = currentPermissions?.buttonPermissions[button.buttonCode] ?? 2;
+        result[button.buttonCode] = {
+          area: buttonAreaLabelMap[button.area],
+          label: button.defaultTitle,
+          limitLabel: stateButtonLimitLabelMap[limitLevel],
+          limitLevel
+        };
+        return result;
+      }, {}),
+      fields: [...moduleDetail.headerTabs, ...moduleDetail.detailTabs].reduce<Record<string, { label: string; limitLevel: StateFieldLimitLevel; limitLabel: string; scope: string; tabInfo: { id: number; moduleId: number; tabScope: string; tabCode: string; tabName: string; sort: number; status?: string; note?: string } }>>((result, tab) => {
+        tab.fields.forEach((field) => {
+          const limitLevel = currentPermissions?.fieldPermissions[field.fieldCode] ?? 2;
+          result[field.fieldCode] = {
+            label: field.displayTitle || field.defaultTitle,
+            limitLabel: stateFieldLimitLabelMap[limitLevel],
+            limitLevel,
+            scope: tab.tabInfo.tabScope,
+            tabInfo: { ...tab.tabInfo }
+          };
+        });
+        return result;
+      }, {})
+    },
+    rules: {
+      buttonLimitLevels: stateButtonLimitLabelMap,
+      fieldLimitLevels: stateFieldLimitLabelMap,
+      mergeFormula: 'finalPermission = min(orgPostBaseline, stateLimit)',
+      onlyTighten: true
+    },
+    stateFieldCode: moduleDetail.stateFieldCode,
+    states: (moduleDetail.states || []).map((item) => ({
+      code: item.stateCode,
+      isFinal: item.isFinal === '1',
+      isInitial: item.isInitial === '1',
+      name: item.stateName,
+      status: item.status === '0' ? 'enabled' : 'disabled'
+    })),
+    transitions: (moduleDetail.transitions || []).map((item) => ({
+      actionButtonCode: item.actionButtonCode,
+      actionButtonName: item.actionButtonName,
+      fromStateCode: item.fromStateCode,
+      status: item.status === '0' ? 'enabled' : 'disabled',
+      toStateCode: item.toStateCode
+    }))
+  };
+}
+
+function groupModuleButtons(buttons: ModuleButtonDefinition[]) {
+  const groupedMap = buttons.reduce<Record<ModuleButtonArea, ModuleButtonDefinition[]>>((result, button) => {
+    if (!result[button.area]) {
+      result[button.area] = [];
+    }
+    result[button.area].push(button);
+    return result;
+  }, {
+    DETAIL_ROW_BUTTON: [],
+    HEADER_TOOLBAR: [],
+    LIST_ROW_BUTTON: [],
+    LIST_TOOLBAR: []
+  });
+  return Object.entries(groupedMap)
+    .map(([area, groupButtonsList]) => ({
+      area: area as ModuleButtonArea,
+      buttons: groupButtonsList.slice().sort(sortBySort)
+    }))
+    .filter((item) => item.buttons.length > 0);
+}
+
+function flattenFields(moduleDetail: ModuleDetail) {
+  return [...moduleDetail.headerTabs, ...moduleDetail.detailTabs].flatMap((tab) => tab.fields);
+}
+
+function countModuleLeaves(nodes: ModuleTreeNode[]): number {
+  return nodes.reduce((sum, node) => {
+    if (node.moduleType !== 'CATALOG') {
+      return sum + 1;
+    }
+    return sum + (node.children?.length ? countModuleLeaves(node.children) : 0);
+  }, 0);
+}
+
+function findFirstStatefulModule(nodes: ModuleTreeNode[]): ModuleTreeNode | undefined {
+  for (const node of nodes) {
+    const matched = findFirstStatefulModuleInNode(node);
+    if (matched) {
+      return matched;
+    }
+  }
+  return undefined;
+}
+
+function findFirstStatefulModuleInNode(node: ModuleTreeNode): ModuleTreeNode | undefined {
+  if (node.moduleType !== 'CATALOG') {
+    return node;
+  }
+  if (!node.children?.length) {
+    return undefined;
+  }
+  for (const child of node.children) {
+    const matched = findFirstStatefulModuleInNode(child);
+    if (matched) {
+      return matched;
+    }
+  }
+  return undefined;
+}
+
+function countRestrictedFieldPermissions(config?: ModuleStatePermissionConfig) {
+  if (!config) {
+    return 0;
+  }
+  return Object.values(config.fieldPermissions).filter((level) => level < 2).length;
+}
+
+function countRestrictedButtonPermissions(config?: ModuleStatePermissionConfig) {
+  if (!config) {
+    return 0;
+  }
+  return Object.values(config.buttonPermissions).filter((level) => level < 2).length;
+}
+
+function normalizeStatePermissionLevel(level?: number): StateFieldLimitLevel {
+  if (level === 0 || level === 1) {
+    return level;
+  }
+  return 2;
+}
+
+function deepClone<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
+}
 </script>
 
 <style scoped>

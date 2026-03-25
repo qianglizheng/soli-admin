@@ -15,7 +15,7 @@ import java.util.List;
 @Setter
 public class SysModuleDetailDTO extends SysModuleDTO {
 
-    /** 单头 Tab 列表 */
+    /** 表头 Tab 列表 */
     private List<SysModuleTabDetailDTO> headerTabs;
 
     /** 明细 Tab 列表 */
@@ -23,5 +23,11 @@ public class SysModuleDetailDTO extends SysModuleDTO {
 
     /** 按钮列表 */
     private List<SysModuleButtonDTO> buttons;
+
+    /** 状态列表 */
+    private List<SysModuleStateDTO> states;
+
+    /** 状态流转列表 */
+    private List<SysModuleTransitionDTO> transitions;
 
 }

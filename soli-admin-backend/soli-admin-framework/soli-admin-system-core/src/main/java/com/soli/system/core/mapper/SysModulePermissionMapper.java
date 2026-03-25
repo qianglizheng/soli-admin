@@ -1,0 +1,52 @@
+package com.soli.system.core.mapper;
+
+import com.soli.system.core.service.impl.sysmodulepermission.SysModuleStateButtonAuthEntity;
+import com.soli.system.core.service.impl.sysmodulepermission.SysModuleStateFieldAuthEntity;
+import com.soli.system.core.service.impl.sysmodulepermission.SysOrgPostButtonAuthEntity;
+import com.soli.system.core.service.impl.sysmodulepermission.SysOrgPostFieldAuthEntity;
+import com.soli.system.core.service.impl.sysmodulepermission.SysOrgPostModuleAuthEntity;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
+/**
+ * 模块权限平台持久层
+ *
+ * @author lizhengqiang
+ * @since 2026-03-25 11:10
+ */
+public interface SysModulePermissionMapper {
+
+    SysOrgPostModuleAuthEntity selectOrgPostModuleAuth(@Param("orgPostId") Long orgPostId, @Param("moduleId") Long moduleId);
+
+    int countVisibleModuleByOrgPostId(@Param("orgPostId") Long orgPostId);
+
+    List<SysOrgPostFieldAuthEntity> selectOrgPostFieldAuthList(@Param("orgPostId") Long orgPostId, @Param("moduleId") Long moduleId);
+
+    List<SysOrgPostButtonAuthEntity> selectOrgPostButtonAuthList(@Param("orgPostId") Long orgPostId, @Param("moduleId") Long moduleId);
+
+    int deleteOrgPostModuleAuth(@Param("orgPostId") Long orgPostId, @Param("moduleId") Long moduleId);
+
+    int deleteOrgPostFieldAuthList(@Param("orgPostId") Long orgPostId, @Param("moduleId") Long moduleId);
+
+    int deleteOrgPostButtonAuthList(@Param("orgPostId") Long orgPostId, @Param("moduleId") Long moduleId);
+
+    int insertOrgPostModuleAuth(SysOrgPostModuleAuthEntity entity);
+
+    int insertOrgPostFieldAuthBatch(@Param("list") List<SysOrgPostFieldAuthEntity> entityList);
+
+    int insertOrgPostButtonAuthBatch(@Param("list") List<SysOrgPostButtonAuthEntity> entityList);
+
+    List<SysModuleStateFieldAuthEntity> selectStateFieldAuthList(@Param("moduleId") Long moduleId);
+
+    List<SysModuleStateButtonAuthEntity> selectStateButtonAuthList(@Param("moduleId") Long moduleId);
+
+    int deleteStateFieldAuthList(@Param("moduleId") Long moduleId);
+
+    int deleteStateButtonAuthList(@Param("moduleId") Long moduleId);
+
+    int insertStateFieldAuthBatch(@Param("list") List<SysModuleStateFieldAuthEntity> entityList);
+
+    int insertStateButtonAuthBatch(@Param("list") List<SysModuleStateButtonAuthEntity> entityList);
+
+}

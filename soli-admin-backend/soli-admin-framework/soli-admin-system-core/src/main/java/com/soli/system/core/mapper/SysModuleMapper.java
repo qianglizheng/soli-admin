@@ -3,7 +3,9 @@ package com.soli.system.core.mapper;
 import com.soli.system.core.service.impl.sysmodule.SysModuleButtonEntity;
 import com.soli.system.core.service.impl.sysmodule.SysModuleEntity;
 import com.soli.system.core.service.impl.sysmodule.SysModuleFieldEntity;
+import com.soli.system.core.service.impl.sysmodule.SysModuleStateEntity;
 import com.soli.system.core.service.impl.sysmodule.SysModuleTabEntity;
+import com.soli.system.core.service.impl.sysmodule.SysModuleTransitionEntity;
 import com.soli.system.core.service.impl.sysmodule.SysModuleTreeNodeModel;
 import com.soli.system.service.sysmodule.SysModuleQuery;
 import org.apache.ibatis.annotations.Param;
@@ -57,6 +59,8 @@ public interface SysModuleMapper extends BaseCrudMapper<SysModuleEntity, SysModu
 
     int updateField(SysModuleFieldEntity entity);
 
+    int updateFieldTitleById(SysModuleFieldEntity entity);
+
     int deleteFieldById(@Param("id") Long id);
 
     int countFieldByModuleId(@Param("moduleId") Long moduleId);
@@ -76,5 +80,9 @@ public interface SysModuleMapper extends BaseCrudMapper<SysModuleEntity, SysModu
     int deleteButtonById(@Param("id") Long id);
 
     int countButtonByModuleId(@Param("moduleId") Long moduleId);
+
+    List<SysModuleStateEntity> selectStatesByModuleId(@Param("moduleId") Long moduleId);
+
+    List<SysModuleTransitionEntity> selectTransitionsByModuleId(@Param("moduleId") Long moduleId);
 
 }

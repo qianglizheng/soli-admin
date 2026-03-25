@@ -11,8 +11,10 @@ import com.soli.system.service.sysmodule.SysModuleDetailDTO;
 import com.soli.system.service.sysmodule.SysModuleFieldDTO;
 import com.soli.system.service.sysmodule.SysModuleQuery;
 import com.soli.system.service.sysmodule.SysModuleService;
+import com.soli.system.service.sysmodule.SysModuleStateDTO;
 import com.soli.system.service.sysmodule.SysModuleTabDTO;
 import com.soli.system.service.sysmodule.SysModuleTabDetailDTO;
+import com.soli.system.service.sysmodule.SysModuleTransitionDTO;
 import com.soli.system.service.sysmodule.SysModuleTreeNodeDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,10 +71,15 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         SysModuleDetailDTO detail = sysModuleConverter.toDetailDTO(moduleEntity);
         List<SysModuleTabDTO> tabList = sysModuleConverter.toTabDTOList(sysModuleMapper.selectTabsByModuleId(id));
         List<SysModuleFieldDTO> fieldList = sysModuleConverter.toFieldDTOList(sysModuleMapper.selectFieldsByModuleId(id));
+        List<SysModuleButtonDTO> buttonList = sysModuleConverter.toButtonDTOList(sysModuleMapper.selectButtonsByModuleId(id));
         detail.setHeaderTabs(buildTabDetails(tabList, fieldList, "HEADER"));
         detail.setDetailTabs(buildTabDetails(tabList, fieldList, "DETAIL"));
-        detail.setButtons(sysModuleConverter.toButtonDTOList(sysModuleMapper.selectButtonsByModuleId(id)));
+        detail.setButtons(buttonList);
         detail.getButtons().sort(Comparator.comparing(SysModuleButtonDTO::getSort, Comparator.nullsLast(Integer::compareTo)));
+        detail.setStates(sysModuleConverter.toStateDTOList(sysModuleMapper.selectStatesByModuleId(id)));
+        detail.setTransitions(sysModuleConverter.toTransitionDTOList(sysModuleMapper.selectTransitionsByModuleId(id)));
+        detail.getStates().sort(Comparator.comparing(SysModuleStateDTO::getSort, Comparator.nullsLast(Integer::compareTo)));
+        detail.getTransitions().sort(Comparator.comparing(SysModuleTransitionDTO::getSort, Comparator.nullsLast(Integer::compareTo)));
         return detail;
     }
 

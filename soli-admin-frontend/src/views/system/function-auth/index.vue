@@ -61,13 +61,13 @@
                     </el-tag>
                   </div>
                   <div class="overview-subtitle">
-                    当前组织：{{ selectedPost.orgName }}，左侧岗位树和右侧模块树均为 mock 数据，当前页用于配置岗位基础功能权限。
+                    当前组织：{{ selectedPost.orgName }}，当前页用于配置岗位基础功能权限，状态权限中心会在此基础上继续收紧。
                   </div>
                 </div>
 
                 <div class="overview-actions">
                   <el-button icon="RefreshLeft" :disabled="!selectedModule" @click="handleResetCurrentModule">恢复当前模块</el-button>
-                  <el-button type="primary" icon="DocumentChecked" @click="handleSaveMock">保存 Mock</el-button>
+                  <el-button type="primary" icon="DocumentChecked" @click="handleSave">保存</el-button>
                   <el-button type="primary" plain icon="View" :disabled="!selectedModule" @click="openPreviewDrawer">预览岗位基线</el-button>
                 </div>
               </div>
@@ -370,52 +370,99 @@ import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import {
   buttonAreaLabelMap,
-  findModuleNode,
-  type ModuleNode,
-  type ModuleTabDefinition
-} from '../module-center/moduleCenterFixture';
+  moduleTypeLabelMap,
+  type ModuleButtonArea,
+  type ModuleButtonDefinition,
+  type ModuleDetail,
+  type ModuleFieldDefinition,
+  type ModuleTabDefinition,
+  type ModuleTreeNode,
+  type ModuleType,
+  type YesNo
+} from '@/api/moduleCenter';
 import {
-  buildFunctionAuthPreview,
-  buttonPermissionLabelMap,
-  buttonPermissionLevelOptions,
-  buttonPermissionTagTypeMap,
-  cloneFunctionAuthModuleTree,
-  cloneFunctionAuthPermissionStore,
-  cloneOrgPostTree,
-  fieldPermissionLabelMap,
-  fieldPermissionLevelOptions,
-  fieldPermissionTagTypeMap,
-  findFirstModuleLeafInNode,
-  findFirstPostLeaf,
-  findFirstPostLeafInNode,
-  findOrgPostNode,
+  getFunctionAuthDetail,
+  getFunctionAuthModuleTree,
+  getFunctionAuthPostTree,
+  saveFunctionAuth,
+  type FunctionAuthConfig,
+  type FunctionAuthPageDetail
+} from '@/api/functionAuth';
+import {
   getOrgNodeTypeLabel,
-  groupModuleButtons,
-  type ButtonPermissionLevel,
-  type FieldPermissionLevel,
-  type ModulePermissionConfig,
+  getPostTypeLabel,
   type OrgNodeType,
   type OrgPostTreeNode
-} from './functionAuthMock';
+} from '@/api/orgPost';
 
 defineOptions({
   name: 'SystemFunctionAuth'
 });
 
-const moduleTypeLabelMap = {
-  BILL: '单据模块',
-  CATALOG: '目录',
-  PAGE: '页面'
-} as const;
+type FieldPermissionLevel = 0 | 1 | 2;
+type ButtonPermissionLevel = 0 | 1 | 2;
+
+interface ModulePermissionConfig {
+  moduleVisible: boolean;
+  navVisible: boolean;
+  fieldPermissions: Record<string, FieldPermissionLevel>;
+  buttonPermissions: Record<string, ButtonPermissionLevel>;
+}
+
+interface SelectedPostSummary {
+  id: number;
+  nodeName: string;
+  status: YesNo;
+  orgName?: string;
+  orgTypeLabel?: string;
+  postTypeLabel?: string;
+}
+
+const fieldPermissionLevelOptions = [
+  { label: '不可见', value: 0 },
+  { label: '只读', value: 1 },
+  { label: '可写', value: 2 }
+] as const;
+
+const buttonPermissionLevelOptions = [
+  { label: '不可见', value: 0 },
+  { label: '禁用', value: 1 },
+  { label: '可用', value: 2 }
+] as const;
+
+const fieldPermissionTagTypeMap: Record<FieldPermissionLevel, '' | 'warning' | 'success'> = {
+  0: '',
+  1: 'warning',
+  2: 'success'
+};
+
+const buttonPermissionTagTypeMap: Record<ButtonPermissionLevel, '' | 'warning' | 'success'> = {
+  0: '',
+  1: 'warning',
+  2: 'success'
+};
+
+const fieldPermissionLabelMap: Record<FieldPermissionLevel, string> = {
+  0: '不可见',
+  1: '只读',
+  2: '可写'
+};
+
+const buttonPermissionLabelMap: Record<ButtonPermissionLevel, string> = {
+  0: '不可见',
+  1: '禁用',
+  2: '可用'
+};
 
 const postTreeRef = ref();
 const moduleTreeRef = ref();
 const postKeyword = ref('');
 const moduleKeyword = ref('');
-const orgPostTree = ref(cloneOrgPostTree());
-const moduleTree = ref(cloneFunctionAuthModuleTree());
-const savedPermissionStore = ref(cloneFunctionAuthPermissionStore());
-const permissionStore = ref(cloneFunctionAuthPermissionStore());
+const orgPostTree = ref<OrgPostTreeNode[]>([]);
+const moduleTree = ref<ModuleTreeNode[]>([]);
+const pageDetail = ref<FunctionAuthPageDetail>();
+const savedPermissionConfig = ref<ModulePermissionConfig>();
+const permissionConfig = ref<ModulePermissionConfig>();
 const selectedPostId = ref<number>();
 const selectedModuleId = ref<number>();
 const activePane = ref<'module' | 'button' | 'field'>('module');
@@ -427,21 +474,30 @@ const previewVisible = ref(false);
 const sortBySort = <T extends { sort: number }>(left: T, right: T) => left.sort - right.sort;
 const sortTabsByInfo = (left: ModuleTabDefinition, right: ModuleTabDefinition) => left.tabInfo.sort - right.tabInfo.sort;
 
-const selectedPost = computed(() => {
-  const node = findOrgPostNode(orgPostTree.value, selectedPostId.value);
-  return node?.nodeType === 'POST' ? node : undefined;
-});
-
-const selectedModule = computed(() => {
-  return findModuleNode(moduleTree.value, selectedModuleId.value);
-});
-
-const currentModuleConfig = computed<ModulePermissionConfig | undefined>(() => {
-  if (!selectedPost.value || !selectedModule.value) {
+const selectedPost = computed<SelectedPostSummary | undefined>(() => {
+  const detail = pageDetail.value?.postDetail;
+  if (!detail || detail.id !== selectedPostId.value) {
     return undefined;
   }
-  return permissionStore.value[selectedPost.value.id]?.[selectedModule.value.moduleCode];
+  return {
+    id: detail.id,
+    nodeName: detail.postName,
+    orgName: detail.orgName,
+    orgTypeLabel: getOrgNodeTypeLabel(detail.orgType),
+    postTypeLabel: getPostTypeLabel(detail.postType),
+    status: (detail.status || '0') as YesNo
+  };
 });
+
+const selectedModule = computed<ModuleDetail | undefined>(() => {
+  const detail = pageDetail.value?.moduleDetail;
+  if (!detail || detail.id !== selectedModuleId.value) {
+    return undefined;
+  }
+  return detail;
+});
+
+const currentModuleConfig = computed<ModulePermissionConfig | undefined>(() => permissionConfig.value);
 
 const headerTabs = computed(() => {
   return selectedModule.value?.headerTabs.slice().sort(sortTabsByInfo) || [];
@@ -452,27 +508,12 @@ const detailTabs = computed(() => {
 });
 
 const buttonGroups = computed(() => {
-  return selectedModule.value ? groupModuleButtons(selectedModule.value) : [];
+  return selectedModule.value ? groupModuleButtons(selectedModule.value.buttons) : [];
 });
 
-const postLeafCount = computed(() => {
-  const countLeaves = (nodes: OrgPostTreeNode[]): number => {
-    return nodes.reduce((sum, node) => {
-      if (node.nodeType === 'POST') {
-        return sum + 1;
-      }
-      return sum + (node.children?.length ? countLeaves(node.children) : 0);
-    }, 0);
-  };
-  return countLeaves(orgPostTree.value);
-});
+const postLeafCount = computed(() => countPostLeaves(orgPostTree.value));
 
-const visibleModuleCount = computed(() => {
-  if (!selectedPost.value) {
-    return 0;
-  }
-  return Object.values(permissionStore.value[selectedPost.value.id] || {}).filter((item) => item.moduleVisible).length;
-});
+const visibleModuleCount = computed(() => pageDetail.value?.visibleModuleCount || 0);
 
 const currentModuleFieldCount = computed(() => {
   if (!selectedModule.value) {
@@ -524,18 +565,12 @@ const previewJson = computed(() => {
   if (!selectedPost.value || !selectedModule.value || !currentModuleConfig.value) {
     return '';
   }
-  return JSON.stringify(
-    buildFunctionAuthPreview(selectedPost.value, selectedModule.value, currentModuleConfig.value),
-    null,
-    2
-  );
+  return JSON.stringify(buildFunctionAuthPreview(selectedPost.value, selectedModule.value, currentModuleConfig.value), null, 2);
 });
 
-const getModuleTypeLabel = (moduleType: ModuleNode['moduleType']) => {
-  return moduleTypeLabelMap[moduleType];
-};
+const getModuleTypeLabel = (moduleType: ModuleType) => moduleTypeLabelMap[moduleType];
 
-const getModuleTypeTagType = (moduleType: ModuleNode['moduleType']) => {
+const getModuleTypeTagType = (moduleType: ModuleType) => {
   if (moduleType === 'CATALOG') {
     return 'info';
   }
@@ -562,7 +597,7 @@ const filterPostNode = (value: string, data: OrgPostTreeNode) => {
   return data.nodeName.includes(value) || data.nodeCode.includes(value);
 };
 
-const filterModuleNode = (value: string, data: ModuleNode) => {
+const filterModuleNode = (value: string, data: ModuleTreeNode) => {
   if (!value) {
     return true;
   }
@@ -590,7 +625,7 @@ const handlePostNodeClick = (node: OrgPostTreeNode) => {
   }
 };
 
-const handleModuleNodeClick = (node: ModuleNode) => {
+const handleModuleNodeClick = (node: ModuleTreeNode) => {
   const targetNode = node.moduleType === 'CATALOG' ? findFirstModuleLeafInNode(node) : node;
   if (targetNode) {
     selectModule(targetNode.id);
@@ -620,26 +655,21 @@ const handleButtonPermissionChange = (buttonCode: string, level: ButtonPermissio
 };
 
 const handleResetCurrentModule = () => {
-  if (!selectedPost.value || !selectedModule.value) {
+  if (!savedPermissionConfig.value) {
     return;
   }
-  const currentPost = selectedPost.value;
-  const currentModule = selectedModule.value;
-  const postModuleMap = permissionStore.value[currentPost.id];
-  const savedPostModuleMap = savedPermissionStore.value[currentPost.id];
-  if (!postModuleMap || !savedPostModuleMap) {
-    return;
-  }
-  postModuleMap[currentModule.moduleCode] = JSON.parse(JSON.stringify(
-    savedPostModuleMap[currentModule.moduleCode]
-  )) as ModulePermissionConfig;
+  permissionConfig.value = deepClone(savedPermissionConfig.value);
   ElMessage.success('当前模块权限已恢复到最近一次保存结果');
 };
 
-const handleSaveMock = () => {
-  savedPermissionStore.value = JSON.parse(JSON.stringify(permissionStore.value));
-  ElMessage.success('功能授权 mock 数据已保存');
-};
+async function handleSave() {
+  if (!selectedPostId.value || !selectedModule.value || !currentModuleConfig.value) {
+    return;
+  }
+  await saveFunctionAuth(buildFunctionAuthPayload(selectedPostId.value, selectedModule.value, currentModuleConfig.value));
+  await loadPageDetail(selectedPostId.value, selectedModule.value.id);
+  ElMessage.success('功能授权已保存');
+}
 
 const openPreviewDrawer = () => {
   if (!selectedPost.value || !selectedModule.value) {
@@ -661,19 +691,15 @@ watch(selectedModule, (module) => {
   activeDetailTab.value = module?.detailTabs[0]?.tabInfo.tabCode || '';
 }, { immediate: true });
 
-const firstPost = findFirstPostLeaf(orgPostTree.value);
-const firstModuleRoot = moduleTree.value[0];
-const firstModule = firstModuleRoot ? (findFirstModuleLeafInNode(firstModuleRoot) || firstModuleRoot) : undefined;
+watch([selectedPostId, selectedModuleId], async ([postId, moduleId]) => {
+  if (!postId || !moduleId) {
+    return;
+  }
+  await loadPageDetail(postId, moduleId);
+});
 
-if (firstPost) {
-  selectPost(firstPost.id);
-}
-
-if (firstModule) {
-  selectModule(firstModule.id);
-}
-
-onMounted(() => {
+onMounted(async () => {
+  await loadInitialData();
   nextTick(() => {
     if (selectedPostId.value !== undefined) {
       postTreeRef.value?.setCurrentKey(selectedPostId.value);
@@ -683,6 +709,233 @@ onMounted(() => {
     }
   });
 });
+
+async function loadInitialData() {
+  const [{ data: postTreeData }, { data: moduleTreeData }] = await Promise.all([
+    getFunctionAuthPostTree(),
+    getFunctionAuthModuleTree()
+  ]);
+  orgPostTree.value = postTreeData;
+  moduleTree.value = moduleTreeData;
+
+  const firstPost = findFirstPostLeaf(orgPostTree.value);
+  const firstModule = findFirstModuleLeaf(moduleTree.value);
+  if (firstPost) {
+    selectedPostId.value = firstPost.id;
+  }
+  if (firstModule) {
+    selectedModuleId.value = firstModule.id;
+  }
+}
+
+async function loadPageDetail(orgPostId: number, moduleId: number) {
+  const { data } = await getFunctionAuthDetail(orgPostId, moduleId);
+  pageDetail.value = data;
+  permissionConfig.value = mapFunctionAuthConfig(data.config, data.moduleDetail);
+  savedPermissionConfig.value = deepClone(permissionConfig.value);
+}
+
+function mapFunctionAuthConfig(config: FunctionAuthConfig, moduleDetail: ModuleDetail): ModulePermissionConfig {
+  const fieldCodeMap = flattenFields(moduleDetail).reduce<Record<number, string>>((result, field) => {
+    result[field.id] = field.fieldCode;
+    return result;
+  }, {});
+  const buttonCodeMap = (moduleDetail.buttons || []).reduce<Record<number, string>>((result, button) => {
+    result[button.id] = button.buttonCode;
+    return result;
+  }, {});
+
+  const fieldPermissions = (config.fieldPermissions || []).reduce<Record<string, FieldPermissionLevel>>((result, item) => {
+    const fieldCode = fieldCodeMap[item.fieldId];
+    if (fieldCode) {
+      result[fieldCode] = normalizePermissionLevel(item.permissionLevel);
+    }
+    return result;
+  }, {});
+  flattenFields(moduleDetail).forEach((field) => {
+    if (fieldPermissions[field.fieldCode] === undefined) {
+      fieldPermissions[field.fieldCode] = 0;
+    }
+  });
+
+  const buttonPermissions = (config.buttonPermissions || []).reduce<Record<string, ButtonPermissionLevel>>((result, item) => {
+    const buttonCode = buttonCodeMap[item.buttonId];
+    if (buttonCode) {
+      result[buttonCode] = normalizePermissionLevel(item.permissionLevel);
+    }
+    return result;
+  }, {});
+  (moduleDetail.buttons || []).forEach((button) => {
+    if (buttonPermissions[button.buttonCode] === undefined) {
+      buttonPermissions[button.buttonCode] = 0;
+    }
+  });
+
+  return {
+    buttonPermissions,
+    fieldPermissions,
+    moduleVisible: !!config.moduleVisible,
+    navVisible: !!config.navVisible
+  };
+}
+
+function buildFunctionAuthPayload(
+  orgPostId: number,
+  moduleDetail: ModuleDetail,
+  config: ModulePermissionConfig
+): FunctionAuthConfig {
+  return {
+    buttonPermissions: (moduleDetail.buttons || []).map((button) => ({
+      buttonId: button.id,
+      permissionLevel: config.buttonPermissions[button.buttonCode] ?? 0
+    })),
+    fieldPermissions: flattenFields(moduleDetail).map((field) => ({
+      fieldId: field.id,
+      permissionLevel: config.fieldPermissions[field.fieldCode] ?? 0
+    })),
+    moduleId: moduleDetail.id,
+    moduleVisible: config.moduleVisible,
+    navVisible: config.moduleVisible ? config.navVisible : false,
+    orgPostId
+  };
+}
+
+function buildFunctionAuthPreview(
+  post: SelectedPostSummary,
+  moduleDetail: ModuleDetail,
+  config: ModulePermissionConfig
+) {
+  const fields = flattenFields(moduleDetail).reduce<Record<string, { label: string; visible: boolean; editable: boolean }>>((result, field) => {
+    const level = config.fieldPermissions[field.fieldCode] ?? 0;
+    result[field.fieldCode] = {
+      editable: level === 2,
+      label: field.defaultTitle,
+      visible: level > 0
+    };
+    return result;
+  }, {});
+
+  const buttons = (moduleDetail.buttons || []).reduce<Record<string, { label: string; visible: boolean; disabled: boolean }>>((result, button) => {
+    const level = config.buttonPermissions[button.buttonCode] ?? 0;
+    result[button.buttonCode] = {
+      disabled: level === 1,
+      label: button.defaultTitle,
+      visible: level > 0
+    };
+    return result;
+  }, {});
+
+  return {
+    currentOrgPost: {
+      orgName: post.orgName,
+      orgPostId: post.id,
+      orgPostName: post.nodeName
+    },
+    moduleCode: moduleDetail.moduleCode,
+    moduleName: moduleDetail.moduleName,
+    permissions: {
+      buttons,
+      fields,
+      module: {
+        navVisible: config.moduleVisible ? config.navVisible : false,
+        visible: config.moduleVisible
+      }
+    }
+  };
+}
+
+function groupModuleButtons(buttons: ModuleButtonDefinition[]) {
+  const groupedMap = buttons.reduce<Record<ModuleButtonArea, ModuleButtonDefinition[]>>((result, button) => {
+    if (!result[button.area]) {
+      result[button.area] = [];
+    }
+    result[button.area].push(button);
+    return result;
+  }, {
+    DETAIL_ROW_BUTTON: [],
+    HEADER_TOOLBAR: [],
+    LIST_ROW_BUTTON: [],
+    LIST_TOOLBAR: []
+  });
+  return Object.entries(groupedMap)
+    .map(([area, groupButtonsList]) => ({
+      area: area as ModuleButtonArea,
+      buttons: groupButtonsList.slice().sort(sortBySort)
+    }))
+    .filter((item) => item.buttons.length > 0);
+}
+
+function flattenFields(moduleDetail: ModuleDetail) {
+  return [...moduleDetail.headerTabs, ...moduleDetail.detailTabs].flatMap((tab) => tab.fields);
+}
+
+function countPostLeaves(nodes: OrgPostTreeNode[]): number {
+  return nodes.reduce((sum, node) => {
+    if (node.nodeType === 'POST') {
+      return sum + 1;
+    }
+    return sum + (node.children?.length ? countPostLeaves(node.children) : 0);
+  }, 0);
+}
+
+function findFirstPostLeaf(nodes: OrgPostTreeNode[]): OrgPostTreeNode | undefined {
+  for (const node of nodes) {
+    if (node.nodeType === 'POST') {
+      return node;
+    }
+    if (node.children?.length) {
+      const matched = findFirstPostLeaf(node.children);
+      if (matched) {
+        return matched;
+      }
+    }
+  }
+  return undefined;
+}
+
+function findFirstPostLeafInNode(node: OrgPostTreeNode): OrgPostTreeNode | undefined {
+  if (node.nodeType === 'POST') {
+    return node;
+  }
+  return node.children?.length ? findFirstPostLeaf(node.children) : undefined;
+}
+
+function findFirstModuleLeaf(nodes: ModuleTreeNode[]): ModuleTreeNode | undefined {
+  for (const node of nodes) {
+    const matched = findFirstModuleLeafInNode(node);
+    if (matched) {
+      return matched;
+    }
+  }
+  return undefined;
+}
+
+function findFirstModuleLeafInNode(node: ModuleTreeNode): ModuleTreeNode | undefined {
+  if (node.moduleType !== 'CATALOG') {
+    return node;
+  }
+  if (!node.children?.length) {
+    return undefined;
+  }
+  for (const child of node.children) {
+    const matched = findFirstModuleLeafInNode(child);
+    if (matched) {
+      return matched;
+    }
+  }
+  return undefined;
+}
+
+function normalizePermissionLevel(level?: number): FieldPermissionLevel {
+  if (level === 1 || level === 2) {
+    return level;
+  }
+  return 0;
+}
+
+function deepClone<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
+}
 </script>
 
 <style scoped>

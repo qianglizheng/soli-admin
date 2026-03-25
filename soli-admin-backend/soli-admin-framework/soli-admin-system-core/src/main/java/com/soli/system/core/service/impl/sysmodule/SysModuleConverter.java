@@ -11,9 +11,11 @@ import com.soli.system.service.sysmodule.SysModuleFieldCreateRequest;
 import com.soli.system.service.sysmodule.SysModuleFieldDTO;
 import com.soli.system.service.sysmodule.SysModuleFieldModifyRequest;
 import com.soli.system.service.sysmodule.SysModuleModifyRequest;
+import com.soli.system.service.sysmodule.SysModuleStateDTO;
 import com.soli.system.service.sysmodule.SysModuleTabCreateRequest;
 import com.soli.system.service.sysmodule.SysModuleTabDTO;
 import com.soli.system.service.sysmodule.SysModuleTabModifyRequest;
+import com.soli.system.service.sysmodule.SysModuleTransitionDTO;
 import com.soli.system.service.sysmodule.SysModuleTreeNodeDTO;
 import org.mapstruct.Mapper;
 
@@ -69,6 +71,14 @@ public interface SysModuleConverter extends Converter<SysModuleDTO, SysModuleEnt
     SysModuleButtonDTO toButtonDTO(SysModuleButtonEntity entity);
 
     List<SysModuleButtonDTO> toButtonDTOList(List<SysModuleButtonEntity> entityList);
+
+    SysModuleStateDTO toStateDTO(SysModuleStateEntity entity);
+
+    List<SysModuleStateDTO> toStateDTOList(List<SysModuleStateEntity> entityList);
+
+    SysModuleTransitionDTO toTransitionDTO(SysModuleTransitionEntity entity);
+
+    List<SysModuleTransitionDTO> toTransitionDTOList(List<SysModuleTransitionEntity> entityList);
 
     SysModuleButtonDTO toDTO(SysModuleButtonCreateRequest createRequest);
 
