@@ -262,38 +262,40 @@
                                     <div>排序：{{ tab.tabInfo.sort }}</div>
                                     <div>说明：{{ tab.tabInfo.note || '-' }}</div>
                                   </div>
-                                  <el-table :data="tab.fields.slice().sort(sortBySort)" border>
-                                    <el-table-column prop="fieldCode" label="字段编码" min-width="160" />
-                                    <el-table-column label="字段标题" min-width="140">
-                                      <template #default="scope">
-                                        {{ scope.row.displayTitle || scope.row.defaultTitle }}
-                                      </template>
-                                    </el-table-column>
-                                    <el-table-column prop="dataPath" label="数据路径" min-width="220" show-overflow-tooltip />
-                                    <el-table-column label="权限级别" width="180">
-                                      <template #default="scope">
-                                        <el-select
-                                          :model-value="getFieldPermission(scope.row.fieldCode)"
-                                          style="width: 100%"
-                                          @update:model-value="handleFieldPermissionChange(scope.row.fieldCode, $event as FieldPermissionLevel)"
-                                        >
-                                          <el-option
-                                            v-for="item in fieldPermissionLevelOptions"
-                                            :key="item.value"
-                                            :label="item.label"
-                                            :value="item.value"
-                                          />
-                                        </el-select>
-                                      </template>
-                                    </el-table-column>
-                                    <el-table-column label="效果预览" width="120" align="center">
-                                      <template #default="scope">
-                                        <el-tag :type="fieldPermissionTagTypeMap[getFieldPermission(scope.row.fieldCode)]" effect="plain">
-                                          {{ fieldPermissionLabelMap[getFieldPermission(scope.row.fieldCode)] }}
-                                        </el-tag>
-                                      </template>
-                                    </el-table-column>
-                                  </el-table>
+                                  <div class="field-table-wrapper">
+                                    <el-table :data="tab.fields.slice().sort(sortBySort)" border style="width: 100%">
+                                      <el-table-column prop="fieldCode" label="字段编码" min-width="160" />
+                                      <el-table-column label="字段标题" min-width="140">
+                                        <template #default="scope">
+                                          {{ scope.row.displayTitle || scope.row.defaultTitle }}
+                                        </template>
+                                      </el-table-column>
+                                      <el-table-column prop="dataPath" label="数据路径" min-width="220" show-overflow-tooltip />
+                                      <el-table-column label="权限级别" width="180">
+                                        <template #default="scope">
+                                          <el-select
+                                            :model-value="getFieldPermission(scope.row.fieldCode)"
+                                            style="width: 100%"
+                                            @update:model-value="handleFieldPermissionChange(scope.row.fieldCode, $event as FieldPermissionLevel)"
+                                          >
+                                            <el-option
+                                              v-for="item in fieldPermissionLevelOptions"
+                                              :key="item.value"
+                                              :label="item.label"
+                                              :value="item.value"
+                                            />
+                                          </el-select>
+                                        </template>
+                                      </el-table-column>
+                                      <el-table-column label="效果预览" width="120" align="center">
+                                        <template #default="scope">
+                                          <el-tag :type="fieldPermissionTagTypeMap[getFieldPermission(scope.row.fieldCode)]" effect="plain">
+                                            {{ fieldPermissionLabelMap[getFieldPermission(scope.row.fieldCode)] }}
+                                          </el-tag>
+                                        </template>
+                                      </el-table-column>
+                                    </el-table>
+                                  </div>
                                 </el-tab-pane>
                               </el-tabs>
                             </template>
@@ -314,38 +316,40 @@
                                     <div>排序：{{ tab.tabInfo.sort }}</div>
                                     <div>说明：{{ tab.tabInfo.note || '-' }}</div>
                                   </div>
-                                  <el-table :data="tab.fields.slice().sort(sortBySort)" border>
-                                    <el-table-column prop="fieldCode" label="字段编码" min-width="160" />
-                                    <el-table-column label="字段标题" min-width="140">
-                                      <template #default="scope">
-                                        {{ scope.row.displayTitle || scope.row.defaultTitle }}
-                                      </template>
-                                    </el-table-column>
-                                    <el-table-column prop="dataPath" label="数据路径" min-width="220" show-overflow-tooltip />
-                                    <el-table-column label="权限级别" width="180">
-                                      <template #default="scope">
-                                        <el-select
-                                          :model-value="getFieldPermission(scope.row.fieldCode)"
-                                          style="width: 100%"
-                                          @update:model-value="handleFieldPermissionChange(scope.row.fieldCode, $event as FieldPermissionLevel)"
-                                        >
-                                          <el-option
-                                            v-for="item in fieldPermissionLevelOptions"
-                                            :key="item.value"
-                                            :label="item.label"
-                                            :value="item.value"
-                                          />
-                                        </el-select>
-                                      </template>
-                                    </el-table-column>
-                                    <el-table-column label="效果预览" width="120" align="center">
-                                      <template #default="scope">
-                                        <el-tag :type="fieldPermissionTagTypeMap[getFieldPermission(scope.row.fieldCode)]" effect="plain">
-                                          {{ fieldPermissionLabelMap[getFieldPermission(scope.row.fieldCode)] }}
-                                        </el-tag>
-                                      </template>
-                                    </el-table-column>
-                                  </el-table>
+                                  <div class="field-table-wrapper">
+                                    <el-table :data="tab.fields.slice().sort(sortBySort)" border style="width: 100%">
+                                      <el-table-column prop="fieldCode" label="字段编码" min-width="160" />
+                                      <el-table-column label="字段标题" min-width="140">
+                                        <template #default="scope">
+                                          {{ scope.row.displayTitle || scope.row.defaultTitle }}
+                                        </template>
+                                      </el-table-column>
+                                      <el-table-column prop="dataPath" label="数据路径" min-width="220" show-overflow-tooltip />
+                                      <el-table-column label="权限级别" width="180">
+                                        <template #default="scope">
+                                          <el-select
+                                            :model-value="getFieldPermission(scope.row.fieldCode)"
+                                            style="width: 100%"
+                                            @update:model-value="handleFieldPermissionChange(scope.row.fieldCode, $event as FieldPermissionLevel)"
+                                          >
+                                            <el-option
+                                              v-for="item in fieldPermissionLevelOptions"
+                                              :key="item.value"
+                                              :label="item.label"
+                                              :value="item.value"
+                                            />
+                                          </el-select>
+                                        </template>
+                                      </el-table-column>
+                                      <el-table-column label="效果预览" width="120" align="center">
+                                        <template #default="scope">
+                                          <el-tag :type="fieldPermissionTagTypeMap[getFieldPermission(scope.row.fieldCode)]" effect="plain">
+                                            {{ fieldPermissionLabelMap[getFieldPermission(scope.row.fieldCode)] }}
+                                          </el-tag>
+                                        </template>
+                                      </el-table-column>
+                                    </el-table>
+                                  </div>
                                 </el-tab-pane>
                               </el-tabs>
                             </template>
@@ -1231,6 +1235,16 @@ function deepClone<T>(value: T): T {
   margin-bottom: 14px;
   color: var(--el-text-color-secondary);
   font-size: 13px;
+}
+
+.field-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
+:deep(.field-table-wrapper .el-table) {
+  min-width: 820px;
 }
 
 .preview-header {

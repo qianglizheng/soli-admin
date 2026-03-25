@@ -1,5 +1,5 @@
 import request from './request';
-import type { ApiResponse, PageResult, SysRole, SysUser, UserInfo } from '@/types/global';
+import type { ApiResponse, PageResult, SysUser, UserInfo } from '@/types/global';
 
 export interface UserPageQuery {
   pageNum: number;
@@ -19,7 +19,6 @@ export interface CreateUserPayload {
   type?: string;
   sex?: string;
   status?: string;
-  roleIds?: number[];
 }
 
 export interface UpdateUserPayload {
@@ -31,7 +30,6 @@ export interface UpdateUserPayload {
   type?: string;
   sex?: string;
   status?: string;
-  roleIds?: number[];
 }
 
 export function loginUsingUsername(data: { username: string; password: string; code?: string; captchaUUID?: string }) {
@@ -77,13 +75,6 @@ export function getUserDetail(id: number) {
   return request<ApiResponse<SysUser>>({
     method: 'get',
     url: `/sys/user/${id}`
-  });
-}
-
-export function getUserRoleOptions() {
-  return request<ApiResponse<SysRole[]>>({
-    method: 'get',
-    url: '/sys/user/role-options'
   });
 }
 

@@ -17,22 +17,41 @@
         </router-view>
       </div>
     </div>
+    <CompanySelectorDialog />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
 import { useAppStore } from '@/store/modules/app';
+import { useCompanyStore } from '@/store/modules/company';
 import Sidebar from './components/Sidebar.vue';
 import Header from './components/Header.vue';
 import TagsView from './components/TagsView.vue';
+import CompanySelectorDialog from './components/CompanySelectorDialog.vue';
 
 defineOptions({
   name: "SystemLayout"
 })
 
 const appStore = useAppStore();
+const companyStore = useCompanyStore();
 const sidebar = computed(() => appStore.sidebar);
+
+const ensureCompanySelection = async () => {
+  try {
+    await companyStore.ensureSelection();
+  } catch (error) {
+    console.error(error);
+    companyStore.showSelector(true);
+    ElMessage.error('公司列表加载失败，请稍后重试');
+  }
+};
+
+onMounted(() => {
+  ensureCompanySelection();
+});
 </script>
 
 <style scoped lang="scss">

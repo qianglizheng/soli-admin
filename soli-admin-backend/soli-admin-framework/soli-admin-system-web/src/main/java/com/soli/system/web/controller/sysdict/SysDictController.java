@@ -42,7 +42,7 @@ public class SysDictController {
     private final SysDictConverter sysDictConverter;
 
     @Operation(summary = "新增字典类型")
-    @PreAuthorize("hasAuthority('sys:dict:create')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_dict', 'create')")
     @PostMapping
     public Result<Void> create(@Valid @RequestBody SysDictCreateRequest createRequest) {
         sysDictService.create(sysDictConverter.toDTO(createRequest));
@@ -50,7 +50,7 @@ public class SysDictController {
     }
 
     @Operation(summary = "删除字典类型")
-    @PreAuthorize("hasAuthority('sys:dict:remove')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_dict', 'remove')")
     @DeleteMapping("/{id}")
     public Result<Void> remove(@PathVariable Long id) {
         sysDictService.remove(id);
@@ -58,7 +58,7 @@ public class SysDictController {
     }
 
     @Operation(summary = "修改字典类型")
-    @PreAuthorize("hasAuthority('sys:dict:modify')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_dict', 'modify')")
     @PutMapping
     public Result<Void> modify(@Valid @RequestBody SysDictModifyRequest modifyRequest) {
         sysDictService.modify(sysDictConverter.toDTO(modifyRequest));
@@ -66,14 +66,14 @@ public class SysDictController {
     }
 
     @Operation(summary = "分页查询字典类型")
-    @PreAuthorize("hasAuthority('sys:dict:page')")
+    @PreAuthorize("@moduleAccess.hasModule('sys_dict')")
     @PostMapping("/page")
     public Result<PageResult<SysDictDTO>> page(@RequestBody SysDictQuery query) {
         return Result.success(sysDictService.page(query));
     }
 
     @Operation(summary = "查询字典类型详情")
-    @PreAuthorize("hasAuthority('sys:dict:page')")
+    @PreAuthorize("@moduleAccess.hasModule('sys_dict')")
     @GetMapping("/{id}")
     public Result<SysDictDTO> getById(@PathVariable Long id) {
         return Result.success(sysDictService.getById(id).orElseThrow(() -> new BusinessException("指定字典不存在！")));

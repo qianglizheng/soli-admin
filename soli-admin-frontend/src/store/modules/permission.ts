@@ -1,63 +1,113 @@
 import { defineStore } from 'pinia';
-import router, { dashboardRoute } from '@/router';
-import { getMenuTree } from '@/api/menu';
-import systemRoute, { systemExtraRoutes } from '@/router/modules/system';
-import purchaseRoute from '@/router/modules/purchase';
-import { useUserStore } from '@/store/modules/user';
-import type { RouteRecordRaw } from 'vue-router';
-import type { SysMenuDTO } from '@/types/global';
 import { ref } from 'vue';
+import type { RouteRecordRaw } from 'vue-router';
+import { getModuleNavTree, type ModuleTreeNode } from '@/api/moduleCenter';
+import router, { dashboardRoute } from '@/router';
+import { purchaseExtraRoutes } from '@/router/modules/purchase';
+import { systemExtraRoutes } from '@/router/modules/system';
 
 const Layout = () => import('@/layout/index.vue');
 
-const staticMenuRoutes: RouteRecordRaw[] = [dashboardRoute];
+const viewModules = import.meta.glob('../../views/**/*.vue');
+
+const staticRoutes: RouteRecordRaw[] = [dashboardRoute];
 
 export const usePermissionStore = defineStore('permission', () => {
-  const routes = ref<RouteRecordRaw[]>([...staticMenuRoutes]);
+  const routes = ref<RouteRecordRaw[]>([...staticRoutes]);
   const addRoutes = ref<RouteRecordRaw[]>([]);
   const isRoutesLoaded = ref(false);
 
-  const buildRoutesFromMenus = (menus: SysMenuDTO[]): RouteRecordRaw[] => {
-    const records: Record<number, RouteRecordRaw> = {};
-    const roots: RouteRecordRaw[] = [];
+  const normalizeRootPath = (path?: string) => {
+    if (!path) {
+      return '';
+    }
+    return path.startsWith('/') ? path : `/${path}`;
+  };
 
-    const mapNode = (node: SysMenuDTO): RouteRecordRaw => {
-      const record: RouteRecordRaw = {
-        path: node.type === '0'
-          ? (node.path?.startsWith('/') ? node.path : `/${node.path || ''}`)
-          : (node.path || ''),
-        name: node.name,
-        component: node.type === '0' ? Layout : undefined,
-        meta: { title: node.name, icon: node.icon },
-        children: []
-      };
-      if (node.type === '1' && node.component) {
-        record.component = () => import(`@/views/${node.component}.vue`);
+  const joinPath = (parentPath: string, currentPath: string) => {
+    if (!parentPath) {
+      return normalizeRootPath(currentPath);
+    }
+    if (!currentPath) {
+      return parentPath;
+    }
+    if (currentPath.startsWith('/')) {
+      return currentPath;
+    }
+    return `${parentPath.replace(/\/$/, '')}/${currentPath.replace(/^\//, '')}`;
+  };
+
+  const resolveViewComponent = (componentPath?: string) => {
+    if (!componentPath) {
+      return undefined;
+    }
+    return viewModules[`../../views/${componentPath}.vue`];
+  };
+
+  const buildRouteFromModule = (
+    node: ModuleTreeNode,
+    parentFullPath = ''
+  ): { fullPath: string; route: RouteRecordRaw } | undefined => {
+    if (!node.routePath) {
+      return undefined;
+    }
+
+    const fullPath = joinPath(parentFullPath, node.routePath);
+    const routePath = parentFullPath ? node.routePath : fullPath;
+    const route: RouteRecordRaw = {
+      path: routePath,
+      name: node.moduleCode,
+      meta: { title: node.moduleName, icon: node.icon },
+      children: []
+    };
+
+    if (node.moduleType === 'CATALOG') {
+      route.component = Layout;
+    } else {
+      const component = resolveViewComponent(node.componentPath);
+      if (!component) {
+        return undefined;
       }
-      return record;
-    };
+      route.component = component;
+    }
 
-    const traverse = (nodes: SysMenuDTO[]) => {
-      nodes.forEach(n => {
-        if (n.type === '2') return;
-        const rec = mapNode(n);
-        records[n.id] = rec;
-        if (!n.parentId || n.parentId === 0) {
-          roots.push(rec);
-        } else {
-          const parent = records[n.parentId];
-          if (parent) {
-            (parent.children as RouteRecordRaw[]).push(rec);
-          } else {
-            roots.push(rec);
-          }
-        }
-        if (n.children && n.children.length) traverse(n.children);
-      });
-    };
+    const childRoutes = (node.children || [])
+      .map((child) => buildRouteFromModule(child, fullPath))
+      .filter((item): item is { fullPath: string; route: RouteRecordRaw } => Boolean(item));
 
-    traverse(menus);
-    return roots;
+    if (childRoutes.length) {
+      route.children = childRoutes.map((item) => item.route);
+      if (node.moduleType === 'CATALOG') {
+        route.redirect = childRoutes[0].fullPath;
+      }
+    } else {
+      delete route.children;
+    }
+
+    return {
+      fullPath,
+      route
+    };
+  };
+
+  const buildRoutesFromModules = (modules: ModuleTreeNode[]): RouteRecordRaw[] => {
+    return modules
+      .map((module) => buildRouteFromModule(module))
+      .filter((item): item is { fullPath: string; route: RouteRecordRaw } => Boolean(item))
+      .map((item) => item.route);
+  };
+
+  const appendExtraRoutes = (dynamicRoutes: RouteRecordRaw[], rootPath: string, extraRoutes: RouteRecordRaw[]) => {
+    const rootRoute = dynamicRoutes.find((route) => route.path === rootPath);
+    if (!rootRoute) {
+      return;
+    }
+    const children = (rootRoute.children ||= []);
+    extraRoutes.forEach((route) => {
+      if (!children.some((child) => child.path === route.path)) {
+        children.push(route);
+      }
+    });
   };
 
   const loadRoutes = async () => {
@@ -65,42 +115,27 @@ export const usePermissionStore = defineStore('permission', () => {
       return addRoutes.value;
     }
 
-    const userStore = useUserStore();
-    let dynamicRoutes: RouteRecordRaw[] = [];
+    const moduleTreeResponse = await getModuleNavTree();
+    const dynamicRoutes = buildRoutesFromModules(moduleTreeResponse.data || []);
 
-    if (userStore.isSuperAdmin) {
-      dynamicRoutes = [systemRoute, purchaseRoute];
-    } else {
-      const res = await getMenuTree();
-      const menus = (res.data || []) as SysMenuDTO[];
-      dynamicRoutes = buildRoutesFromMenus(menus);
-    }
+    appendExtraRoutes(dynamicRoutes, '/system', systemExtraRoutes);
+    appendExtraRoutes(dynamicRoutes, '/purchase', purchaseExtraRoutes);
 
-    const systemMenuRoute = dynamicRoutes.find(route => route.path === '/system' || route.name === 'System');
-    if (systemMenuRoute) {
-      const children = (systemMenuRoute.children ||= []);
-      systemExtraRoutes.forEach(route => {
-        if (!children.some(child => child.path === route.path)) {
-          children.push(route);
-        }
-      });
-    }
-
-    dynamicRoutes.forEach(route => router.addRoute(route));
+    dynamicRoutes.forEach((route) => router.addRoute(route));
     addRoutes.value = dynamicRoutes;
-    routes.value = [...staticMenuRoutes, ...dynamicRoutes];
+    routes.value = [...staticRoutes, ...dynamicRoutes];
     isRoutesLoaded.value = true;
     return dynamicRoutes;
   };
 
   const resetRoutes = () => {
-    addRoutes.value.forEach(route => {
+    addRoutes.value.forEach((route) => {
       if (route.name && router.hasRoute(route.name)) {
         router.removeRoute(route.name);
       }
     });
     addRoutes.value = [];
-    routes.value = [...staticMenuRoutes];
+    routes.value = [...staticRoutes];
     isRoutesLoaded.value = false;
   };
 
@@ -110,6 +145,6 @@ export const usePermissionStore = defineStore('permission', () => {
     isRoutesLoaded,
     loadRoutes,
     resetRoutes,
-    buildRoutesFromMenus
+    buildRoutesFromModules
   };
 });

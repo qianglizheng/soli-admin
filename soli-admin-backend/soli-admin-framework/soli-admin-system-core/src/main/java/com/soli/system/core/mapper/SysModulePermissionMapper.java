@@ -19,6 +19,14 @@ public interface SysModulePermissionMapper {
 
     List<Long> selectAdminOrgPostIdList();
 
+    List<Long> selectUserVisibleNavModuleIdList(@Param("userId") Long userId);
+
+    int countUserVisibleModule(@Param("userId") Long userId, @Param("moduleCode") String moduleCode);
+
+    Integer selectUserButtonPermissionLevel(@Param("userId") Long userId,
+                                            @Param("moduleCode") String moduleCode,
+                                            @Param("buttonCode") String buttonCode);
+
     SysOrgPostModuleAuthEntity selectOrgPostModuleAuth(@Param("orgPostId") Long orgPostId, @Param("moduleId") Long moduleId);
 
     int countVisibleModuleByOrgPostId(@Param("orgPostId") Long orgPostId);
@@ -26,6 +34,8 @@ public interface SysModulePermissionMapper {
     List<SysOrgPostFieldAuthEntity> selectOrgPostFieldAuthList(@Param("orgPostId") Long orgPostId, @Param("moduleId") Long moduleId);
 
     List<SysOrgPostButtonAuthEntity> selectOrgPostButtonAuthList(@Param("orgPostId") Long orgPostId, @Param("moduleId") Long moduleId);
+
+    SysOrgPostButtonAuthEntity selectOrgPostButtonAuth(@Param("orgPostId") Long orgPostId, @Param("buttonId") Long buttonId);
 
     int deleteOrgPostModuleAuth(@Param("orgPostId") Long orgPostId, @Param("moduleId") Long moduleId);
 

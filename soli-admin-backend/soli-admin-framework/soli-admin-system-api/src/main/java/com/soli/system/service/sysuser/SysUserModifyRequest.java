@@ -4,8 +4,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 /**
  * 修改用户请求对象
  *
@@ -40,7 +38,4 @@ public class SysUserModifyRequest {
 
     /** 用户状态 */
     private String status;
-
-    /** 关联角色 ID 列表 */
-    private List<Long> roleIds;
 }

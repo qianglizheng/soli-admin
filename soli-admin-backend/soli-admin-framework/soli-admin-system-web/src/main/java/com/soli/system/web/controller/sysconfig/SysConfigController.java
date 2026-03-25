@@ -42,7 +42,7 @@ public class SysConfigController {
     private final SysConfigConverter sysConfigConverter;
 
     @Operation(summary = "新增参数配置")
-    @PreAuthorize("hasAuthority('sys:config:create')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_config', 'create')")
     @PostMapping
     public Result<Void> create(@Valid @RequestBody SysConfigCreateRequest createRequest) {
         sysConfigService.create(sysConfigConverter.toDTO(createRequest));
@@ -50,7 +50,7 @@ public class SysConfigController {
     }
 
     @Operation(summary = "删除参数配置")
-    @PreAuthorize("hasAuthority('sys:config:remove')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_config', 'remove')")
     @DeleteMapping("/{id}")
     public Result<Void> remove(@PathVariable Long id) {
         sysConfigService.remove(id);
@@ -58,7 +58,7 @@ public class SysConfigController {
     }
 
     @Operation(summary = "修改参数配置")
-    @PreAuthorize("hasAuthority('sys:config:modify')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_config', 'modify')")
     @PutMapping
     public Result<Void> modify(@Valid @RequestBody SysConfigModifyRequest modifyRequest) {
         sysConfigService.modify(sysConfigConverter.toDTO(modifyRequest));
@@ -66,21 +66,21 @@ public class SysConfigController {
     }
 
     @Operation(summary = "分页查询参数配置")
-    @PreAuthorize("hasAuthority('sys:config:page')")
+    @PreAuthorize("@moduleAccess.hasModule('sys_config')")
     @PostMapping("/page")
     public Result<PageResult<SysConfigDTO>> page(@RequestBody SysConfigQuery query) {
         return Result.success(sysConfigService.page(query));
     }
 
     @Operation(summary = "查询参数配置详情")
-    @PreAuthorize("hasAuthority('sys:config:page')")
+    @PreAuthorize("@moduleAccess.hasModule('sys_config')")
     @GetMapping("/{id}")
     public Result<SysConfigDTO> getById(@PathVariable Long id) {
         return Result.success(sysConfigService.getById(id).orElseThrow(() -> new BusinessException("指定参数不存在！")));
     }
 
     @Operation(summary = "刷新参数缓存")
-    @PreAuthorize("hasAnyAuthority('sys:config:page','sys:config:refreshCache')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_config', 'refreshCache')")
     @DeleteMapping("/refresh-cache")
     public Result<Void> refreshCache() {
         sysConfigService.refreshCache();

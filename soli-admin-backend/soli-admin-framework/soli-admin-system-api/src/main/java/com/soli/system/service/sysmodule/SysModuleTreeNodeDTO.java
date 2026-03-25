@@ -30,8 +30,20 @@ public class SysModuleTreeNodeDTO {
     /** 模块类型 */
     private String moduleType;
 
+    /** 路由地址 */
+    private String routePath;
+
+    /** 组件路径 */
+    private String componentPath;
+
+    /** 图标 */
+    private String icon;
+
     /** 排序 */
     private Integer sort;
+
+    /** 导航可见标识 */
+    private String navVisible;
 
     /** 状态型模块标识 */
     private String statefulFlag;

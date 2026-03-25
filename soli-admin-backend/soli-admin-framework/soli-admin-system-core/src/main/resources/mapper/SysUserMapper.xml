@@ -90,23 +90,4 @@
         where username = #{username}
     </select>
 
-    <select id="selectRoleIdsByUserId" resultType="java.lang.Long">
-        select role_id
-        from sys_user_role
-        where user_id = #{userId}
-    </select>
-
-    <delete id="deleteUserRoleByUserId">
-        delete from sys_user_role
-        where user_id = #{userId}
-    </delete>
-
-    <insert id="insertUserRoleRelations">
-        insert into sys_user_role (user_id, role_id)
-        values
-        <foreach collection="roleIds" item="roleId" separator=",">
-            (#{userId}, #{roleId})
-        </foreach>
-    </insert>
-
 </mapper>

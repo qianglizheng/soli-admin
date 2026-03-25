@@ -20,6 +20,14 @@ public interface SysModuleService extends BaseCrudService<SysModuleDTO, SysModul
     List<SysModuleTreeNodeDTO> queryTreeList();
 
     /**
+     * 查询当前用户可见的系统导航模块树
+     *
+     * @param userId 用户 ID
+     * @return 模块树
+     */
+    List<SysModuleTreeNodeDTO> queryNavTree(Long userId);
+
+    /**
      * 根据模块 ID 查询模块详情
      *
      * @param id 模块 ID

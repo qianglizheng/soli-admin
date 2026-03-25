@@ -1,7 +1,3 @@
--- 角色初始化
-delete from sys_role;
-insert into sys_role (id, name, code, sort, data_scope, status, create_by, create_time, update_by, update_time, note) values (1, '超级管理员', 'admin', 1, '1', '0', 'system', now(), null, null, null);
-
 -- 用户初始化
 delete from sys_user;
 insert into sys_user (id, username, password, nickname, email, phone, avatar, type, sex, login_ip, login_time, status, create_by, create_time, update_by, update_time, note) values (1, 'admin', '123456', '超级管理员', 'superadmin@test.com', '13800000001', null, '0', '0', null, null, '0', 'system', now(), null, null, null);
@@ -9,167 +5,7 @@ insert into sys_user (id, username, password, nickname, email, phone, avatar, ty
 insert into sys_user (id, username, password, nickname, email, phone, avatar, type, sex, login_ip, login_time, status, create_by, create_time, update_by, update_time, note) values (3, 'lisi', '123456', '李四', 'lisi@test.com', '13800000003', null, '1', '0', null, null, '0', 'system', now(), null, null, '销售岗位示例用户');
 insert into sys_user (id, username, password, nickname, email, phone, avatar, type, sex, login_ip, login_time, status, create_by, create_time, update_by, update_time, note) values (4, 'wangwu', '123456', '王五', 'wangwu@test.com', '13800000004', null, '1', '0', null, null, '0', 'system', now(), null, null, '未分配岗位示例用户');
 
--- 用户角色关联
-delete from sys_user_role;
-insert into sys_user_role (user_id, role_id) values (1, 1);
-
--- 菜单初始化
-delete from sys_menu;
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1000, '系统管理', 0, 1, 'system', null, '0', null, 'Tools', '0', 'system', now(), null, null, null);
-
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1100, '用户管理', 1000, 1, 'user', 'system/user/index', '1', null, 'User', '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1101, '用户新增', 1100, 1, null, null, '2', 'sys:user:create', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1102, '用户删除', 1100, 2, null, null, '2', 'sys:user:remove', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1103, '用户修改', 1100, 3, null, null, '2', 'sys:user:modify', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1104, '用户分页', 1100, 4, null, null, '2', 'sys:user:page', null, '0', 'system', now(), null, null, null);
-
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1200, '角色管理', 1000, 2, 'role', 'system/role/index', '1', null, 'Avatar', '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1201, '角色新增', 1200, 1, null, null, '2', 'sys:role:create', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1202, '角色删除', 1200, 2, null, null, '2', 'sys:role:remove', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1203, '角色修改', 1200, 3, null, null, '2', 'sys:role:modify', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1204, '角色分页', 1200, 4, null, null, '2', 'sys:role:page', null, '0', 'system', now(), null, null, null);
-
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1300, '菜单管理', 1000, 3, 'menu', 'system/menu/index', '1', null, 'Menu', '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1301, '菜单新增', 1300, 1, null, null, '2', 'sys:menu:create', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1302, '菜单删除', 1300, 2, null, null, '2', 'sys:menu:remove', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1303, '菜单修改', 1300, 3, null, null, '2', 'sys:menu:modify', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1304, '菜单分页', 1300, 4, null, null, '2', 'sys:menu:page', null, '0', 'system', now(), null, null, null);
-
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1400, '字典管理', 1000, 4, 'dict', 'system/dict/index', '1', null, 'Reading', '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1401, '字典新增', 1400, 1, null, null, '2', 'sys:dict:create', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1402, '字典删除', 1400, 2, null, null, '2', 'sys:dict:remove', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1403, '字典修改', 1400, 3, null, null, '2', 'sys:dict:modify', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1404, '字典分页', 1400, 4, null, null, '2', 'sys:dict:page', null, '0', 'system', now(), null, null, null);
-
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1500, '参数设置', 1000, 5, 'config', 'system/config/index', '1', null, 'Tools', '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1501, '参数新增', 1500, 1, null, null, '2', 'sys:config:create', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1502, '参数删除', 1500, 2, null, null, '2', 'sys:config:remove', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1503, '参数修改', 1500, 3, null, null, '2', 'sys:config:modify', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1504, '参数分页', 1500, 4, null, null, '2', 'sys:config:page', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1505, '刷新缓存', 1500, 5, null, null, '2', 'sys:config:refreshCache', null, '0', 'system', now(), null, null, null);
-
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1600, '日志管理', 1000, 6, 'log', null, '0', null, 'Monitor', '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1610, '操作日志', 1600, 1, 'operlog', 'system/monitor/operlog/index', '1', null, 'Document', '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1611, '操作日志新增', 1610, 1, null, null, '2', 'sys:operlog:create', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1612, '操作日志删除', 1610, 2, null, null, '2', 'sys:operlog:remove', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1613, '操作日志修改', 1610, 3, null, null, '2', 'sys:operlog:modify', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1614, '操作日志分页', 1610, 4, null, null, '2', 'sys:operlog:page', null, '0', 'system', now(), null, null, null);
-
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1620, '登录日志', 1600, 2, 'logininfor', 'system/monitor/logininfor/index', '1', null, 'Key', '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1621, '登录日志新增', 1620, 1, null, null, '2', 'sys:logininfor:create', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1622, '登录日志删除', 1620, 2, null, null, '2', 'sys:logininfor:remove', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1623, '登录日志修改', 1620, 3, null, null, '2', 'sys:logininfor:modify', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1624, '登录日志分页', 1620, 4, null, null, '2', 'sys:logininfor:page', null, '0', 'system', now(), null, null, null);
-
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1700, '岗位管理', 1000, 7, 'post-manage', 'system/post-manage/index', '1', null, 'OfficeBuilding', '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1701, '岗位新增', 1700, 1, null, null, '2', 'sys:org-post:create', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1702, '岗位删除', 1700, 2, null, null, '2', 'sys:org-post:remove', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1703, '岗位修改', 1700, 3, null, null, '2', 'sys:org-post:modify', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1704, '岗位查询', 1700, 4, null, null, '2', 'sys:org-post:page', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1705, '岗位员工查询', 1700, 5, null, null, '2', 'sys:org-post:user:page', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1706, '岗位员工绑定', 1700, 6, null, null, '2', 'sys:org-post:user:bind', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1707, '岗位员工解绑', 1700, 7, null, null, '2', 'sys:org-post:user:unbind', null, '0', 'system', now(), null, null, null);
-
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1800, '模块管理', 1000, 8, 'module-center', 'system/module-center/index', '1', null, 'Grid', '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1801, '模块查询', 1800, 1, null, null, '2', 'sys:module:page', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1802, '模块新增', 1800, 2, null, null, '2', 'sys:module:create', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1803, '模块修改', 1800, 3, null, null, '2', 'sys:module:modify', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1804, '模块删除', 1800, 4, null, null, '2', 'sys:module:remove', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1805, 'Tab新增', 1800, 5, null, null, '2', 'sys:module:tab:create', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1806, 'Tab修改', 1800, 6, null, null, '2', 'sys:module:tab:modify', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1807, 'Tab删除', 1800, 7, null, null, '2', 'sys:module:tab:remove', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1808, '字段新增', 1800, 8, null, null, '2', 'sys:module:field:create', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1809, '字段修改', 1800, 9, null, null, '2', 'sys:module:field:modify', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1810, '字段删除', 1800, 10, null, null, '2', 'sys:module:field:remove', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1811, '按钮新增', 1800, 11, null, null, '2', 'sys:module:button:create', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1812, '按钮修改', 1800, 12, null, null, '2', 'sys:module:button:modify', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1813, '按钮删除', 1800, 13, null, null, '2', 'sys:module:button:remove', null, '0', 'system', now(), null, null, null);
-
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1900, '功能授权', 1000, 9, 'function-auth', 'system/function-auth/index', '1', null, 'Lock', '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1901, '功能授权查询', 1900, 1, null, null, '2', 'sys:function-auth:page', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1902, '功能授权保存', 1900, 2, null, null, '2', 'sys:function-auth:save', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (1903, '功能授权复制', 1900, 3, null, null, '2', 'sys:function-auth:copy', null, '0', 'system', now(), null, null, null);
-
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (2000, '字段标题', 1000, 10, 'module-title', 'system/module-title/index', '1', null, 'EditPen', '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (2001, '字段标题查询', 2000, 1, null, null, '2', 'sys:module-title:page', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (2002, '字段标题保存', 2000, 2, null, null, '2', 'sys:module-title:save', null, '0', 'system', now(), null, null, null);
-
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (2100, '状态权限', 1000, 11, 'state-auth', 'system/state-auth/index', '1', null, 'SetUp', '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (2101, '状态权限查询', 2100, 1, null, null, '2', 'sys:state-auth:page', null, '0', 'system', now(), null, null, null);
-insert into sys_menu (id, name, parent_id, sort, path, component, type, perms, icon, status, create_by, create_time, update_by, update_time, note) values (2102, '状态权限保存', 2100, 2, null, null, '2', 'sys:state-auth:save', null, '0', 'system', now(), null, null, null);
-
--- 超级管理员拥有全部菜单权限
-delete from sys_role_menu;
-insert into sys_role_menu (role_id, menu_id) values (1, 1000);
-insert into sys_role_menu (role_id, menu_id) values (1, 1100);
-insert into sys_role_menu (role_id, menu_id) values (1, 1101);
-insert into sys_role_menu (role_id, menu_id) values (1, 1102);
-insert into sys_role_menu (role_id, menu_id) values (1, 1103);
-insert into sys_role_menu (role_id, menu_id) values (1, 1104);
-insert into sys_role_menu (role_id, menu_id) values (1, 1200);
-insert into sys_role_menu (role_id, menu_id) values (1, 1201);
-insert into sys_role_menu (role_id, menu_id) values (1, 1202);
-insert into sys_role_menu (role_id, menu_id) values (1, 1203);
-insert into sys_role_menu (role_id, menu_id) values (1, 1204);
-insert into sys_role_menu (role_id, menu_id) values (1, 1300);
-insert into sys_role_menu (role_id, menu_id) values (1, 1301);
-insert into sys_role_menu (role_id, menu_id) values (1, 1302);
-insert into sys_role_menu (role_id, menu_id) values (1, 1303);
-insert into sys_role_menu (role_id, menu_id) values (1, 1304);
-insert into sys_role_menu (role_id, menu_id) values (1, 1400);
-insert into sys_role_menu (role_id, menu_id) values (1, 1401);
-insert into sys_role_menu (role_id, menu_id) values (1, 1402);
-insert into sys_role_menu (role_id, menu_id) values (1, 1403);
-insert into sys_role_menu (role_id, menu_id) values (1, 1404);
-insert into sys_role_menu (role_id, menu_id) values (1, 1500);
-insert into sys_role_menu (role_id, menu_id) values (1, 1501);
-insert into sys_role_menu (role_id, menu_id) values (1, 1502);
-insert into sys_role_menu (role_id, menu_id) values (1, 1503);
-insert into sys_role_menu (role_id, menu_id) values (1, 1504);
-insert into sys_role_menu (role_id, menu_id) values (1, 1505);
-insert into sys_role_menu (role_id, menu_id) values (1, 1600);
-insert into sys_role_menu (role_id, menu_id) values (1, 1610);
-insert into sys_role_menu (role_id, menu_id) values (1, 1611);
-insert into sys_role_menu (role_id, menu_id) values (1, 1612);
-insert into sys_role_menu (role_id, menu_id) values (1, 1613);
-insert into sys_role_menu (role_id, menu_id) values (1, 1614);
-insert into sys_role_menu (role_id, menu_id) values (1, 1620);
-insert into sys_role_menu (role_id, menu_id) values (1, 1621);
-insert into sys_role_menu (role_id, menu_id) values (1, 1622);
-insert into sys_role_menu (role_id, menu_id) values (1, 1623);
-insert into sys_role_menu (role_id, menu_id) values (1, 1624);
-insert into sys_role_menu (role_id, menu_id) values (1, 1700);
-insert into sys_role_menu (role_id, menu_id) values (1, 1701);
-insert into sys_role_menu (role_id, menu_id) values (1, 1702);
-insert into sys_role_menu (role_id, menu_id) values (1, 1703);
-insert into sys_role_menu (role_id, menu_id) values (1, 1704);
-insert into sys_role_menu (role_id, menu_id) values (1, 1705);
-insert into sys_role_menu (role_id, menu_id) values (1, 1706);
-insert into sys_role_menu (role_id, menu_id) values (1, 1707);
-insert into sys_role_menu (role_id, menu_id) values (1, 1800);
-insert into sys_role_menu (role_id, menu_id) values (1, 1801);
-insert into sys_role_menu (role_id, menu_id) values (1, 1802);
-insert into sys_role_menu (role_id, menu_id) values (1, 1803);
-insert into sys_role_menu (role_id, menu_id) values (1, 1804);
-insert into sys_role_menu (role_id, menu_id) values (1, 1805);
-insert into sys_role_menu (role_id, menu_id) values (1, 1806);
-insert into sys_role_menu (role_id, menu_id) values (1, 1807);
-insert into sys_role_menu (role_id, menu_id) values (1, 1808);
-insert into sys_role_menu (role_id, menu_id) values (1, 1809);
-insert into sys_role_menu (role_id, menu_id) values (1, 1810);
-insert into sys_role_menu (role_id, menu_id) values (1, 1811);
-insert into sys_role_menu (role_id, menu_id) values (1, 1812);
-insert into sys_role_menu (role_id, menu_id) values (1, 1813);
-insert into sys_role_menu (role_id, menu_id) values (1, 1900);
-insert into sys_role_menu (role_id, menu_id) values (1, 1901);
-insert into sys_role_menu (role_id, menu_id) values (1, 1902);
-insert into sys_role_menu (role_id, menu_id) values (1, 1903);
-insert into sys_role_menu (role_id, menu_id) values (1, 2000);
-insert into sys_role_menu (role_id, menu_id) values (1, 2001);
-insert into sys_role_menu (role_id, menu_id) values (1, 2002);
-insert into sys_role_menu (role_id, menu_id) values (1, 2100);
-insert into sys_role_menu (role_id, menu_id) values (1, 2101);
-insert into sys_role_menu (role_id, menu_id) values (1, 2102);
+-- 系统导航模块与后台管理按钮定义由 SysManagementModuleBootstrap 启动自动补齐
 
 -- 字典初始化
 delete from sys_dict_type;
@@ -226,10 +62,10 @@ delete from sys_module_field;
 delete from sys_module_tab;
 delete from sys_module;
 
-insert into sys_module (id, parent_id, ancestors, module_code, module_name, module_type, route_path, component_path, icon, sort, nav_visible, stateful_flag, state_field_code, context_version, status, create_by, create_time, update_by, update_time, note) values (100, 0, '0', 'purchase', '采购管理', 'CATALOG', null, null, 'ShoppingCart', 1, '1', '0', null, 3, '0', 'system', now(), null, null, '采购业务模块目录');
-insert into sys_module (id, parent_id, ancestors, module_code, module_name, module_type, route_path, component_path, icon, sort, nav_visible, stateful_flag, state_field_code, context_version, status, create_by, create_time, update_by, update_time, note) values (101, 100, '0,100', 'purchase_order', '采购订单', 'BILL', '/purchase/order', 'purchase/order/index', 'Document', 1, '1', '1', 'status', 5, '0', 'system', now(), null, null, '适用于采购下单、提交审核、发运和完结流程。');
-insert into sys_module (id, parent_id, ancestors, module_code, module_name, module_type, route_path, component_path, icon, sort, nav_visible, stateful_flag, state_field_code, context_version, status, create_by, create_time, update_by, update_time, note) values (200, 0, '0', 'sales', '销售管理', 'CATALOG', null, null, 'Goods', 2, '1', '0', null, 2, '0', 'system', now(), null, null, '销售业务模块目录');
-insert into sys_module (id, parent_id, ancestors, module_code, module_name, module_type, route_path, component_path, icon, sort, nav_visible, stateful_flag, state_field_code, context_version, status, create_by, create_time, update_by, update_time, note) values (201, 200, '0,200', 'sales_order', '销售订单', 'BILL', '/sales/order', 'sales/order/index', 'Tickets', 1, '1', '1', 'status', 4, '0', 'system', now(), null, null, '适用于销售下单、审核和发运流程。');
+insert into sys_module (id, parent_id, ancestors, module_code, module_name, module_type, route_path, component_path, icon, sort, nav_visible, stateful_flag, state_field_code, context_version, status, create_by, create_time, update_by, update_time, note) values (100, 0, '0', 'purchase', '采购管理', 'CATALOG', '/purchase', null, 'ShoppingCart', 1, '1', '0', null, 3, '0', 'system', now(), null, null, '采购业务模块目录');
+insert into sys_module (id, parent_id, ancestors, module_code, module_name, module_type, route_path, component_path, icon, sort, nav_visible, stateful_flag, state_field_code, context_version, status, create_by, create_time, update_by, update_time, note) values (101, 100, '0,100', 'purchase_order', '采购订单', 'BILL', 'bill-template', 'purchase/bill-template/BillTemplateIndex', 'Document', 1, '1', '1', 'status', 5, '0', 'system', now(), null, null, '采购订单模板页面');
+insert into sys_module (id, parent_id, ancestors, module_code, module_name, module_type, route_path, component_path, icon, sort, nav_visible, stateful_flag, state_field_code, context_version, status, create_by, create_time, update_by, update_time, note) values (200, 0, '0', 'sales', '销售管理', 'CATALOG', '/sales', null, 'Goods', 2, '0', '0', null, 2, '0', 'system', now(), null, null, '销售业务模块目录');
+insert into sys_module (id, parent_id, ancestors, module_code, module_name, module_type, route_path, component_path, icon, sort, nav_visible, stateful_flag, state_field_code, context_version, status, create_by, create_time, update_by, update_time, note) values (201, 200, '0,200', 'sales_order', '销售订单', 'BILL', 'order', 'sales/order/index', 'Tickets', 1, '0', '1', 'status', 4, '0', 'system', now(), null, null, '销售订单预留模块');
 
 insert into sys_module_tab (id, module_id, tab_scope, tab_code, tab_name, sort, status, create_by, create_time, update_by, update_time, note) values (10101, 101, 'HEADER', 'base_info', '基础信息', 1, '0', 'system', now(), null, null, '采购订单头信息');
 insert into sys_module_tab (id, module_id, tab_scope, tab_code, tab_name, sort, status, create_by, create_time, update_by, update_time, note) values (10103, 101, 'HEADER', 'audit_info', '审核信息', 2, '0', 'system', now(), null, null, '采购审核追踪信息');
@@ -323,8 +159,8 @@ insert into sys_module_transition (id, module_id, action_button_code, from_state
 
 insert into sys_org_post_module_auth (id, org_post_id, module_id, module_visible, nav_visible, create_by, create_time, update_by, update_time, note) values (9301, 9101, 100, '1', '1', 'system', now(), null, null, 'admin 岗位默认拥有采购目录权限');
 insert into sys_org_post_module_auth (id, org_post_id, module_id, module_visible, nav_visible, create_by, create_time, update_by, update_time, note) values (9302, 9101, 101, '1', '1', 'system', now(), null, null, 'admin 岗位默认拥有采购订单权限');
-insert into sys_org_post_module_auth (id, org_post_id, module_id, module_visible, nav_visible, create_by, create_time, update_by, update_time, note) values (9303, 9101, 200, '1', '1', 'system', now(), null, null, 'admin 岗位默认拥有销售目录权限');
-insert into sys_org_post_module_auth (id, org_post_id, module_id, module_visible, nav_visible, create_by, create_time, update_by, update_time, note) values (9304, 9101, 201, '1', '1', 'system', now(), null, null, 'admin 岗位默认拥有销售订单权限');
+insert into sys_org_post_module_auth (id, org_post_id, module_id, module_visible, nav_visible, create_by, create_time, update_by, update_time, note) values (9303, 9101, 200, '1', '0', 'system', now(), null, null, 'admin 岗位默认拥有销售目录权限');
+insert into sys_org_post_module_auth (id, org_post_id, module_id, module_visible, nav_visible, create_by, create_time, update_by, update_time, note) values (9304, 9101, 201, '1', '0', 'system', now(), null, null, 'admin 岗位默认拥有销售订单权限');
 
 insert into sys_org_post_field_auth (id, org_post_id, module_id, field_id, permission_level, create_by, create_time, update_by, update_time, note) values (9401, 9101, 101, 1010101, 2, 'system', now(), null, null, null);
 insert into sys_org_post_field_auth (id, org_post_id, module_id, field_id, permission_level, create_by, create_time, update_by, update_time, note) values (9402, 9101, 101, 1010102, 2, 'system', now(), null, null, null);

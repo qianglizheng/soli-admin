@@ -2,8 +2,6 @@ package com.soli.system.web.controller.sysuser;
 
 import com.soli.common.api.exception.BusinessException;
 import com.soli.common.api.vo.Result;
-import com.soli.system.service.sysrole.SysRoleDTO;
-import com.soli.system.service.sysrole.SysRoleService;
 import com.soli.system.service.sysuser.SysUserDTO;
 import com.soli.system.service.sysuser.SysUserProfileDTO;
 import com.soli.system.service.sysuser.SysUserService;
@@ -22,16 +20,12 @@ public class UserProfileController {
 
     private final SysUserService sysUserService;
 
-    private final SysRoleService sysRoleService;
-
     @GetMapping("/info")
     public Result<SysUserProfileDTO> info(@AuthenticationPrincipal Long userId) {
         SysUserDTO user = sysUserService.getById(userId)
                 .orElseThrow(() -> new BusinessException("当前登录用户不存在"));
 
-        List<String> roles = sysRoleService.getByUserId(userId).stream()
-                .map(SysRoleDTO::getCode)
-                .toList();
+        List<String> roles = "0".equals(user.getType()) ? List.of("admin") : List.of();
 
         SysUserProfileDTO profile = new SysUserProfileDTO();
         profile.setId(user.getId());

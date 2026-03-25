@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,28 +52,34 @@ public class SysModuleController {
     private final SysModuleConverter converter;
 
     @Operation(summary = "查询模块树")
-    @PreAuthorize("hasAuthority('sys:module:page')")
+    @PreAuthorize("@moduleAccess.hasModule('sys_module')")
     @GetMapping("/tree")
     public Result<List<SysModuleTreeNodeDTO>> tree() {
         return Result.success(service.queryTreeList());
     }
 
+    @Operation(summary = "查询当前用户系统导航模块树")
+    @GetMapping("/nav-tree")
+    public Result<List<SysModuleTreeNodeDTO>> navTree(@AuthenticationPrincipal Long userId) {
+        return Result.success(service.queryNavTree(userId));
+    }
+
     @Operation(summary = "查询模块详情")
-    @PreAuthorize("hasAuthority('sys:module:page')")
+    @PreAuthorize("@moduleAccess.hasModule('sys_module')")
     @GetMapping("/{id}")
     public Result<SysModuleDetailDTO> getById(@PathVariable Long id) {
         return Result.success(service.queryDetailById(id));
     }
 
     @Operation(summary = "查询模块上下文预览")
-    @PreAuthorize("hasAuthority('sys:module:page')")
+    @PreAuthorize("@moduleAccess.hasModule('sys_module')")
     @GetMapping("/{id}/context-preview")
     public Result<SysModuleContextPreviewDTO> contextPreview(@PathVariable Long id) {
         return Result.success(service.queryContextPreview(id));
     }
 
     @Operation(summary = "新增模块")
-    @PreAuthorize("hasAuthority('sys:module:create')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_module', 'create')")
     @PostMapping
     public Result<Long> create(@Valid @RequestBody SysModuleCreateRequest createRequest) {
         SysModuleDTO dto = converter.toDTO(createRequest);
@@ -81,7 +88,7 @@ public class SysModuleController {
     }
 
     @Operation(summary = "修改模块")
-    @PreAuthorize("hasAuthority('sys:module:modify')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_module', 'modify')")
     @PutMapping
     public Result<Void> modify(@Valid @RequestBody SysModuleModifyRequest modifyRequest) {
         service.modify(converter.toDTO(modifyRequest));
@@ -89,7 +96,7 @@ public class SysModuleController {
     }
 
     @Operation(summary = "删除模块")
-    @PreAuthorize("hasAuthority('sys:module:remove')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_module', 'remove')")
     @DeleteMapping("/{id}")
     public Result<Void> remove(@PathVariable Long id) {
         service.remove(id);
@@ -97,7 +104,7 @@ public class SysModuleController {
     }
 
     @Operation(summary = "新增模块 Tab")
-    @PreAuthorize("hasAuthority('sys:module:tab:create')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_module', 'tabCreate')")
     @PostMapping("/tab")
     public Result<Long> createTab(@Valid @RequestBody SysModuleTabCreateRequest createRequest) {
         SysModuleTabDTO dto = converter.toDTO(createRequest);
@@ -106,7 +113,7 @@ public class SysModuleController {
     }
 
     @Operation(summary = "修改模块 Tab")
-    @PreAuthorize("hasAuthority('sys:module:tab:modify')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_module', 'tabModify')")
     @PutMapping("/tab")
     public Result<Void> modifyTab(@Valid @RequestBody SysModuleTabModifyRequest modifyRequest) {
         service.modifyTab(converter.toDTO(modifyRequest));
@@ -114,7 +121,7 @@ public class SysModuleController {
     }
 
     @Operation(summary = "删除模块 Tab")
-    @PreAuthorize("hasAuthority('sys:module:tab:remove')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_module', 'tabRemove')")
     @DeleteMapping("/tab/{id}")
     public Result<Void> removeTab(@PathVariable Long id) {
         service.removeTab(id);
@@ -122,7 +129,7 @@ public class SysModuleController {
     }
 
     @Operation(summary = "新增模块字段")
-    @PreAuthorize("hasAuthority('sys:module:field:create')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_module', 'fieldCreate')")
     @PostMapping("/field")
     public Result<Long> createField(@Valid @RequestBody SysModuleFieldCreateRequest createRequest) {
         SysModuleFieldDTO dto = converter.toDTO(createRequest);
@@ -131,7 +138,7 @@ public class SysModuleController {
     }
 
     @Operation(summary = "修改模块字段")
-    @PreAuthorize("hasAuthority('sys:module:field:modify')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_module', 'fieldModify')")
     @PutMapping("/field")
     public Result<Void> modifyField(@Valid @RequestBody SysModuleFieldModifyRequest modifyRequest) {
         service.modifyField(converter.toDTO(modifyRequest));
@@ -139,7 +146,7 @@ public class SysModuleController {
     }
 
     @Operation(summary = "删除模块字段")
-    @PreAuthorize("hasAuthority('sys:module:field:remove')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_module', 'fieldRemove')")
     @DeleteMapping("/field/{id}")
     public Result<Void> removeField(@PathVariable Long id) {
         service.removeField(id);
@@ -147,7 +154,7 @@ public class SysModuleController {
     }
 
     @Operation(summary = "新增模块按钮")
-    @PreAuthorize("hasAuthority('sys:module:button:create')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_module', 'buttonCreate')")
     @PostMapping("/button")
     public Result<Long> createButton(@Valid @RequestBody SysModuleButtonCreateRequest createRequest) {
         SysModuleButtonDTO dto = converter.toDTO(createRequest);
@@ -156,7 +163,7 @@ public class SysModuleController {
     }
 
     @Operation(summary = "修改模块按钮")
-    @PreAuthorize("hasAuthority('sys:module:button:modify')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_module', 'buttonModify')")
     @PutMapping("/button")
     public Result<Void> modifyButton(@Valid @RequestBody SysModuleButtonModifyRequest modifyRequest) {
         service.modifyButton(converter.toDTO(modifyRequest));
@@ -164,7 +171,7 @@ public class SysModuleController {
     }
 
     @Operation(summary = "删除模块按钮")
-    @PreAuthorize("hasAuthority('sys:module:button:remove')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_module', 'buttonRemove')")
     @DeleteMapping("/button/{id}")
     public Result<Void> removeButton(@PathVariable Long id) {
         service.removeButton(id);

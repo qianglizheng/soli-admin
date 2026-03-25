@@ -233,7 +233,11 @@ public class SysStateAuthServiceImpl implements SysStateAuthService {
         copied.setModuleCode(node.getModuleCode());
         copied.setModuleName(node.getModuleName());
         copied.setModuleType(node.getModuleType());
+        copied.setRoutePath(node.getRoutePath());
+        copied.setComponentPath(node.getComponentPath());
+        copied.setIcon(node.getIcon());
         copied.setSort(node.getSort());
+        copied.setNavVisible(node.getNavVisible());
         copied.setStatefulFlag(node.getStatefulFlag());
         copied.setStatus(node.getStatus());
         return copied;

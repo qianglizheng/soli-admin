@@ -118,7 +118,6 @@
       v-model="formVisible"
       :mode="formMode"
       :initial-data="formInitial"
-      :role-options="roleOptions"
       :submitting="submitLoading"
       @submit="handleFormSubmit"
       @cancel="handleFormCancel"
@@ -134,11 +133,10 @@ import {
   deleteUser,
   getUserDetail,
   getUserPage,
-  getUserRoleOptions,
   updateUser,
   type CreateUserPayload
 } from '@/api/user';
-import type { SysRole, SysUser } from '@/types/global';
+import type { SysUser } from '@/types/global';
 import UserForm, { type UserFormModel } from './components/UserForm.vue';
 import { useSearchCollapse } from '@/utils/useSearchCollapse';
 
@@ -164,7 +162,6 @@ const selectedRows = ref<SysUser[]>([]);
 const formVisible = ref(false);
 const formMode = ref<'create' | 'edit'>('create');
 const formInitial = ref<Partial<UserFormModel>>({});
-const roleOptions = ref<SysRole[]>([]);
 
 const queryParams = reactive({
   pageNum: 1,
@@ -192,14 +189,6 @@ const getList = async () => {
   }
 };
 
-const ensureRoleOptions = async () => {
-  if (roleOptions.value.length) {
-    return;
-  }
-  const res = await getUserRoleOptions();
-  roleOptions.value = res.data || [];
-};
-
 const handleQuery = () => {
   queryParams.pageNum = 1;
   void getList();
@@ -224,8 +213,7 @@ const handleSelectionChange = (selection: SysUser[]) => {
   multiple.value = selection.length === 0;
 };
 
-const handleAdd = async () => {
-  await ensureRoleOptions();
+const handleAdd = () => {
   formMode.value = 'create';
   formInitial.value = {
     username: '',
@@ -235,8 +223,7 @@ const handleAdd = async () => {
     phone: '',
     sex: '0',
     type: '1',
-    status: '0',
-    roleIds: []
+    status: '0'
   };
   formVisible.value = true;
 };
@@ -248,10 +235,7 @@ const handleUpdate = async (row?: SysUser) => {
   }
   loading.value = true;
   try {
-    const [detailRes] = await Promise.all([
-      getUserDetail(currentRow.id),
-      ensureRoleOptions()
-    ]);
+    const detailRes = await getUserDetail(currentRow.id);
     const detail = detailRes.data;
     formMode.value = 'edit';
     formInitial.value = {
@@ -263,8 +247,7 @@ const handleUpdate = async (row?: SysUser) => {
       phone: detail.phone || '',
       sex: detail.sex || '0',
       type: detail.type || '1',
-      status: detail.status || '0',
-      roleIds: detail.roleIds || []
+      status: detail.status || '0'
     };
     formVisible.value = true;
   } finally {
@@ -283,8 +266,7 @@ const handleFormSubmit = async (data: UserFormModel) => {
         phone: data.phone || undefined,
         sex: data.sex,
         type: data.type,
-        status: data.status,
-        roleIds: data.roleIds
+        status: data.status
       });
       ElMessage.success('修改成功');
     } else {
@@ -296,8 +278,7 @@ const handleFormSubmit = async (data: UserFormModel) => {
         phone: data.phone || undefined,
         sex: data.sex,
         type: data.type,
-        status: data.status,
-        roleIds: data.roleIds
+        status: data.status
       };
       await createUser(payload);
       ElMessage.success('新增成功');

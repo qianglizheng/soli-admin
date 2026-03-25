@@ -23,7 +23,15 @@ public class SysModuleTreeNodeModel {
 
     private String moduleType;
 
+    private String routePath;
+
+    private String componentPath;
+
+    private String icon;
+
     private Integer sort;
+
+    private String navVisible;
 
     private String statefulFlag;
 

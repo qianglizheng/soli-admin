@@ -2,19 +2,16 @@ package com.soli.common.web.security.jwt;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.soli.auth.api.service.JwtService;
 import com.soli.common.api.exception.BusinessException;
-import com.soli.system.service.sysmenu.SysMenuService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -30,8 +27,6 @@ import lombok.RequiredArgsConstructor;
 public class AccessTokenFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-
-    private final SysMenuService sysMenuService;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
@@ -52,9 +47,7 @@ public class AccessTokenFilter extends OncePerRequestFilter {
             throw new BusinessException(e.getMessage());
         }
 
-        Set<String> permsSet = sysMenuService.queryPermsByUserId(userId);
-        List<GrantedAuthority> authorityList = AuthorityUtils.createAuthorityList(permsSet);
-
+        List<GrantedAuthority> authorityList = List.of();
         AccessAuthentication authentication = new AccessAuthentication(authorityList);
         authentication.setUserId(userId);
         authentication.setAccessToken(accessToken);

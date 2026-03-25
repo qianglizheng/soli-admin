@@ -16,11 +16,6 @@
       <el-form-item label="手机号码" prop="phone">
         <el-input v-model="form.phone" placeholder="请输入手机号码" />
       </el-form-item>
-      <el-form-item label="角色分配" prop="roleIds">
-        <el-select v-model="form.roleIds" multiple collapse-tags collapse-tags-tooltip filterable placeholder="请选择角色" style="width: 100%">
-          <el-option v-for="item in roleOptions" :key="item.id" :label="item.name" :value="item.id" />
-        </el-select>
-      </el-form-item>
       <el-form-item label="性别" prop="sex">
         <el-radio-group v-model="form.sex">
           <el-radio value="0">男</el-radio>
@@ -50,7 +45,6 @@
 <script setup lang="ts">
 import { computed, nextTick, reactive, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
-import type { SysRole } from '@/types/global';
 
 export interface UserFormModel {
   id?: number;
@@ -62,20 +56,17 @@ export interface UserFormModel {
   sex: string;
   type: string;
   status: string;
-  roleIds: number[];
 }
 
 interface Props {
   modelValue: boolean;
   mode: 'create' | 'edit';
   initialData?: Partial<UserFormModel>;
-  roleOptions?: SysRole[];
   submitting?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   initialData: () => ({}),
-  roleOptions: () => [],
   submitting: false
 });
 
@@ -102,8 +93,7 @@ const createDefaultForm = (): UserFormModel => ({
   phone: '',
   sex: '0',
   type: '1',
-  status: '0',
-  roleIds: []
+  status: '0'
 });
 
 const form = reactive<UserFormModel>(createDefaultForm());
@@ -134,7 +124,6 @@ watch(
       return;
     }
     Object.assign(form, createDefaultForm(), initialData || {});
-    form.roleIds = Array.isArray(initialData?.roleIds) ? [...initialData.roleIds] : [];
     if (isEdit.value) {
       form.password = '';
     }
@@ -160,9 +149,6 @@ const handleSubmit = async () => {
   if (!valid) {
     return;
   }
-  emit('submit', {
-    ...form,
-    roleIds: [...form.roleIds]
-  });
+  emit('submit', { ...form });
 };
 </script>

@@ -195,9 +195,19 @@
                module_code as moduleCode,
                module_name as moduleName,
                module_type as moduleType,
+               route_path as routePath,
+               component_path as componentPath,
+               icon,
                sort,
+               nav_visible as navVisible,
                stateful_flag as statefulFlag,
                status
+        from sys_module
+        order by sort asc, id asc
+    </select>
+
+    <select id="selectAllModuleList" resultMap="SysModuleResultMap">
+        select <include refid="Module_Column_List"/>
         from sys_module
         order by sort asc, id asc
     </select>

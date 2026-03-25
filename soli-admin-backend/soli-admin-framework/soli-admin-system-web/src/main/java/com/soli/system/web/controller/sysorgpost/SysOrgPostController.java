@@ -53,28 +53,28 @@ public class SysOrgPostController {
     private final SysOrgUnitConverter sysOrgUnitConverter;
 
     @Operation(summary = "Query org post tree")
-    @PreAuthorize("hasAuthority('sys:org-post:page')")
+    @PreAuthorize("@moduleAccess.hasModule('sys_org_post')")
     @GetMapping("/tree")
     public Result<List<SysOrgPostTreeNodeDTO>> tree() {
         return Result.success(service.queryTreeList());
     }
 
     @Operation(summary = "根据 ID 查询岗位详情")
-    @PreAuthorize("hasAuthority('sys:org-post:page')")
+    @PreAuthorize("@moduleAccess.hasModule('sys_org_post')")
     @GetMapping("/{id}")
     public Result<SysOrgPostDetailDTO> getById(@PathVariable Long id) {
         return Result.success(service.queryDetailById(id));
     }
 
     @Operation(summary = "分页查询岗位")
-    @PreAuthorize("hasAuthority('sys:org-post:page')")
+    @PreAuthorize("@moduleAccess.hasModule('sys_org_post')")
     @PostMapping("/page")
     public Result<PageResult<SysOrgPostDTO>> page(@RequestBody SysOrgPostQuery query) {
         return Result.success(service.page(query));
     }
 
     @Operation(summary = "新增岗位")
-    @PreAuthorize("hasAuthority('sys:org-post:create')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_org_post', 'create')")
     @PostMapping
     public Result<Long> create(@Valid @RequestBody SysOrgPostCreateRequest createRequest) {
         SysOrgPostDTO dto = converter.toDTO(createRequest);
@@ -83,7 +83,7 @@ public class SysOrgPostController {
     }
 
     @Operation(summary = "新增组织单元")
-    @PreAuthorize("hasAuthority('sys:org-post:create')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_org_post', 'create')")
     @PostMapping("/org-unit")
     public Result<Long> createOrgUnit(@Valid @RequestBody SysOrgUnitCreateRequest createRequest) {
         SysOrgUnitDTO dto = sysOrgUnitConverter.toDTO(createRequest);
@@ -92,14 +92,14 @@ public class SysOrgPostController {
     }
 
     @Operation(summary = "根据 ID 查询组织单元详情")
-    @PreAuthorize("hasAuthority('sys:org-post:page')")
+    @PreAuthorize("@moduleAccess.hasModule('sys_org_post')")
     @GetMapping("/org-unit/{id}")
     public Result<SysOrgUnitDTO> getOrgUnitById(@PathVariable Long id) {
         return Result.success(service.queryOrgUnitById(id));
     }
 
     @Operation(summary = "修改组织单元")
-    @PreAuthorize("hasAuthority('sys:org-post:modify')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_org_post', 'modify')")
     @PutMapping("/org-unit")
     public Result<Void> modifyOrgUnit(@Valid @RequestBody SysOrgUnitModifyRequest modifyRequest) {
         service.modifyOrgUnit(sysOrgUnitConverter.toDTO(modifyRequest));
@@ -107,7 +107,7 @@ public class SysOrgPostController {
     }
 
     @Operation(summary = "删除组织单元")
-    @PreAuthorize("hasAuthority('sys:org-post:remove')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_org_post', 'remove')")
     @DeleteMapping("/org-unit/{id}")
     public Result<Void> removeOrgUnit(@PathVariable Long id) {
         service.removeOrgUnit(id);
@@ -115,7 +115,7 @@ public class SysOrgPostController {
     }
 
     @Operation(summary = "修改岗位")
-    @PreAuthorize("hasAuthority('sys:org-post:modify')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_org_post', 'modify')")
     @PutMapping
     public Result<Void> modify(@Valid @RequestBody SysOrgPostModifyRequest modifyRequest) {
         service.modify(converter.toDTO(modifyRequest));
@@ -123,7 +123,7 @@ public class SysOrgPostController {
     }
 
     @Operation(summary = "删除岗位")
-    @PreAuthorize("hasAuthority('sys:org-post:remove')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_org_post', 'remove')")
     @DeleteMapping("/{id}")
     public Result<Void> remove(@PathVariable Long id) {
         service.remove(id);
@@ -131,21 +131,21 @@ public class SysOrgPostController {
     }
 
     @Operation(summary = "分页查询岗位员工")
-    @PreAuthorize("hasAuthority('sys:org-post:user:page')")
+    @PreAuthorize("@moduleAccess.hasModule('sys_org_post')")
     @PostMapping("/user/page")
     public Result<PageResult<SysOrgPostUserDTO>> userPage(@RequestBody SysOrgPostUserQuery query) {
         return Result.success(service.queryUserPage(query));
     }
 
     @Operation(summary = "Query candidate users by page")
-    @PreAuthorize("hasAuthority('sys:org-post:user:page')")
+    @PreAuthorize("@moduleAccess.hasModule('sys_org_post')")
     @PostMapping("/user/options/page")
     public Result<PageResult<SysOrgPostUserDTO>> userOptionPage(@RequestBody SysOrgPostUserQuery query) {
         return Result.success(service.queryUserOptionPage(query));
     }
 
     @Operation(summary = "绑定岗位员工")
-    @PreAuthorize("hasAuthority('sys:org-post:user:bind')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_org_post', 'userBind')")
     @PostMapping("/user/bind")
     public Result<Void> bindUsers(@Valid @RequestBody SysOrgPostBindUserRequest request) {
         service.bindUsers(request.getOrgPostId(), request.getUserIds());
@@ -153,7 +153,7 @@ public class SysOrgPostController {
     }
 
     @Operation(summary = "解绑岗位员工")
-    @PreAuthorize("hasAuthority('sys:org-post:user:unbind')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_org_post', 'userUnbind')")
     @PostMapping("/user/unbind")
     public Result<Void> unbindUsers(@Valid @RequestBody SysOrgPostUnbindUserRequest request) {
         service.unbindUsers(request.getOrgPostId(), request.getUserIds());

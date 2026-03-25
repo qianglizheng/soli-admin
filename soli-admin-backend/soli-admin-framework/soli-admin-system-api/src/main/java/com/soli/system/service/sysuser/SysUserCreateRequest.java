@@ -4,8 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 /**
  * 新增用户请求对象
  *
@@ -44,7 +42,4 @@ public class SysUserCreateRequest {
 
     /** 用户状态 */
     private String status;
-
-    /** 关联角色 ID 列表 */
-    private List<Long> roleIds;
 }

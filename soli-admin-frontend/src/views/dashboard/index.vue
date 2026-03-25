@@ -9,11 +9,11 @@
           {{ permissionWorkbenchCount }} / {{ permissionWorkbenchTotal }}。
         </div>
         <div class="hero-tags">
-          <el-tag v-for="role in roleLabels" :key="role" effect="plain" type="primary">
-            {{ role }}
+          <el-tag effect="plain" :type="accountTypeTagType">
+            {{ accountTypeLabel }}
           </el-tag>
           <el-tag effect="plain" type="success">已接入 {{ completedTodoCount }} 个入口</el-tag>
-          <el-tag effect="plain" type="warning">待开通 {{ unfinishedTodoCount }} 个入口</el-tag>
+          <el-tag effect="plain" type="warning">待开放 {{ unfinishedTodoCount }} 个入口</el-tag>
         </div>
         <div class="hero-actions">
           <el-button
@@ -79,13 +79,13 @@
           <div class="section-header">
             <div>
               <div class="section-title">核心入口接入情况</div>
-              <div class="section-subtitle">根据当前账号权限实时统计核心工作台开通进度</div>
+              <div class="section-subtitle">根据当前账号权限实时统计重点工作台开放进度</div>
             </div>
           </div>
           <v-chart class="chart chart--small" :option="todoPieOption" autoresize />
           <div class="todo-summary">
             <div class="todo-summary__item">
-              <span>待开通</span>
+              <span>待开放</span>
               <strong>{{ unfinishedTodoCount }}</strong>
             </div>
             <div class="todo-summary__item">
@@ -195,8 +195,7 @@ import {
   Lock,
   OfficeBuilding,
   Position,
-  SetUp,
-  UserFilled
+  SetUp
 } from '@element-plus/icons-vue';
 import { use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
@@ -257,16 +256,12 @@ const router = useRouter();
 const userStore = useUserStore();
 const permissionStore = usePermissionStore();
 
-const roleLabelMap: Record<string, string> = {
-  admin: '超级管理员'
-};
-
 const shortcutSeeds: Omit<ShortcutCard, 'available'>[] = [
   {
     key: 'module-center',
     icon: Grid,
     title: '模块管理',
-    description: '维护模块、Tab、字段、按钮、状态与流转定义，并同步关联资源。',
+    description: '维护模块、Tab、字段、按钮、状态与流转定义，并同步关联元数据。',
     path: '/system/module-center'
   },
   {
@@ -294,24 +289,23 @@ const shortcutSeeds: Omit<ShortcutCard, 'available'>[] = [
     key: 'state-auth',
     icon: SetUp,
     title: '状态权限',
-    description: '按状态维度维护收紧规则，不放大岗位基线。',
+    description: '按状态维度维护附加限制规则，不放大岗位基线。',
     path: '/system/state-auth'
   },
   {
     key: 'bill-template',
     icon: Document,
     title: '单据模板',
-    description: '进入采购单据模板页，查看实际业务页面联动效果。',
+    description: '进入采购单据模板页，查看业务页面联动效果。',
     path: '/purchase/bill-template'
   }
 ];
 
 const displayName = computed(() => userStore.name || '管理员');
 
-const roleLabels = computed(() => {
-  const sourceRoles = userStore.roles.length ? userStore.roles : ['admin'];
-  return sourceRoles.map((role) => roleLabelMap[role] || role);
-});
+const accountTypeLabel = computed(() => (userStore.type === '0' ? '超级管理员' : '普通用户'));
+
+const accountTypeTagType = computed<'danger' | 'info'>(() => (userStore.type === '0' ? 'danger' : 'info'));
 
 const greetingText = computed(() => {
   const hour = new Date().getHours();
@@ -364,22 +358,22 @@ const permissionWorkbenchTotal = computed(() => {
   return shortcutCards.value.filter((item) => item.path.startsWith('/system/')).length;
 });
 
+const todoList = computed<TodoItem[]>(() => {
+  return shortcutCards.value.map((item) => ({
+    category: item.path.startsWith('/system/') ? '权限平台' : '业务模块',
+    done: item.available,
+    tag: item.available ? '已接入' : '待开放',
+    tagType: item.available ? 'success' : 'warning',
+    title: item.available ? `${item.title}入口已开放` : `待为当前账号开放${item.title}入口`
+  }));
+});
+
 const unfinishedTodoCount = computed(() => {
   return todoList.value.filter((item) => !item.done).length;
 });
 
 const completedTodoCount = computed(() => {
   return todoList.value.length - unfinishedTodoCount.value;
-});
-
-const todoList = computed<TodoItem[]>(() => {
-  return shortcutCards.value.map((item) => ({
-    category: item.path.startsWith('/system/') ? '权限平台' : '业务模块',
-    done: item.available,
-    tag: item.available ? '已接入' : '待开通',
-    tagType: item.available ? 'success' : 'warning',
-    title: item.available ? `${item.title}入口已开通` : `待为当前账号开通${item.title}入口`
-  }));
 });
 
 const moduleCoverageBuckets = computed(() => {
@@ -405,8 +399,6 @@ const moduleCoverageBuckets = computed(() => {
       label: '基础配置',
       match: (path: string) => [
         '/system/user',
-        '/system/role',
-        '/system/menu',
         '/system/dict',
         '/system/config'
       ].includes(path)
@@ -446,13 +438,13 @@ const heroHighlights = computed(() => {
       value: `${availableShortcutCards.value.length}`
     },
     {
-      label: '角色数量',
-      note: '当前账号已挂载角色',
-      value: `${roleLabels.value.length}`
+      label: '账号类型',
+      note: '当前登录账号在系统中的身份标识',
+      value: accountTypeLabel.value
     },
     {
       label: '待办事项',
-      note: '尚未完成的首页任务清单',
+      note: '首页接入清单中尚未完成的项目数',
       value: `${unfinishedTodoCount.value}`
     }
   ];
@@ -480,17 +472,17 @@ const overviewCards = computed<OverviewCard[]>(() => {
       key: 'todo-count',
       icon: DataAnalysis,
       label: '进行中事项',
-      note: '当前首页待办清单中未完成项',
+      note: '当前首页待办清单中未完成项目',
       tone: 'warning',
       value: unfinishedTodoCount.value
     },
     {
-      key: 'role-count',
-      icon: UserFilled,
-      label: '当前角色',
-      note: '账号在本系统内已挂载角色数量',
+      key: 'available-shortcut',
+      icon: Position,
+      label: '已开通入口',
+      note: '当前账号可直接进入的快捷入口数量',
       tone: 'danger',
-      value: roleLabels.value.length
+      value: availableShortcutCards.value.length
     }
   ];
 });
@@ -568,7 +560,7 @@ const todoPieOption = computed(() => {
         data: [
           {
             itemStyle: { color: '#1677ff' },
-            name: '待开通',
+            name: '待开放',
             value: unfinishedTodoCount.value
           },
           {
@@ -604,7 +596,7 @@ function handleShortcutClick(item?: ShortcutCard) {
     return;
   }
   if (!item.available) {
-    ElMessage.info('当前账号暂未开通该入口');
+    ElMessage.info('当前账号暂未开放该入口');
     return;
   }
   router.push(item.path);
@@ -645,6 +637,8 @@ function resolveRoutePath(parentPath: string, currentPath: string) {
 
 <style scoped lang="scss">
 .dashboard-page {
+  display: flex;
+  flex-direction: column;
   gap: 16px;
   padding-bottom: 16px;
 }

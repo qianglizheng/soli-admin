@@ -15,6 +15,59 @@
         order by uop.org_post_id asc
     </select>
 
+    <select id="selectUserVisibleNavModuleIdList" resultType="long">
+        select m.id
+        from sys_user_org_post uop
+                 inner join sys_org_post_module_auth ma
+                            on ma.org_post_id = uop.org_post_id
+                               and ma.module_visible = '1'
+                               and ma.nav_visible = '1'
+                 inner join sys_module m
+                            on m.id = ma.module_id
+                               and m.status = '0'
+                               and m.nav_visible = '1'
+        where uop.user_id = #{userId}
+          and uop.status = '0'
+        group by m.id, m.sort
+        order by m.sort asc, m.id asc
+    </select>
+
+    <select id="countUserVisibleModule" resultType="int">
+        select count(distinct m.id)
+        from sys_user_org_post uop
+                 inner join sys_org_post_module_auth ma
+                            on ma.org_post_id = uop.org_post_id
+                               and ma.module_visible = '1'
+                 inner join sys_module m
+                            on m.id = ma.module_id
+                               and m.module_code = #{moduleCode}
+                               and m.status = '0'
+        where uop.user_id = #{userId}
+          and uop.status = '0'
+    </select>
+
+    <select id="selectUserButtonPermissionLevel" resultType="int">
+        select max(ba.permission_level)
+        from sys_user_org_post uop
+                 inner join sys_org_post_module_auth ma
+                            on ma.org_post_id = uop.org_post_id
+                               and ma.module_visible = '1'
+                 inner join sys_org_post_button_auth ba
+                            on ba.org_post_id = uop.org_post_id
+                               and ba.module_id = ma.module_id
+                 inner join sys_module m
+                            on m.id = ba.module_id
+                               and m.module_code = #{moduleCode}
+                               and m.status = '0'
+                 inner join sys_module_button b
+                            on b.id = ba.button_id
+                               and b.module_id = m.id
+                               and b.button_code = #{buttonCode}
+                               and b.status = '0'
+        where uop.user_id = #{userId}
+          and uop.status = '0'
+    </select>
+
     <resultMap id="SysOrgPostModuleAuthResultMap" type="com.soli.system.core.service.impl.sysmodulepermission.SysOrgPostModuleAuthEntity">
         <id property="id" column="id"/>
         <result property="orgPostId" column="org_post_id"/>
@@ -109,6 +162,14 @@
         where org_post_id = #{orgPostId}
           and module_id = #{moduleId}
         order by id asc
+    </select>
+
+    <select id="selectOrgPostButtonAuth" resultMap="SysOrgPostButtonAuthResultMap">
+        select id, org_post_id, module_id, button_id, permission_level, create_by, create_time, update_by, update_time, note
+        from sys_org_post_button_auth
+        where org_post_id = #{orgPostId}
+          and button_id = #{buttonId}
+        limit 1
     </select>
 
     <delete id="deleteOrgPostModuleAuth">

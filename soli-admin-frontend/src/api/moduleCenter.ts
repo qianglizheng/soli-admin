@@ -12,7 +12,11 @@ export interface ModuleTreeNode {
   moduleCode: string;
   moduleName: string;
   moduleType: ModuleType;
+  routePath?: string;
+  componentPath?: string;
+  icon?: string;
   sort: number;
+  navVisible?: YesNo;
   statefulFlag: YesNo;
   status: YesNo;
   children?: ModuleTreeNode[];
@@ -192,6 +196,13 @@ export function getModuleTree() {
   return request<ApiResponse<ModuleTreeNode[]>>({
     method: 'get',
     url: '/sys/module/tree'
+  });
+}
+
+export function getModuleNavTree() {
+  return request<ApiResponse<ModuleTreeNode[]>>({
+    method: 'get',
+    url: '/sys/module/nav-tree'
   });
 }
 

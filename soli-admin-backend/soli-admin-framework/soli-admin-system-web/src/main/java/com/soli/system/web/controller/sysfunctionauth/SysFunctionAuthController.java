@@ -35,28 +35,28 @@ public class SysFunctionAuthController {
     private final SysFunctionAuthService service;
 
     @Operation(summary = "查询岗位树")
-    @PreAuthorize("hasAuthority('sys:function-auth:page')")
+    @PreAuthorize("@moduleAccess.hasModule('sys_function_auth')")
     @GetMapping("/post-tree")
     public Result<List<SysOrgPostTreeNodeDTO>> postTree() {
         return Result.success(service.queryOrgPostTree());
     }
 
     @Operation(summary = "查询模块树")
-    @PreAuthorize("hasAuthority('sys:function-auth:page')")
+    @PreAuthorize("@moduleAccess.hasModule('sys_function_auth')")
     @GetMapping("/module-tree")
     public Result<List<SysModuleTreeNodeDTO>> moduleTree() {
         return Result.success(service.queryModuleTree());
     }
 
     @Operation(summary = "查询页面详情")
-    @PreAuthorize("hasAuthority('sys:function-auth:page')")
+    @PreAuthorize("@moduleAccess.hasModule('sys_function_auth')")
     @GetMapping("/detail")
     public Result<SysFunctionAuthPageDetailDTO> detail(@RequestParam Long orgPostId, @RequestParam Long moduleId) {
         return Result.success(service.queryPageDetail(orgPostId, moduleId));
     }
 
     @Operation(summary = "保存岗位基线权限")
-    @PreAuthorize("hasAuthority('sys:function-auth:save')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_function_auth', 'save')")
     @PutMapping
     public Result<Void> save(@Valid @RequestBody SysFunctionAuthSaveRequest request) {
         service.save(request);

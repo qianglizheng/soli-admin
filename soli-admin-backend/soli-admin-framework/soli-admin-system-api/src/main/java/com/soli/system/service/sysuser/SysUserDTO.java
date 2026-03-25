@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * 系统用户传输对象
@@ -49,7 +48,4 @@ public class SysUserDTO extends BaseDTO {
 
     /** 用户最后登录时间 */
     private LocalDateTime loginTime;
-
-    /** 关联角色 ID 列表 */
-    private List<Long> roleIds;
 }

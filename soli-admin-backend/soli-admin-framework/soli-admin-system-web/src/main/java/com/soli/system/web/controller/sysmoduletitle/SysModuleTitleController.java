@@ -34,21 +34,21 @@ public class SysModuleTitleController {
     private final SysModuleTitleService service;
 
     @Operation(summary = "查询模块树")
-    @PreAuthorize("hasAuthority('sys:module-title:page')")
+    @PreAuthorize("@moduleAccess.hasModule('sys_module_title')")
     @GetMapping("/tree")
     public Result<List<SysModuleTreeNodeDTO>> tree() {
         return Result.success(service.queryModuleTree());
     }
 
     @Operation(summary = "查询模块详情")
-    @PreAuthorize("hasAuthority('sys:module-title:page')")
+    @PreAuthorize("@moduleAccess.hasModule('sys_module_title')")
     @GetMapping("/{moduleId}")
     public Result<SysModuleDetailDTO> detail(@PathVariable Long moduleId) {
         return Result.success(service.queryDetail(moduleId));
     }
 
     @Operation(summary = "保存字段标题配置")
-    @PreAuthorize("hasAuthority('sys:module-title:save')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_module_title', 'save')")
     @PutMapping
     public Result<Void> save(@Valid @RequestBody SysModuleTitleSaveRequest request) {
         service.save(request);

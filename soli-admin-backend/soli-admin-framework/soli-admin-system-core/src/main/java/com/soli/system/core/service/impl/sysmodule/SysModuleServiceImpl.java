@@ -33,6 +33,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * 模块管理服务实现
@@ -79,6 +80,19 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         dtoList.forEach(node -> appendNode(rootList, nodeMap, node));
         sortTree(rootList);
         return rootList;
+    }
+
+    @Override
+    public List<SysModuleTreeNodeDTO> queryNavTree(Long userId) {
+        if (userId == null) {
+            return new ArrayList<>();
+        }
+        List<SysModuleTreeNodeDTO> rootList = queryTreeList();
+        List<Long> visibleModuleIdList = sysModulePermissionMapper.selectUserVisibleNavModuleIdList(userId);
+        if (visibleModuleIdList == null || visibleModuleIdList.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return filterNavTree(rootList, Set.copyOf(visibleModuleIdList));
     }
 
     @Override
@@ -714,6 +728,38 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
                 sortTree(node.getChildren());
             }
         });
+    }
+
+    private List<SysModuleTreeNodeDTO> filterNavTree(List<SysModuleTreeNodeDTO> nodeList, Set<Long> visibleModuleIdSet) {
+        List<SysModuleTreeNodeDTO> result = new ArrayList<>();
+        for (SysModuleTreeNodeDTO node : nodeList) {
+            List<SysModuleTreeNodeDTO> children = node.getChildren() == null
+                    ? new ArrayList<>()
+                    : filterNavTree(node.getChildren(), visibleModuleIdSet);
+            if (visibleModuleIdSet.contains(node.getId()) || !children.isEmpty()) {
+                SysModuleTreeNodeDTO copied = copyTreeNode(node);
+                copied.setChildren(children);
+                result.add(copied);
+            }
+        }
+        return result;
+    }
+
+    private SysModuleTreeNodeDTO copyTreeNode(SysModuleTreeNodeDTO node) {
+        SysModuleTreeNodeDTO copied = new SysModuleTreeNodeDTO();
+        copied.setId(node.getId());
+        copied.setParentId(node.getParentId());
+        copied.setModuleCode(node.getModuleCode());
+        copied.setModuleName(node.getModuleName());
+        copied.setModuleType(node.getModuleType());
+        copied.setRoutePath(node.getRoutePath());
+        copied.setComponentPath(node.getComponentPath());
+        copied.setIcon(node.getIcon());
+        copied.setSort(node.getSort());
+        copied.setNavVisible(node.getNavVisible());
+        copied.setStatefulFlag(node.getStatefulFlag());
+        copied.setStatus(node.getStatus());
+        return copied;
     }
 
 }

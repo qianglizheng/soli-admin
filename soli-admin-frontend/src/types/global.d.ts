@@ -37,35 +37,8 @@ export interface SysUser {
   type?: string;
   sex?: string;
   status?: string;
-  roleIds?: number[];
   createTime?: string;
   updateTime?: string;
-}
-
-export interface SysRole {
-  id: number;
-  name: string;
-  code: string;
-  sort?: string;
-  dataScope?: string;
-  status?: string;
-  createTime?: string;
-  updateTime?: string;
-}
-
-export interface SysMenuDTO {
-  id: number;
-  name: string;
-  parentId: number;
-  sort: string;
-  path: string;
-  component: string;
-  type: string;
-  perms: string;
-  icon: string;
-  status: string;
-  createTime?: string;
-  children?: SysMenuDTO[];
 }
 
 export interface SysDictType {

@@ -23,6 +23,8 @@ public interface SysModuleMapper extends BaseCrudMapper<SysModuleEntity, SysModu
 
     List<SysModuleTreeNodeModel> selectTreeNodes();
 
+    List<SysModuleEntity> selectAllModuleList();
+
     SysModuleEntity selectByModuleCode(@Param("moduleCode") String moduleCode);
 
     int countChildModuleByParentId(@Param("parentId") Long parentId);

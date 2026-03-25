@@ -42,7 +42,7 @@ public class SysDictDataController {
     private final SysDictDataConverter sysDictDataConverter;
 
     @Operation(summary = "新增字典数据")
-    @PreAuthorize("hasAuthority('sys:dict:create')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_dict', 'create')")
     @PostMapping
     public Result<Void> create(@Valid @RequestBody SysDictDataCreateRequest createRequest) {
         sysDictDataService.create(sysDictDataConverter.toDTO(createRequest));
@@ -50,7 +50,7 @@ public class SysDictDataController {
     }
 
     @Operation(summary = "删除字典数据")
-    @PreAuthorize("hasAuthority('sys:dict:remove')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_dict', 'remove')")
     @DeleteMapping("/{id}")
     public Result<Void> remove(@PathVariable Long id) {
         sysDictDataService.remove(id);
@@ -58,7 +58,7 @@ public class SysDictDataController {
     }
 
     @Operation(summary = "修改字典数据")
-    @PreAuthorize("hasAuthority('sys:dict:modify')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_dict', 'modify')")
     @PutMapping
     public Result<Void> modify(@Valid @RequestBody SysDictDataModifyRequest modifyRequest) {
         sysDictDataService.modify(sysDictDataConverter.toDTO(modifyRequest));
@@ -66,14 +66,14 @@ public class SysDictDataController {
     }
 
     @Operation(summary = "分页查询字典数据")
-    @PreAuthorize("hasAuthority('sys:dict:page')")
+    @PreAuthorize("@moduleAccess.hasModule('sys_dict')")
     @PostMapping("/page")
     public Result<PageResult<SysDictDataDTO>> page(@RequestBody SysDictDataQuery query) {
         return Result.success(sysDictDataService.page(query));
     }
 
     @Operation(summary = "查询字典数据详情")
-    @PreAuthorize("hasAuthority('sys:dict:page')")
+    @PreAuthorize("@moduleAccess.hasModule('sys_dict')")
     @GetMapping("/{id}")
     public Result<SysDictDataDTO> getById(@PathVariable Long id) {
         return Result.success(sysDictDataService.getById(id).orElseThrow(() -> new BusinessException("指定字典数据不存在！")));

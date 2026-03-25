@@ -34,21 +34,21 @@ public class SysStateAuthController {
     private final SysStateAuthService service;
 
     @Operation(summary = "查询状态型模块树")
-    @PreAuthorize("hasAuthority('sys:state-auth:page')")
+    @PreAuthorize("@moduleAccess.hasModule('sys_state_auth')")
     @GetMapping("/tree")
     public Result<List<SysModuleTreeNodeDTO>> tree() {
         return Result.success(service.queryModuleTree());
     }
 
     @Operation(summary = "查询页面详情")
-    @PreAuthorize("hasAuthority('sys:state-auth:page')")
+    @PreAuthorize("@moduleAccess.hasModule('sys_state_auth')")
     @GetMapping("/{moduleId}")
     public Result<SysStateAuthPageDetailDTO> detail(@PathVariable Long moduleId) {
         return Result.success(service.queryPageDetail(moduleId));
     }
 
     @Operation(summary = "保存状态限制")
-    @PreAuthorize("hasAuthority('sys:state-auth:save')")
+    @PreAuthorize("@moduleAccess.hasButton('sys_state_auth', 'save')")
     @PutMapping
     public Result<Void> save(@Valid @RequestBody SysStateAuthSaveRequest request) {
         service.save(request);

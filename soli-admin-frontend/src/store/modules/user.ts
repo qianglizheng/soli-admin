@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { getUserInfo, loginUsingUsername } from '@/api/user';
+import { useCompanyStore } from '@/store/modules/company';
 import { getToken, removeToken, setToken } from '@/utils/auth';
 import { computed, ref } from 'vue';
 
@@ -32,11 +33,13 @@ export const useUserStore = defineStore('user', () => {
   };
 
   const logout = async () => {
+    const companyStore = useCompanyStore();
     token.value = '';
     name.value = '';
     avatar.value = '';
     type.value = '';
     roles.value = [];
+    companyStore.reset();
     removeToken();
   };
 
