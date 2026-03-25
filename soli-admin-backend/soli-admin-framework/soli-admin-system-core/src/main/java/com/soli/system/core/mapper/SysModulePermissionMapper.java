@@ -17,6 +17,8 @@ import java.util.List;
  */
 public interface SysModulePermissionMapper {
 
+    List<Long> selectAdminOrgPostIdList();
+
     SysOrgPostModuleAuthEntity selectOrgPostModuleAuth(@Param("orgPostId") Long orgPostId, @Param("moduleId") Long moduleId);
 
     int countVisibleModuleByOrgPostId(@Param("orgPostId") Long orgPostId);
@@ -27,9 +29,15 @@ public interface SysModulePermissionMapper {
 
     int deleteOrgPostModuleAuth(@Param("orgPostId") Long orgPostId, @Param("moduleId") Long moduleId);
 
+    int deleteOrgPostModuleAuthByModuleId(@Param("moduleId") Long moduleId);
+
     int deleteOrgPostFieldAuthList(@Param("orgPostId") Long orgPostId, @Param("moduleId") Long moduleId);
 
+    int deleteOrgPostFieldAuthByFieldId(@Param("fieldId") Long fieldId);
+
     int deleteOrgPostButtonAuthList(@Param("orgPostId") Long orgPostId, @Param("moduleId") Long moduleId);
+
+    int deleteOrgPostButtonAuthByButtonId(@Param("buttonId") Long buttonId);
 
     int insertOrgPostModuleAuth(SysOrgPostModuleAuthEntity entity);
 
@@ -43,7 +51,11 @@ public interface SysModulePermissionMapper {
 
     int deleteStateFieldAuthList(@Param("moduleId") Long moduleId);
 
+    int deleteStateFieldAuthByFieldId(@Param("fieldId") Long fieldId);
+
     int deleteStateButtonAuthList(@Param("moduleId") Long moduleId);
+
+    int deleteStateButtonAuthByButtonId(@Param("buttonId") Long buttonId);
 
     int insertStateFieldAuthBatch(@Param("list") List<SysModuleStateFieldAuthEntity> entityList);
 

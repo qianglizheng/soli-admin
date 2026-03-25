@@ -18,13 +18,6 @@
             class="tree-search"
           />
 
-          <div class="tree-toolbar">
-            <el-button type="primary" plain icon="Plus" @click="handleCreateRoot">新增岗位</el-button>
-            <el-button plain icon="OfficeBuilding" @click="handleCreateOrgUnit">新增分公司</el-button>
-            <el-button plain icon="DocumentAdd" :disabled="!selectedNode" @click="handleCreateChild">新增下级</el-button>
-            <el-button plain icon="Edit" :disabled="!selectedPostNode" @click="handleEditPost">编辑岗位</el-button>
-          </div>
-
           <el-scrollbar class="tree-scrollbar">
             <el-tree
               ref="treeRef"
@@ -39,9 +32,32 @@
                 <div class="tree-node">
                   <div class="tree-node__head">
                     <span class="tree-node__label">{{ data.nodeName }}</span>
-                    <el-tag size="small" :type="getNodeTagType(data.nodeType)" effect="plain">
-                      {{ getOrgNodeTypeLabel(data.nodeType) }}
-                    </el-tag>
+                    <div class="tree-node__meta">
+                      <div class="tree-node__actions">
+                        <template v-if="isHeadquarterNode(data)">
+                          <el-button link type="primary" size="small" @click.stop="handleCreateOrgUnit(data)">新增分公司</el-button>
+                          <el-button link size="small" @click.stop="handleCreateChild(data)">新增岗位</el-button>
+                        </template>
+                        <template v-else-if="isBranchNode(data)">
+                          <el-button link type="primary" size="small" @click.stop="handleCreateChild(data)">新增岗位</el-button>
+                          <el-button link size="small" @click.stop="handleEditOrgUnit(data)">编辑</el-button>
+                          <el-button link type="danger" size="small" @click.stop="handleRemoveOrgUnit(data)">删除</el-button>
+                        </template>
+                        <template v-else-if="isPostNode(data)">
+                          <el-button link type="primary" size="small" @click.stop="handleCreateChild(data)">新增</el-button>
+                          <el-button link size="small" @click.stop="handleEditPost(data)">编辑</el-button>
+                          <el-button link type="danger" size="small" @click.stop="handleRemovePost(data)">删除</el-button>
+                        </template>
+                      </div>
+                      <el-tag
+                        size="small"
+                        effect="plain"
+                        :type="getNodeTagType(data.nodeType)"
+                        class="tree-node__tag"
+                      >
+                        {{ getOrgNodeTypeLabel(data.nodeType) }}
+                      </el-tag>
+                    </div>
                   </div>
                   <div class="tree-node__code">{{ data.nodeCode }}</div>
                 </div>
@@ -131,10 +147,10 @@
           </template>
 
           <div v-else class="workspace-empty">
-            <el-empty description="请选择左侧岗位节点后查看岗位员工" />
+            <el-empty :description="selectedOrgNode ? '当前选中的是组织节点，可直接在该树节点右侧执行新增、编辑、删除操作' : '请选择左侧岗位节点后查看岗位员工'" />
             <el-alert
               v-if="selectedNode"
-              title="当前选中的是组织节点，可在左侧新增岗位；如需维护员工，请选择具体岗位。"
+              title="当前选中的是组织节点，可直接使用节点右侧操作按钮维护分公司或岗位；如需维护员工，请选择具体岗位。"
               type="info"
               :closable="false"
               show-icon
@@ -156,6 +172,7 @@
 
     <org-unit-form
       v-model="orgFormVisible"
+      :mode="orgFormMode"
       :initial-data="orgFormInitial"
       :tree-data="postTree"
       @submit="handleOrgFormSubmit"
@@ -184,19 +201,23 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import OrgUnitForm from './components/OrgUnitForm.vue';
 import PostEmployeeDialog from './components/PostEmployeeDialog.vue';
 import PostManageForm from './components/PostManageForm.vue';
 import {
   createOrgUnit,
+  deleteOrgPost,
+  deleteOrgUnit,
   createOrgPost,
   getOrgNodeTypeLabel,
   getOrgPostDetail,
   getOrgPostTree,
   getOrgPostUserPage,
+  getOrgUnitDetail,
   getPostTypeLabel,
   POST_TYPE_OPTIONS,
+  updateOrgUnit,
   updateOrgPost,
   type CreateOrgPostPayload,
   type CreateOrgUnitPayload,
@@ -204,6 +225,7 @@ import {
   type OrgPostFormModel,
   type OrgPostTreeNode,
   type OrgPostUser,
+  type UpdateOrgUnitPayload,
   type OrgUnitFormModel
 } from '@/api/orgPost';
 import type { PageResult } from '@/types/global';
@@ -229,6 +251,7 @@ const formVisible = ref(false);
 const formMode = ref<'create' | 'edit'>('create');
 const formInitial = ref<Partial<OrgPostFormModel>>({});
 const orgFormVisible = ref(false);
+const orgFormMode = ref<'create' | 'edit'>('create');
 const orgFormInitial = ref<Partial<OrgUnitFormModel>>({});
 const assignDialogVisible = ref(false);
 const viewDialogVisible = ref(false);
@@ -266,6 +289,21 @@ function findFirstPostNode(nodes: OrgPostTreeNode[]): OrgPostTreeNode | undefine
   return undefined;
 }
 
+function findFirstNodeByType(nodes: OrgPostTreeNode[], nodeType: OrgPostTreeNode['nodeType']): OrgPostTreeNode | undefined {
+  for (const node of nodes) {
+    if (node.nodeType === nodeType) {
+      return node;
+    }
+    if (node.children?.length) {
+      const matched = findFirstNodeByType(node.children, nodeType);
+      if (matched) {
+        return matched;
+      }
+    }
+  }
+  return undefined;
+}
+
 function countPostNodes(nodes: OrgPostTreeNode[]) {
   return nodes.reduce((count, node) => {
     const current = node.nodeType === 'POST' ? 1 : 0;
@@ -274,11 +312,26 @@ function countPostNodes(nodes: OrgPostTreeNode[]) {
 }
 
 const selectedNode = computed(() => findTreeNode(postTree.value, selectedNodeKey.value));
+const selectedOrgNode = computed(() => (selectedNode.value && selectedNode.value.nodeType !== 'POST' ? selectedNode.value : undefined));
 const selectedPostNode = computed(() => (selectedNode.value?.nodeType === 'POST' ? selectedNode.value : undefined));
+const selectedBranchNode = computed(() => (selectedNode.value?.nodeType === 'BRANCH' ? selectedNode.value : undefined));
+const rootOrgNode = computed(() => findFirstNodeByType(postTree.value, 'HEADQUARTERS'));
 const postCount = computed(() => countPostNodes(postTree.value));
 const currentPostTypeLabel = computed(() => getPostTypeLabel(selectedPostDetail.value?.postType));
 const currentOrgTypeLabel = computed(() => getOrgNodeTypeLabel(selectedPostDetail.value?.orgType || selectedNode.value?.nodeType));
 const currentStatus = computed(() => selectedPostDetail.value?.status || selectedPostNode.value?.status || '0');
+
+function isHeadquarterNode(node?: OrgPostTreeNode) {
+  return node?.nodeType === 'HEADQUARTERS';
+}
+
+function isBranchNode(node?: OrgPostTreeNode) {
+  return node?.nodeType === 'BRANCH';
+}
+
+function isPostNode(node?: OrgPostTreeNode) {
+  return node?.nodeType === 'POST';
+}
 
 function filterNode(value: string, data: OrgPostTreeNode) {
   if (!value) {
@@ -288,11 +341,11 @@ function filterNode(value: string, data: OrgPostTreeNode) {
 }
 
 function getNodeTagType(nodeType: string) {
-  if (nodeType === 'GROUP') {
-    return 'info';
-  }
   if (nodeType === 'POST') {
     return 'warning';
+  }
+  if (nodeType === 'HEADQUARTERS') {
+    return 'primary';
   }
   return 'success';
 }
@@ -388,13 +441,7 @@ function getCreateParentNodeKey() {
 }
 
 function getCreateOrgParentNodeKey() {
-  if (!selectedNode.value) {
-    return postTree.value[0]?.nodeKey || '';
-  }
-  if (selectedNode.value.nodeType === 'POST') {
-    return `ORG_${selectedNode.value.orgUnitId}`;
-  }
-  return selectedNode.value.nodeKey;
+  return rootOrgNode.value?.nodeKey || '';
 }
 
 function buildFormPayload(formData: OrgPostFormModel): CreateOrgPostPayload {
@@ -431,8 +478,15 @@ function buildOrgFormPayload(formData: OrgUnitFormModel): CreateOrgUnitPayload {
   };
 }
 
-function handleCreateRoot() {
-  const parentNodeKey = getCreateParentNodeKey();
+function buildUpdateOrgFormPayload(formData: OrgUnitFormModel): UpdateOrgUnitPayload {
+  return {
+    ...buildOrgFormPayload(formData),
+    id: formData.id!
+  };
+}
+
+function handleCreateRoot(targetNode?: OrgPostTreeNode) {
+  const parentNodeKey = targetNode?.nodeKey || getCreateParentNodeKey();
   if (!parentNodeKey) {
     ElMessage.warning('请先初始化组织节点后再新增岗位');
     return;
@@ -450,12 +504,13 @@ function handleCreateRoot() {
   formVisible.value = true;
 }
 
-function handleCreateOrgUnit() {
-  const parentNodeKey = getCreateOrgParentNodeKey();
+function handleCreateOrgUnit(targetNode?: OrgPostTreeNode) {
+  const parentNodeKey = targetNode?.nodeKey || getCreateOrgParentNodeKey();
   if (!parentNodeKey) {
-    ElMessage.warning('请先初始化组织节点后再新增分公司');
+    ElMessage.warning('请先初始化总公司节点后再新增分公司');
     return;
   }
+  orgFormMode.value = 'create';
   orgFormInitial.value = {
     note: '',
     orgCode: '',
@@ -467,40 +522,113 @@ function handleCreateOrgUnit() {
   orgFormVisible.value = true;
 }
 
-function handleCreateChild() {
-  if (!selectedNode.value) {
+async function handleEditOrgUnit(targetNode?: OrgPostTreeNode) {
+  const currentNode = targetNode || selectedBranchNode.value;
+  if (!currentNode || !isBranchNode(currentNode)) {
+    return;
+  }
+  try {
+    const { data } = await getOrgUnitDetail(currentNode.id);
+    orgFormMode.value = 'edit';
+    orgFormInitial.value = {
+      id: data.id,
+      leaderUserId: data.leaderUserId,
+      note: data.note || '',
+      orgCode: data.orgCode,
+      orgName: data.orgName,
+      parentNodeKey: `ORG_${data.parentId}`,
+      sort: data.sort,
+      status: (data.status || '0') as '0' | '1'
+    };
+    orgFormVisible.value = true;
+  } catch (error) {
+    if (error instanceof Error) {
+      ElMessage.error(error.message);
+    }
+  }
+}
+
+async function handleRemoveOrgUnit(targetNode?: OrgPostTreeNode) {
+  const currentNode = targetNode || selectedBranchNode.value;
+  if (!currentNode || !isBranchNode(currentNode)) {
+    return;
+  }
+  try {
+    await ElMessageBox.confirm(`确认删除分公司「${currentNode.nodeName}」吗？`, '删除提示', {
+      confirmButtonText: '删除',
+      cancelButtonText: '取消',
+      type: 'warning'
+    });
+    await deleteOrgUnit(currentNode.id);
+    ElMessage.success('分公司已删除');
+    await loadTree(currentNode.parentNodeKey || rootOrgNode.value?.nodeKey);
+  } catch (error) {
+    if (error instanceof Error && error.message) {
+      ElMessage.error(error.message);
+    }
+  }
+}
+
+function handleCreateChild(targetNode?: OrgPostTreeNode) {
+  const currentNode = targetNode || selectedNode.value;
+  if (!currentNode) {
     return;
   }
   formMode.value = 'create';
   formInitial.value = {
     note: '',
-    parentNodeKey: selectedNode.value.nodeKey,
+    parentNodeKey: currentNode.nodeKey,
     postCode: '',
     postName: '',
     postType: POST_TYPE_OPTIONS[0]!.value,
-    sort: resolveNextSort(selectedNode.value.nodeKey),
+    sort: resolveNextSort(currentNode.nodeKey),
     status: '0'
   };
   formVisible.value = true;
 }
 
-function handleEditPost() {
-  if (!selectedPostNode.value || !selectedPostDetail.value) {
+async function handleEditPost(targetNode?: OrgPostTreeNode) {
+  const currentNode = targetNode || selectedPostNode.value;
+  if (!currentNode || !isPostNode(currentNode)) {
     return;
   }
+  const detail = currentNode.id === selectedPostDetail.value?.id
+    ? selectedPostDetail.value
+    : (await getOrgPostDetail(currentNode.id)).data;
   formMode.value = 'edit';
   formInitial.value = {
-    id: selectedPostDetail.value.id,
-    managerUserId: selectedPostDetail.value.managerUserId,
-    note: selectedPostDetail.value.note || '',
-    parentNodeKey: selectedPostNode.value.parentNodeKey || '',
-    postCode: selectedPostDetail.value.postCode,
-    postName: selectedPostDetail.value.postName,
-    postType: selectedPostDetail.value.postType || POST_TYPE_OPTIONS[0]!.value,
-    sort: selectedPostDetail.value.sort,
-    status: (selectedPostDetail.value.status || '0') as '0' | '1'
+    id: detail.id,
+    managerUserId: detail.managerUserId,
+    note: detail.note || '',
+    parentNodeKey: currentNode.parentNodeKey || '',
+    postCode: detail.postCode,
+    postName: detail.postName,
+    postType: detail.postType || POST_TYPE_OPTIONS[0]!.value,
+    sort: detail.sort,
+    status: (detail.status || '0') as '0' | '1'
   };
   formVisible.value = true;
+}
+
+async function handleRemovePost(targetNode?: OrgPostTreeNode) {
+  const currentNode = targetNode || selectedPostNode.value;
+  if (!currentNode || !isPostNode(currentNode)) {
+    return;
+  }
+  try {
+    await ElMessageBox.confirm(`确认删除岗位「${currentNode.nodeName}」吗？`, '删除提示', {
+      confirmButtonText: '删除',
+      cancelButtonText: '取消',
+      type: 'warning'
+    });
+    await deleteOrgPost(currentNode.id);
+    ElMessage.success('岗位已删除');
+    await loadTree(currentNode.parentNodeKey || rootOrgNode.value?.nodeKey);
+  } catch (error) {
+    if (error instanceof Error && error.message) {
+      ElMessage.error(error.message);
+    }
+  }
 }
 
 async function handleFormSubmit(formData: OrgPostFormModel) {
@@ -533,11 +661,18 @@ function handleFormCancel() {
 
 async function handleOrgFormSubmit(formData: OrgUnitFormModel) {
   try {
-    const payload = buildOrgFormPayload(formData);
-    const { data } = await createOrgUnit(payload);
-    ElMessage.success('分公司新增成功');
+    if (orgFormMode.value === 'create') {
+      const payload = buildOrgFormPayload(formData);
+      const { data } = await createOrgUnit(payload);
+      ElMessage.success('分公司新增成功');
+      orgFormVisible.value = false;
+      await loadTree(data ? `ORG_${data}` : undefined);
+      return;
+    }
+    await updateOrgUnit(buildUpdateOrgFormPayload(formData));
+    ElMessage.success('分公司信息已更新');
     orgFormVisible.value = false;
-    await loadTree(data ? `ORG_${data}` : undefined);
+    await loadTree(`ORG_${formData.id}`);
   } catch (error) {
     if (error instanceof Error) {
       ElMessage.error(error.message);
@@ -655,15 +790,10 @@ onMounted(() => {
   line-height: 1.7;
 }
 
-.overview-actions,
-.tree-toolbar {
+.overview-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-}
-
-.tree-toolbar {
-  margin-bottom: 12px;
 }
 
 .metric-row {
@@ -735,6 +865,27 @@ onMounted(() => {
   gap: 8px;
 }
 
+.tree-node__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 12px;
+  flex-shrink: 0;
+}
+
+.tree-node__actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.tree-node__tag {
+  flex-shrink: 0;
+}
+
 .tree-node__label {
   min-width: 0;
   flex: 1;
@@ -760,6 +911,11 @@ onMounted(() => {
   height: auto;
   align-items: flex-start;
   padding: 8px 0 8px 2px;
+}
+
+:deep(.tree-card .el-tree-node__content:hover .tree-node__actions),
+:deep(.tree-card .is-current > .el-tree-node__content .tree-node__actions) {
+  opacity: 1;
 }
 
 :deep(.tree-card .el-tree-node__expand-icon) {

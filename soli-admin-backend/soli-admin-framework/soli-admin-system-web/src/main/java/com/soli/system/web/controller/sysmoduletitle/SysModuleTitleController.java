@@ -20,12 +20,12 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * 字段标题中心控制器
+ * 字段标题控制器
  *
  * @author lizhengqiang
  * @since 2026-03-25 11:15
  */
-@Tag(name = "字段标题中心", description = "字段标题中心相关接口")
+@Tag(name = "字段标题", description = "字段标题相关接口")
 @RestController
 @RequestMapping("/sys/module-title")
 @RequiredArgsConstructor

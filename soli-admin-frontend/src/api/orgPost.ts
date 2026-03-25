@@ -96,6 +96,22 @@ export interface CreateOrgUnitPayload {
   note?: string;
 }
 
+export interface UpdateOrgUnitPayload extends CreateOrgUnitPayload {
+  id: number;
+}
+
+export interface OrgUnitDetail {
+  id: number;
+  parentId: number;
+  orgCode: string;
+  orgName: string;
+  orgType?: OrgNodeType;
+  leaderUserId?: number;
+  sort: number;
+  status: string;
+  note?: string;
+}
+
 export interface OrgPostFormModel {
   id?: number;
   parentNodeKey: string;
@@ -109,6 +125,7 @@ export interface OrgPostFormModel {
 }
 
 export interface OrgUnitFormModel {
+  id?: number;
   parentNodeKey: string;
   orgCode: string;
   orgName: string;
@@ -132,7 +149,7 @@ const orgNodeTypeLabelMap: Record<OrgNodeType, string> = {
   BRANCH: '分公司',
   DEPT: '部门',
   GROUP: '集团',
-  HEADQUARTERS: '总部',
+  HEADQUARTERS: '总公司',
   POST: '岗位'
 };
 
@@ -190,6 +207,28 @@ export function createOrgUnit(data: CreateOrgUnitPayload) {
     data,
     method: 'post',
     url: '/sys/org-post/org-unit'
+  });
+}
+
+export function getOrgUnitDetail(id: number) {
+  return request<ApiResponse<OrgUnitDetail>>({
+    method: 'get',
+    url: `/sys/org-post/org-unit/${id}`
+  });
+}
+
+export function updateOrgUnit(data: UpdateOrgUnitPayload) {
+  return request<ApiResponse<void>>({
+    data,
+    method: 'put',
+    url: '/sys/org-post/org-unit'
+  });
+}
+
+export function deleteOrgUnit(id: number) {
+  return request<ApiResponse<void>>({
+    method: 'delete',
+    url: `/sys/org-post/org-unit/${id}`
   });
 }
 

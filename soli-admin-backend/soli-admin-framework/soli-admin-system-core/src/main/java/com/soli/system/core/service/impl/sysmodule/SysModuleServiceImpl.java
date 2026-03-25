@@ -3,7 +3,13 @@ package com.soli.system.core.service.impl.sysmodule;
 import com.github.yitter.idgen.YitIdHelper;
 import com.soli.common.api.exception.BusinessException;
 import com.soli.system.core.mapper.SysModuleMapper;
+import com.soli.system.core.mapper.SysModulePermissionMapper;
+import com.soli.system.core.mapper.SysModuleTitleMapper;
 import com.soli.system.core.service.impl.BaseCrudServiceImpl;
+import com.soli.system.core.service.impl.sysmodulepermission.SysOrgPostButtonAuthEntity;
+import com.soli.system.core.service.impl.sysmodulepermission.SysOrgPostFieldAuthEntity;
+import com.soli.system.core.service.impl.sysmodulepermission.SysOrgPostModuleAuthEntity;
+import com.soli.system.core.service.impl.sysmoduletitle.SysModuleFieldTitleEntity;
 import com.soli.system.service.sysmodule.SysModuleButtonDTO;
 import com.soli.system.service.sysmodule.SysModuleContextPreviewDTO;
 import com.soli.system.service.sysmodule.SysModuleDTO;
@@ -29,7 +35,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * 模块中心服务实现
+ * 模块管理服务实现
  *
  * @author lizhengqiang
  * @since 2026-03-25 00:15
@@ -38,13 +44,26 @@ import java.util.Objects;
 public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysModuleEntity, SysModuleQuery>
         implements SysModuleService {
 
+    private static final String DEFAULT_LOCALE = "zh_CN";
+
+    private static final String SYSTEM_USER = "system";
+
     private final SysModuleMapper sysModuleMapper;
+
+    private final SysModuleTitleMapper sysModuleTitleMapper;
+
+    private final SysModulePermissionMapper sysModulePermissionMapper;
 
     private final SysModuleConverter sysModuleConverter;
 
-    public SysModuleServiceImpl(final SysModuleMapper mapper, final SysModuleConverter converter) {
+    public SysModuleServiceImpl(final SysModuleMapper mapper,
+                                final SysModuleConverter converter,
+                                final SysModuleTitleMapper titleMapper,
+                                final SysModulePermissionMapper permissionMapper) {
         super(mapper, converter);
         this.sysModuleMapper = mapper;
+        this.sysModuleTitleMapper = titleMapper;
+        this.sysModulePermissionMapper = permissionMapper;
         this.sysModuleConverter = converter;
     }
 
@@ -90,7 +109,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         preview.setModuleCode(detail.getModuleCode());
         preview.setModuleName(detail.getModuleName());
         preview.setContextVersion(detail.getContextVersion());
-        // 模块中心只预览模块结构元数据，不拼装岗位或状态的假上下文。
+        // 模块管理只预览模块结构元数据，不拼装岗位或状态的假上下文。
 
         preview.setHeaderTabs(buildPreviewTabs(detail.getHeaderTabs()));
         preview.setDetailTabs(buildPreviewTabs(detail.getDetailTabs()));
@@ -160,6 +179,8 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
             throw new BusinessException("模块字段创建失败");
         }
         dto.setId(entity.getId());
+        createFieldTitleRelation(entity);
+        grantAdminFieldPermissions(entity);
         touchModuleVersion(dto.getModuleId());
     }
 
@@ -190,6 +211,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         if (sysModuleMapper.deleteFieldById(id) == 0) {
             throw new BusinessException("模块字段删除失败");
         }
+        removeFieldRelations(id);
         touchModuleVersion(currentEntity.getModuleId());
     }
 
@@ -206,6 +228,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
             throw new BusinessException("模块按钮创建失败");
         }
         dto.setId(entity.getId());
+        grantAdminButtonPermissions(entity);
         touchModuleVersion(dto.getModuleId());
     }
 
@@ -233,12 +256,13 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         if (sysModuleMapper.deleteButtonById(id) == 0) {
             throw new BusinessException("模块按钮删除失败");
         }
+        removeButtonRelations(id);
         touchModuleVersion(currentEntity.getModuleId());
     }
 
     @Override
     protected String moduleName() {
-        return "模块中心";
+        return "模块管理";
     }
 
     @Override
@@ -255,6 +279,16 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
     @Override
     protected void afterCreate(SysModuleDTO dto, SysModuleEntity entity) {
         dto.setId(entity.getId());
+        grantAdminModulePermissions(entity);
+    }
+
+    @Override
+    protected void afterRemove(Long id) {
+        sysModulePermissionMapper.deleteOrgPostModuleAuthByModuleId(id);
+        sysModulePermissionMapper.deleteStateFieldAuthList(id);
+        sysModulePermissionMapper.deleteStateButtonAuthList(id);
+        sysModuleMapper.deleteTransitionsByModuleId(id);
+        sysModuleMapper.deleteStatesByModuleId(id);
     }
 
     @Override
@@ -560,6 +594,98 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
             return false;
         }
         return ("," + ancestors + ",").contains("," + id + ",");
+    }
+
+    private void createFieldTitleRelation(SysModuleFieldEntity fieldEntity) {
+        SysModuleFieldTitleEntity titleEntity = new SysModuleFieldTitleEntity();
+        titleEntity.setId(YitIdHelper.nextId());
+        titleEntity.setFieldId(fieldEntity.getId());
+        titleEntity.setLocale(DEFAULT_LOCALE);
+        titleEntity.setDisplayTitle(null);
+        titleEntity.setPlaceholder(null);
+        titleEntity.setHelpText(null);
+        titleEntity.setStatus("0");
+        titleEntity.setCreateBy(SYSTEM_USER);
+        titleEntity.setCreateTime(LocalDateTime.now());
+        titleEntity.setNote(null);
+        sysModuleTitleMapper.insert(titleEntity);
+    }
+
+    private void grantAdminModulePermissions(SysModuleEntity moduleEntity) {
+        LocalDateTime now = LocalDateTime.now();
+        resolveAdminOrgPostIds().forEach(orgPostId -> {
+            if (sysModulePermissionMapper.selectOrgPostModuleAuth(orgPostId, moduleEntity.getId()) != null) {
+                return;
+            }
+            SysOrgPostModuleAuthEntity entity = new SysOrgPostModuleAuthEntity();
+            entity.setId(YitIdHelper.nextId());
+            entity.setOrgPostId(orgPostId);
+            entity.setModuleId(moduleEntity.getId());
+            entity.setModuleVisible("1");
+            entity.setNavVisible("1".equals(moduleEntity.getNavVisible()) ? "1" : "0");
+            entity.setCreateBy(SYSTEM_USER);
+            entity.setCreateTime(now);
+            entity.setNote("admin 用户新增模块默认拥有可见权限");
+            sysModulePermissionMapper.insertOrgPostModuleAuth(entity);
+        });
+    }
+
+    private void grantAdminFieldPermissions(SysModuleFieldEntity fieldEntity) {
+        List<Long> adminOrgPostIdList = resolveAdminOrgPostIds();
+        if (adminOrgPostIdList.isEmpty()) {
+            return;
+        }
+        LocalDateTime now = LocalDateTime.now();
+        List<SysOrgPostFieldAuthEntity> entityList = adminOrgPostIdList.stream().map(orgPostId -> {
+            SysOrgPostFieldAuthEntity entity = new SysOrgPostFieldAuthEntity();
+            entity.setId(YitIdHelper.nextId());
+            entity.setOrgPostId(orgPostId);
+            entity.setModuleId(fieldEntity.getModuleId());
+            entity.setFieldId(fieldEntity.getId());
+            entity.setPermissionLevel(2);
+            entity.setCreateBy(SYSTEM_USER);
+            entity.setCreateTime(now);
+            entity.setNote("admin 用户新增字段默认拥有可写权限");
+            return entity;
+        }).toList();
+        sysModulePermissionMapper.insertOrgPostFieldAuthBatch(entityList);
+    }
+
+    private void grantAdminButtonPermissions(SysModuleButtonEntity buttonEntity) {
+        List<Long> adminOrgPostIdList = resolveAdminOrgPostIds();
+        if (adminOrgPostIdList.isEmpty()) {
+            return;
+        }
+        LocalDateTime now = LocalDateTime.now();
+        List<SysOrgPostButtonAuthEntity> entityList = adminOrgPostIdList.stream().map(orgPostId -> {
+            SysOrgPostButtonAuthEntity entity = new SysOrgPostButtonAuthEntity();
+            entity.setId(YitIdHelper.nextId());
+            entity.setOrgPostId(orgPostId);
+            entity.setModuleId(buttonEntity.getModuleId());
+            entity.setButtonId(buttonEntity.getId());
+            entity.setPermissionLevel(2);
+            entity.setCreateBy(SYSTEM_USER);
+            entity.setCreateTime(now);
+            entity.setNote("admin 用户新增按钮默认拥有可用权限");
+            return entity;
+        }).toList();
+        sysModulePermissionMapper.insertOrgPostButtonAuthBatch(entityList);
+    }
+
+    private void removeFieldRelations(Long fieldId) {
+        sysModuleTitleMapper.deleteByFieldId(fieldId);
+        sysModulePermissionMapper.deleteOrgPostFieldAuthByFieldId(fieldId);
+        sysModulePermissionMapper.deleteStateFieldAuthByFieldId(fieldId);
+    }
+
+    private void removeButtonRelations(Long buttonId) {
+        sysModulePermissionMapper.deleteOrgPostButtonAuthByButtonId(buttonId);
+        sysModulePermissionMapper.deleteStateButtonAuthByButtonId(buttonId);
+    }
+
+    private List<Long> resolveAdminOrgPostIds() {
+        List<Long> adminOrgPostIdList = sysModulePermissionMapper.selectAdminOrgPostIdList();
+        return adminOrgPostIdList == null ? new ArrayList<>() : adminOrgPostIdList;
     }
 
     private void touchModuleVersion(Long moduleId) {

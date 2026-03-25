@@ -17,6 +17,7 @@ import com.soli.system.service.sysorgpost.SysOrgPostUserDTO;
 import com.soli.system.service.sysorgpost.SysOrgPostUserQuery;
 import com.soli.system.service.sysorgpost.SysOrgUnitCreateRequest;
 import com.soli.system.service.sysorgpost.SysOrgUnitDTO;
+import com.soli.system.service.sysorgpost.SysOrgUnitModifyRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -88,6 +89,29 @@ public class SysOrgPostController {
         SysOrgUnitDTO dto = sysOrgUnitConverter.toDTO(createRequest);
         service.createOrgUnit(dto);
         return Result.success(dto.getId());
+    }
+
+    @Operation(summary = "根据 ID 查询组织单元详情")
+    @PreAuthorize("hasAuthority('sys:org-post:page')")
+    @GetMapping("/org-unit/{id}")
+    public Result<SysOrgUnitDTO> getOrgUnitById(@PathVariable Long id) {
+        return Result.success(service.queryOrgUnitById(id));
+    }
+
+    @Operation(summary = "修改组织单元")
+    @PreAuthorize("hasAuthority('sys:org-post:modify')")
+    @PutMapping("/org-unit")
+    public Result<Void> modifyOrgUnit(@Valid @RequestBody SysOrgUnitModifyRequest modifyRequest) {
+        service.modifyOrgUnit(sysOrgUnitConverter.toDTO(modifyRequest));
+        return Result.success();
+    }
+
+    @Operation(summary = "删除组织单元")
+    @PreAuthorize("hasAuthority('sys:org-post:remove')")
+    @DeleteMapping("/org-unit/{id}")
+    public Result<Void> removeOrgUnit(@PathVariable Long id) {
+        service.removeOrgUnit(id);
+        return Result.success();
     }
 
     @Operation(summary = "修改岗位")

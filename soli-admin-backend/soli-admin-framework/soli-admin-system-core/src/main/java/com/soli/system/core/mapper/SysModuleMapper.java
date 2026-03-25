@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 模块中心持久层
+ * 模块管理持久层
  *
  * @author lizhengqiang
  * @since 2026-03-25 00:15
@@ -59,8 +59,6 @@ public interface SysModuleMapper extends BaseCrudMapper<SysModuleEntity, SysModu
 
     int updateField(SysModuleFieldEntity entity);
 
-    int updateFieldTitleById(SysModuleFieldEntity entity);
-
     int deleteFieldById(@Param("id") Long id);
 
     int countFieldByModuleId(@Param("moduleId") Long moduleId);
@@ -84,5 +82,21 @@ public interface SysModuleMapper extends BaseCrudMapper<SysModuleEntity, SysModu
     List<SysModuleStateEntity> selectStatesByModuleId(@Param("moduleId") Long moduleId);
 
     List<SysModuleTransitionEntity> selectTransitionsByModuleId(@Param("moduleId") Long moduleId);
+
+    /**
+     * 根据模块 ID 删除状态流转定义
+     *
+     * @param moduleId 模块 ID
+     * @return 影响行数
+     */
+    int deleteTransitionsByModuleId(@Param("moduleId") Long moduleId);
+
+    /**
+     * 根据模块 ID 删除状态定义
+     *
+     * @param moduleId 模块 ID
+     * @return 影响行数
+     */
+    int deleteStatesByModuleId(@Param("moduleId") Long moduleId);
 
 }

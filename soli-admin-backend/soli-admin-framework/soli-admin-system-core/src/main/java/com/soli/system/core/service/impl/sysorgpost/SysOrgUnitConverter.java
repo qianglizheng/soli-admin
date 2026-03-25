@@ -2,6 +2,7 @@ package com.soli.system.core.service.impl.sysorgpost;
 
 import com.soli.system.service.sysorgpost.SysOrgUnitCreateRequest;
 import com.soli.system.service.sysorgpost.SysOrgUnitDTO;
+import com.soli.system.service.sysorgpost.SysOrgUnitModifyRequest;
 import org.mapstruct.Mapper;
 
 /**
@@ -14,6 +15,10 @@ import org.mapstruct.Mapper;
 public interface SysOrgUnitConverter {
 
     SysOrgUnitDTO toDTO(SysOrgUnitCreateRequest createRequest);
+
+    SysOrgUnitDTO toDTO(SysOrgUnitModifyRequest modifyRequest);
+
+    SysOrgUnitDTO toDTO(SysOrgUnitEntity entity);
 
     SysOrgUnitEntity toEntity(SysOrgUnitDTO dto);
 

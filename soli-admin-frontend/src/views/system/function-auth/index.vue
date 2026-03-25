@@ -61,7 +61,7 @@
                     </el-tag>
                   </div>
                   <div class="overview-subtitle">
-                    当前组织：{{ selectedPost.orgName }}，当前页用于配置岗位基础功能权限，状态权限中心会在此基础上继续收紧。
+                    当前组织：{{ selectedPost.orgName }}，当前页用于配置岗位基础功能权限，状态权限会在此基础上继续收紧。
                   </div>
                 </div>
 
@@ -153,7 +153,7 @@
                         </el-tag>
                       </div>
                       <div class="editor-subtitle">
-                        模块可见性、按钮权限、字段权限均在当前岗位下独立维护；状态权限由状态权限中心继续叠加。
+                        模块可见性、按钮权限、字段权限均在当前岗位下独立维护；状态权限由状态权限继续叠加。
                       </div>
                     </div>
                     <el-tag type="info" effect="plain">当前组织：{{ selectedPost.orgName }}</el-tag>
@@ -186,7 +186,7 @@
                             <el-card shadow="never" class="inner-card">
                               <template #header>权限说明</template>
                               <el-alert
-                                title="当前页面配置的是岗位基线权限，不放大权限。状态权限中心只允许在岗位基线上继续收紧。"
+                                title="当前页面配置的是岗位基线权限，不放大权限。状态权限只允许在岗位基线上继续收紧。"
                                 type="info"
                                 :closable="false"
                                 show-icon
@@ -264,7 +264,11 @@
                                   </div>
                                   <el-table :data="tab.fields.slice().sort(sortBySort)" border>
                                     <el-table-column prop="fieldCode" label="字段编码" min-width="160" />
-                                    <el-table-column prop="defaultTitle" label="字段标题" min-width="140" />
+                                    <el-table-column label="字段标题" min-width="140">
+                                      <template #default="scope">
+                                        {{ scope.row.displayTitle || scope.row.defaultTitle }}
+                                      </template>
+                                    </el-table-column>
                                     <el-table-column prop="dataPath" label="数据路径" min-width="220" show-overflow-tooltip />
                                     <el-table-column label="权限级别" width="180">
                                       <template #default="scope">
@@ -312,7 +316,11 @@
                                   </div>
                                   <el-table :data="tab.fields.slice().sort(sortBySort)" border>
                                     <el-table-column prop="fieldCode" label="字段编码" min-width="160" />
-                                    <el-table-column prop="defaultTitle" label="字段标题" min-width="140" />
+                                    <el-table-column label="字段标题" min-width="140">
+                                      <template #default="scope">
+                                        {{ scope.row.displayTitle || scope.row.defaultTitle }}
+                                      </template>
+                                    </el-table-column>
                                     <el-table-column prop="dataPath" label="数据路径" min-width="220" show-overflow-tooltip />
                                     <el-table-column label="权限级别" width="180">
                                       <template #default="scope">
@@ -809,7 +817,7 @@ function buildFunctionAuthPreview(
     const level = config.fieldPermissions[field.fieldCode] ?? 0;
     result[field.fieldCode] = {
       editable: level === 2,
-      label: field.defaultTitle,
+      label: field.displayTitle || field.defaultTitle,
       visible: level > 0
     };
     return result;

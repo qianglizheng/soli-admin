@@ -70,7 +70,7 @@
                     </el-tag>
                   </div>
                   <div class="overview-subtitle">
-                    字段标题中心直接维护字段显示文案和表单提示信息；默认标题来自模块中心，当前页只覆盖运行时展示配置。
+                    字段标题直接维护字段显示文案和表单提示信息；默认标题来自模块管理，当前页只维护独立字段标题表中的覆盖配置。
                   </div>
                 </div>
 
@@ -121,7 +121,7 @@
                       </el-tag>
                     </div>
                     <div class="editor-subtitle">
-                      默认标题取自模块中心，当前页仅维护 `displayTitle`、`placeholder` 和 `helpText`。
+                      默认标题取自模块管理，当前页仅维护 `displayTitle`、`placeholder` 和 `helpText`。
                     </div>
                   </div>
                   <el-tag type="success" effect="plain">上下文版本 v{{ selectedModule.contextVersion }}</el-tag>

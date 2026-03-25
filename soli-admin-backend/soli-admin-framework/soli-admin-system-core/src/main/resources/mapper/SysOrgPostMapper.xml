@@ -219,6 +219,39 @@
         )
     </insert>
 
+    <update id="updateOrgUnit" parameterType="com.soli.system.core.service.impl.sysorgpost.SysOrgUnitEntity">
+        update sys_org_unit
+        <set>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="orgCode != null">org_code = #{orgCode},</if>
+            <if test="orgName != null">org_name = #{orgName},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="leaderUserId != null">leader_user_id = #{leaderUserId},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="note != null">note = #{note},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteOrgUnitById">
+        delete from sys_org_unit
+        where id = #{id}
+    </delete>
+
+    <select id="countChildOrgUnitByParentId" resultType="int">
+        select count(1)
+        from sys_org_unit
+        where parent_id = #{parentId}
+    </select>
+
+    <select id="countPostByOrgUnitId" resultType="int">
+        select count(1)
+        from sys_org_post
+        where org_unit_id = #{orgUnitId}
+    </select>
+
     <select id="countUserById" resultType="int">
         select count(1)
         from sys_user

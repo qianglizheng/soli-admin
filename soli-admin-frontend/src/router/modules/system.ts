@@ -33,7 +33,7 @@ const systemRoute: RouteRecordRaw = {
     },
     {
       component: () => import('@/views/system/module-center/index.vue'),
-      meta: { icon: 'Grid', title: '模块中心' },
+      meta: { icon: 'Grid', title: '模块管理' },
       name: 'ModuleCenter',
       path: 'module-center'
     },
@@ -51,13 +51,13 @@ const systemRoute: RouteRecordRaw = {
     },
     {
       component: () => import('@/views/system/module-title/index.vue'),
-      meta: { icon: 'EditPen', title: '字段标题中心' },
+      meta: { icon: 'EditPen', title: '字段标题' },
       name: 'ModuleTitle',
       path: 'module-title'
     },
     {
       component: () => import('@/views/system/state-auth/index.vue'),
-      meta: { icon: 'SetUp', title: '状态权限中心' },
+      meta: { icon: 'SetUp', title: '状态权限' },
       name: 'StateAuth',
       path: 'state-auth'
     },

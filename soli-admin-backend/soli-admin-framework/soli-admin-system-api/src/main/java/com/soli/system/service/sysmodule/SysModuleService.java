@@ -5,7 +5,7 @@ import com.soli.system.service.BaseCrudService;
 import java.util.List;
 
 /**
- * 模块中心服务
+ * 模块管理服务
  *
  * @author lizhengqiang
  * @since 2026-03-25 00:05

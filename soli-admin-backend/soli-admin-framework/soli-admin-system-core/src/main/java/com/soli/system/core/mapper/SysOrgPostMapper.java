@@ -67,6 +67,38 @@ public interface SysOrgPostMapper extends BaseCrudMapper<SysOrgPostEntity, SysOr
     int insertOrgUnit(SysOrgUnitEntity entity);
 
     /**
+     * 修改组织单元
+     *
+     * @param entity 组织单元实体
+     * @return 影响行数
+     */
+    int updateOrgUnit(SysOrgUnitEntity entity);
+
+    /**
+     * 根据组织单元 ID 删除组织单元
+     *
+     * @param id 组织单元 ID
+     * @return 影响行数
+     */
+    int deleteOrgUnitById(@Param("id") Long id);
+
+    /**
+     * 统计下级组织数量
+     *
+     * @param parentId 父组织 ID
+     * @return 下级组织数量
+     */
+    int countChildOrgUnitByParentId(@Param("parentId") Long parentId);
+
+    /**
+     * 统计组织下岗位数量
+     *
+     * @param orgUnitId 组织 ID
+     * @return 岗位数量
+     */
+    int countPostByOrgUnitId(@Param("orgUnitId") Long orgUnitId);
+
+    /**
      * 统计用户数量
      *
      * @param userId 用户 ID

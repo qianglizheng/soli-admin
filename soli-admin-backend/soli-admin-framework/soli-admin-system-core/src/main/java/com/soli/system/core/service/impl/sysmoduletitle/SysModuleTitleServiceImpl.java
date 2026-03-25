@@ -1,8 +1,9 @@
 package com.soli.system.core.service.impl.sysmoduletitle;
 
+import com.github.yitter.idgen.YitIdHelper;
 import com.soli.common.api.exception.BusinessException;
 import com.soli.system.core.mapper.SysModuleMapper;
-import com.soli.system.core.service.impl.sysmodule.SysModuleFieldEntity;
+import com.soli.system.core.mapper.SysModuleTitleMapper;
 import com.soli.system.service.sysmodule.SysModuleDetailDTO;
 import com.soli.system.service.sysmodule.SysModuleFieldDTO;
 import com.soli.system.service.sysmodule.SysModuleService;
@@ -23,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 字段标题中心服务实现
+ * 字段标题服务实现
  *
  * @author lizhengqiang
  * @since 2026-03-25 11:15
@@ -32,9 +33,15 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SysModuleTitleServiceImpl implements SysModuleTitleService {
 
+    private static final String DEFAULT_LOCALE = "zh_CN";
+
+    private static final String SYSTEM_USER = "system";
+
     private final SysModuleService sysModuleService;
 
     private final SysModuleMapper sysModuleMapper;
+
+    private final SysModuleTitleMapper sysModuleTitleMapper;
 
     @Override
     public List<SysModuleTreeNodeDTO> queryModuleTree() {
@@ -71,14 +78,30 @@ public class SysModuleTitleServiceImpl implements SysModuleTitleService {
         if (fieldDTO == null) {
             throw new BusinessException("字段不存在或不属于当前模块");
         }
-        SysModuleFieldEntity entity = new SysModuleFieldEntity();
-        entity.setId(item.getFieldId());
+        SysModuleFieldTitleEntity entity = sysModuleTitleMapper.selectByFieldIdAndLocale(item.getFieldId(), DEFAULT_LOCALE);
+        if (entity == null) {
+            entity = new SysModuleFieldTitleEntity();
+            entity.setId(YitIdHelper.nextId());
+            entity.setFieldId(item.getFieldId());
+            entity.setLocale(DEFAULT_LOCALE);
+            entity.setStatus("0");
+            entity.setCreateBy(SYSTEM_USER);
+            entity.setCreateTime(now);
+            entity.setDisplayTitle(normalizeDisplayTitle(item.getDisplayTitle(), fieldDTO.getDefaultTitle()));
+            entity.setPlaceholder(normalizeText(item.getPlaceholder()));
+            entity.setHelpText(normalizeText(item.getHelpText()));
+            entity.setUpdateBy(SYSTEM_USER);
+            entity.setUpdateTime(now);
+            sysModuleTitleMapper.insert(entity);
+            return;
+        }
         entity.setDisplayTitle(normalizeDisplayTitle(item.getDisplayTitle(), fieldDTO.getDefaultTitle()));
         entity.setPlaceholder(normalizeText(item.getPlaceholder()));
         entity.setHelpText(normalizeText(item.getHelpText()));
-        entity.setUpdateBy("system");
+        entity.setStatus("0");
+        entity.setUpdateBy(SYSTEM_USER);
         entity.setUpdateTime(now);
-        sysModuleMapper.updateFieldTitleById(entity);
+        sysModuleTitleMapper.update(entity);
     }
 
     private List<SysModuleFieldDTO> flattenFields(SysModuleDetailDTO moduleDetail) {

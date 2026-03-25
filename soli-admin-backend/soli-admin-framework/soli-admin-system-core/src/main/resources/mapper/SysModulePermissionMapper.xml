@@ -5,6 +5,16 @@
 
 <mapper namespace="com.soli.system.core.mapper.SysModulePermissionMapper">
 
+    <select id="selectAdminOrgPostIdList" resultType="long">
+        select distinct uop.org_post_id
+        from sys_user_org_post uop
+                 inner join sys_user u on u.id = uop.user_id
+        where u.username = 'admin'
+          and u.status = '0'
+          and uop.status = '0'
+        order by uop.org_post_id asc
+    </select>
+
     <resultMap id="SysOrgPostModuleAuthResultMap" type="com.soli.system.core.service.impl.sysmodulepermission.SysOrgPostModuleAuthEntity">
         <id property="id" column="id"/>
         <result property="orgPostId" column="org_post_id"/>
@@ -107,16 +117,31 @@
           and module_id = #{moduleId}
     </delete>
 
+    <delete id="deleteOrgPostModuleAuthByModuleId">
+        delete from sys_org_post_module_auth
+        where module_id = #{moduleId}
+    </delete>
+
     <delete id="deleteOrgPostFieldAuthList">
         delete from sys_org_post_field_auth
         where org_post_id = #{orgPostId}
           and module_id = #{moduleId}
     </delete>
 
+    <delete id="deleteOrgPostFieldAuthByFieldId">
+        delete from sys_org_post_field_auth
+        where field_id = #{fieldId}
+    </delete>
+
     <delete id="deleteOrgPostButtonAuthList">
         delete from sys_org_post_button_auth
         where org_post_id = #{orgPostId}
           and module_id = #{moduleId}
+    </delete>
+
+    <delete id="deleteOrgPostButtonAuthByButtonId">
+        delete from sys_org_post_button_auth
+        where button_id = #{buttonId}
     </delete>
 
     <insert id="insertOrgPostModuleAuth" parameterType="com.soli.system.core.service.impl.sysmodulepermission.SysOrgPostModuleAuthEntity">
@@ -164,9 +189,19 @@
         where module_id = #{moduleId}
     </delete>
 
+    <delete id="deleteStateFieldAuthByFieldId">
+        delete from sys_module_state_field_auth
+        where field_id = #{fieldId}
+    </delete>
+
     <delete id="deleteStateButtonAuthList">
         delete from sys_module_state_button_auth
         where module_id = #{moduleId}
+    </delete>
+
+    <delete id="deleteStateButtonAuthByButtonId">
+        delete from sys_module_state_button_auth
+        where button_id = #{buttonId}
     </delete>
 
     <insert id="insertStateFieldAuthBatch">

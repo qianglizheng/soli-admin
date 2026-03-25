@@ -224,7 +224,7 @@
                               <el-descriptions-item label="收紧按钮">{{ currentRestrictedButtonCount }}</el-descriptions-item>
                             </el-descriptions>
                             <el-alert
-                              title="状态中心只负责附加限制。岗位不可见的资源，状态权限不能反向改成可见。"
+                              title="状态权限只负责附加限制。岗位不可见的资源，状态权限不能反向改成可见。"
                               type="info"
                               :closable="false"
                               show-icon
@@ -325,7 +325,11 @@
                                 </div>
                                 <el-table :data="tab.fields.slice().sort(sortBySort)" border>
                                   <el-table-column prop="fieldCode" label="字段编码" min-width="160" />
-                                  <el-table-column prop="defaultTitle" label="字段标题" min-width="140" />
+                                  <el-table-column label="字段标题" min-width="140">
+                                    <template #default="scope">
+                                      {{ scope.row.displayTitle || scope.row.defaultTitle }}
+                                    </template>
+                                  </el-table-column>
                                   <el-table-column prop="dataPath" label="数据路径" min-width="220" show-overflow-tooltip />
                                   <el-table-column label="状态限制" width="180">
                                     <template #default="scope">
@@ -373,7 +377,11 @@
                                 </div>
                                 <el-table :data="tab.fields.slice().sort(sortBySort)" border>
                                   <el-table-column prop="fieldCode" label="字段编码" min-width="160" />
-                                  <el-table-column prop="defaultTitle" label="字段标题" min-width="140" />
+                                  <el-table-column label="字段标题" min-width="140">
+                                    <template #default="scope">
+                                      {{ scope.row.displayTitle || scope.row.defaultTitle }}
+                                    </template>
+                                  </el-table-column>
                                   <el-table-column prop="dataPath" label="数据路径" min-width="220" show-overflow-tooltip />
                                   <el-table-column label="状态限制" width="180">
                                     <template #default="scope">

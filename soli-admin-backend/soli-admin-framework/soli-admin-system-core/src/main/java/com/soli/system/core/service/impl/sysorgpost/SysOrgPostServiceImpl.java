@@ -39,6 +39,12 @@ import java.util.Set;
 public class SysOrgPostServiceImpl extends BaseCrudServiceImpl<SysOrgPostDTO, SysOrgPostEntity, SysOrgPostQuery>
         implements SysOrgPostService {
 
+    private static final String ORG_TYPE_GROUP = "GROUP";
+
+    private static final String ORG_TYPE_HEADQUARTERS = "HEADQUARTERS";
+
+    private static final String ORG_TYPE_BRANCH = "BRANCH";
+
     private static final int DEFAULT_PAGE_NUM = 1;
 
     private static final int DEFAULT_PAGE_SIZE = 10;
@@ -80,7 +86,7 @@ public class SysOrgPostServiceImpl extends BaseCrudServiceImpl<SysOrgPostDTO, Sy
         postNodes.forEach(node -> appendNode(rootList, nodeMap, node));
 
         sortTree(rootList);
-        return rootList;
+        return flattenGroupNodes(rootList);
     }
 
     @Override
@@ -97,9 +103,10 @@ public class SysOrgPostServiceImpl extends BaseCrudServiceImpl<SysOrgPostDTO, Sy
     public void createOrgUnit(SysOrgUnitDTO dto) {
         normalizeOrgUnit(dto);
         SysOrgUnitEntity parentOrgUnit = resolveParentOrgUnit(dto.getParentId());
+        validateHeadquarterParent(parentOrgUnit);
         validateLeaderUser(dto.getLeaderUserId());
         validateOrgUnitCodeUnique(dto.getOrgCode(), null);
-        dto.setOrgType("BRANCH");
+        dto.setOrgType(ORG_TYPE_BRANCH);
         dto.setAncestors(resolveOrgUnitAncestors(parentOrgUnit));
         dto.setCreateTime(LocalDateTime.now());
 
@@ -109,6 +116,48 @@ public class SysOrgPostServiceImpl extends BaseCrudServiceImpl<SysOrgPostDTO, Sy
             throw new BusinessException("组织单元创建失败");
         }
         dto.setId(entity.getId());
+    }
+
+    @Override
+    public SysOrgUnitDTO queryOrgUnitById(Long id) {
+        return sysOrgUnitConverter.toDTO(requireOrgUnit(id));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void modifyOrgUnit(SysOrgUnitDTO dto) {
+        normalizeOrgUnit(dto);
+        SysOrgUnitEntity currentEntity = requireOrgUnit(dto.getId());
+        validateBranchOrgUnit(currentEntity);
+        SysOrgUnitEntity parentOrgUnit = resolveParentOrgUnit(dto.getParentId());
+        validateHeadquarterParent(parentOrgUnit);
+        if (!Objects.equals(currentEntity.getParentId(), dto.getParentId())) {
+            throw new BusinessException("不支持调整分公司所属层级");
+        }
+        validateLeaderUser(dto.getLeaderUserId());
+        validateOrgUnitCodeUnique(dto.getOrgCode(), dto.getId());
+        dto.setOrgType(currentEntity.getOrgType());
+        dto.setAncestors(currentEntity.getAncestors());
+        dto.setUpdateTime(LocalDateTime.now());
+        if (sysOrgPostMapper.updateOrgUnit(sysOrgUnitConverter.toEntity(dto)) == 0) {
+            throw new BusinessException("组织单元更新失败");
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void removeOrgUnit(Long id) {
+        SysOrgUnitEntity entity = requireOrgUnit(id);
+        validateBranchOrgUnit(entity);
+        if (sysOrgPostMapper.countChildOrgUnitByParentId(id) > 0) {
+            throw new BusinessException("当前分公司存在下级组织，不能删除");
+        }
+        if (sysOrgPostMapper.countPostByOrgUnitId(id) > 0) {
+            throw new BusinessException("当前分公司下已存在岗位，不能删除");
+        }
+        if (sysOrgPostMapper.deleteOrgUnitById(id) == 0) {
+            throw new BusinessException("组织单元删除失败");
+        }
     }
 
     @Override
@@ -285,6 +334,12 @@ public class SysOrgPostServiceImpl extends BaseCrudServiceImpl<SysOrgPostDTO, Sy
         }
     }
 
+    private void validateHeadquarterParent(SysOrgUnitEntity parentOrgUnit) {
+        if (!ORG_TYPE_HEADQUARTERS.equals(parentOrgUnit.getOrgType())) {
+            throw new BusinessException("分公司只能挂在总公司下");
+        }
+    }
+
     private void validateOrgUnitExists(Long orgUnitId) {
         if (orgUnitId == null || sysOrgPostMapper.countOrgUnitById(orgUnitId) == 0) {
             throw new BusinessException("所属组织不存在");
@@ -329,6 +384,20 @@ public class SysOrgPostServiceImpl extends BaseCrudServiceImpl<SysOrgPostDTO, Sy
             return;
         }
         throw new BusinessException("Post code already exists in the same org");
+    }
+
+    private SysOrgUnitEntity requireOrgUnit(Long orgUnitId) {
+        SysOrgUnitEntity entity = sysOrgPostMapper.selectOrgUnitById(orgUnitId);
+        if (entity == null) {
+            throw new BusinessException("组织单元不存在");
+        }
+        return entity;
+    }
+
+    private void validateBranchOrgUnit(SysOrgUnitEntity orgUnitEntity) {
+        if (!ORG_TYPE_BRANCH.equals(orgUnitEntity.getOrgType())) {
+            throw new BusinessException("当前仅支持维护分公司节点");
+        }
     }
 
     private void validatePostExists(Long orgPostId) {
@@ -416,6 +485,23 @@ public class SysOrgPostServiceImpl extends BaseCrudServiceImpl<SysOrgPostDTO, Sy
             return;
         }
         parentNode.getChildren().add(currentNode);
+    }
+
+    private List<SysOrgPostTreeNodeDTO> flattenGroupNodes(List<SysOrgPostTreeNodeDTO> nodes) {
+        List<SysOrgPostTreeNodeDTO> result = new ArrayList<>();
+        nodes.forEach(node -> {
+            if (node.getChildren() != null && !node.getChildren().isEmpty()) {
+                node.setChildren(flattenGroupNodes(node.getChildren()));
+            }
+            if (ORG_TYPE_GROUP.equals(node.getNodeType())) {
+                if (node.getChildren() != null) {
+                    result.addAll(node.getChildren());
+                }
+                return;
+            }
+            result.add(node);
+        });
+        return result;
     }
 
     private void sortTree(List<SysOrgPostTreeNodeDTO> nodes) {

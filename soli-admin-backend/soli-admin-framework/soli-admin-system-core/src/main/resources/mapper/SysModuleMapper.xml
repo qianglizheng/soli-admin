@@ -287,26 +287,44 @@
     </select>
 
     <select id="selectFieldsByModuleId" resultMap="SysModuleFieldResultMap">
-        select id, module_id, tab_id, field_scope, field_code, default_title, display_title, placeholder, help_text, component_type, data_path, value_type,
-               required_flag, sort, status, create_by, create_time, update_by, update_time, note
-        from sys_module_field
-        where module_id = #{moduleId}
-        order by field_scope asc, sort asc, id asc
+        select f.id, f.module_id, f.tab_id, f.field_scope, f.field_code, f.default_title,
+               t.display_title, t.placeholder, t.help_text,
+               f.component_type, f.data_path, f.value_type, f.required_flag, f.sort, f.status,
+               f.create_by, f.create_time, f.update_by, f.update_time, f.note
+        from sys_module_field f
+                 left join sys_module_field_title t
+                           on t.field_id = f.id
+                               and t.locale = 'zh_CN'
+                               and t.status = '0'
+        where f.module_id = #{moduleId}
+        order by f.field_scope asc, f.sort asc, f.id asc
     </select>
 
     <select id="selectFieldById" resultMap="SysModuleFieldResultMap">
-        select id, module_id, tab_id, field_scope, field_code, default_title, display_title, placeholder, help_text, component_type, data_path, value_type,
-               required_flag, sort, status, create_by, create_time, update_by, update_time, note
-        from sys_module_field
-        where id = #{id}
+        select f.id, f.module_id, f.tab_id, f.field_scope, f.field_code, f.default_title,
+               t.display_title, t.placeholder, t.help_text,
+               f.component_type, f.data_path, f.value_type, f.required_flag, f.sort, f.status,
+               f.create_by, f.create_time, f.update_by, f.update_time, f.note
+        from sys_module_field f
+                 left join sys_module_field_title t
+                           on t.field_id = f.id
+                               and t.locale = 'zh_CN'
+                               and t.status = '0'
+        where f.id = #{id}
     </select>
 
     <select id="selectFieldByModuleIdAndCode" resultMap="SysModuleFieldResultMap">
-        select id, module_id, tab_id, field_scope, field_code, default_title, display_title, placeholder, help_text, component_type, data_path, value_type,
-               required_flag, sort, status, create_by, create_time, update_by, update_time, note
-        from sys_module_field
-        where module_id = #{moduleId}
-          and field_code = #{fieldCode}
+        select f.id, f.module_id, f.tab_id, f.field_scope, f.field_code, f.default_title,
+               t.display_title, t.placeholder, t.help_text,
+               f.component_type, f.data_path, f.value_type, f.required_flag, f.sort, f.status,
+               f.create_by, f.create_time, f.update_by, f.update_time, f.note
+        from sys_module_field f
+                 left join sys_module_field_title t
+                           on t.field_id = f.id
+                               and t.locale = 'zh_CN'
+                               and t.status = '0'
+        where f.module_id = #{moduleId}
+          and f.field_code = #{fieldCode}
         limit 1
     </select>
 
@@ -336,18 +354,6 @@
             <if test="updateBy != null">update_by = #{updateBy},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
             <if test="note != null">note = #{note},</if>
-        </set>
-        where id = #{id}
-    </update>
-
-    <update id="updateFieldTitleById" parameterType="com.soli.system.core.service.impl.sysmodule.SysModuleFieldEntity">
-        update sys_module_field
-        <set>
-            display_title = #{displayTitle},
-            placeholder = #{placeholder},
-            help_text = #{helpText},
-            <if test="updateBy != null">update_by = #{updateBy},</if>
-            <if test="updateTime != null">update_time = #{updateTime},</if>
         </set>
         where id = #{id}
     </update>
@@ -453,5 +459,15 @@
         where t.module_id = #{moduleId}
         order by t.sort asc, t.id asc
     </select>
+
+    <delete id="deleteTransitionsByModuleId">
+        delete from sys_module_transition
+        where module_id = #{moduleId}
+    </delete>
+
+    <delete id="deleteStatesByModuleId">
+        delete from sys_module_state
+        where module_id = #{moduleId}
+    </delete>
 
 </mapper>

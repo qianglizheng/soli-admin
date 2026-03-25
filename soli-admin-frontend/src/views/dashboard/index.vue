@@ -265,8 +265,8 @@ const shortcutSeeds: Omit<ShortcutCard, 'available'>[] = [
   {
     key: 'module-center',
     icon: Grid,
-    title: '模块中心',
-    description: '维护模块、Tab、字段、按钮、状态与流转定义。',
+    title: '模块管理',
+    description: '维护模块、Tab、字段、按钮、状态与流转定义，并同步关联资源。',
     path: '/system/module-center'
   },
   {
@@ -286,14 +286,14 @@ const shortcutSeeds: Omit<ShortcutCard, 'available'>[] = [
   {
     key: 'module-title',
     icon: EditPen,
-    title: '字段标题中心',
-    description: '统一维护字段标题、占位提示和帮助说明。',
+    title: '字段标题',
+    description: '统一维护字段显示标题、占位提示和帮助说明。',
     path: '/system/module-title'
   },
   {
     key: 'state-auth',
     icon: SetUp,
-    title: '状态权限中心',
+    title: '状态权限',
     description: '按状态维度维护收紧规则，不放大岗位基线。',
     path: '/system/state-auth'
   },
@@ -472,7 +472,7 @@ const overviewCards = computed<OverviewCard[]>(() => {
       key: 'permission-workbench',
       icon: Grid,
       label: '权限工作台',
-      note: '模块、岗位、功能、标题、状态五类中心',
+      note: '模块、岗位、功能、字段标题、状态五类工作台',
       tone: 'success',
       value: permissionWorkbenchCount.value
     },

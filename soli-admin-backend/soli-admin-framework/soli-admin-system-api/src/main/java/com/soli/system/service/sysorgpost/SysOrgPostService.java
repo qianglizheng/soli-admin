@@ -36,6 +36,28 @@ public interface SysOrgPostService extends BaseCrudService<SysOrgPostDTO, SysOrg
     void createOrgUnit(SysOrgUnitDTO dto);
 
     /**
+     * 根据组织单元 ID 查询组织详情
+     *
+     * @param id 组织单元 ID
+     * @return 组织单元详情
+     */
+    SysOrgUnitDTO queryOrgUnitById(Long id);
+
+    /**
+     * 修改组织单元
+     *
+     * @param dto 组织单元对象
+     */
+    void modifyOrgUnit(SysOrgUnitDTO dto);
+
+    /**
+     * 删除组织单元
+     *
+     * @param id 组织单元 ID
+     */
+    void removeOrgUnit(Long id);
+
+    /**
      * 分页查询岗位员工
      *
      * @param query 查询对象

@@ -121,7 +121,7 @@
                   type="info"
                   :closable="false"
                   show-icon
-                  title="模块中心采用树摘要 + 详情懒加载的方式组织数据。左侧仅加载模块树，选中节点后再加载 Tab、字段和按钮详情，避免一次性加载全部配置。"
+                  title="模块管理采用树摘要 + 详情懒加载的方式组织数据。左侧仅加载模块树，选中节点后再加载 Tab、字段和按钮详情；新增字段和按钮后会同步补齐字段标题默认记录与 admin 权限。"
                 />
               </el-tab-pane>
 
@@ -320,7 +320,7 @@
       @submit="handleButtonFormSubmit"
       @cancel="handleButtonFormCancel"
     />
-    <el-drawer v-model="contextPreviewVisible" title="模块上下文预览" size="46%">
+    <el-drawer v-model="contextPreviewVisible" title="模块管理上下文预览" size="46%">
       <pre class="context-preview">{{ contextPreviewJson }}</pre>
     </el-drawer>
   </div>

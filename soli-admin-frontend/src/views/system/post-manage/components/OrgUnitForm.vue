@@ -1,17 +1,9 @@
 <template>
-  <el-dialog v-model="visible" title="新增分公司" width="620px" top="6vh" destroy-on-close>
+  <el-dialog v-model="visible" :title="dialogTitle" width="620px" top="6vh" destroy-on-close>
     <div class="dialog-scroll-body">
       <el-form ref="formRef" :model="form" :rules="rules" label-width="110px">
-        <el-form-item label="上级组织" prop="parentNodeKey">
-          <el-tree-select
-            v-model="form.parentNodeKey"
-            :data="treeOptions"
-            :props="treeSelectProps"
-            check-strictly
-            filterable
-            placeholder="请选择上级组织"
-            style="width: 100%"
-          />
+        <el-form-item label="上级组织">
+          <el-input :model-value="parentNodeLabel" disabled />
         </el-form-item>
 
         <el-form-item label="分公司名称" prop="orgName">
@@ -86,6 +78,7 @@ interface LeaderOption {
 
 interface Props {
   modelValue: boolean;
+  mode?: 'create' | 'edit';
   initialData?: Partial<OrgUnitFormModel>;
   treeData?: OrgPostTreeNode[];
 }
@@ -101,6 +94,8 @@ const visible = computed({
   get: () => props.modelValue,
   set: (value: boolean) => emit('update:modelValue', value)
 });
+
+const dialogTitle = computed(() => (props.mode === 'edit' ? '编辑分公司' : '新增分公司'));
 
 function createDefaultForm(): OrgUnitFormModel {
   return {
@@ -125,13 +120,6 @@ const rules: FormRules<OrgUnitFormModel> = {
   status: [{ message: '请选择状态', required: true, trigger: 'change' }]
 };
 
-const treeSelectProps = {
-  children: 'children',
-  disabled: 'disabled',
-  label: 'nodeName',
-  value: 'nodeKey'
-};
-
 function mapOrgTreeOptions(nodes: OrgPostTreeNode[] | undefined): TreeOption[] {
   if (!nodes) {
     return [];
@@ -145,6 +133,7 @@ function mapOrgTreeOptions(nodes: OrgPostTreeNode[] | undefined): TreeOption[] {
 }
 
 const treeOptions = computed(() => mapOrgTreeOptions(props.treeData));
+const parentNodeLabel = computed(() => resolveNodeName(treeOptions.value, form.parentNodeKey) || '未选择');
 
 watch(
   () => [props.modelValue, props.initialData],
@@ -190,6 +179,24 @@ async function ensureLeaderOption(leaderUserId?: number) {
 
 function handleLeaderSearch(keyword: string) {
   void loadLeaderOptions(keyword);
+}
+
+function resolveNodeName(nodes: TreeOption[], nodeKey?: string): string {
+  if (!nodeKey) {
+    return '';
+  }
+  for (const node of nodes) {
+    if (node.nodeKey === nodeKey) {
+      return node.nodeName;
+    }
+    if (node.children?.length) {
+      const matched = resolveNodeName(node.children, nodeKey);
+      if (matched) {
+        return matched;
+      }
+    }
+  }
+  return '';
 }
 
 function handleCancel() {

@@ -25,7 +25,7 @@ import java.util.List;
  * @author lizhengqiang
  * @since 2026-03-25 11:15
  */
-@Tag(name = "状态权限中心", description = "状态权限中心相关接口")
+@Tag(name = "状态权限", description = "状态权限相关接口")
 @RestController
 @RequestMapping("/sys/state-auth")
 @RequiredArgsConstructor

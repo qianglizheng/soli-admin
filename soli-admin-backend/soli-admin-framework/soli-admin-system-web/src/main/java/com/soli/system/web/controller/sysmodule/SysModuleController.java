@@ -35,12 +35,12 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * 模块中心控制器
+ * 模块管理控制器
  *
  * @author lizhengqiang
  * @since 2026-03-25 00:15
  */
-@Tag(name = "模块中心", description = "模块中心相关接口")
+@Tag(name = "模块管理", description = "模块管理相关接口")
 @RestController
 @RequestMapping("/sys/module")
 @RequiredArgsConstructor
