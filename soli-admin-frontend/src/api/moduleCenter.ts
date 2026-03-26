@@ -180,7 +180,7 @@ export interface ModuleFormModel {
 }
 
 export const moduleTypeLabelMap: Record<ModuleType, string> = {
-  BILL: '单据模块',
+  BILL: '页面',
   CATALOG: '目录',
   PAGE: '页面'
 };

@@ -606,9 +606,6 @@ function getModuleTypeTagType(moduleType: ModuleType) {
   if (moduleType === 'CATALOG') {
     return 'info';
   }
-  if (moduleType === 'BILL') {
-    return 'warning';
-  }
   return 'success';
 }
 

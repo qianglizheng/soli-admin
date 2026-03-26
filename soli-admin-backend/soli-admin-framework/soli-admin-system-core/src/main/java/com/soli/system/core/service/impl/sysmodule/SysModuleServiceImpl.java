@@ -70,16 +70,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
 
     @Override
     public List<SysModuleTreeNodeDTO> queryTreeList() {
-        List<SysModuleTreeNodeDTO> dtoList = sysModuleConverter.toTreeNodeDTOList(sysModuleMapper.selectTreeNodes());
-        Map<Long, SysModuleTreeNodeDTO> nodeMap = new LinkedHashMap<>();
-        List<SysModuleTreeNodeDTO> rootList = new ArrayList<>();
-        dtoList.forEach(node -> {
-            node.setChildren(new ArrayList<>());
-            nodeMap.put(node.getId(), node);
-        });
-        dtoList.forEach(node -> appendNode(rootList, nodeMap, node));
-        sortTree(rootList);
-        return rootList;
+        return filterVisibleTree(buildTreeList());
     }
 
     @Override
@@ -87,7 +78,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         if (userId == null || companyId == null) {
             return new ArrayList<>();
         }
-        List<SysModuleTreeNodeDTO> rootList = queryTreeList();
+        List<SysModuleTreeNodeDTO> rootList = buildTreeList();
         List<Long> visibleModuleIdList = sysModulePermissionMapper.selectUserVisibleNavModuleIdList(userId, companyId);
         if (visibleModuleIdList == null || visibleModuleIdList.isEmpty()) {
             return new ArrayList<>();
@@ -318,6 +309,9 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
                 && (Objects.equals(parentEntity.getId(), dto.getId()) || containsId(parentEntity.getAncestors(), dto.getId()))) {
             throw new BusinessException("上级模块不能选择当前模块或其下级模块");
         }
+        if (!"CATALOG".equals(dto.getModuleType()) && sysModuleMapper.countChildModuleByParentId(dto.getId()) > 0) {
+            throw new BusinessException("存在子模块的节点只能维护为目录类型");
+        }
         validateModuleCodeUnique(dto.getModuleCode(), dto.getId());
         String newAncestors = resolveAncestors(parentEntity);
         dto.setAncestors(newAncestors);
@@ -430,6 +424,12 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         if (StringUtils.hasText(dto.getModuleName())) {
             dto.setModuleName(dto.getModuleName().trim());
         }
+        if (StringUtils.hasText(dto.getModuleType())) {
+            dto.setModuleType(dto.getModuleType().trim().toUpperCase());
+        }
+        if ("BILL".equals(dto.getModuleType())) {
+            dto.setModuleType("PAGE");
+        }
     }
 
     private void normalizeTab(SysModuleTabDTO dto) {
@@ -493,8 +493,12 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         if (parentId == null || parentId <= 0) {
             return;
         }
-        if (sysModuleMapper.selectById(parentId) == null) {
+        SysModuleEntity parentEntity = sysModuleMapper.selectById(parentId);
+        if (parentEntity == null) {
             throw new BusinessException("上级模块不存在");
+        }
+        if (!"CATALOG".equals(parentEntity.getModuleType())) {
+            throw new BusinessException("只有目录节点可以新增下级模块");
         }
     }
 
@@ -706,6 +710,19 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         sysModuleMapper.incrementContextVersion(moduleId, LocalDateTime.now());
     }
 
+    private List<SysModuleTreeNodeDTO> buildTreeList() {
+        List<SysModuleTreeNodeDTO> dtoList = sysModuleConverter.toTreeNodeDTOList(sysModuleMapper.selectTreeNodes());
+        Map<Long, SysModuleTreeNodeDTO> nodeMap = new LinkedHashMap<>();
+        List<SysModuleTreeNodeDTO> rootList = new ArrayList<>();
+        dtoList.forEach(node -> {
+            node.setChildren(new ArrayList<>());
+            nodeMap.put(node.getId(), node);
+        });
+        dtoList.forEach(node -> appendNode(rootList, nodeMap, node));
+        sortTree(rootList);
+        return rootList;
+    }
+
     private void appendNode(List<SysModuleTreeNodeDTO> rootList, Map<Long, SysModuleTreeNodeDTO> nodeMap, SysModuleTreeNodeDTO currentNode) {
         if (currentNode.getParentId() == null || currentNode.getParentId() <= 0) {
             rootList.add(currentNode);
@@ -737,6 +754,21 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
                     ? new ArrayList<>()
                     : filterNavTree(node.getChildren(), visibleModuleIdSet);
             if (visibleModuleIdSet.contains(node.getId()) || !children.isEmpty()) {
+                SysModuleTreeNodeDTO copied = copyTreeNode(node);
+                copied.setChildren(children);
+                result.add(copied);
+            }
+        }
+        return result;
+    }
+
+    private List<SysModuleTreeNodeDTO> filterVisibleTree(List<SysModuleTreeNodeDTO> nodeList) {
+        List<SysModuleTreeNodeDTO> result = new ArrayList<>();
+        for (SysModuleTreeNodeDTO node : nodeList) {
+            List<SysModuleTreeNodeDTO> children = node.getChildren() == null
+                    ? new ArrayList<>()
+                    : filterVisibleTree(node.getChildren());
+            if ("1".equals(node.getNavVisible()) || !children.isEmpty()) {
                 SysModuleTreeNodeDTO copied = copyTreeNode(node);
                 copied.setChildren(children);
                 result.add(copied);

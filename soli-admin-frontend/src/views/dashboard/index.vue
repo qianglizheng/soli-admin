@@ -295,8 +295,8 @@ const shortcutSeeds: Omit<ShortcutCard, 'available'>[] = [
   {
     key: 'bill-template',
     icon: Document,
-    title: '单据模板',
-    description: '进入采购单据模板页，查看业务页面联动效果。',
+    title: '采购订单页面',
+    description: '进入采购订单页面，查看业务页面联动效果。',
     path: '/purchase/bill-template'
   }
 ];

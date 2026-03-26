@@ -32,7 +32,7 @@
                     <span class="tree-node__label">{{ data.moduleName }}</span>
                     <div class="tree-node__meta">
                       <div class="tree-node__actions">
-                        <el-button link type="primary" size="small"
+                        <el-button v-if="data.moduleType === 'CATALOG'" link type="primary" size="small"
                                    @click.stop="handleCreateChild(data)">新增
                         </el-button>
                         <el-button link size="small" @click.stop="handleEditModule(data)">编辑
@@ -544,13 +544,10 @@ function sortBySort<T extends { sort: number }>(left: T, right: T) {
 }
 
 function getModuleTypeTagType(type: ModuleType) {
-  if (type === 'BILL') {
-    return 'success'
+  if (type === 'CATALOG') {
+    return 'info'
   }
-  if (type === 'PAGE') {
-    return 'warning'
-  }
-  return 'info'
+  return 'warning'
 }
 
 function getModuleTypeLabel(type: ModuleType) {
@@ -645,7 +642,7 @@ function handleCreateRoot() {
     icon: 'Document',
     moduleCode: '',
     moduleName: '',
-    moduleType: 'PAGE',
+    moduleType: 'CATALOG',
     navVisible: '1',
     note: '',
     parentId: 0,
@@ -661,6 +658,10 @@ function handleCreateRoot() {
 function handleCreateChild(node?: ModuleNode) {
   const targetNode = node || selectedModule.value
   if (!targetNode) {
+    return
+  }
+  if (targetNode.moduleType !== 'CATALOG') {
+    ElMessage.warning('只有目录节点可以新增下级模块')
     return
   }
   selectModule(targetNode.id)

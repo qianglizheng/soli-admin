@@ -26,7 +26,6 @@
           <el-select v-model="form.moduleType" placeholder="请选择模块类型" style="width: 100%">
             <el-option label="目录" value="CATALOG" />
             <el-option label="页面" value="PAGE" />
-            <el-option label="单据模块" value="BILL" />
           </el-select>
         </el-form-item>
 
@@ -152,6 +151,10 @@ function createDefaultForm(): ModuleFormModel {
   };
 }
 
+function normalizeModuleType(moduleType?: ModuleFormModel['moduleType']): ModuleFormModel['moduleType'] {
+  return moduleType === 'BILL' ? 'PAGE' : (moduleType || 'PAGE');
+}
+
 const formRef = ref<FormInstance>();
 const form = reactive<ModuleFormModel>(createDefaultForm());
 
@@ -205,7 +208,7 @@ function markDisabled(nodes: ModuleTreeNode[] | undefined, disabledIds: Set<numb
   return nodes.map((node) => ({
     ...node,
     children: markDisabled(node.children, disabledIds),
-    disabled: disabledIds.has(node.id)
+    disabled: disabledIds.has(node.id) || node.moduleType !== 'CATALOG'
   }));
 }
 
@@ -229,7 +232,10 @@ const treeOptions = computed(() => {
 watch(
   () => props.initialData,
   (value) => {
-    Object.assign(form, createDefaultForm(), value || {});
+    Object.assign(form, createDefaultForm(), value ? {
+      ...value,
+      moduleType: normalizeModuleType(value.moduleType)
+    } : {});
   },
   { immediate: true }
 );
