@@ -183,7 +183,7 @@
                         <el-col :span="14">
                           <el-card shadow="never" class="inner-card">
                             <template #header>标准状态定义</template>
-                            <el-table :data="stateList" border>
+                            <el-table :data="stateList" border style="width: 100%">
                               <el-table-column prop="stateCode" label="状态编码" min-width="140" />
                               <el-table-column prop="stateName" label="状态名称" min-width="120" />
                               <el-table-column label="初始" width="90" align="center">
@@ -238,7 +238,7 @@
 
                   <el-tab-pane label="流转规则" name="transition">
                     <div class="editor-pane">
-                      <el-table :data="transitionList" border>
+                      <el-table :data="transitionList" border style="width: 100%">
                         <el-table-column prop="actionButtonCode" label="动作编码" min-width="140" />
                         <el-table-column prop="actionButtonName" label="动作名称" min-width="120" />
                         <el-table-column label="流转路径" min-width="220">
@@ -272,7 +272,7 @@
                             <span>{{ buttonAreaLabelMap[group.area] }}</span>
                             <el-tag size="small" effect="plain">{{ group.buttons.length }} 个按钮</el-tag>
                           </div>
-                          <el-table :data="group.buttons" border>
+                          <el-table :data="group.buttons" border style="width: 100%">
                             <el-table-column prop="buttonCode" label="按钮编码" min-width="150" />
                             <el-table-column prop="defaultTitle" label="按钮标题" min-width="120" />
                             <el-table-column label="状态限制" width="180">
@@ -323,7 +323,7 @@
                                   <div>排序：{{ tab.tabInfo.sort }}</div>
                                   <div>说明：{{ tab.tabInfo.note || '-' }}</div>
                                 </div>
-                                <el-table :data="tab.fields.slice().sort(sortBySort)" border>
+                                <el-table :data="tab.fields.slice().sort(sortBySort)" border style="width: 100%">
                                   <el-table-column prop="fieldCode" label="字段编码" min-width="160" />
                                   <el-table-column label="字段标题" min-width="140">
                                     <template #default="scope">
@@ -375,7 +375,7 @@
                                   <div>排序：{{ tab.tabInfo.sort }}</div>
                                   <div>说明：{{ tab.tabInfo.note || '-' }}</div>
                                 </div>
-                                <el-table :data="tab.fields.slice().sort(sortBySort)" border>
+                                <el-table :data="tab.fields.slice().sort(sortBySort)" border style="width: 100%">
                                   <el-table-column prop="fieldCode" label="字段编码" min-width="160" />
                                   <el-table-column label="字段标题" min-width="140">
                                     <template #default="scope">
@@ -1316,6 +1316,13 @@ function deepClone<T>(value: T): T {
   margin-bottom: 14px;
   color: var(--el-text-color-secondary);
   font-size: 13px;
+}
+
+:deep(.editor-pane .el-table),
+:deep(.field-tabs .el-table),
+:deep(.group-card .el-table),
+:deep(.inner-card .el-table) {
+  width: 100%;
 }
 
 .state-tip {

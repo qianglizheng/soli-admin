@@ -21,6 +21,8 @@ public class AccessAuthentication extends AbstractAuthenticationToken {
 
     private Long userId;
 
+    private Long companyId;
+
     public AccessAuthentication(@Nullable Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
     }

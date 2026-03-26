@@ -21,6 +21,15 @@ public interface JwtService {
     TokenDTO generateTokenDTO(Long userId);
 
     /**
+     * 生成 token 对
+     *
+     * @param userId 用户 ID
+     * @param companyId 当前公司 ID
+     * @return TokenDTO，token 对
+     */
+    TokenDTO generateTokenDTO(Long userId, Long companyId);
+
+    /**
      * 生成 AccessToken
      *
      * @param userId 用户 ID
@@ -29,12 +38,30 @@ public interface JwtService {
     String generateAccessToken(Long userId);
 
     /**
+     * 生成 AccessToken
+     *
+     * @param userId 用户 ID
+     * @param companyId 当前公司 ID
+     * @return AccessToken
+     */
+    String generateAccessToken(Long userId, Long companyId);
+
+    /**
      * 生成 RefreshToken
      *
      * @param userId 用户 ID
      * @return RefreshToken
      */
     String generateRefreshToken(Long userId);
+
+    /**
+     * 生成 RefreshToken
+     *
+     * @param userId 用户 ID
+     * @param companyId 当前公司 ID
+     * @return RefreshToken
+     */
+    String generateRefreshToken(Long userId, Long companyId);
 
     /**
      * 解析 token
@@ -50,4 +77,12 @@ public interface JwtService {
      * @return 用户 ID
      */
     Long getUserId(String token) throws JWTVerificationException;
+
+    /**
+     * 解析 token 并且获取当前公司 ID
+     *
+     * @param token token 字符串
+     * @return 公司 ID
+     */
+    Long getCompanyId(String token) throws JWTVerificationException;
 }

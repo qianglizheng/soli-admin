@@ -128,6 +128,24 @@
         order by op.sort asc, op.id asc
     </select>
 
+    <select id="selectCompanyListByUserId" resultType="com.soli.system.core.service.impl.sysorgpost.SysOrgCompanyModel">
+        select distinct ou.id as id,
+               concat('ORG_', ou.id) as nodeKey,
+               ou.org_code as nodeCode,
+               ou.org_name as nodeName,
+               ou.org_type as nodeType,
+               ou.sort as sort
+        from sys_user_org_post uop
+        inner join sys_org_post op on op.id = uop.org_post_id
+                                   and op.status = '0'
+        inner join sys_org_unit ou on ou.id = op.org_unit_id
+                                   and ou.status = '0'
+                                   and ou.org_type in ('HEADQUARTERS', 'BRANCH')
+        where uop.user_id = #{userId}
+          and uop.status = '0'
+        order by ou.sort asc, ou.id asc
+    </select>
+
     <select id="selectDetailById" resultType="com.soli.system.core.service.impl.sysorgpost.SysOrgPostDetailModel">
         select op.id as id,
                op.org_unit_id as orgUnitId,

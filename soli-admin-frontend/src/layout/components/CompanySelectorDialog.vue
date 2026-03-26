@@ -60,14 +60,18 @@
 <script setup lang="ts">
 import { CircleCheckFilled, OfficeBuilding } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
+import { useRouter } from 'vue-router';
 import type { CompanyOption } from '@/store/modules/company';
 import { useCompanyStore } from '@/store/modules/company';
+import { usePermissionStore } from '@/store/modules/permission';
 
 defineOptions({
   name: "CompanySelectorDialog"
 });
 
+const router = useRouter();
 const companyStore = useCompanyStore();
+const permissionStore = usePermissionStore();
 
 const handleDialogVisibleChange = (visible: boolean) => {
   if (!visible) {
@@ -84,9 +88,19 @@ const handleReloadCompanies = async () => {
   }
 };
 
-const handleSelectCompany = (company: CompanyOption) => {
-  companyStore.selectCompany(company);
-  ElMessage.success(`已进入${company.nodeName}`);
+const handleSelectCompany = async (company: CompanyOption) => {
+  if (companyStore.currentCompany?.id === company.id) {
+    companyStore.closeSelector();
+    return;
+  }
+  try {
+    await companyStore.switchCompany(company);
+    permissionStore.resetRoutes();
+    await router.replace('/dashboard');
+    ElMessage.success(`已进入${company.nodeName}`);
+  } catch (error) {
+    console.error(error);
+  }
 };
 </script>
 

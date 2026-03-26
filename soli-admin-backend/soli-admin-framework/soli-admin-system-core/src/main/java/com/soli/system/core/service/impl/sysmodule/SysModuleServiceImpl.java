@@ -83,12 +83,12 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
     }
 
     @Override
-    public List<SysModuleTreeNodeDTO> queryNavTree(Long userId) {
-        if (userId == null) {
+    public List<SysModuleTreeNodeDTO> queryNavTree(Long userId, Long companyId) {
+        if (userId == null || companyId == null) {
             return new ArrayList<>();
         }
         List<SysModuleTreeNodeDTO> rootList = queryTreeList();
-        List<Long> visibleModuleIdList = sysModulePermissionMapper.selectUserVisibleNavModuleIdList(userId);
+        List<Long> visibleModuleIdList = sysModulePermissionMapper.selectUserVisibleNavModuleIdList(userId, companyId);
         if (visibleModuleIdList == null || visibleModuleIdList.isEmpty()) {
             return new ArrayList<>();
         }

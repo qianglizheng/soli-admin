@@ -32,6 +32,17 @@ export interface UpdateUserPayload {
   status?: string;
 }
 
+export type UserCompanyNodeType = 'HEADQUARTERS' | 'BRANCH';
+
+export interface UserCompanyOption {
+  id: number;
+  nodeKey: string;
+  nodeCode: string;
+  nodeName: string;
+  nodeType: UserCompanyNodeType;
+  sort: number;
+}
+
 export function loginUsingUsername(data: { username: string; password: string; code?: string; captchaUUID?: string }) {
   return request<ApiResponse<{ accessToken: string; refreshToken: string }>>({
     data,
@@ -44,6 +55,21 @@ export function getUserInfo() {
   return request<ApiResponse<UserInfo>>({
     method: 'get',
     url: '/user/info'
+  });
+}
+
+export function getUserCompanyOptions() {
+  return request<ApiResponse<UserCompanyOption[]>>({
+    method: 'get',
+    url: '/user/company/options'
+  });
+}
+
+export function switchUserCompany(data: { companyId: number }) {
+  return request<ApiResponse<{ accessToken: string; refreshToken: string }>>({
+    data,
+    method: 'put',
+    url: '/user/company'
   });
 }
 

@@ -145,7 +145,7 @@
                               <div>说明：{{ tab.tabInfo.note || '-' }}</div>
                             </div>
 
-                            <el-table :data="tab.fields.slice().sort(sortBySort)" border>
+                            <el-table :data="tab.fields.slice().sort(sortBySort)" border style="width: 100%">
                               <el-table-column prop="fieldCode" label="字段编码" min-width="150" />
                               <el-table-column prop="defaultTitle" label="默认标题" min-width="130" />
                               <el-table-column label="显示标题" min-width="180">
@@ -201,7 +201,7 @@
                               <div>说明：{{ tab.tabInfo.note || '-' }}</div>
                             </div>
 
-                            <el-table :data="tab.fields.slice().sort(sortBySort)" border>
+                            <el-table :data="tab.fields.slice().sort(sortBySort)" border style="width: 100%">
                               <el-table-column prop="fieldCode" label="字段编码" min-width="150" />
                               <el-table-column prop="defaultTitle" label="默认标题" min-width="130" />
                               <el-table-column label="显示标题" min-width="180">
@@ -825,6 +825,10 @@ function deepClone<T>(value: T): T {
   margin-bottom: 14px;
   color: var(--el-text-color-secondary);
   font-size: 13px;
+}
+
+:deep(.field-tabs .el-table) {
+  width: 100%;
 }
 
 .preview-header {

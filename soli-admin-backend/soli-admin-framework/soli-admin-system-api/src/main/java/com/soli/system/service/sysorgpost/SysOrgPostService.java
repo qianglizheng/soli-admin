@@ -21,6 +21,23 @@ public interface SysOrgPostService extends BaseCrudService<SysOrgPostDTO, SysOrg
     List<SysOrgPostTreeNodeDTO> queryTreeList();
 
     /**
+     * 查询用户可选公司列表
+     *
+     * @param userId 用户 ID
+     * @return 公司列表
+     */
+    List<SysOrgCompanyDTO> queryUserCompanyList(Long userId);
+
+    /**
+     * 查询用户当前可选公司
+     *
+     * @param userId 用户 ID
+     * @param companyId 公司 ID
+     * @return 公司信息
+     */
+    SysOrgCompanyDTO queryUserCompany(Long userId, Long companyId);
+
+    /**
      * 根据岗位 ID 查询岗位详情
      *
      * @param id 岗位 ID

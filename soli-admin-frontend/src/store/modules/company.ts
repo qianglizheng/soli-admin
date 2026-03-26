@@ -1,16 +1,15 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
-import { getOrgNodeTypeLabel, getOrgPostTree, type OrgNodeType, type OrgPostTreeNode } from '@/api/orgPost';
+import { getUserCompanyOptions, switchUserCompany, type UserCompanyNodeType } from '@/api/user';
+import { setToken } from '@/utils/auth';
 import { storage } from '@/utils/storage';
-
-type CompanyNodeType = Extract<OrgNodeType, 'HEADQUARTERS' | 'BRANCH'>;
 
 export interface CompanyOption {
   id: number;
   nodeKey: string;
   nodeCode: string;
   nodeName: string;
-  nodeType: CompanyNodeType;
+  nodeType: UserCompanyNodeType;
   typeLabel: string;
   sort: number;
 }
@@ -18,28 +17,9 @@ export interface CompanyOption {
 const COMPANY_STORAGE_KEY = 'currentCompanyId';
 const COMPANY_CACHE_STORAGE_KEY = 'currentCompanyCache';
 
-const isCompanyNodeType = (nodeType?: OrgNodeType): nodeType is CompanyNodeType => {
-  return nodeType === 'HEADQUARTERS' || nodeType === 'BRANCH';
-};
-
-const collectCompanyOptions = (nodes: OrgPostTreeNode[], result: CompanyOption[] = []) => {
-  nodes.forEach((node) => {
-    if (isCompanyNodeType(node.nodeType)) {
-      result.push({
-        id: node.id,
-        nodeKey: node.nodeKey,
-        nodeCode: node.nodeCode,
-        nodeName: node.nodeName,
-        nodeType: node.nodeType,
-        typeLabel: getOrgNodeTypeLabel(node.nodeType),
-        sort: node.sort ?? 0
-      });
-    }
-    if (node.children?.length) {
-      collectCompanyOptions(node.children, result);
-    }
-  });
-  return result;
+const companyTypeLabelMap: Record<UserCompanyNodeType, string> = {
+  BRANCH: '分公司',
+  HEADQUARTERS: '总公司'
 };
 
 export const useCompanyStore = defineStore('company', () => {
@@ -54,6 +34,8 @@ export const useCompanyStore = defineStore('company', () => {
   const currentCompany = computed(() => {
     return companyOptions.value.find((item) => item.id === selectedCompanyId.value) || cachedCompany.value || null;
   });
+
+  const hasSelectedCompany = computed(() => Boolean(selectedCompanyId.value));
 
   const showSelector = (required = false) => {
     selectorVisible.value = true;
@@ -75,12 +57,43 @@ export const useCompanyStore = defineStore('company', () => {
     storage.remove(COMPANY_CACHE_STORAGE_KEY);
   };
 
-  const selectCompany = (company: CompanyOption) => {
+  const cacheCompany = (company: CompanyOption) => {
     selectedCompanyId.value = company.id;
     cachedCompany.value = company;
     storage.set(COMPANY_STORAGE_KEY, company.id);
     storage.set(COMPANY_CACHE_STORAGE_KEY, company);
-    closeSelector();
+  };
+
+  const syncCurrentCompany = (companyId: number | null) => {
+    if (!companyId) {
+      clearSelectedCompany();
+      return;
+    }
+    selectedCompanyId.value = companyId;
+    storage.set(COMPANY_STORAGE_KEY, companyId);
+    const matchedCompany = companyOptions.value.find((item) => item.id === companyId);
+    if (matchedCompany) {
+      cachedCompany.value = matchedCompany;
+      storage.set(COMPANY_CACHE_STORAGE_KEY, matchedCompany);
+      return;
+    }
+    if (cachedCompany.value?.id !== companyId) {
+      cachedCompany.value = null;
+      storage.remove(COMPANY_CACHE_STORAGE_KEY);
+    }
+  };
+
+  const switchCompany = async (company: CompanyOption) => {
+    loading.value = true;
+    try {
+      const res = await switchUserCompany({ companyId: company.id });
+      setToken(res.data.accessToken);
+      cacheCompany(company);
+      closeSelector();
+      return company;
+    } finally {
+      loading.value = false;
+    }
   };
 
   const loadCompanies = async (force = false) => {
@@ -89,13 +102,22 @@ export const useCompanyStore = defineStore('company', () => {
     }
     loading.value = true;
     try {
-      const res = await getOrgPostTree();
-      const companies = collectCompanyOptions(res.data || []).sort((left, right) => {
+      const res = await getUserCompanyOptions();
+      const companies = (res.data || []).map((company) => ({
+        id: company.id,
+        nodeKey: company.nodeKey,
+        nodeCode: company.nodeCode,
+        nodeName: company.nodeName,
+        nodeType: company.nodeType,
+        typeLabel: companyTypeLabelMap[company.nodeType] || company.nodeType,
+        sort: company.sort ?? 0
+      })).sort((left, right) => {
         if (left.sort !== right.sort) {
           return left.sort - right.sort;
         }
         return left.nodeName.localeCompare(right.nodeName, 'zh-CN');
       });
+
       companyOptions.value = companies;
       loaded.value = true;
 
@@ -142,13 +164,15 @@ export const useCompanyStore = defineStore('company', () => {
   return {
     companyOptions,
     currentCompany,
+    hasSelectedCompany,
     selectorVisible,
     selectionRequired,
     loading,
     showSelector,
     closeSelector,
     clearSelectedCompany,
-    selectCompany,
+    syncCurrentCompany,
+    switchCompany,
     loadCompanies,
     openSelector,
     ensureSelection,

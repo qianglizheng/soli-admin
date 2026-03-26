@@ -10,9 +10,11 @@ export const useUserStore = defineStore('user', () => {
   const avatar = ref('');
   const type = ref('');
   const roles = ref<string[]>([]);
+  const infoLoaded = ref(false);
   const isSuperAdmin = computed(() => type.value === '0' || roles.value.includes('admin'));
 
   const login = async (userInfo: { username: string; password: string; code?: string; captchaUUID?: string }) => {
+    const companyStore = useCompanyStore();
     const res = await loginUsingUsername({
       username: userInfo.username,
       password: userInfo.password,
@@ -21,15 +23,20 @@ export const useUserStore = defineStore('user', () => {
     });
     token.value = res.data.accessToken;
     setToken(res.data.accessToken);
+    infoLoaded.value = false;
+    companyStore.reset();
   };
 
   const getInfo = async () => {
+    const companyStore = useCompanyStore();
     const res = await getUserInfo();
-    const { username, nickname, avatar: av, type: userType, roles: rs } = res.data;
+    const { username, nickname, avatar: av, type: userType, roles: rs, currentCompanyId } = res.data;
     name.value = nickname || username;
     avatar.value = av || '';
     type.value = userType || '';
     roles.value = rs || [];
+    infoLoaded.value = true;
+    companyStore.syncCurrentCompany(currentCompanyId ?? null);
   };
 
   const logout = async () => {
@@ -39,6 +46,7 @@ export const useUserStore = defineStore('user', () => {
     avatar.value = '';
     type.value = '';
     roles.value = [];
+    infoLoaded.value = false;
     companyStore.reset();
     removeToken();
   };
@@ -49,6 +57,7 @@ export const useUserStore = defineStore('user', () => {
     avatar,
     type,
     roles,
+    infoLoaded,
     isSuperAdmin,
     login,
     getInfo,

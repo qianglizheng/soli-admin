@@ -1,6 +1,7 @@
 package com.soli.system.web.controller.sysmodule;
 
 import com.soli.common.api.vo.Result;
+import com.soli.common.web.security.jwt.CompanyContextHolder;
 import com.soli.system.core.service.impl.sysmodule.SysModuleConverter;
 import com.soli.system.service.sysmodule.SysModuleButtonCreateRequest;
 import com.soli.system.service.sysmodule.SysModuleButtonDTO;
@@ -61,7 +62,7 @@ public class SysModuleController {
     @Operation(summary = "查询当前用户系统导航模块树")
     @GetMapping("/nav-tree")
     public Result<List<SysModuleTreeNodeDTO>> navTree(@AuthenticationPrincipal Long userId) {
-        return Result.success(service.queryNavTree(userId));
+        return Result.success(service.queryNavTree(userId, CompanyContextHolder.getCurrentCompanyId()));
     }
 
     @Operation(summary = "查询模块详情")

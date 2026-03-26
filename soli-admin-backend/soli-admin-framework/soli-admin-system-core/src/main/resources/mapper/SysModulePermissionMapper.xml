@@ -18,14 +18,16 @@
     <select id="selectUserVisibleNavModuleIdList" resultType="long">
         select m.id
         from sys_user_org_post uop
+                 inner join sys_org_post op
+                            on op.id = uop.org_post_id
+                               and op.status = '0'
+                               and op.org_unit_id = #{companyId}
                  inner join sys_org_post_module_auth ma
                             on ma.org_post_id = uop.org_post_id
                                and ma.module_visible = '1'
-                               and ma.nav_visible = '1'
                  inner join sys_module m
                             on m.id = ma.module_id
                                and m.status = '0'
-                               and m.nav_visible = '1'
         where uop.user_id = #{userId}
           and uop.status = '0'
         group by m.id, m.sort
@@ -35,6 +37,10 @@
     <select id="countUserVisibleModule" resultType="int">
         select count(distinct m.id)
         from sys_user_org_post uop
+                 inner join sys_org_post op
+                            on op.id = uop.org_post_id
+                               and op.status = '0'
+                               and op.org_unit_id = #{companyId}
                  inner join sys_org_post_module_auth ma
                             on ma.org_post_id = uop.org_post_id
                                and ma.module_visible = '1'
@@ -49,6 +55,10 @@
     <select id="selectUserButtonPermissionLevel" resultType="int">
         select max(ba.permission_level)
         from sys_user_org_post uop
+                 inner join sys_org_post op
+                            on op.id = uop.org_post_id
+                               and op.status = '0'
+                               and op.org_unit_id = #{companyId}
                  inner join sys_org_post_module_auth ma
                             on ma.org_post_id = uop.org_post_id
                                and ma.module_visible = '1'

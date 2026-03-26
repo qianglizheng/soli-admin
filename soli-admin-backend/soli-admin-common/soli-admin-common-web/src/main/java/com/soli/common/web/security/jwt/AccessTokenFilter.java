@@ -41,8 +41,10 @@ public class AccessTokenFilter extends OncePerRequestFilter {
         }
 
         Long userId = null;
+        Long companyId = null;
         try {
             userId = jwtService.getUserId(accessToken);
+            companyId = jwtService.getCompanyId(accessToken);
         } catch (JWTVerificationException e) {
             throw new BusinessException(e.getMessage());
         }
@@ -50,11 +52,17 @@ public class AccessTokenFilter extends OncePerRequestFilter {
         List<GrantedAuthority> authorityList = List.of();
         AccessAuthentication authentication = new AccessAuthentication(authorityList);
         authentication.setUserId(userId);
+        authentication.setCompanyId(companyId);
         authentication.setAccessToken(accessToken);
+        authentication.setDetails(companyId);
         authentication.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        filterChain.doFilter(request, response);
+        CompanyContextHolder.setCurrentCompanyId(companyId);
+        try {
+            filterChain.doFilter(request, response);
+        } finally {
+            CompanyContextHolder.clear();
+        }
     }
 
 }

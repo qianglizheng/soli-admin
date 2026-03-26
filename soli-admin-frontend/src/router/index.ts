@@ -22,6 +22,11 @@ export const constantRoutes: RouteRecordRaw[] = [
     meta: { hidden: true },
     path: '/login'
   },
+  {
+    component: () => import('@/views/select-company/index.vue'),
+    meta: { hidden: true },
+    path: '/select-company'
+  },
   dashboardRoute
 ];
 

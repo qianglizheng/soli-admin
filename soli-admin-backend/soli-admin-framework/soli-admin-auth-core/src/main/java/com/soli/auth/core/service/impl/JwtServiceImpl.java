@@ -30,34 +30,58 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public TokenDTO generateTokenDTO(Long userId) {
-        String accessToken = generateAccessToken(userId);
-        String refreshToken = generateRefreshToken(userId);
+        return generateTokenDTO(userId, null);
+    }
+
+    @Override
+    public TokenDTO generateTokenDTO(Long userId, Long companyId) {
+        String accessToken = generateAccessToken(userId, companyId);
+        String refreshToken = generateRefreshToken(userId, companyId);
         return new TokenDTO(accessToken, refreshToken);
     }
 
+    @Override
     public String generateAccessToken(Long userId) {
+        return generateAccessToken(userId, null);
+    }
+
+    @Override
+    public String generateAccessToken(Long userId, Long companyId) {
         Algorithm algorithm = Algorithm.HMAC256(properties.getSecret());
         Instant now = Instant.now();
-        return JWT.create()
+        var builder = JWT.create()
                 .withIssuer(properties.getIssuer())
                 .withSubject(userId.toString())
                 .withIssuedAt(Date.from(now))
-                .withExpiresAt(Date.from(now.plusSeconds(properties.getAccessTokenExpire())))
-                .sign(algorithm);
+                .withExpiresAt(Date.from(now.plusSeconds(properties.getAccessTokenExpire())));
+        if (companyId != null) {
+            builder.withClaim("companyId", companyId);
+        }
+        return builder.sign(algorithm);
     }
 
+    @Override
     public String generateRefreshToken(Long userId) {
+        return generateRefreshToken(userId, null);
+    }
+
+    @Override
+    public String generateRefreshToken(Long userId, Long companyId) {
         Algorithm algorithm = Algorithm.HMAC256(properties.getSecret());
         Instant now = Instant.now();
-        return JWT.create()
+        var builder = JWT.create()
                 .withIssuer(properties.getIssuer())
                 .withSubject(userId.toString())
                 .withIssuedAt(Date.from(now))
                 .withExpiresAt(Date.from(now.plusSeconds(properties.getRefreshTokenExpire())))
-                .withClaim("type", "refresh")
-                .sign(algorithm);
+                .withClaim("type", "refresh");
+        if (companyId != null) {
+            builder.withClaim("companyId", companyId);
+        }
+        return builder.sign(algorithm);
     }
 
+    @Override
     public DecodedJWT parseToken(String token) throws JWTVerificationException {
         Algorithm algorithm = Algorithm.HMAC256(properties.getSecret());
         JWTVerifier verifier = JWT.require(algorithm)
@@ -69,6 +93,12 @@ public class JwtServiceImpl implements JwtService {
     public Long getUserId(String token) throws JWTVerificationException{
         DecodedJWT jwt = parseToken(token);
         return Long.valueOf(jwt.getSubject());
+    }
+
+    @Override
+    public Long getCompanyId(String token) throws JWTVerificationException {
+        DecodedJWT jwt = parseToken(token);
+        return jwt.getClaim("companyId").isNull() ? null : jwt.getClaim("companyId").asLong();
     }
 
 }

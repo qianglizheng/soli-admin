@@ -20,18 +20,20 @@ public class SysModuleAccessEvaluator {
 
     public boolean hasModule(String moduleCode) {
         Long userId = currentUserId();
-        if (userId == null || moduleCode == null || moduleCode.isBlank()) {
+        Long companyId = currentCompanyId();
+        if (userId == null || companyId == null || moduleCode == null || moduleCode.isBlank()) {
             return false;
         }
-        return sysModulePermissionMapper.countUserVisibleModule(userId, moduleCode) > 0;
+        return sysModulePermissionMapper.countUserVisibleModule(userId, companyId, moduleCode) > 0;
     }
 
     public boolean hasButton(String moduleCode, String buttonCode) {
         Long userId = currentUserId();
-        if (userId == null || moduleCode == null || moduleCode.isBlank() || buttonCode == null || buttonCode.isBlank()) {
+        Long companyId = currentCompanyId();
+        if (userId == null || companyId == null || moduleCode == null || moduleCode.isBlank() || buttonCode == null || buttonCode.isBlank()) {
             return false;
         }
-        Integer permissionLevel = sysModulePermissionMapper.selectUserButtonPermissionLevel(userId, moduleCode, buttonCode);
+        Integer permissionLevel = sysModulePermissionMapper.selectUserButtonPermissionLevel(userId, companyId, moduleCode, buttonCode);
         return permissionLevel != null && permissionLevel >= 2;
     }
 
@@ -43,6 +45,18 @@ public class SysModuleAccessEvaluator {
         Object principal = authentication.getPrincipal();
         if (principal instanceof Long userId) {
             return userId;
+        }
+        return null;
+    }
+
+    private Long currentCompanyId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return null;
+        }
+        Object details = authentication.getDetails();
+        if (details instanceof Long companyId) {
+            return companyId;
         }
         return null;
     }

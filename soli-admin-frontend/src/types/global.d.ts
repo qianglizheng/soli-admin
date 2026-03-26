@@ -11,6 +11,7 @@ export interface UserInfo {
   avatar?: string;
   type?: string;
   roles: string[];
+  currentCompanyId?: number | null;
 }
 
 export interface ApiResponse<T = unknown> {

@@ -97,7 +97,10 @@ const handleLogin = async () => {
         await userStore.login({ ...loginForm, captchaUUID: captchaUUID.value });
         const redirect = route.query.redirect as string;
         ElMessage.success('登录成功');
-        router.push(redirect || '/');
+        router.push({
+          path: '/select-company',
+          query: redirect ? { redirect } : undefined
+        });
       } catch (error) {
         console.error(error);
         refreshCode();

@@ -3,8 +3,6 @@ import { ref } from 'vue';
 import type { RouteRecordRaw } from 'vue-router';
 import { getModuleNavTree, type ModuleTreeNode } from '@/api/moduleCenter';
 import router, { dashboardRoute } from '@/router';
-import { purchaseExtraRoutes } from '@/router/modules/purchase';
-import { systemExtraRoutes } from '@/router/modules/system';
 
 const Layout = () => import('@/layout/index.vue');
 
@@ -54,12 +52,15 @@ export const usePermissionStore = defineStore('permission', () => {
 
     const fullPath = joinPath(parentFullPath, node.routePath);
     const routePath = parentFullPath ? node.routePath : fullPath;
-    const route: RouteRecordRaw = {
+    const route = {
       path: routePath,
       name: node.moduleCode,
-      meta: { title: node.moduleName, icon: node.icon },
-      children: []
-    };
+      meta: {
+        title: node.moduleName,
+        icon: node.icon,
+        hidden: node.navVisible === '0'
+      }
+    } as unknown as RouteRecordRaw;
 
     if (node.moduleType === 'CATALOG') {
       route.component = Layout;
@@ -77,11 +78,11 @@ export const usePermissionStore = defineStore('permission', () => {
 
     if (childRoutes.length) {
       route.children = childRoutes.map((item) => item.route);
-      if (node.moduleType === 'CATALOG') {
-        route.redirect = childRoutes[0].fullPath;
+      const redirectChildRoute =
+        childRoutes.find((item) => !item.route.meta?.hidden) || childRoutes[0];
+      if (node.moduleType === 'CATALOG' && redirectChildRoute) {
+        route.redirect = redirectChildRoute.fullPath;
       }
-    } else {
-      delete route.children;
     }
 
     return {
@@ -97,19 +98,6 @@ export const usePermissionStore = defineStore('permission', () => {
       .map((item) => item.route);
   };
 
-  const appendExtraRoutes = (dynamicRoutes: RouteRecordRaw[], rootPath: string, extraRoutes: RouteRecordRaw[]) => {
-    const rootRoute = dynamicRoutes.find((route) => route.path === rootPath);
-    if (!rootRoute) {
-      return;
-    }
-    const children = (rootRoute.children ||= []);
-    extraRoutes.forEach((route) => {
-      if (!children.some((child) => child.path === route.path)) {
-        children.push(route);
-      }
-    });
-  };
-
   const loadRoutes = async () => {
     if (isRoutesLoaded.value) {
       return addRoutes.value;
@@ -117,9 +105,6 @@ export const usePermissionStore = defineStore('permission', () => {
 
     const moduleTreeResponse = await getModuleNavTree();
     const dynamicRoutes = buildRoutesFromModules(moduleTreeResponse.data || []);
-
-    appendExtraRoutes(dynamicRoutes, '/system', systemExtraRoutes);
-    appendExtraRoutes(dynamicRoutes, '/purchase', purchaseExtraRoutes);
 
     dynamicRoutes.forEach((route) => router.addRoute(route));
     addRoutes.value = dynamicRoutes;

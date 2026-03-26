@@ -4,6 +4,7 @@ import com.soli.system.core.service.impl.sysorgpost.SysOrgPostEntity;
 import com.soli.system.core.service.impl.sysorgpost.SysOrgPostDetailModel;
 import com.soli.system.core.service.impl.sysorgpost.SysOrgPostTreeNodeModel;
 import com.soli.system.core.service.impl.sysorgpost.SysOrgPostUserModel;
+import com.soli.system.core.service.impl.sysorgpost.SysOrgCompanyModel;
 import com.soli.system.core.service.impl.sysorgpost.SysOrgUnitEntity;
 import com.soli.system.core.service.impl.sysorgpost.SysUserOrgPostEntity;
 import com.soli.system.service.sysorgpost.SysOrgPostQuery;
@@ -34,6 +35,14 @@ public interface SysOrgPostMapper extends BaseCrudMapper<SysOrgPostEntity, SysOr
      * @return 岗位树节点列表
      */
     List<SysOrgPostTreeNodeModel> selectPostTreeNodes();
+
+    /**
+     * 查询用户可选公司列表
+     *
+     * @param userId 用户 ID
+     * @return 公司列表
+     */
+    List<SysOrgCompanyModel> selectCompanyListByUserId(@Param("userId") Long userId);
 
     /**
      * 根据岗位 ID 查询岗位详情

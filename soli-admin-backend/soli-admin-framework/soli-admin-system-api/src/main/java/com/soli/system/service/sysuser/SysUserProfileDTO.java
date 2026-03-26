@@ -20,4 +20,6 @@ public class SysUserProfileDTO {
     private String type;
 
     private List<String> roles;
+
+    private Long currentCompanyId;
 }

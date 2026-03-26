@@ -7,6 +7,7 @@ import com.soli.common.api.exception.BusinessException;
 import com.soli.common.api.vo.PageResult;
 import com.soli.system.core.mapper.SysOrgPostMapper;
 import com.soli.system.core.service.impl.BaseCrudServiceImpl;
+import com.soli.system.service.sysorgpost.SysOrgCompanyDTO;
 import com.soli.system.service.sysorgpost.SysOrgPostDTO;
 import com.soli.system.service.sysorgpost.SysOrgPostDetailDTO;
 import com.soli.system.service.sysorgpost.SysOrgPostQuery;
@@ -87,6 +88,27 @@ public class SysOrgPostServiceImpl extends BaseCrudServiceImpl<SysOrgPostDTO, Sy
 
         sortTree(rootList);
         return flattenGroupNodes(rootList);
+    }
+
+    @Override
+    public List<SysOrgCompanyDTO> queryUserCompanyList(Long userId) {
+        if (userId == null) {
+            return new ArrayList<>();
+        }
+        return sysOrgPostMapper.selectCompanyListByUserId(userId).stream()
+                .map(this::toCompanyDTO)
+                .toList();
+    }
+
+    @Override
+    public SysOrgCompanyDTO queryUserCompany(Long userId, Long companyId) {
+        if (companyId == null) {
+            throw new BusinessException("公司 ID 不能为空");
+        }
+        return queryUserCompanyList(userId).stream()
+                .filter(company -> Objects.equals(company.getId(), companyId))
+                .findFirst()
+                .orElseThrow(() -> new BusinessException("当前用户无权进入该公司"));
     }
 
     @Override
@@ -299,6 +321,17 @@ public class SysOrgPostServiceImpl extends BaseCrudServiceImpl<SysOrgPostDTO, Sy
         if (query.getPageSize() > MAX_PAGE_SIZE) {
             query.setPageSize(MAX_PAGE_SIZE);
         }
+    }
+
+    private SysOrgCompanyDTO toCompanyDTO(SysOrgCompanyModel model) {
+        SysOrgCompanyDTO dto = new SysOrgCompanyDTO();
+        dto.setId(model.getId());
+        dto.setNodeKey(model.getNodeKey());
+        dto.setNodeCode(model.getNodeCode());
+        dto.setNodeName(model.getNodeName());
+        dto.setNodeType(model.getNodeType());
+        dto.setSort(model.getSort());
+        return dto;
     }
 
     private void normalizePost(SysOrgPostDTO dto) {

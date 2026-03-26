@@ -211,7 +211,7 @@
                               <span>{{ buttonAreaLabelMap[group.area] }}</span>
                               <el-tag size="small" effect="plain">{{ group.buttons.length }} 个按钮</el-tag>
                             </div>
-                            <el-table :data="group.buttons" border>
+                            <el-table :data="group.buttons" border style="width: 100%">
                               <el-table-column prop="buttonCode" label="按钮编码" min-width="160" />
                               <el-table-column prop="defaultTitle" label="按钮标题" min-width="140" />
                               <el-table-column label="权限级别" width="180">
@@ -1239,12 +1239,17 @@ function deepClone<T>(value: T): T {
 
 .field-table-wrapper {
   width: 100%;
+  min-width: 0;
   overflow-x: auto;
   overflow-y: visible;
 }
 
 :deep(.field-table-wrapper .el-table) {
-  min-width: 820px;
+  width: 100%;
+}
+
+:deep(.group-card .el-table) {
+  width: 100%;
 }
 
 .preview-header {

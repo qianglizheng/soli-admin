@@ -19,11 +19,12 @@ public interface SysModulePermissionMapper {
 
     List<Long> selectAdminOrgPostIdList();
 
-    List<Long> selectUserVisibleNavModuleIdList(@Param("userId") Long userId);
+    List<Long> selectUserVisibleNavModuleIdList(@Param("userId") Long userId, @Param("companyId") Long companyId);
 
-    int countUserVisibleModule(@Param("userId") Long userId, @Param("moduleCode") String moduleCode);
+    int countUserVisibleModule(@Param("userId") Long userId, @Param("companyId") Long companyId, @Param("moduleCode") String moduleCode);
 
     Integer selectUserButtonPermissionLevel(@Param("userId") Long userId,
+                                            @Param("companyId") Long companyId,
                                             @Param("moduleCode") String moduleCode,
                                             @Param("buttonCode") String buttonCode);
 

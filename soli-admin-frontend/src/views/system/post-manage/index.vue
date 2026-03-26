@@ -304,8 +304,8 @@ function findFirstNodeByType(nodes: OrgPostTreeNode[], nodeType: OrgPostTreeNode
   return undefined;
 }
 
-function countPostNodes(nodes: OrgPostTreeNode[]) {
-  return nodes.reduce((count, node) => {
+function countPostNodes(nodes: OrgPostTreeNode[]): number {
+  return nodes.reduce<number>((count, node) => {
     const current = node.nodeType === 'POST' ? 1 : 0;
     return count + current + (node.children?.length ? countPostNodes(node.children) : 0);
   }, 0);
