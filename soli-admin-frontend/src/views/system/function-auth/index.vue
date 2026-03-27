@@ -1,6 +1,6 @@
 ﻿<template>
   <div class="app-container function-auth-page">
-    <el-row :gutter="16" style="height: 100%">
+    <el-row :gutter="16">
       <el-col :span="6" class="org-tree-col">
         <el-card shadow="never" class="org-tree-card">
           <template #header>
@@ -54,9 +54,14 @@
                 <div>
                   <div class="overview-title">
                     <span>{{ selectedPost.nodeName }}</span>
-                    <el-tag size="small" type="primary" effect="plain">{{ selectedPost.postTypeLabel || '岗位' }}</el-tag>
-                    <el-tag size="small" type="info" effect="plain">{{ selectedPost.orgTypeLabel }}</el-tag>
-                    <el-tag size="small" :type="selectedPost.status === '0' ? 'success' : 'danger'" effect="plain">
+                    <el-tag size="small" type="primary" effect="plain">
+                      {{ selectedPost.postTypeLabel || '岗位' }}
+                    </el-tag>
+                    <el-tag size="small" type="info" effect="plain">{{ selectedPost.orgTypeLabel
+                      }}
+                    </el-tag>
+                    <el-tag size="small" :type="selectedPost.status === '0' ? 'success' : 'danger'"
+                            effect="plain">
                       {{ selectedPost.status === '0' ? '启用' : '停用' }}
                     </el-tag>
                   </div>
@@ -66,9 +71,14 @@
                 </div>
 
                 <div class="overview-actions">
-                  <el-button icon="RefreshLeft" :disabled="!selectedModule" @click="handleResetCurrentModule">恢复当前模块</el-button>
-                  <el-button type="primary" icon="DocumentChecked" @click="handleSave">保存</el-button>
-                  <el-button type="primary" plain icon="View" :disabled="!selectedModule" @click="openPreviewDrawer">预览岗位基线</el-button>
+                  <el-button icon="RefreshLeft" :disabled="!selectedModule"
+                             @click="handleResetCurrentModule">恢复当前模块
+                  </el-button>
+                  <el-button type="primary" icon="DocumentChecked" @click="handleSave">保存
+                  </el-button>
+                  <el-button type="primary" plain icon="View" :disabled="!selectedModule"
+                             @click="openPreviewDrawer">预览岗位基线
+                  </el-button>
                 </div>
               </div>
 
@@ -104,7 +114,9 @@
               <div class="module-panel">
                 <div class="panel-header">
                   <span>模块树</span>
-                  <el-tag v-if="selectedModule" size="small" type="warning" effect="plain">{{ selectedModule.moduleCode }}</el-tag>
+                  <el-tag v-if="selectedModule" size="small" type="warning" effect="plain">
+                    {{ selectedModule.moduleCode }}
+                  </el-tag>
                 </div>
 
                 <el-input
@@ -129,7 +141,8 @@
                       <div class="tree-node">
                         <div class="tree-node__head">
                           <span class="tree-node__label">{{ data.moduleName }}</span>
-                          <el-tag size="small" :type="getModuleTypeTagType(data.moduleType)" effect="plain">
+                          <el-tag size="small" :type="getModuleTypeTagType(data.moduleType)"
+                                  effect="plain">
                             {{ getModuleTypeLabel(data.moduleType) }}
                           </el-tag>
                         </div>
@@ -148,7 +161,8 @@
                     <div>
                       <div class="editor-title">
                         <span>{{ selectedModule.moduleName }}</span>
-                        <el-tag size="small" :type="getModuleTypeTagType(selectedModule.moduleType)" effect="plain">
+                        <el-tag size="small" :type="getModuleTypeTagType(selectedModule.moduleType)"
+                                effect="plain">
                           {{ getModuleTypeLabel(selectedModule.moduleType) }}
                         </el-tag>
                       </div>
@@ -171,7 +185,8 @@
                                   <el-switch v-model="moduleVisibleModel" />
                                 </el-form-item>
                                 <el-form-item label="导航可见">
-                                  <el-switch v-model="navVisibleModel" :disabled="!moduleVisibleModel" />
+                                  <el-switch v-model="navVisibleModel"
+                                             :disabled="!moduleVisibleModel" />
                                 </el-form-item>
                                 <el-form-item label="模块编码">
                                   <span>{{ selectedModule.moduleCode }}</span>
@@ -202,19 +217,23 @@
                       </div>
                     </el-tab-pane>
 
-                    <el-tab-pane label="按钮权限" name="button" style="width: 100%">
+                    <el-tab-pane label="按钮权限" name="button">
                       <div class="editor-pane">
-                        <el-empty v-if="!selectedModule.buttons.length" description="当前模块暂无按钮定义" />
+                        <el-empty v-if="!selectedModule.buttons.length"
+                                  description="当前模块暂无按钮定义" />
                         <template v-else>
                           <div v-for="group in buttonGroups" :key="group.area" class="group-card">
                             <div class="group-card__header">
                               <span>{{ buttonAreaLabelMap[group.area] }}</span>
-                              <el-tag size="small" effect="plain">{{ group.buttons.length }} 个按钮</el-tag>
+                              <el-tag size="small" effect="plain">{{ group.buttons.length }}
+                                个按钮
+                              </el-tag>
                             </div>
-                            <el-table :data="group.buttons" border style="width: 100%">
+                            <el-table :data="group.buttons">
                               <el-table-column prop="buttonCode" label="按钮编码" min-width="160" />
-                              <el-table-column prop="defaultTitle" label="按钮标题" min-width="140" />
-                              <el-table-column label="权限级别" width="180">
+                              <el-table-column prop="defaultTitle" label="按钮标题"
+                                               min-width="140" />
+                              <el-table-column label="权限级别" min-width="180">
                                 <template #default="scope">
                                   <el-select
                                     :model-value="getButtonPermission(scope.row.buttonCode)"
@@ -230,14 +249,18 @@
                                   </el-select>
                                 </template>
                               </el-table-column>
-                              <el-table-column label="效果预览" width="120" align="center">
+                              <el-table-column label="效果预览" min-width="120" align="center">
                                 <template #default="scope">
-                                  <el-tag :type="buttonPermissionTagTypeMap[getButtonPermission(scope.row.buttonCode)]" effect="plain">
-                                    {{ buttonPermissionLabelMap[getButtonPermission(scope.row.buttonCode)] }}
+                                  <el-tag
+                                    :type="buttonPermissionTagTypeMap[getButtonPermission(scope.row.buttonCode)]"
+                                    effect="plain">
+                                    {{ buttonPermissionLabelMap[getButtonPermission(scope.row.buttonCode)]
+                                    }}
                                   </el-tag>
                                 </template>
                               </el-table-column>
-                              <el-table-column prop="note" label="说明" min-width="180" show-overflow-tooltip />
+                              <el-table-column prop="note" label="说明" min-width="180"
+                                               show-overflow-tooltip />
                             </el-table>
                           </div>
                         </template>
@@ -248,9 +271,11 @@
                       <div class="editor-pane">
                         <el-tabs v-model="activeFieldScope" class="field-scope-tabs">
                           <el-tab-pane label="表头字段" name="header">
-                            <el-empty v-if="!selectedModule.headerTabs.length" description="当前模块暂无表头字段" />
+                            <el-empty v-if="!selectedModule.headerTabs.length"
+                                      description="当前模块暂无表头字段" />
                             <template v-else>
-                              <el-tabs v-model="activeHeaderTab" type="border-card" class="field-tabs">
+                              <el-tabs v-model="activeHeaderTab" type="border-card"
+                                       class="field-tabs">
                                 <el-tab-pane
                                   v-for="tab in headerTabs"
                                   :key="tab.tabInfo.tabCode"
@@ -263,14 +288,16 @@
                                     <div>说明：{{ tab.tabInfo.note || '-' }}</div>
                                   </div>
                                   <div class="field-table-wrapper">
-                                    <el-table :data="tab.fields.slice().sort(sortBySort)" border style="width: 100%">
-                                      <el-table-column prop="fieldCode" label="字段编码" min-width="160" />
+                                    <el-table :data="tab.fields.slice().sort(sortBySort)">
+                                      <el-table-column prop="fieldCode" label="字段编码"
+                                                       min-width="160" />
                                       <el-table-column label="字段标题" min-width="140">
                                         <template #default="scope">
                                           {{ scope.row.displayTitle || scope.row.defaultTitle }}
                                         </template>
                                       </el-table-column>
-                                      <el-table-column prop="dataPath" label="数据路径" min-width="220" show-overflow-tooltip />
+                                      <el-table-column prop="dataPath" label="数据路径"
+                                                       min-width="220" show-overflow-tooltip />
                                       <el-table-column label="权限级别" width="180">
                                         <template #default="scope">
                                           <el-select
@@ -289,8 +316,11 @@
                                       </el-table-column>
                                       <el-table-column label="效果预览" width="120" align="center">
                                         <template #default="scope">
-                                          <el-tag :type="fieldPermissionTagTypeMap[getFieldPermission(scope.row.fieldCode)]" effect="plain">
-                                            {{ fieldPermissionLabelMap[getFieldPermission(scope.row.fieldCode)] }}
+                                          <el-tag
+                                            :type="fieldPermissionTagTypeMap[getFieldPermission(scope.row.fieldCode)]"
+                                            effect="plain">
+                                            {{ fieldPermissionLabelMap[getFieldPermission(scope.row.fieldCode)]
+                                            }}
                                           </el-tag>
                                         </template>
                                       </el-table-column>
@@ -302,9 +332,11 @@
                           </el-tab-pane>
 
                           <el-tab-pane label="明细字段" name="detail">
-                            <el-empty v-if="!selectedModule.detailTabs.length" description="当前模块暂无明细字段" />
+                            <el-empty v-if="!selectedModule.detailTabs.length"
+                                      description="当前模块暂无明细字段" />
                             <template v-else>
-                              <el-tabs v-model="activeDetailTab" type="border-card" class="field-tabs">
+                              <el-tabs v-model="activeDetailTab" type="border-card"
+                                       class="field-tabs">
                                 <el-tab-pane
                                   v-for="tab in detailTabs"
                                   :key="tab.tabInfo.tabCode"
@@ -317,14 +349,16 @@
                                     <div>说明：{{ tab.tabInfo.note || '-' }}</div>
                                   </div>
                                   <div class="field-table-wrapper">
-                                    <el-table :data="tab.fields.slice().sort(sortBySort)" border style="width: 100%">
-                                      <el-table-column prop="fieldCode" label="字段编码" min-width="160" />
+                                    <el-table :data="tab.fields.slice().sort(sortBySort)">
+                                      <el-table-column prop="fieldCode" label="字段编码"
+                                                       min-width="160" />
                                       <el-table-column label="字段标题" min-width="140">
                                         <template #default="scope">
                                           {{ scope.row.displayTitle || scope.row.defaultTitle }}
                                         </template>
                                       </el-table-column>
-                                      <el-table-column prop="dataPath" label="数据路径" min-width="220" show-overflow-tooltip />
+                                      <el-table-column prop="dataPath" label="数据路径"
+                                                       min-width="220" show-overflow-tooltip />
                                       <el-table-column label="权限级别" width="180">
                                         <template #default="scope">
                                           <el-select
@@ -343,8 +377,11 @@
                                       </el-table-column>
                                       <el-table-column label="效果预览" width="120" align="center">
                                         <template #default="scope">
-                                          <el-tag :type="fieldPermissionTagTypeMap[getFieldPermission(scope.row.fieldCode)]" effect="plain">
-                                            {{ fieldPermissionLabelMap[getFieldPermission(scope.row.fieldCode)] }}
+                                          <el-tag
+                                            :type="fieldPermissionTagTypeMap[getFieldPermission(scope.row.fieldCode)]"
+                                            effect="plain">
+                                            {{ fieldPermissionLabelMap[getFieldPermission(scope.row.fieldCode)]
+                                            }}
                                           </el-tag>
                                         </template>
                                       </el-table-column>
@@ -378,8 +415,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue';
-import { ElMessage } from 'element-plus';
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { ElMessage } from 'element-plus'
 import {
   buttonAreaLabelMap,
   moduleTypeLabelMap,
@@ -391,7 +428,7 @@ import {
   type ModuleTreeNode,
   type ModuleType,
   type YesNo
-} from '@/api/moduleCenter';
+} from '@/api/moduleCenter'
 import {
   getFunctionAuthDetail,
   getFunctionAuthModuleTree,
@@ -399,17 +436,17 @@ import {
   saveFunctionAuth,
   type FunctionAuthConfig,
   type FunctionAuthPageDetail
-} from '@/api/functionAuth';
+} from '@/api/functionAuth'
 import {
   getOrgNodeTypeLabel,
   getPostTypeLabel,
   type OrgNodeType,
   type OrgPostTreeNode
-} from '@/api/orgPost';
+} from '@/api/orgPost'
 
 defineOptions({
   name: 'SystemFunctionAuth'
-});
+})
 
 type FieldPermissionLevel = 0 | 1 | 2;
 type ButtonPermissionLevel = 0 | 1 | 2;
@@ -434,62 +471,62 @@ const fieldPermissionLevelOptions = [
   { label: '不可见', value: 0 },
   { label: '只读', value: 1 },
   { label: '可写', value: 2 }
-] as const;
+] as const
 
 const buttonPermissionLevelOptions = [
   { label: '不可见', value: 0 },
   { label: '禁用', value: 1 },
   { label: '可用', value: 2 }
-] as const;
+] as const
 
 const fieldPermissionTagTypeMap: Record<FieldPermissionLevel, '' | 'warning' | 'success'> = {
   0: '',
   1: 'warning',
   2: 'success'
-};
+}
 
 const buttonPermissionTagTypeMap: Record<ButtonPermissionLevel, '' | 'warning' | 'success'> = {
   0: '',
   1: 'warning',
   2: 'success'
-};
+}
 
 const fieldPermissionLabelMap: Record<FieldPermissionLevel, string> = {
   0: '不可见',
   1: '只读',
   2: '可写'
-};
+}
 
 const buttonPermissionLabelMap: Record<ButtonPermissionLevel, string> = {
   0: '不可见',
   1: '禁用',
   2: '可用'
-};
+}
 
-const postTreeRef = ref();
-const moduleTreeRef = ref();
-const postKeyword = ref('');
-const moduleKeyword = ref('');
-const orgPostTree = ref<OrgPostTreeNode[]>([]);
-const moduleTree = ref<ModuleTreeNode[]>([]);
-const pageDetail = ref<FunctionAuthPageDetail>();
-const savedPermissionConfig = ref<ModulePermissionConfig>();
-const permissionConfig = ref<ModulePermissionConfig>();
-const selectedPostId = ref<number>();
-const selectedModuleId = ref<number>();
-const activePane = ref<'module' | 'button' | 'field'>('module');
-const activeFieldScope = ref<'header' | 'detail'>('header');
-const activeHeaderTab = ref('');
-const activeDetailTab = ref('');
-const previewVisible = ref(false);
+const postTreeRef = ref()
+const moduleTreeRef = ref()
+const postKeyword = ref('')
+const moduleKeyword = ref('')
+const orgPostTree = ref<OrgPostTreeNode[]>([])
+const moduleTree = ref<ModuleTreeNode[]>([])
+const pageDetail = ref<FunctionAuthPageDetail>()
+const savedPermissionConfig = ref<ModulePermissionConfig>()
+const permissionConfig = ref<ModulePermissionConfig>()
+const selectedPostId = ref<number>()
+const selectedModuleId = ref<number>()
+const activePane = ref<'module' | 'button' | 'field'>('module')
+const activeFieldScope = ref<'header' | 'detail'>('header')
+const activeHeaderTab = ref('')
+const activeDetailTab = ref('')
+const previewVisible = ref(false)
 
-const sortBySort = <T extends { sort: number }>(left: T, right: T) => left.sort - right.sort;
-const sortTabsByInfo = (left: ModuleTabDefinition, right: ModuleTabDefinition) => left.tabInfo.sort - right.tabInfo.sort;
+const sortBySort = <T extends { sort: number }>(left: T, right: T) => left.sort - right.sort
+const sortTabsByInfo = (left: ModuleTabDefinition, right: ModuleTabDefinition) => left.tabInfo.sort - right.tabInfo.sort
 
 const selectedPost = computed<SelectedPostSummary | undefined>(() => {
-  const detail = pageDetail.value?.postDetail;
+  const detail = pageDetail.value?.postDetail
   if (!detail || detail.id !== selectedPostId.value) {
-    return undefined;
+    return undefined
   }
   return {
     id: detail.id,
@@ -498,294 +535,294 @@ const selectedPost = computed<SelectedPostSummary | undefined>(() => {
     orgTypeLabel: getOrgNodeTypeLabel(detail.orgType),
     postTypeLabel: getPostTypeLabel(detail.postType),
     status: (detail.status || '0') as YesNo
-  };
-});
+  }
+})
 
 const selectedModule = computed<ModuleDetail | undefined>(() => {
-  const detail = pageDetail.value?.moduleDetail;
+  const detail = pageDetail.value?.moduleDetail
   if (!detail || detail.id !== selectedModuleId.value) {
-    return undefined;
+    return undefined
   }
-  return detail;
-});
+  return detail
+})
 
-const currentModuleConfig = computed<ModulePermissionConfig | undefined>(() => permissionConfig.value);
+const currentModuleConfig = computed<ModulePermissionConfig | undefined>(() => permissionConfig.value)
 
 const headerTabs = computed(() => {
-  return selectedModule.value?.headerTabs.slice().sort(sortTabsByInfo) || [];
-});
+  return selectedModule.value?.headerTabs.slice().sort(sortTabsByInfo) || []
+})
 
 const detailTabs = computed(() => {
-  return selectedModule.value?.detailTabs.slice().sort(sortTabsByInfo) || [];
-});
+  return selectedModule.value?.detailTabs.slice().sort(sortTabsByInfo) || []
+})
 
 const buttonGroups = computed(() => {
-  return selectedModule.value ? groupModuleButtons(selectedModule.value.buttons) : [];
-});
+  return selectedModule.value ? groupModuleButtons(selectedModule.value.buttons) : []
+})
 
-const postLeafCount = computed(() => countPostLeaves(orgPostTree.value));
+const postLeafCount = computed(() => countPostLeaves(orgPostTree.value))
 
-const visibleModuleCount = computed(() => pageDetail.value?.visibleModuleCount || 0);
+const visibleModuleCount = computed(() => pageDetail.value?.visibleModuleCount || 0)
 
 const currentModuleFieldCount = computed(() => {
   if (!selectedModule.value) {
-    return 0;
+    return 0
   }
-  const headerCount = selectedModule.value.headerTabs.reduce((sum, tab) => sum + tab.fields.length, 0);
-  const detailCount = selectedModule.value.detailTabs.reduce((sum, tab) => sum + tab.fields.length, 0);
-  return headerCount + detailCount;
-});
+  const headerCount = selectedModule.value.headerTabs.reduce((sum, tab) => sum + tab.fields.length, 0)
+  const detailCount = selectedModule.value.detailTabs.reduce((sum, tab) => sum + tab.fields.length, 0)
+  return headerCount + detailCount
+})
 
 const currentWritableFieldCount = computed(() => {
   if (!currentModuleConfig.value) {
-    return 0;
+    return 0
   }
-  return Object.values(currentModuleConfig.value.fieldPermissions).filter((level) => level === 2).length;
-});
+  return Object.values(currentModuleConfig.value.fieldPermissions).filter((level) => level === 2).length
+})
 
 const currentEnabledButtonCount = computed(() => {
   if (!currentModuleConfig.value) {
-    return 0;
+    return 0
   }
-  return Object.values(currentModuleConfig.value.buttonPermissions).filter((level) => level === 2).length;
-});
+  return Object.values(currentModuleConfig.value.buttonPermissions).filter((level) => level === 2).length
+})
 
 const moduleVisibleModel = computed({
   get: () => currentModuleConfig.value?.moduleVisible ?? false,
   set: (value: boolean) => {
     if (!currentModuleConfig.value) {
-      return;
+      return
     }
-    currentModuleConfig.value.moduleVisible = value;
+    currentModuleConfig.value.moduleVisible = value
     if (!value) {
-      currentModuleConfig.value.navVisible = false;
+      currentModuleConfig.value.navVisible = false
     }
   }
-});
+})
 
 const navVisibleModel = computed({
   get: () => currentModuleConfig.value?.navVisible ?? false,
   set: (value: boolean) => {
     if (!currentModuleConfig.value) {
-      return;
+      return
     }
-    currentModuleConfig.value.navVisible = currentModuleConfig.value.moduleVisible ? value : false;
+    currentModuleConfig.value.navVisible = currentModuleConfig.value.moduleVisible ? value : false
   }
-});
+})
 
 const previewJson = computed(() => {
   if (!selectedPost.value || !selectedModule.value || !currentModuleConfig.value) {
-    return '';
+    return ''
   }
-  return JSON.stringify(buildFunctionAuthPreview(selectedPost.value, selectedModule.value, currentModuleConfig.value), null, 2);
-});
+  return JSON.stringify(buildFunctionAuthPreview(selectedPost.value, selectedModule.value, currentModuleConfig.value), null, 2)
+})
 
-const getModuleTypeLabel = (moduleType: ModuleType) => moduleTypeLabelMap[moduleType];
+const getModuleTypeLabel = (moduleType: ModuleType) => moduleTypeLabelMap[moduleType]
 
 const getModuleTypeTagType = (moduleType: ModuleType) => {
   if (moduleType === 'CATALOG') {
-    return 'info';
+    return 'info'
   }
-  return 'success';
-};
+  return 'success'
+}
 
 const getOrgNodeTagType = (nodeType: OrgNodeType) => {
   if (nodeType === 'GROUP') {
-    return 'info';
+    return 'info'
   }
   if (nodeType === 'POST') {
-    return 'warning';
+    return 'warning'
   }
-  return 'success';
-};
+  return 'success'
+}
 
 const filterPostNode = (value: string, data: OrgPostTreeNode) => {
   if (!value) {
-    return true;
+    return true
   }
-  return data.nodeName.includes(value) || data.nodeCode.includes(value);
-};
+  return data.nodeName.includes(value) || data.nodeCode.includes(value)
+}
 
 const filterModuleNode = (value: string, data: ModuleTreeNode) => {
   if (!value) {
-    return true;
+    return true
   }
-  return data.moduleName.includes(value) || data.moduleCode.includes(value);
-};
+  return data.moduleName.includes(value) || data.moduleCode.includes(value)
+}
 
 const selectPost = (id?: number) => {
-  selectedPostId.value = id;
+  selectedPostId.value = id
   if (id !== undefined) {
-    postTreeRef.value?.setCurrentKey(id);
+    postTreeRef.value?.setCurrentKey(id)
   }
-};
+}
 
 const selectModule = (id?: number) => {
-  selectedModuleId.value = id;
+  selectedModuleId.value = id
   if (id !== undefined) {
-    moduleTreeRef.value?.setCurrentKey(id);
+    moduleTreeRef.value?.setCurrentKey(id)
   }
-};
+}
 
 const handlePostNodeClick = (node: OrgPostTreeNode) => {
-  const targetNode = node.nodeType === 'POST' ? node : findFirstPostLeafInNode(node);
+  const targetNode = node.nodeType === 'POST' ? node : findFirstPostLeafInNode(node)
   if (targetNode) {
-    selectPost(targetNode.id);
+    selectPost(targetNode.id)
   }
-};
+}
 
 const handleModuleNodeClick = (node: ModuleTreeNode) => {
-  const targetNode = node.moduleType === 'CATALOG' ? findFirstModuleLeafInNode(node) : node;
+  const targetNode = node.moduleType === 'CATALOG' ? findFirstModuleLeafInNode(node) : node
   if (targetNode) {
-    selectModule(targetNode.id);
+    selectModule(targetNode.id)
   }
-};
+}
 
 const getFieldPermission = (fieldCode: string): FieldPermissionLevel => {
-  return currentModuleConfig.value?.fieldPermissions[fieldCode] ?? 0;
-};
+  return currentModuleConfig.value?.fieldPermissions[fieldCode] ?? 0
+}
 
 const getButtonPermission = (buttonCode: string): ButtonPermissionLevel => {
-  return currentModuleConfig.value?.buttonPermissions[buttonCode] ?? 0;
-};
+  return currentModuleConfig.value?.buttonPermissions[buttonCode] ?? 0
+}
 
 const handleFieldPermissionChange = (fieldCode: string, level: FieldPermissionLevel) => {
   if (!currentModuleConfig.value) {
-    return;
+    return
   }
-  currentModuleConfig.value.fieldPermissions[fieldCode] = level;
-};
+  currentModuleConfig.value.fieldPermissions[fieldCode] = level
+}
 
 const handleButtonPermissionChange = (buttonCode: string, level: ButtonPermissionLevel) => {
   if (!currentModuleConfig.value) {
-    return;
+    return
   }
-  currentModuleConfig.value.buttonPermissions[buttonCode] = level;
-};
+  currentModuleConfig.value.buttonPermissions[buttonCode] = level
+}
 
 const handleResetCurrentModule = () => {
   if (!savedPermissionConfig.value) {
-    return;
+    return
   }
-  permissionConfig.value = deepClone(savedPermissionConfig.value);
-  ElMessage.success('当前模块权限已恢复到最近一次保存结果');
-};
+  permissionConfig.value = deepClone(savedPermissionConfig.value)
+  ElMessage.success('当前模块权限已恢复到最近一次保存结果')
+}
 
 async function handleSave() {
   if (!selectedPostId.value || !selectedModule.value || !currentModuleConfig.value) {
-    return;
+    return
   }
-  await saveFunctionAuth(buildFunctionAuthPayload(selectedPostId.value, selectedModule.value, currentModuleConfig.value));
-  await loadPageDetail(selectedPostId.value, selectedModule.value.id);
-  ElMessage.success('功能授权已保存');
+  await saveFunctionAuth(buildFunctionAuthPayload(selectedPostId.value, selectedModule.value, currentModuleConfig.value))
+  await loadPageDetail(selectedPostId.value, selectedModule.value.id)
+  ElMessage.success('功能授权已保存')
 }
 
 const openPreviewDrawer = () => {
   if (!selectedPost.value || !selectedModule.value) {
-    return;
+    return
   }
-  previewVisible.value = true;
-};
+  previewVisible.value = true
+}
 
 watch(postKeyword, (value) => {
-  postTreeRef.value?.filter(value);
-});
+  postTreeRef.value?.filter(value)
+})
 
 watch(moduleKeyword, (value) => {
-  moduleTreeRef.value?.filter(value);
-});
+  moduleTreeRef.value?.filter(value)
+})
 
 watch(selectedModule, (module) => {
-  activeHeaderTab.value = module?.headerTabs[0]?.tabInfo.tabCode || '';
-  activeDetailTab.value = module?.detailTabs[0]?.tabInfo.tabCode || '';
-}, { immediate: true });
+  activeHeaderTab.value = module?.headerTabs[0]?.tabInfo.tabCode || ''
+  activeDetailTab.value = module?.detailTabs[0]?.tabInfo.tabCode || ''
+}, { immediate: true })
 
 watch([selectedPostId, selectedModuleId], async ([postId, moduleId]) => {
   if (!postId || !moduleId) {
-    return;
+    return
   }
-  await loadPageDetail(postId, moduleId);
-});
+  await loadPageDetail(postId, moduleId)
+})
 
 onMounted(async () => {
-  await loadInitialData();
+  await loadInitialData()
   nextTick(() => {
     if (selectedPostId.value !== undefined) {
-      postTreeRef.value?.setCurrentKey(selectedPostId.value);
+      postTreeRef.value?.setCurrentKey(selectedPostId.value)
     }
     if (selectedModuleId.value !== undefined) {
-      moduleTreeRef.value?.setCurrentKey(selectedModuleId.value);
+      moduleTreeRef.value?.setCurrentKey(selectedModuleId.value)
     }
-  });
-});
+  })
+})
 
 async function loadInitialData() {
   const [{ data: postTreeData }, { data: moduleTreeData }] = await Promise.all([
     getFunctionAuthPostTree(),
     getFunctionAuthModuleTree()
-  ]);
-  orgPostTree.value = postTreeData;
-  moduleTree.value = moduleTreeData;
+  ])
+  orgPostTree.value = postTreeData
+  moduleTree.value = moduleTreeData
 
-  const firstPost = findFirstPostLeaf(orgPostTree.value);
-  const firstModule = findFirstModuleLeaf(moduleTree.value);
+  const firstPost = findFirstPostLeaf(orgPostTree.value)
+  const firstModule = findFirstModuleLeaf(moduleTree.value)
   if (firstPost) {
-    selectedPostId.value = firstPost.id;
+    selectedPostId.value = firstPost.id
   }
   if (firstModule) {
-    selectedModuleId.value = firstModule.id;
+    selectedModuleId.value = firstModule.id
   }
 }
 
 async function loadPageDetail(orgPostId: number, moduleId: number) {
-  const { data } = await getFunctionAuthDetail(orgPostId, moduleId);
-  pageDetail.value = data;
-  permissionConfig.value = mapFunctionAuthConfig(data.config, data.moduleDetail);
-  savedPermissionConfig.value = deepClone(permissionConfig.value);
+  const { data } = await getFunctionAuthDetail(orgPostId, moduleId)
+  pageDetail.value = data
+  permissionConfig.value = mapFunctionAuthConfig(data.config, data.moduleDetail)
+  savedPermissionConfig.value = deepClone(permissionConfig.value)
 }
 
 function mapFunctionAuthConfig(config: FunctionAuthConfig, moduleDetail: ModuleDetail): ModulePermissionConfig {
   const fieldCodeMap = flattenFields(moduleDetail).reduce<Record<number, string>>((result, field) => {
-    result[field.id] = field.fieldCode;
-    return result;
-  }, {});
+    result[field.id] = field.fieldCode
+    return result
+  }, {})
   const buttonCodeMap = (moduleDetail.buttons || []).reduce<Record<number, string>>((result, button) => {
-    result[button.id] = button.buttonCode;
-    return result;
-  }, {});
+    result[button.id] = button.buttonCode
+    return result
+  }, {})
 
   const fieldPermissions = (config.fieldPermissions || []).reduce<Record<string, FieldPermissionLevel>>((result, item) => {
-    const fieldCode = fieldCodeMap[item.fieldId];
+    const fieldCode = fieldCodeMap[item.fieldId]
     if (fieldCode) {
-      result[fieldCode] = normalizePermissionLevel(item.permissionLevel);
+      result[fieldCode] = normalizePermissionLevel(item.permissionLevel)
     }
-    return result;
-  }, {});
+    return result
+  }, {})
   flattenFields(moduleDetail).forEach((field) => {
     if (fieldPermissions[field.fieldCode] === undefined) {
-      fieldPermissions[field.fieldCode] = 0;
+      fieldPermissions[field.fieldCode] = 0
     }
-  });
+  })
 
   const buttonPermissions = (config.buttonPermissions || []).reduce<Record<string, ButtonPermissionLevel>>((result, item) => {
-    const buttonCode = buttonCodeMap[item.buttonId];
+    const buttonCode = buttonCodeMap[item.buttonId]
     if (buttonCode) {
-      result[buttonCode] = normalizePermissionLevel(item.permissionLevel);
+      result[buttonCode] = normalizePermissionLevel(item.permissionLevel)
     }
-    return result;
+    return result
   }, {});
   (moduleDetail.buttons || []).forEach((button) => {
     if (buttonPermissions[button.buttonCode] === undefined) {
-      buttonPermissions[button.buttonCode] = 0;
+      buttonPermissions[button.buttonCode] = 0
     }
-  });
+  })
 
   return {
     buttonPermissions,
     fieldPermissions,
     moduleVisible: !!config.moduleVisible,
     navVisible: !!config.navVisible
-  };
+  }
 }
 
 function buildFunctionAuthPayload(
@@ -806,7 +843,7 @@ function buildFunctionAuthPayload(
     moduleVisible: config.moduleVisible,
     navVisible: config.moduleVisible ? config.navVisible : false,
     orgPostId
-  };
+  }
 }
 
 function buildFunctionAuthPreview(
@@ -814,25 +851,33 @@ function buildFunctionAuthPreview(
   moduleDetail: ModuleDetail,
   config: ModulePermissionConfig
 ) {
-  const fields = flattenFields(moduleDetail).reduce<Record<string, { label: string; visible: boolean; editable: boolean }>>((result, field) => {
-    const level = config.fieldPermissions[field.fieldCode] ?? 0;
+  const fields = flattenFields(moduleDetail).reduce<Record<string, {
+    label: string;
+    visible: boolean;
+    editable: boolean
+  }>>((result, field) => {
+    const level = config.fieldPermissions[field.fieldCode] ?? 0
     result[field.fieldCode] = {
       editable: level === 2,
       label: field.displayTitle || field.defaultTitle,
       visible: level > 0
-    };
-    return result;
-  }, {});
+    }
+    return result
+  }, {})
 
-  const buttons = (moduleDetail.buttons || []).reduce<Record<string, { label: string; visible: boolean; disabled: boolean }>>((result, button) => {
-    const level = config.buttonPermissions[button.buttonCode] ?? 0;
+  const buttons = (moduleDetail.buttons || []).reduce<Record<string, {
+    label: string;
+    visible: boolean;
+    disabled: boolean
+  }>>((result, button) => {
+    const level = config.buttonPermissions[button.buttonCode] ?? 0
     result[button.buttonCode] = {
       disabled: level === 1,
       label: button.defaultTitle,
       visible: level > 0
-    };
-    return result;
-  }, {});
+    }
+    return result
+  }, {})
 
   return {
     currentOrgPost: {
@@ -850,100 +895,100 @@ function buildFunctionAuthPreview(
         visible: config.moduleVisible
       }
     }
-  };
+  }
 }
 
 function groupModuleButtons(buttons: ModuleButtonDefinition[]) {
   const groupedMap = buttons.reduce<Record<ModuleButtonArea, ModuleButtonDefinition[]>>((result, button) => {
     if (!result[button.area]) {
-      result[button.area] = [];
+      result[button.area] = []
     }
-    result[button.area].push(button);
-    return result;
+    result[button.area].push(button)
+    return result
   }, {
     DETAIL_ROW_BUTTON: [],
     HEADER_TOOLBAR: [],
     LIST_ROW_BUTTON: [],
     LIST_TOOLBAR: []
-  });
+  })
   return Object.entries(groupedMap)
     .map(([area, groupButtonsList]) => ({
       area: area as ModuleButtonArea,
       buttons: groupButtonsList.slice().sort(sortBySort)
     }))
-    .filter((item) => item.buttons.length > 0);
+    .filter((item) => item.buttons.length > 0)
 }
 
 function flattenFields(moduleDetail: ModuleDetail) {
-  return [...moduleDetail.headerTabs, ...moduleDetail.detailTabs].flatMap((tab) => tab.fields);
+  return [...moduleDetail.headerTabs, ...moduleDetail.detailTabs].flatMap((tab) => tab.fields)
 }
 
 function countPostLeaves(nodes: OrgPostTreeNode[]): number {
   return nodes.reduce((sum, node) => {
     if (node.nodeType === 'POST') {
-      return sum + 1;
+      return sum + 1
     }
-    return sum + (node.children?.length ? countPostLeaves(node.children) : 0);
-  }, 0);
+    return sum + (node.children?.length ? countPostLeaves(node.children) : 0)
+  }, 0)
 }
 
 function findFirstPostLeaf(nodes: OrgPostTreeNode[]): OrgPostTreeNode | undefined {
   for (const node of nodes) {
     if (node.nodeType === 'POST') {
-      return node;
+      return node
     }
     if (node.children?.length) {
-      const matched = findFirstPostLeaf(node.children);
+      const matched = findFirstPostLeaf(node.children)
       if (matched) {
-        return matched;
+        return matched
       }
     }
   }
-  return undefined;
+  return undefined
 }
 
 function findFirstPostLeafInNode(node: OrgPostTreeNode): OrgPostTreeNode | undefined {
   if (node.nodeType === 'POST') {
-    return node;
+    return node
   }
-  return node.children?.length ? findFirstPostLeaf(node.children) : undefined;
+  return node.children?.length ? findFirstPostLeaf(node.children) : undefined
 }
 
 function findFirstModuleLeaf(nodes: ModuleTreeNode[]): ModuleTreeNode | undefined {
   for (const node of nodes) {
-    const matched = findFirstModuleLeafInNode(node);
+    const matched = findFirstModuleLeafInNode(node)
     if (matched) {
-      return matched;
+      return matched
     }
   }
-  return undefined;
+  return undefined
 }
 
 function findFirstModuleLeafInNode(node: ModuleTreeNode): ModuleTreeNode | undefined {
   if (node.moduleType !== 'CATALOG') {
-    return node;
+    return node
   }
   if (!node.children?.length) {
-    return undefined;
+    return undefined
   }
   for (const child of node.children) {
-    const matched = findFirstModuleLeafInNode(child);
+    const matched = findFirstModuleLeafInNode(child)
     if (matched) {
-      return matched;
+      return matched
     }
   }
-  return undefined;
+  return undefined
 }
 
 function normalizePermissionLevel(level?: number): FieldPermissionLevel {
   if (level === 1 || level === 2) {
-    return level;
+    return level
   }
-  return 0;
+  return 0
 }
 
 function deepClone<T>(value: T): T {
-  return JSON.parse(JSON.stringify(value)) as T;
+  return JSON.parse(JSON.stringify(value)) as T
 }
 </script>
 
@@ -954,7 +999,7 @@ function deepClone<T>(value: T): T {
   overflow: hidden;
 }
 
-:deep(.function-auth-page > .el-row) {
+.function-auth-page > :deep(.el-row) {
   height: 100%;
 }
 
@@ -1305,5 +1350,11 @@ function deepClone<T>(value: T): T {
     min-height: auto;
   }
 }
+
+:deep(.el-tab-pane) {
+  min-width: 0;
+  width: 100%;
+}
+
 </style>
 
