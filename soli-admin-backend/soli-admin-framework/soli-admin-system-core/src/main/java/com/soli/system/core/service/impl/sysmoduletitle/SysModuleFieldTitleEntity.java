@@ -16,6 +16,16 @@ public class SysModuleFieldTitleEntity extends BaseEntity {
 
     private Long fieldId;
 
+    private Long moduleId;
+
+    private Long tabId;
+
+    private String fieldScope;
+
+    private String fieldCode;
+
+    private String defaultTitle;
+
     private String locale;
 
     private String displayTitle;
@@ -23,6 +33,16 @@ public class SysModuleFieldTitleEntity extends BaseEntity {
     private String placeholder;
 
     private String helpText;
+
+    private String componentType;
+
+    private String dataPath;
+
+    private String valueType;
+
+    private String requiredFlag;
+
+    private Integer sort;
 
     private String status;
 

@@ -65,6 +65,7 @@ public class SysModuleTitleServiceImpl implements SysModuleTitleService {
         if (request.getFields() == null || request.getFields().isEmpty()) {
             return;
         }
+
         LocalDateTime now = LocalDateTime.now();
         request.getFields().forEach(item -> updateFieldTitle(fieldMap, item, now));
         sysModuleMapper.incrementContextVersion(request.getModuleId(), now);
@@ -78,30 +79,47 @@ public class SysModuleTitleServiceImpl implements SysModuleTitleService {
         if (fieldDTO == null) {
             throw new BusinessException("字段不存在或不属于当前模块");
         }
+
         SysModuleFieldTitleEntity entity = sysModuleTitleMapper.selectByFieldIdAndLocale(item.getFieldId(), DEFAULT_LOCALE);
         if (entity == null) {
-            entity = new SysModuleFieldTitleEntity();
-            entity.setId(YitIdHelper.nextId());
-            entity.setFieldId(item.getFieldId());
-            entity.setLocale(DEFAULT_LOCALE);
-            entity.setStatus("0");
-            entity.setCreateBy(SYSTEM_USER);
-            entity.setCreateTime(now);
+            entity = buildFieldTitleEntity(fieldDTO, now);
             entity.setDisplayTitle(normalizeDisplayTitle(item.getDisplayTitle(), fieldDTO.getDefaultTitle()));
             entity.setPlaceholder(normalizeText(item.getPlaceholder()));
             entity.setHelpText(normalizeText(item.getHelpText()));
-            entity.setUpdateBy(SYSTEM_USER);
-            entity.setUpdateTime(now);
             sysModuleTitleMapper.insert(entity);
             return;
         }
+
         entity.setDisplayTitle(normalizeDisplayTitle(item.getDisplayTitle(), fieldDTO.getDefaultTitle()));
         entity.setPlaceholder(normalizeText(item.getPlaceholder()));
         entity.setHelpText(normalizeText(item.getHelpText()));
-        entity.setStatus("0");
         entity.setUpdateBy(SYSTEM_USER);
         entity.setUpdateTime(now);
         sysModuleTitleMapper.update(entity);
+    }
+
+    private SysModuleFieldTitleEntity buildFieldTitleEntity(SysModuleFieldDTO fieldDTO, LocalDateTime now) {
+        SysModuleFieldTitleEntity entity = new SysModuleFieldTitleEntity();
+        entity.setId(YitIdHelper.nextId());
+        entity.setFieldId(fieldDTO.getId());
+        entity.setModuleId(fieldDTO.getModuleId());
+        entity.setTabId(fieldDTO.getTabId());
+        entity.setFieldScope(fieldDTO.getFieldScope());
+        entity.setFieldCode(fieldDTO.getFieldCode());
+        entity.setDefaultTitle(fieldDTO.getDefaultTitle());
+        entity.setLocale(DEFAULT_LOCALE);
+        entity.setComponentType(fieldDTO.getComponentType());
+        entity.setDataPath(fieldDTO.getDataPath());
+        entity.setValueType(fieldDTO.getValueType());
+        entity.setRequiredFlag(fieldDTO.getRequiredFlag());
+        entity.setSort(fieldDTO.getSort());
+        entity.setStatus(fieldDTO.getStatus());
+        entity.setCreateBy(SYSTEM_USER);
+        entity.setCreateTime(now);
+        entity.setUpdateBy(SYSTEM_USER);
+        entity.setUpdateTime(now);
+        entity.setNote(fieldDTO.getNote());
+        return entity;
     }
 
     private List<SysModuleFieldDTO> flattenFields(SysModuleDetailDTO moduleDetail) {

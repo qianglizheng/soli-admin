@@ -11,7 +11,7 @@
           </template>
 
           <el-alert
-            title="当前页只维护字段显示标题、占位提示和帮助说明，属于模块元数据，不属于岗位或状态权限。"
+            title="当前页用于按模块自定义字段显示标题、占位提示和帮助说明，不参与岗位或状态权限计算。"
             type="info"
             :closable="false"
             show-icon
@@ -70,7 +70,7 @@
                     </el-tag>
                   </div>
                   <div class="overview-subtitle">
-                    字段标题直接维护字段显示文案和表单提示信息；默认标题来自模块管理，当前页只维护独立字段标题表中的覆盖配置。
+                    字段标题直接维护字段显示文案和表单提示信息；默认标题由模块字段定义生成，当前页只维护独立字段标题表中的覆盖配置。
                   </div>
                 </div>
 
@@ -121,7 +121,7 @@
                       </el-tag>
                     </div>
                     <div class="editor-subtitle">
-                      默认标题取自模块管理，当前页仅维护 `displayTitle`、`placeholder` 和 `helpText`。
+                      默认标题取自模块字段定义，当前页仅维护 `displayTitle`、`placeholder` 和 `helpText`。
                     </div>
                   </div>
                   <el-tag type="success" effect="plain">上下文版本 v{{ selectedModule.contextVersion }}</el-tag>
@@ -251,7 +251,7 @@
       <div class="preview-header">
         <el-tag type="primary" effect="plain">{{ selectedModule?.moduleName }}</el-tag>
         <el-tag type="info" effect="plain">{{ selectedModule?.moduleCode }}</el-tag>
-        <el-tag type="warning" effect="plain">字段展示元数据</el-tag>
+        <el-tag type="warning" effect="plain">运行时字段展示效果</el-tag>
       </div>
       <pre class="context-preview">{{ previewJson }}</pre>
     </el-drawer>

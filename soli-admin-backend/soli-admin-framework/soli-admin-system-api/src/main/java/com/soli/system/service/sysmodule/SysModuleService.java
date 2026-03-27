@@ -13,7 +13,14 @@ import java.util.List;
 public interface SysModuleService extends BaseCrudService<SysModuleDTO, SysModuleQuery> {
 
     /**
-     * 查询模块树
+     * 查询完整模块树
+     *
+     * @return 模块树
+     */
+    List<SysModuleTreeNodeDTO> queryAllTreeList();
+
+    /**
+     * 查询用户侧可见模块树
      *
      * @return 模块树
      */
@@ -23,25 +30,26 @@ public interface SysModuleService extends BaseCrudService<SysModuleDTO, SysModul
      * 查询当前用户可见的系统导航模块树
      *
      * @param userId 用户 ID
+     * @param companyId 公司 ID
      * @return 模块树
      */
     List<SysModuleTreeNodeDTO> queryNavTree(Long userId, Long companyId);
 
     /**
-     * 根据模块 ID 查询模块详情
+     * 根据模块 ID 查询模块设计详情
+     *
+     * @param id 模块 ID
+     * @return 模块设计详情
+     */
+    SysModuleDetailDTO queryManageDetailById(Long id);
+
+    /**
+     * 根据模块 ID 查询模块运行时详情
      *
      * @param id 模块 ID
      * @return 模块详情
      */
     SysModuleDetailDTO queryDetailById(Long id);
-
-    /**
-     * 查询模块上下文预览
-     *
-     * @param id 模块 ID
-     * @return 模块上下文预览
-     */
-    SysModuleContextPreviewDTO queryContextPreview(Long id);
 
     /**
      * 新增 Tab

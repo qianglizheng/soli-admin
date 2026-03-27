@@ -83,7 +83,7 @@
                   </div>
                 </div>
                 <div class="overview-actions">
-                  <el-button type="primary" icon="View" @click="openContextPreview">上下文预览
+                  <el-button type="primary" icon="View" @click="openContextPreview">运行时上下文
                   </el-button>
                 </div>
               </div>
@@ -138,7 +138,7 @@
                   type="info"
                   :closable="false"
                   show-icon
-                  title="模块管理采用树摘要 + 详情懒加载的方式组织数据。左侧仅加载模块树，选中节点后再加载 Tab、字段和按钮详情；新增字段和按钮后会同步补齐字段标题默认记录与 admin 权限。"
+                  title="模块管理是开发阶段使用的内部元数据工具。左侧仅加载模块树，选中节点后再加载 Tab、字段、按钮和状态定义；新增字段和按钮后会同步补齐字段标题默认记录与 admin 权限。"
                 />
               </el-tab-pane>
 
@@ -365,7 +365,7 @@
       @submit="handleButtonFormSubmit"
       @cancel="handleButtonFormCancel"
     />
-    <el-drawer v-model="contextPreviewVisible" title="模块管理上下文预览" size="46%">
+    <el-drawer v-model="contextPreviewVisible" title="运行时模块上下文预览" size="46%">
       <pre class="context-preview">{{ contextPreviewJson }}</pre>
     </el-drawer>
   </div>

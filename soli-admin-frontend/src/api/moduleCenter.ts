@@ -116,15 +116,13 @@ export interface ModuleDetail {
   transitions: ModuleStateTransition[];
 }
 
-export interface ModuleContextPreview {
+export interface ModuleContext {
+  moduleId: number;
   moduleCode: string;
   moduleName: string;
   contextVersion: number;
-  currentPost?: {
-    postId: number;
-    postCode: string;
-    postName: string;
-  };
+  statefulFlag: YesNo;
+  stateFieldCode: string;
   state?: {
     currentValue: string;
     currentLabel: string;
@@ -134,9 +132,17 @@ export interface ModuleContextPreview {
     tabInfo: ModuleTabInfo;
     visible: boolean;
     fields: Array<{
+      fieldId: number;
       fieldCode: string;
+      defaultTitle: string;
+      displayTitle: string;
       label: string;
+      placeholder: string;
+      helpText: string;
       componentType: string;
+      dataPath: string;
+      valueType: string;
+      permissionLevel: number;
       visible: boolean;
       editable: boolean;
       required: boolean;
@@ -146,19 +152,63 @@ export interface ModuleContextPreview {
     tabInfo: ModuleTabInfo;
     visible: boolean;
     fields: Array<{
+      fieldId: number;
       fieldCode: string;
+      defaultTitle: string;
+      displayTitle: string;
       label: string;
+      placeholder: string;
+      helpText: string;
       componentType: string;
+      dataPath: string;
+      valueType: string;
+      permissionLevel: number;
       visible: boolean;
       editable: boolean;
       required: boolean;
     }>;
   }>;
   buttons: {
-    listToolbar: Record<string, { label: string; visible: boolean; disabled: boolean }>;
-    listRow: Record<string, { label: string; visible: boolean; disabled: boolean }>;
-    headerToolbar: Record<string, { label: string; visible: boolean; disabled: boolean }>;
-    detailRow: Record<string, { label: string; visible: boolean; disabled: boolean }>;
+    listToolbar: Record<string, {
+      buttonId: number;
+      buttonCode: string;
+      defaultTitle: string;
+      label: string;
+      area: ModuleButtonArea;
+      permissionLevel: number;
+      visible: boolean;
+      disabled: boolean;
+    }>;
+    listRow: Record<string, {
+      buttonId: number;
+      buttonCode: string;
+      defaultTitle: string;
+      label: string;
+      area: ModuleButtonArea;
+      permissionLevel: number;
+      visible: boolean;
+      disabled: boolean;
+    }>;
+    headerToolbar: Record<string, {
+      buttonId: number;
+      buttonCode: string;
+      defaultTitle: string;
+      label: string;
+      area: ModuleButtonArea;
+      permissionLevel: number;
+      visible: boolean;
+      disabled: boolean;
+    }>;
+    detailRow: Record<string, {
+      buttonId: number;
+      buttonCode: string;
+      defaultTitle: string;
+      label: string;
+      area: ModuleButtonArea;
+      permissionLevel: number;
+      visible: boolean;
+      disabled: boolean;
+    }>;
   };
 }
 
@@ -214,7 +264,7 @@ export function getModuleDetail(id: number) {
 }
 
 export function getModuleContextPreview(id: number) {
-  return request<ApiResponse<ModuleContextPreview>>({
+  return request<ApiResponse<ModuleContext>>({
     method: 'get',
     url: `/sys/module/${id}/context-preview`
   });

@@ -51,6 +51,8 @@ public interface SysModuleMapper extends BaseCrudMapper<SysModuleEntity, SysModu
 
     int countTabByModuleId(@Param("moduleId") Long moduleId);
 
+    List<SysModuleFieldEntity> selectFieldDefinitionsByModuleId(@Param("moduleId") Long moduleId);
+
     List<SysModuleFieldEntity> selectFieldsByModuleId(@Param("moduleId") Long moduleId);
 
     SysModuleFieldEntity selectFieldById(@Param("id") Long id);

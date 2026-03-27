@@ -5,6 +5,8 @@ import com.soli.system.core.service.impl.sysmodulepermission.SysModuleStateField
 import com.soli.system.core.service.impl.sysmodulepermission.SysOrgPostButtonAuthEntity;
 import com.soli.system.core.service.impl.sysmodulepermission.SysOrgPostFieldAuthEntity;
 import com.soli.system.core.service.impl.sysmodulepermission.SysOrgPostModuleAuthEntity;
+import com.soli.system.core.service.impl.sysmodulepermission.SysUserModuleButtonPermissionModel;
+import com.soli.system.core.service.impl.sysmodulepermission.SysUserModuleFieldPermissionModel;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -27,6 +29,14 @@ public interface SysModulePermissionMapper {
                                             @Param("companyId") Long companyId,
                                             @Param("moduleCode") String moduleCode,
                                             @Param("buttonCode") String buttonCode);
+
+    List<SysUserModuleFieldPermissionModel> selectUserFieldPermissionList(@Param("userId") Long userId,
+                                                                          @Param("companyId") Long companyId,
+                                                                          @Param("moduleId") Long moduleId);
+
+    List<SysUserModuleButtonPermissionModel> selectUserButtonPermissionList(@Param("userId") Long userId,
+                                                                            @Param("companyId") Long companyId,
+                                                                            @Param("moduleId") Long moduleId);
 
     SysOrgPostModuleAuthEntity selectOrgPostModuleAuth(@Param("orgPostId") Long orgPostId, @Param("moduleId") Long moduleId);
 

@@ -335,11 +335,17 @@ const accessiblePageCount = computed(() => accessiblePages.value.length);
 
 const accessiblePathSet = computed(() => new Set(accessiblePages.value.map((item) => item.path)));
 
+const hiddenDeveloperToolPathSet = new Set([
+  '/system/module-center'
+]);
+
 const shortcutCards = computed<ShortcutCard[]>(() => {
-  return shortcutSeeds.map((item) => ({
-    ...item,
-    available: accessiblePathSet.value.has(item.path)
-  }));
+  return shortcutSeeds
+    .filter((item) => !hiddenDeveloperToolPathSet.has(item.path))
+    .map((item) => ({
+      ...item,
+      available: accessiblePathSet.value.has(item.path)
+    }));
 });
 
 const availableShortcutCards = computed(() => {
@@ -387,10 +393,8 @@ const moduleCoverageBuckets = computed(() => {
       color: '#13c2c2',
       label: '权限平台',
       match: (path: string) => [
-        '/system/module-center',
         '/system/post-manage',
         '/system/function-auth',
-        '/system/module-title',
         '/system/state-auth'
       ].includes(path)
     },
@@ -399,6 +403,7 @@ const moduleCoverageBuckets = computed(() => {
       label: '基础配置',
       match: (path: string) => [
         '/system/user',
+        '/system/module-title',
         '/system/dict',
         '/system/config'
       ].includes(path)
@@ -464,7 +469,7 @@ const overviewCards = computed<OverviewCard[]>(() => {
       key: 'permission-workbench',
       icon: Grid,
       label: '权限工作台',
-      note: '模块、岗位、功能、字段标题、状态五类工作台',
+      note: '岗位、功能、字段标题、状态四类工作台',
       tone: 'success',
       value: permissionWorkbenchCount.value
     },
