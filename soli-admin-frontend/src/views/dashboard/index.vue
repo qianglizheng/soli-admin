@@ -341,7 +341,7 @@ const hiddenDeveloperToolPathSet = new Set([
 
 const shortcutCards = computed<ShortcutCard[]>(() => {
   return shortcutSeeds
-    .filter((item) => !hiddenDeveloperToolPathSet.has(item.path))
+    .filter((item) => !hiddenDeveloperToolPathSet.has(item.path) || accessiblePathSet.value.has(item.path))
     .map((item) => ({
       ...item,
       available: accessiblePathSet.value.has(item.path)

@@ -7,6 +7,7 @@ import com.soli.system.core.service.impl.sysmodulepermission.SysOrgPostFieldAuth
 import com.soli.system.core.service.impl.sysmodulepermission.SysOrgPostModuleAuthEntity;
 import com.soli.system.core.service.impl.sysmodulepermission.SysUserModuleButtonPermissionModel;
 import com.soli.system.core.service.impl.sysmodulepermission.SysUserModuleFieldPermissionModel;
+import com.soli.system.core.service.impl.sysmodulepermission.SysUserModuleNavPermissionModel;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -22,6 +23,9 @@ public interface SysModulePermissionMapper {
     List<Long> selectAdminOrgPostIdList();
 
     List<Long> selectUserVisibleNavModuleIdList(@Param("userId") Long userId, @Param("companyId") Long companyId);
+
+    List<SysUserModuleNavPermissionModel> selectUserNavPermissionList(@Param("userId") Long userId,
+                                                                      @Param("companyId") Long companyId);
 
     int countUserVisibleModule(@Param("userId") Long userId, @Param("companyId") Long companyId, @Param("moduleCode") String moduleCode);
 

@@ -20,8 +20,6 @@ public class SysModuleButtonEntity extends BaseEntity {
 
     private String defaultTitle;
 
-    private String area;
-
     private Integer sort;
 
     private String status;

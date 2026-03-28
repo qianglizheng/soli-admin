@@ -266,24 +266,69 @@
                   <el-tab-pane label="按钮权限" name="button">
                     <div class="editor-pane">
                       <el-empty v-if="!selectedModule.buttons.length" description="当前模块暂无按钮定义" />
-                      <template v-else>
-                        <div v-for="group in buttonGroups" :key="group.area" class="group-card">
-                          <div class="group-card__header">
-                            <span>{{ buttonAreaLabelMap[group.area] }}</span>
-                            <el-tag size="small" effect="plain">{{ group.buttons.length }} 个按钮</el-tag>
+                      <el-table v-else :data="selectedModule.buttons.slice().sort(sortBySort)" border style="width: 100%">
+                        <el-table-column prop="buttonCode" label="按钮编码" min-width="150" />
+                        <el-table-column prop="defaultTitle" label="按钮标题" min-width="120" />
+                        <el-table-column label="状态限制" width="180">
+                          <template #default="scope">
+                            <el-select
+                              :model-value="getButtonPermission(scope.row.buttonCode)"
+                              style="width: 100%"
+                              @update:model-value="handleButtonPermissionChange(scope.row.buttonCode, $event as StateButtonLimitLevel)"
+                            >
+                              <el-option
+                                v-for="item in stateButtonLimitLevelOptions"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value"
+                              />
+                            </el-select>
+                          </template>
+                        </el-table-column>
+                        <el-table-column label="效果预览" width="120" align="center">
+                          <template #default="scope">
+                            <el-tag :type="stateButtonLimitTagTypeMap[getButtonPermission(scope.row.buttonCode)]" effect="plain">
+                              {{ stateButtonLimitLabelMap[getButtonPermission(scope.row.buttonCode)] }}
+                            </el-tag>
+                          </template>
+                        </el-table-column>
+                        <el-table-column prop="note" label="说明" min-width="180" show-overflow-tooltip />
+                      </el-table>
+                    </div>
+                  </el-tab-pane>
+
+                  <el-tab-pane label="字段权限" name="field">
+                    <div class="editor-pane">
+                      <el-empty v-if="!moduleComponents.length" description="当前模块暂无字段定义" />
+                      <el-tabs v-else v-model="activeComponentCode" type="border-card" class="field-tabs">
+                        <el-tab-pane
+                          v-for="component in moduleComponents"
+                          :key="component.componentInfo.componentCode"
+                          :label="`${component.componentInfo.componentName} (${component.fields.length})`"
+                          :name="component.componentInfo.componentCode"
+                        >
+                          <div class="sub-tab-summary">
+                            <div>组件编码：{{ component.componentInfo.componentCode }}</div>
+                            <div>排序：{{ component.componentInfo.sort }}</div>
+                            <div>说明：{{ component.componentInfo.note || '-' }}</div>
                           </div>
-                          <el-table :data="group.buttons" border style="width: 100%">
-                            <el-table-column prop="buttonCode" label="按钮编码" min-width="150" />
-                            <el-table-column prop="defaultTitle" label="按钮标题" min-width="120" />
+                          <el-table :data="component.fields.slice().sort(sortBySort)" border style="width: 100%">
+                            <el-table-column prop="fieldCode" label="字段编码" min-width="160" />
+                            <el-table-column label="字段标题" min-width="140">
+                              <template #default="scope">
+                                {{ scope.row.displayTitle || scope.row.defaultTitle }}
+                              </template>
+                            </el-table-column>
+                            <el-table-column prop="dataPath" label="数据路径" min-width="220" show-overflow-tooltip />
                             <el-table-column label="状态限制" width="180">
                               <template #default="scope">
                                 <el-select
-                                  :model-value="getButtonPermission(scope.row.buttonCode)"
+                                  :model-value="getFieldPermission(scope.row.fieldCode)"
                                   style="width: 100%"
-                                  @update:model-value="handleButtonPermissionChange(scope.row.buttonCode, $event as StateButtonLimitLevel)"
+                                  @update:model-value="handleFieldPermissionChange(scope.row.fieldCode, $event as StateFieldLimitLevel)"
                                 >
                                   <el-option
-                                    v-for="item in stateButtonLimitLevelOptions"
+                                    v-for="item in stateFieldLimitLevelOptions"
                                     :key="item.value"
                                     :label="item.label"
                                     :value="item.value"
@@ -293,123 +338,12 @@
                             </el-table-column>
                             <el-table-column label="效果预览" width="120" align="center">
                               <template #default="scope">
-                                <el-tag :type="stateButtonLimitTagTypeMap[getButtonPermission(scope.row.buttonCode)]" effect="plain">
-                                  {{ stateButtonLimitLabelMap[getButtonPermission(scope.row.buttonCode)] }}
+                                <el-tag :type="stateFieldLimitTagTypeMap[getFieldPermission(scope.row.fieldCode)]" effect="plain">
+                                  {{ stateFieldLimitLabelMap[getFieldPermission(scope.row.fieldCode)] }}
                                 </el-tag>
                               </template>
                             </el-table-column>
-                            <el-table-column prop="note" label="说明" min-width="180" show-overflow-tooltip />
                           </el-table>
-                        </div>
-                      </template>
-                    </div>
-                  </el-tab-pane>
-
-                  <el-tab-pane label="字段权限" name="field">
-                    <div class="editor-pane">
-                      <el-tabs v-model="activeFieldScope" class="field-scope-tabs">
-                        <el-tab-pane label="表头字段" name="header">
-                          <el-empty v-if="!headerTabs.length" description="当前模块暂无表头字段" />
-                          <template v-else>
-                            <el-tabs v-model="activeHeaderTab" type="border-card" class="field-tabs">
-                              <el-tab-pane
-                                v-for="tab in headerTabs"
-                                :key="tab.tabInfo.tabCode"
-                                :label="`${tab.tabInfo.tabName} (${tab.fields.length})`"
-                                :name="tab.tabInfo.tabCode"
-                              >
-                                <div class="sub-tab-summary">
-                                  <div>Tab 编码：{{ tab.tabInfo.tabCode }}</div>
-                                  <div>排序：{{ tab.tabInfo.sort }}</div>
-                                  <div>说明：{{ tab.tabInfo.note || '-' }}</div>
-                                </div>
-                                <el-table :data="tab.fields.slice().sort(sortBySort)" border style="width: 100%">
-                                  <el-table-column prop="fieldCode" label="字段编码" min-width="160" />
-                                  <el-table-column label="字段标题" min-width="140">
-                                    <template #default="scope">
-                                      {{ scope.row.displayTitle || scope.row.defaultTitle }}
-                                    </template>
-                                  </el-table-column>
-                                  <el-table-column prop="dataPath" label="数据路径" min-width="220" show-overflow-tooltip />
-                                  <el-table-column label="状态限制" width="180">
-                                    <template #default="scope">
-                                      <el-select
-                                        :model-value="getFieldPermission(scope.row.fieldCode)"
-                                        style="width: 100%"
-                                        @update:model-value="handleFieldPermissionChange(scope.row.fieldCode, $event as StateFieldLimitLevel)"
-                                      >
-                                        <el-option
-                                          v-for="item in stateFieldLimitLevelOptions"
-                                          :key="item.value"
-                                          :label="item.label"
-                                          :value="item.value"
-                                        />
-                                      </el-select>
-                                    </template>
-                                  </el-table-column>
-                                  <el-table-column label="效果预览" width="120" align="center">
-                                    <template #default="scope">
-                                      <el-tag :type="stateFieldLimitTagTypeMap[getFieldPermission(scope.row.fieldCode)]" effect="plain">
-                                        {{ stateFieldLimitLabelMap[getFieldPermission(scope.row.fieldCode)] }}
-                                      </el-tag>
-                                    </template>
-                                  </el-table-column>
-                                </el-table>
-                              </el-tab-pane>
-                            </el-tabs>
-                          </template>
-                        </el-tab-pane>
-
-                        <el-tab-pane label="明细字段" name="detail">
-                          <el-empty v-if="!detailTabs.length" description="当前模块暂无明细字段" />
-                          <template v-else>
-                            <el-tabs v-model="activeDetailTab" type="border-card" class="field-tabs">
-                              <el-tab-pane
-                                v-for="tab in detailTabs"
-                                :key="tab.tabInfo.tabCode"
-                                :label="`${tab.tabInfo.tabName} (${tab.fields.length})`"
-                                :name="tab.tabInfo.tabCode"
-                              >
-                                <div class="sub-tab-summary">
-                                  <div>Tab 编码：{{ tab.tabInfo.tabCode }}</div>
-                                  <div>排序：{{ tab.tabInfo.sort }}</div>
-                                  <div>说明：{{ tab.tabInfo.note || '-' }}</div>
-                                </div>
-                                <el-table :data="tab.fields.slice().sort(sortBySort)" border style="width: 100%">
-                                  <el-table-column prop="fieldCode" label="字段编码" min-width="160" />
-                                  <el-table-column label="字段标题" min-width="140">
-                                    <template #default="scope">
-                                      {{ scope.row.displayTitle || scope.row.defaultTitle }}
-                                    </template>
-                                  </el-table-column>
-                                  <el-table-column prop="dataPath" label="数据路径" min-width="220" show-overflow-tooltip />
-                                  <el-table-column label="状态限制" width="180">
-                                    <template #default="scope">
-                                      <el-select
-                                        :model-value="getFieldPermission(scope.row.fieldCode)"
-                                        style="width: 100%"
-                                        @update:model-value="handleFieldPermissionChange(scope.row.fieldCode, $event as StateFieldLimitLevel)"
-                                      >
-                                        <el-option
-                                          v-for="item in stateFieldLimitLevelOptions"
-                                          :key="item.value"
-                                          :label="item.label"
-                                          :value="item.value"
-                                        />
-                                      </el-select>
-                                    </template>
-                                  </el-table-column>
-                                  <el-table-column label="效果预览" width="120" align="center">
-                                    <template #default="scope">
-                                      <el-tag :type="stateFieldLimitTagTypeMap[getFieldPermission(scope.row.fieldCode)]" effect="plain">
-                                        {{ stateFieldLimitLabelMap[getFieldPermission(scope.row.fieldCode)] }}
-                                      </el-tag>
-                                    </template>
-                                  </el-table-column>
-                                </el-table>
-                              </el-tab-pane>
-                            </el-tabs>
-                          </template>
                         </el-tab-pane>
                       </el-tabs>
                     </div>
@@ -439,13 +373,10 @@
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import {
-  buttonAreaLabelMap,
   moduleTypeLabelMap,
-  type ModuleButtonArea,
-  type ModuleButtonDefinition,
+  type ModuleComponentDefinition,
   type ModuleDetail,
   type ModuleStateDefinition,
-  type ModuleTabDefinition,
   type ModuleTreeNode,
   type ModuleType
 } from '@/api/moduleCenter';
@@ -518,13 +449,11 @@ const permissionConfig = ref<ModuleStateAuthConfig>();
 const selectedModuleId = ref<number>();
 const selectedStateCode = ref('');
 const activePane = ref<'state' | 'transition' | 'button' | 'field'>('state');
-const activeFieldScope = ref<'header' | 'detail'>('header');
-const activeHeaderTab = ref('');
-const activeDetailTab = ref('');
+const activeComponentCode = ref('');
 const previewVisible = ref(false);
 
 const sortBySort = <T extends { sort: number }>(left: T, right: T) => left.sort - right.sort;
-const sortTabsByInfo = (left: ModuleTabDefinition, right: ModuleTabDefinition) => left.tabInfo.sort - right.tabInfo.sort;
+const sortComponentsByInfo = (left: ModuleComponentDefinition, right: ModuleComponentDefinition) => left.componentInfo.sort - right.componentInfo.sort;
 
 const selectedModule = computed<ModuleDetail | undefined>(() => {
   const detail = pageDetail.value?.moduleDetail;
@@ -559,17 +488,7 @@ const transitionList = computed(() => {
   return selectedModule.value?.transitions.slice().sort(sortBySort) || [];
 });
 
-const headerTabs = computed(() => {
-  return selectedModule.value?.headerTabs.slice().sort(sortTabsByInfo) || [];
-});
-
-const detailTabs = computed(() => {
-  return selectedModule.value?.detailTabs.slice().sort(sortTabsByInfo) || [];
-});
-
-const buttonGroups = computed(() => {
-  return selectedModule.value ? groupModuleButtons(selectedModule.value.buttons) : [];
-});
+const moduleComponents = computed(() => selectedModule.value?.components.slice().sort(sortComponentsByInfo) || []);
 
 const moduleLeafCount = computed(() => countModuleLeaves(moduleTree.value));
 
@@ -715,18 +634,14 @@ watch(selectedModuleId, async (moduleId) => {
 watch(selectedModule, (module) => {
   if (!module) {
     selectedStateCode.value = '';
-    activeHeaderTab.value = '';
-    activeDetailTab.value = '';
+    activeComponentCode.value = '';
     return;
   }
   selectedStateCode.value = module.states.find((item) => item.stateCode === selectedStateCode.value)?.stateCode
     || module.states[0]?.stateCode
     || '';
-  activeHeaderTab.value = module.headerTabs.find((item) => item.tabInfo.tabCode === activeHeaderTab.value)?.tabInfo.tabCode
-    || module.headerTabs[0]?.tabInfo.tabCode
-    || '';
-  activeDetailTab.value = module.detailTabs.find((item) => item.tabInfo.tabCode === activeDetailTab.value)?.tabInfo.tabCode
-    || module.detailTabs[0]?.tabInfo.tabCode
+  activeComponentCode.value = module.components.find((item) => item.componentInfo.componentCode === activeComponentCode.value)?.componentInfo.componentCode
+    || module.components[0]?.componentInfo.componentCode
     || '';
 }, { immediate: true });
 
@@ -841,25 +756,33 @@ function buildStateAuthPreview(
     moduleCode: moduleDetail.moduleCode,
     moduleName: moduleDetail.moduleName,
     permissions: {
-      buttons: (moduleDetail.buttons || []).reduce<Record<string, { area: string; label: string; limitLevel: StateButtonLimitLevel; limitLabel: string }>>((result, button) => {
+      buttons: (moduleDetail.buttons || []).reduce<Record<string, { configKey: string; label: string; limitLevel: StateButtonLimitLevel; limitLabel: string }>>((result, button) => {
         const limitLevel = currentPermissions?.buttonPermissions[button.buttonCode] ?? 2;
-        result[button.buttonCode] = {
-          area: buttonAreaLabelMap[button.area],
+        const configKey = buildButtonConfigKey(button.buttonCode);
+        result[configKey] = {
+          configKey,
           label: button.defaultTitle,
           limitLabel: stateButtonLimitLabelMap[limitLevel],
           limitLevel
         };
         return result;
       }, {}),
-      fields: [...moduleDetail.headerTabs, ...moduleDetail.detailTabs].reduce<Record<string, { label: string; limitLevel: StateFieldLimitLevel; limitLabel: string; scope: string; tabInfo: { id: number; moduleId: number; tabScope: string; tabCode: string; tabName: string; sort: number; status?: string; note?: string } }>>((result, tab) => {
-        tab.fields.forEach((field) => {
+      fields: moduleDetail.components.reduce<Record<string, {
+        component: string;
+        configKey: string;
+        label: string;
+        limitLevel: StateFieldLimitLevel;
+        limitLabel: string;
+      }>>((result, component) => {
+        component.fields.forEach((field) => {
           const limitLevel = currentPermissions?.fieldPermissions[field.fieldCode] ?? 2;
-          result[field.fieldCode] = {
+          const configKey = buildFieldConfigKey(field.componentCode, field.fieldCode);
+          result[configKey] = {
+            component: field.componentCode,
+            configKey,
             label: field.displayTitle || field.defaultTitle,
             limitLabel: stateFieldLimitLabelMap[limitLevel],
-            limitLevel,
-            scope: tab.tabInfo.tabScope,
-            tabInfo: { ...tab.tabInfo }
+            limitLevel
           };
         });
         return result;
@@ -889,29 +812,16 @@ function buildStateAuthPreview(
   };
 }
 
-function groupModuleButtons(buttons: ModuleButtonDefinition[]) {
-  const groupedMap = buttons.reduce<Record<ModuleButtonArea, ModuleButtonDefinition[]>>((result, button) => {
-    if (!result[button.area]) {
-      result[button.area] = [];
-    }
-    result[button.area].push(button);
-    return result;
-  }, {
-    DETAIL_ROW_BUTTON: [],
-    HEADER_TOOLBAR: [],
-    LIST_ROW_BUTTON: [],
-    LIST_TOOLBAR: []
-  });
-  return Object.entries(groupedMap)
-    .map(([area, groupButtonsList]) => ({
-      area: area as ModuleButtonArea,
-      buttons: groupButtonsList.slice().sort(sortBySort)
-    }))
-    .filter((item) => item.buttons.length > 0);
+function flattenFields(moduleDetail: ModuleDetail) {
+  return moduleDetail.components.flatMap((component) => component.fields);
 }
 
-function flattenFields(moduleDetail: ModuleDetail) {
-  return [...moduleDetail.headerTabs, ...moduleDetail.detailTabs].flatMap((tab) => tab.fields);
+function buildFieldConfigKey(componentCode: string, fieldCode: string) {
+  return `${componentCode}:${fieldCode}`;
+}
+
+function buildButtonConfigKey(buttonCode: string) {
+  return `button:${buttonCode}`;
 }
 
 function countModuleLeaves(nodes: ModuleTreeNode[]): number {

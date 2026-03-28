@@ -75,12 +75,12 @@
 <script setup lang="ts">
 import { computed, nextTick, reactive, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
-import type { ModuleContext } from '@/api/moduleCenter';
+import type { ModuleContext, ModuleContextConfigItem } from '@/api/moduleCenter';
 
 type UserFieldCode = 'username' | 'password' | 'nickname' | 'email' | 'phone' | 'sex' | 'type' | 'status';
 type UserButtonCode = 'create' | 'modify';
-type ModuleFieldContext = ModuleContext['headerTabs'][number]['fields'][number];
-type ModuleButtonContext = ModuleContext['buttons']['listToolbar'][string];
+const FIELD_COMPONENT = 'form';
+const BUTTON_COMPONENT = 'button';
 
 interface ResolvedFieldConfig {
   label: string;
@@ -166,47 +166,19 @@ const createDefaultForm = (): UserFormModel => ({
 
 const form = reactive<UserFormModel>(createDefaultForm());
 
-const buildFieldContextMap = (context: ModuleContext | null) => {
-  const result: Partial<Record<UserFieldCode, ModuleFieldContext>> = {};
-  if (!context) {
-    return result;
-  }
-  [...context.headerTabs, ...context.detailTabs].forEach((tab) => {
-    tab.fields.forEach((field) => {
-      if (field.fieldCode in userFieldFallbackMap) {
-        result[field.fieldCode as UserFieldCode] = field;
-      }
-    });
-  });
-  return result;
+const resolveFieldConfig = (fieldConfigs: Record<string, ModuleContextConfigItem>, fieldCode: UserFieldCode) => {
+  return fieldConfigs[`${FIELD_COMPONENT}:${fieldCode}`];
 };
 
-const buildButtonContextMap = (context: ModuleContext | null) => {
-  const result: Partial<Record<UserButtonCode, ModuleButtonContext>> = {};
-  if (!context?.buttons) {
-    return result;
-  }
-  const buttonGroups = [
-    context.buttons.listToolbar,
-    context.buttons.listRow,
-    context.buttons.headerToolbar,
-    context.buttons.detailRow
-  ];
-  buttonGroups.forEach((buttonGroup) => {
-    Object.values(buttonGroup || {}).forEach((button) => {
-      if (button.buttonCode in userButtonFallbackMap) {
-        result[button.buttonCode as UserButtonCode] = button;
-      }
-    });
-  });
-  return result;
+const resolveButtonConfig = (fieldConfigs: Record<string, ModuleContextConfigItem>, buttonCode: UserButtonCode) => {
+  return fieldConfigs[`${BUTTON_COMPONENT}:${buttonCode}`];
 };
 
 const fieldConfigMap = computed(() => {
-  const fieldMap = buildFieldContextMap(props.context || null);
+  const fieldConfigs = props.context?.fieldConfigs || {};
   return (Object.keys(userFieldFallbackMap) as UserFieldCode[]).reduce<Record<UserFieldCode, ResolvedFieldConfig>>((result, fieldCode) => {
     const fallback = userFieldFallbackMap[fieldCode];
-    const field = fieldMap[fieldCode];
+    const field = resolveFieldConfig(fieldConfigs, fieldCode);
     result[fieldCode] = {
       editable: field?.editable ?? fallback.editable,
       label: field?.label || field?.displayTitle || field?.defaultTitle || fallback.label,
@@ -219,10 +191,10 @@ const fieldConfigMap = computed(() => {
 });
 
 const actionButton = computed(() => {
-  const buttonMap = buildButtonContextMap(props.context || null);
+  const fieldConfigs = props.context?.fieldConfigs || {};
   const buttonCode: UserButtonCode = isEdit.value ? 'modify' : 'create';
   const fallback = userButtonFallbackMap[buttonCode];
-  const button = buttonMap[buttonCode];
+  const button = resolveButtonConfig(fieldConfigs, buttonCode);
 
   return {
     disabled: button?.disabled ?? fallback.disabled,

@@ -243,7 +243,7 @@ import {
   type CreateUserPayload,
   type UpdateUserPayload
 } from '@/api/user';
-import type { ModuleContext } from '@/api/moduleCenter';
+import type { ModuleContext, ModuleContextConfigItem } from '@/api/moduleCenter';
 import type { SysUser } from '@/types/global';
 import UserForm, { type UserFormModel } from './components/UserForm.vue';
 import { useSearchCollapse } from '@/utils/useSearchCollapse';
@@ -254,8 +254,8 @@ defineOptions({
 
 type UserFieldCode = 'username' | 'password' | 'nickname' | 'email' | 'phone' | 'sex' | 'type' | 'status';
 type UserButtonCode = 'create' | 'modify' | 'remove';
-type ModuleFieldContext = ModuleContext['headerTabs'][number]['fields'][number];
-type ModuleButtonContext = ModuleContext['buttons']['listToolbar'][string];
+const FIELD_COMPONENT = 'form';
+const BUTTON_COMPONENT = 'button';
 
 interface ResolvedFieldConfig {
   label: string;
@@ -375,46 +375,18 @@ const queryParams = reactive({
   nicknameKeyword: ''
 });
 
-const buildFieldContextMap = (context: ModuleContext | null) => {
-  const result: Partial<Record<UserFieldCode, ModuleFieldContext>> = {};
-  if (!context) {
-    return result;
-  }
-  [...context.headerTabs, ...context.detailTabs].forEach((tab) => {
-    tab.fields.forEach((field) => {
-      if (field.fieldCode in userFieldFallbackMap) {
-        result[field.fieldCode as UserFieldCode] = field;
-      }
-    });
-  });
-  return result;
+const resolveFieldConfig = (fieldConfigs: Record<string, ModuleContextConfigItem>, fieldCode: UserFieldCode) => {
+  return fieldConfigs[`${FIELD_COMPONENT}:${fieldCode}`];
 };
 
-const buildButtonContextMap = (context: ModuleContext | null) => {
-  const result: Partial<Record<UserButtonCode, ModuleButtonContext>> = {};
-  if (!context?.buttons) {
-    return result;
-  }
-  const buttonGroups = [
-    context.buttons.listToolbar,
-    context.buttons.listRow,
-    context.buttons.headerToolbar,
-    context.buttons.detailRow
-  ];
-  buttonGroups.forEach((buttonGroup) => {
-    Object.values(buttonGroup || {}).forEach((button) => {
-      if (button.buttonCode in userButtonFallbackMap) {
-        result[button.buttonCode as UserButtonCode] = button;
-      }
-    });
-  });
-  return result;
+const resolveButtonConfig = (fieldConfigs: Record<string, ModuleContextConfigItem>, buttonCode: UserButtonCode) => {
+  return fieldConfigs[`${BUTTON_COMPONENT}:${buttonCode}`];
 };
 
-const buildResolvedFieldConfigMap = (fieldMap: Partial<Record<UserFieldCode, ModuleFieldContext>>) => {
+const buildResolvedFieldConfigMap = (fieldConfigs: Record<string, ModuleContextConfigItem>) => {
   return (Object.keys(userFieldFallbackMap) as UserFieldCode[]).reduce<Record<UserFieldCode, ResolvedFieldConfig>>((result, fieldCode) => {
     const fallback = userFieldFallbackMap[fieldCode];
-    const field = fieldMap[fieldCode];
+    const field = resolveFieldConfig(fieldConfigs, fieldCode);
     result[fieldCode] = {
       editable: field?.editable ?? fallback.editable,
       helpText: field?.helpText || fallback.helpText,
@@ -427,10 +399,10 @@ const buildResolvedFieldConfigMap = (fieldMap: Partial<Record<UserFieldCode, Mod
   }, {} as Record<UserFieldCode, ResolvedFieldConfig>);
 };
 
-const buildResolvedButtonConfigMap = (buttonMap: Partial<Record<UserButtonCode, ModuleButtonContext>>) => {
+const buildResolvedButtonConfigMap = (fieldConfigs: Record<string, ModuleContextConfigItem>) => {
   return (Object.keys(userButtonFallbackMap) as UserButtonCode[]).reduce<Record<UserButtonCode, ResolvedButtonConfig>>((result, buttonCode) => {
     const fallback = userButtonFallbackMap[buttonCode];
-    const button = buttonMap[buttonCode];
+    const button = resolveButtonConfig(fieldConfigs, buttonCode);
     result[buttonCode] = {
       disabled: button?.disabled ?? fallback.disabled,
       label: button?.label || button?.defaultTitle || fallback.label,
@@ -440,9 +412,8 @@ const buildResolvedButtonConfigMap = (buttonMap: Partial<Record<UserButtonCode, 
   }, {} as Record<UserButtonCode, ResolvedButtonConfig>);
 };
 
-const listFieldConfigMap = computed(() => buildResolvedFieldConfigMap(buildFieldContextMap(listContext.value)));
-const formFieldConfigMap = computed(() => buildResolvedFieldConfigMap(buildFieldContextMap(formContext.value)));
-const listButtonConfigMap = computed(() => buildResolvedButtonConfigMap(buildButtonContextMap(listContext.value)));
+const listFieldConfigMap = computed(() => buildResolvedFieldConfigMap(listContext.value?.fieldConfigs || {}));
+const listButtonConfigMap = computed(() => buildResolvedButtonConfigMap(listContext.value?.fieldConfigs || {}));
 
 const showOperationColumn = computed(() => {
   return listButtonConfigMap.value.modify.visible || listButtonConfigMap.value.remove.visible;

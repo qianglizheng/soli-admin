@@ -6,40 +6,37 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 修改模块字段请求对象
+ * Modify module field request.
  *
  * @author lizhengqiang
- * @since 2026-03-25 00:05
+ * @since 2026-03-28 14:52
  */
 @Getter
 @Setter
 public class SysModuleFieldModifyRequest {
 
-    @NotNull(message = "字段 ID 不能为空")
+    @NotNull(message = "id cannot be null")
     private Long id;
 
-    @NotNull(message = "模块 ID 不能为空")
+    @NotNull(message = "moduleId cannot be null")
     private Long moduleId;
 
-    @NotNull(message = "Tab ID 不能为空")
-    private Long tabId;
+    @NotNull(message = "componentId cannot be null")
+    private Long componentId;
 
-    @NotBlank(message = "字段作用域不能为空")
-    private String fieldScope;
-
-    @NotBlank(message = "字段编码不能为空")
+    @NotBlank(message = "fieldCode cannot be blank")
     private String fieldCode;
 
-    @NotBlank(message = "默认标题不能为空")
+    @NotBlank(message = "defaultTitle cannot be blank")
     private String defaultTitle;
 
-    @NotBlank(message = "组件类型不能为空")
+    @NotBlank(message = "componentType cannot be blank")
     private String componentType;
 
-    @NotBlank(message = "数据路径不能为空")
+    @NotBlank(message = "dataPath cannot be blank")
     private String dataPath;
 
-    @NotBlank(message = "值类型不能为空")
+    @NotBlank(message = "valueType cannot be blank")
     private String valueType;
 
     private String requiredFlag;

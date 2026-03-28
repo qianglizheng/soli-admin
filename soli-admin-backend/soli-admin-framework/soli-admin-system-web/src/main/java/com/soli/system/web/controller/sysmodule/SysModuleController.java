@@ -7,6 +7,9 @@ import com.soli.system.core.service.impl.sysmodule.SysModuleConverter;
 import com.soli.system.service.sysmodule.SysModuleButtonCreateRequest;
 import com.soli.system.service.sysmodule.SysModuleButtonDTO;
 import com.soli.system.service.sysmodule.SysModuleButtonModifyRequest;
+import com.soli.system.service.sysmodule.SysModuleComponentCreateRequest;
+import com.soli.system.service.sysmodule.SysModuleComponentDTO;
+import com.soli.system.service.sysmodule.SysModuleComponentModifyRequest;
 import com.soli.system.service.sysmodule.SysModuleContextDTO;
 import com.soli.system.service.sysmodule.SysModuleContextService;
 import com.soli.system.service.sysmodule.SysModuleCreateRequest;
@@ -17,9 +20,6 @@ import com.soli.system.service.sysmodule.SysModuleFieldDTO;
 import com.soli.system.service.sysmodule.SysModuleFieldModifyRequest;
 import com.soli.system.service.sysmodule.SysModuleModifyRequest;
 import com.soli.system.service.sysmodule.SysModuleService;
-import com.soli.system.service.sysmodule.SysModuleTabCreateRequest;
-import com.soli.system.service.sysmodule.SysModuleTabDTO;
-import com.soli.system.service.sysmodule.SysModuleTabModifyRequest;
 import com.soli.system.service.sysmodule.SysModuleTreeNodeDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -41,7 +41,7 @@ import java.util.List;
  * Module controller.
  *
  * @author lizhengqiang
- * @since 2026-03-25 00:15
+ * @since 2026-03-28 14:55
  */
 @Tag(name = "Module", description = "Module management endpoints")
 @RestController
@@ -113,28 +113,28 @@ public class SysModuleController extends BaseController {
         return Result.success();
     }
 
-    @Operation(summary = "Create module tab")
-    @PreAuthorize("@moduleAccess.hasButton('sys_module', 'tabCreate')")
-    @PostMapping("/tab")
-    public Result<Long> createTab(@Valid @RequestBody SysModuleTabCreateRequest createRequest) {
-        SysModuleTabDTO dto = converter.toDTO(createRequest);
-        service.createTab(dto);
+    @Operation(summary = "Create module component")
+    @PreAuthorize("@moduleAccess.hasButton('sys_module', 'componentCreate')")
+    @PostMapping("/component")
+    public Result<Long> createComponent(@Valid @RequestBody SysModuleComponentCreateRequest createRequest) {
+        SysModuleComponentDTO dto = converter.toDTO(createRequest);
+        service.createComponent(dto);
         return Result.success(dto.getId());
     }
 
-    @Operation(summary = "Modify module tab")
-    @PreAuthorize("@moduleAccess.hasButton('sys_module', 'tabModify')")
-    @PutMapping("/tab")
-    public Result<Void> modifyTab(@Valid @RequestBody SysModuleTabModifyRequest modifyRequest) {
-        service.modifyTab(converter.toDTO(modifyRequest));
+    @Operation(summary = "Modify module component")
+    @PreAuthorize("@moduleAccess.hasButton('sys_module', 'componentModify')")
+    @PutMapping("/component")
+    public Result<Void> modifyComponent(@Valid @RequestBody SysModuleComponentModifyRequest modifyRequest) {
+        service.modifyComponent(converter.toDTO(modifyRequest));
         return Result.success();
     }
 
-    @Operation(summary = "Remove module tab")
-    @PreAuthorize("@moduleAccess.hasButton('sys_module', 'tabRemove')")
-    @DeleteMapping("/tab/{id}")
-    public Result<Void> removeTab(@PathVariable Long id) {
-        service.removeTab(id);
+    @Operation(summary = "Remove module component")
+    @PreAuthorize("@moduleAccess.hasButton('sys_module', 'componentRemove')")
+    @DeleteMapping("/component/{id}")
+    public Result<Void> removeComponent(@PathVariable Long id) {
+        service.removeComponent(id);
         return Result.success();
     }
 

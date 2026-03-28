@@ -24,9 +24,6 @@ public class SysModuleButtonCreateRequest {
     @NotBlank(message = "默认标题不能为空")
     private String defaultTitle;
 
-    @NotBlank(message = "所属区域不能为空")
-    private String area;
-
     private Integer sort;
 
     private String status;

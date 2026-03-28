@@ -171,33 +171,31 @@ create table sys_module (
     key idx_sys_module_type_status (module_type, status)
 ) engine=innodb comment = '模块主表';
 
--- 模块Tab定义表
-drop table if exists sys_module_tab;
-create table sys_module_tab (
-    id          bigint(20)        not null                 comment 'TabID',
-    module_id   bigint(20)        not null                 comment '模块ID',
-    tab_scope   varchar(16)       not null                 comment '作用域（HEADER/DETAIL）',
-    tab_code    varchar(64)       not null                 comment 'Tab编码',
-    tab_name    varchar(128)      not null                 comment 'Tab名称',
-    sort        int(11)           default 1 not null       comment '显示顺序',
-    status      char(1)           default '0' not null     comment '状态（0正常 1停用）',
-    create_by   varchar(32)       default null             comment '创建者',
-    create_time datetime          default null             comment '创建时间',
-    update_by   varchar(32)       default null             comment '更新者',
-    update_time datetime          default null             comment '更新时间',
-    note        varchar(500)      default null             comment '备注',
+-- 模块组件定义表
+drop table if exists sys_module_component;
+create table sys_module_component (
+    id             bigint(20)        not null                 comment '组件ID',
+    module_id      bigint(20)        not null                 comment '模块ID',
+    component_code varchar(64)       not null                 comment '组件编码',
+    component_name varchar(128)      not null                 comment '组件名称',
+    sort           int(11)           default 1 not null       comment '显示顺序',
+    status         char(1)           default '0' not null     comment '状态（0正常 1停用）',
+    create_by      varchar(32)       default null             comment '创建者',
+    create_time    datetime          default null             comment '创建时间',
+    update_by      varchar(32)       default null             comment '更新者',
+    update_time    datetime          default null             comment '更新时间',
+    note           varchar(500)      default null             comment '备注',
     primary key (id),
-    unique key uk_sys_module_tab (module_id, tab_scope, tab_code),
-    key idx_sys_module_tab_scope (module_id, tab_scope, sort)
-) engine=innodb comment = '模块Tab定义表';
+    unique key uk_sys_module_component (module_id, component_code),
+    key idx_sys_module_component_sort (module_id, sort)
+) engine=innodb comment = '模块组件定义表';
 
 -- 模块字段定义表
 drop table if exists sys_module_field;
 create table sys_module_field (
     id             bigint(20)        not null                 comment '字段ID',
     module_id      bigint(20)        not null                 comment '模块ID',
-    tab_id         bigint(20)        not null                 comment 'TabID',
-    field_scope    varchar(16)       not null                 comment '作用域（HEADER/DETAIL）',
+    component_id   bigint(20)        not null                 comment '组件ID',
     field_code     varchar(64)       not null                 comment '字段编码',
     default_title  varchar(128)      not null                 comment '默认标题',
     component_type varchar(32)       default null             comment '组件类型',
@@ -213,38 +211,38 @@ create table sys_module_field (
     note           varchar(500)      default null             comment '备注',
     primary key (id),
     unique key uk_sys_module_field (module_id, field_code),
-    key idx_sys_module_field_tab (tab_id, sort),
-    key idx_sys_module_field_scope (module_id, field_scope, status)
+    key idx_sys_module_field_component (component_id, sort),
+    key idx_sys_module_field_status (module_id, status)
 ) engine=innodb comment = '模块字段定义表';
 
 -- 模块字段标题表
 drop table if exists sys_module_field_title;
 create table sys_module_field_title (
-    id            bigint(20)        not null                 comment '主键ID',
-    field_id      bigint(20)        not null                 comment '字段ID',
-    module_id     bigint(20)        not null                 comment '模块ID',
-    tab_id        bigint(20)        not null                 comment 'Tab ID',
-    field_scope   varchar(32)       not null                 comment '字段作用域',
-    field_code    varchar(64)       not null                 comment '字段编码',
-    default_title varchar(128)      not null                 comment '默认标题',
-    locale        varchar(32)       not null                 comment '语言区域',
-    display_title varchar(128)      default null             comment '显示标题',
-    placeholder   varchar(255)      default null             comment '占位提示',
-    help_text     varchar(500)      default null             comment '帮助说明',
+    id             bigint(20)        not null                 comment '主键ID',
+    field_id       bigint(20)        not null                 comment '字段ID',
+    module_id      bigint(20)        not null                 comment '模块ID',
+    component_id   bigint(20)        not null                 comment '组件ID',
+    component_code varchar(64)       not null                 comment '组件编码',
+    field_code     varchar(64)       not null                 comment '字段编码',
+    default_title  varchar(128)      not null                 comment '默认标题',
+    locale         varchar(32)       not null                 comment '语言区域',
+    display_title  varchar(128)      default null             comment '显示标题',
+    placeholder    varchar(255)      default null             comment '占位提示',
+    help_text      varchar(500)      default null             comment '帮助说明',
     component_type varchar(64)      not null                 comment '组件类型',
-    data_path     varchar(255)      not null                 comment '数据路径',
-    value_type    varchar(32)       not null                 comment '值类型',
-    required_flag char(1)           default '0' not null     comment '必填标识',
-    sort          int(11)           default 1 not null       comment '排序',
-    status        char(1)           default '0' not null     comment '状态（0正常 1停用）',
-    create_by     varchar(32)       default null             comment '创建者',
-    create_time   datetime          default null             comment '创建时间',
-    update_by     varchar(32)       default null             comment '更新者',
-    update_time   datetime          default null             comment '更新时间',
-    note          varchar(500)      default null             comment '备注',
+    data_path      varchar(255)      not null                 comment '数据路径',
+    value_type     varchar(32)       not null                 comment '值类型',
+    required_flag  char(1)           default '0' not null     comment '必填标识',
+    sort           int(11)           default 1 not null       comment '排序',
+    status         char(1)           default '0' not null     comment '状态（0正常 1停用）',
+    create_by      varchar(32)       default null             comment '创建者',
+    create_time    datetime          default null             comment '创建时间',
+    update_by      varchar(32)       default null             comment '更新者',
+    update_time    datetime          default null             comment '更新时间',
+    note           varchar(500)      default null             comment '备注',
     primary key (id),
     unique key uk_sys_module_field_title (field_id, locale),
-    key idx_sys_module_field_title_module (module_id, locale),
+    key idx_sys_module_field_title_component (module_id, component_id, locale, sort),
     key idx_sys_module_field_title_status (status)
 ) engine=innodb comment = '模块字段标题表';
 
@@ -255,7 +253,6 @@ create table sys_module_button (
     module_id     bigint(20)        not null                 comment '模块ID',
     button_code   varchar(64)       not null                 comment '按钮编码',
     default_title varchar(128)      not null                 comment '默认标题',
-    button_area   varchar(32)       not null                 comment '按钮区域',
     sort          int(11)           default 1 not null       comment '显示顺序',
     status        char(1)           default '0' not null     comment '状态（0正常 1停用）',
     create_by     varchar(32)       default null             comment '创建者',
@@ -265,7 +262,7 @@ create table sys_module_button (
     note          varchar(500)      default null             comment '备注',
     primary key (id),
     unique key uk_sys_module_button (module_id, button_code),
-    key idx_sys_module_button_area (module_id, button_area, sort)
+    key idx_sys_module_button_sort (module_id, sort)
 ) engine=innodb comment = '模块按钮定义表';
 
 -- 模块状态定义表
@@ -415,3 +412,4 @@ create table sys_module_publish_log (
     primary key (id),
     key idx_sys_module_publish_log_module (module_id, publish_time)
 ) engine=innodb comment = '模块发布日志表';
+

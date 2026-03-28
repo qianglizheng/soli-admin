@@ -4,10 +4,10 @@ import com.github.yitter.idgen.YitIdHelper;
 import com.soli.common.api.exception.BusinessException;
 import com.soli.system.core.mapper.SysModuleMapper;
 import com.soli.system.core.mapper.SysModuleTitleMapper;
+import com.soli.system.service.sysmodule.SysModuleComponentDetailDTO;
 import com.soli.system.service.sysmodule.SysModuleDetailDTO;
 import com.soli.system.service.sysmodule.SysModuleFieldDTO;
 import com.soli.system.service.sysmodule.SysModuleService;
-import com.soli.system.service.sysmodule.SysModuleTabDetailDTO;
 import com.soli.system.service.sysmodule.SysModuleTreeNodeDTO;
 import com.soli.system.service.sysmoduletitle.SysModuleFieldTitleDTO;
 import com.soli.system.service.sysmoduletitle.SysModuleTitleSaveRequest;
@@ -103,8 +103,8 @@ public class SysModuleTitleServiceImpl implements SysModuleTitleService {
         entity.setId(YitIdHelper.nextId());
         entity.setFieldId(fieldDTO.getId());
         entity.setModuleId(fieldDTO.getModuleId());
-        entity.setTabId(fieldDTO.getTabId());
-        entity.setFieldScope(fieldDTO.getFieldScope());
+        entity.setComponentId(fieldDTO.getComponentId());
+        entity.setComponentCode(fieldDTO.getComponentCode());
         entity.setFieldCode(fieldDTO.getFieldCode());
         entity.setDefaultTitle(fieldDTO.getDefaultTitle());
         entity.setLocale(DEFAULT_LOCALE);
@@ -124,18 +124,17 @@ public class SysModuleTitleServiceImpl implements SysModuleTitleService {
 
     private List<SysModuleFieldDTO> flattenFields(SysModuleDetailDTO moduleDetail) {
         List<SysModuleFieldDTO> fieldList = new ArrayList<>();
-        appendTabFields(fieldList, moduleDetail.getHeaderTabs());
-        appendTabFields(fieldList, moduleDetail.getDetailTabs());
+        appendComponentFields(fieldList, moduleDetail.getComponents());
         return fieldList;
     }
 
-    private void appendTabFields(List<SysModuleFieldDTO> fieldList, List<SysModuleTabDetailDTO> tabList) {
-        if (tabList == null) {
+    private void appendComponentFields(List<SysModuleFieldDTO> fieldList, List<SysModuleComponentDetailDTO> componentList) {
+        if (componentList == null) {
             return;
         }
-        tabList.forEach(tab -> {
-            if (tab.getFields() != null) {
-                fieldList.addAll(tab.getFields());
+        componentList.forEach(component -> {
+            if (component.getFields() != null) {
+                fieldList.addAll(component.getFields());
             }
         });
     }

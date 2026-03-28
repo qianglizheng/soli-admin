@@ -3,42 +3,29 @@ package com.soli.system.service.sysmodule;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
 import java.util.Map;
 
 /**
- * 模块上下文预览对象
+ * Runtime module context preview DTO.
  *
  * @author lizhengqiang
- * @since 2026-03-25 00:05
+ * @since 2026-03-28 14:59
  */
 @Getter
 @Setter
 public class SysModuleContextPreviewDTO {
 
-    /** 模块编码 */
     private String moduleCode;
 
-    /** 模块名称 */
     private String moduleName;
 
-    /** 上下文版本 */
     private Integer contextVersion;
 
-    /** 当前岗位 */
     private CurrentPost currentPost;
 
-    /** 当前状态 */
     private CurrentState state;
 
-    /** 单头 Tab */
-    private List<TabPreview> headerTabs;
-
-    /** 明细 Tab */
-    private List<TabPreview> detailTabs;
-
-    /** 按钮权限 */
-    private ButtonPreview buttons;
+    private Map<String, FieldConfig> fieldConfigs;
 
     @Getter
     @Setter
@@ -58,37 +45,16 @@ public class SysModuleContextPreviewDTO {
 
     @Getter
     @Setter
-    public static class TabPreview {
-        private SysModuleTabDTO tabInfo;
-        private Boolean visible;
-        private List<FieldPreview> fields;
-    }
-
-    @Getter
-    @Setter
-    public static class FieldPreview {
-        private String fieldCode;
+    public static class FieldConfig {
+        private String configKey;
+        private String configType;
+        private String component;
+        private String code;
         private String label;
         private String componentType;
         private Boolean visible;
         private Boolean editable;
         private Boolean required;
-    }
-
-    @Getter
-    @Setter
-    public static class ButtonPreview {
-        private Map<String, ButtonItem> listToolbar;
-        private Map<String, ButtonItem> listRow;
-        private Map<String, ButtonItem> headerToolbar;
-        private Map<String, ButtonItem> detailRow;
-    }
-
-    @Getter
-    @Setter
-    public static class ButtonItem {
-        private String label;
-        private Boolean visible;
         private Boolean disabled;
     }
 

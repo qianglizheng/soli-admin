@@ -8,14 +8,6 @@
         <el-form-item label="按钮编码" prop="buttonCode">
           <el-input v-model="form.buttonCode" placeholder="请输入按钮编码" />
         </el-form-item>
-        <el-form-item label="所属区域" prop="area">
-          <el-select v-model="form.area" placeholder="请选择所属区域" style="width: 100%">
-            <el-option label="列表顶部按钮" value="LIST_TOOLBAR" />
-            <el-option label="列表行按钮" value="LIST_ROW_BUTTON" />
-            <el-option label="详情顶部按钮" value="HEADER_TOOLBAR" />
-            <el-option label="明细行按钮" value="DETAIL_ROW_BUTTON" />
-          </el-select>
-        </el-form-item>
         <el-form-item label="排序" prop="sort">
           <el-input-number v-model="form.sort" :min="1" controls-position="right" style="width: 100%" />
         </el-form-item>
@@ -57,7 +49,6 @@ const visible = computed({
 
 function createDefaultForm(): Partial<ModuleButtonDefinition> {
   return {
-    area: 'HEADER_TOOLBAR',
     buttonCode: '',
     defaultTitle: '',
     note: '',
@@ -69,7 +60,6 @@ const formRef = ref<FormInstance>();
 const form = reactive<Partial<ModuleButtonDefinition>>(createDefaultForm());
 
 const rules: FormRules = {
-  area: [{ message: '请选择所属区域', required: true, trigger: 'change' }],
   buttonCode: [{ message: '请输入按钮编码', required: true, trigger: 'blur' }],
   defaultTitle: [{ message: '请输入按钮标题', required: true, trigger: 'blur' }]
 };

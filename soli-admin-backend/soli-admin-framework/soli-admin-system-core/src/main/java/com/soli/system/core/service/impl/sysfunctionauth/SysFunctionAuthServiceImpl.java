@@ -14,10 +14,10 @@ import com.soli.system.service.sysfunctionauth.SysFunctionAuthPageDetailDTO;
 import com.soli.system.service.sysfunctionauth.SysFunctionAuthSaveRequest;
 import com.soli.system.service.sysfunctionauth.SysFunctionAuthService;
 import com.soli.system.service.sysmodule.SysModuleButtonDTO;
+import com.soli.system.service.sysmodule.SysModuleComponentDetailDTO;
 import com.soli.system.service.sysmodule.SysModuleDetailDTO;
 import com.soli.system.service.sysmodule.SysModuleFieldDTO;
 import com.soli.system.service.sysmodule.SysModuleService;
-import com.soli.system.service.sysmodule.SysModuleTabDetailDTO;
 import com.soli.system.service.sysmodule.SysModuleTreeNodeDTO;
 import com.soli.system.service.sysorgpost.SysOrgPostService;
 import com.soli.system.service.sysorgpost.SysOrgPostTreeNodeDTO;
@@ -182,18 +182,17 @@ public class SysFunctionAuthServiceImpl implements SysFunctionAuthService {
 
     private List<SysModuleFieldDTO> flattenFields(SysModuleDetailDTO moduleDetail) {
         List<SysModuleFieldDTO> fieldList = new ArrayList<>();
-        appendTabFields(fieldList, moduleDetail.getHeaderTabs());
-        appendTabFields(fieldList, moduleDetail.getDetailTabs());
+        appendComponentFields(fieldList, moduleDetail.getComponents());
         return fieldList;
     }
 
-    private void appendTabFields(List<SysModuleFieldDTO> fieldList, List<SysModuleTabDetailDTO> tabList) {
-        if (tabList == null) {
+    private void appendComponentFields(List<SysModuleFieldDTO> fieldList, List<SysModuleComponentDetailDTO> componentList) {
+        if (componentList == null) {
             return;
         }
-        tabList.forEach(tab -> {
-            if (tab.getFields() != null) {
-                fieldList.addAll(tab.getFields());
+        componentList.forEach(component -> {
+            if (component.getFields() != null) {
+                fieldList.addAll(component.getFields());
             }
         });
     }

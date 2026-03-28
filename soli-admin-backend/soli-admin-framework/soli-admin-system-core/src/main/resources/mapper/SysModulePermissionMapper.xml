@@ -34,6 +34,26 @@
         order by m.sort asc, m.id asc
     </select>
 
+    <select id="selectUserNavPermissionList" resultType="com.soli.system.core.service.impl.sysmodulepermission.SysUserModuleNavPermissionModel">
+        select ma.module_id as moduleId,
+               case when max(case when ma.nav_visible = '1' then 1 else 0 end) > 0 then '1' else '0' end as navVisible
+        from sys_user_org_post uop
+                 inner join sys_org_post op
+                            on op.id = uop.org_post_id
+                               and op.status = '0'
+                               and op.org_unit_id = #{companyId}
+                 inner join sys_org_post_module_auth ma
+                            on ma.org_post_id = uop.org_post_id
+                               and ma.module_visible = '1'
+                 inner join sys_module m
+                            on m.id = ma.module_id
+                               and m.status = '0'
+        where uop.user_id = #{userId}
+          and uop.status = '0'
+        group by ma.module_id
+        order by ma.module_id asc
+    </select>
+
     <select id="countUserVisibleModule" resultType="int">
         select count(distinct m.id)
         from sys_user_org_post uop

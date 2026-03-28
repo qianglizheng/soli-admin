@@ -1,10 +1,10 @@
 package com.soli.system.core.mapper;
 
 import com.soli.system.core.service.impl.sysmodule.SysModuleButtonEntity;
+import com.soli.system.core.service.impl.sysmodule.SysModuleComponentEntity;
 import com.soli.system.core.service.impl.sysmodule.SysModuleEntity;
 import com.soli.system.core.service.impl.sysmodule.SysModuleFieldEntity;
 import com.soli.system.core.service.impl.sysmodule.SysModuleStateEntity;
-import com.soli.system.core.service.impl.sysmodule.SysModuleTabEntity;
 import com.soli.system.core.service.impl.sysmodule.SysModuleTransitionEntity;
 import com.soli.system.core.service.impl.sysmodule.SysModuleTreeNodeModel;
 import com.soli.system.service.sysmodule.SysModuleQuery;
@@ -14,10 +14,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 模块管理持久层
+ * Module mapper.
  *
  * @author lizhengqiang
- * @since 2026-03-25 00:15
+ * @since 2026-03-28 14:57
  */
 public interface SysModuleMapper extends BaseCrudMapper<SysModuleEntity, SysModuleQuery> {
 
@@ -35,21 +35,20 @@ public interface SysModuleMapper extends BaseCrudMapper<SysModuleEntity, SysModu
 
     int incrementContextVersion(@Param("moduleId") Long moduleId, @Param("updateTime") LocalDateTime updateTime);
 
-    List<SysModuleTabEntity> selectTabsByModuleId(@Param("moduleId") Long moduleId);
+    List<SysModuleComponentEntity> selectComponentsByModuleId(@Param("moduleId") Long moduleId);
 
-    SysModuleTabEntity selectTabById(@Param("id") Long id);
+    SysModuleComponentEntity selectComponentById(@Param("id") Long id);
 
-    SysModuleTabEntity selectTabByModuleIdAndScopeAndCode(@Param("moduleId") Long moduleId,
-                                                          @Param("tabScope") String tabScope,
-                                                          @Param("tabCode") String tabCode);
+    SysModuleComponentEntity selectComponentByModuleIdAndCode(@Param("moduleId") Long moduleId,
+                                                              @Param("componentCode") String componentCode);
 
-    int insertTab(SysModuleTabEntity entity);
+    int insertComponent(SysModuleComponentEntity entity);
 
-    int updateTab(SysModuleTabEntity entity);
+    int updateComponent(SysModuleComponentEntity entity);
 
-    int deleteTabById(@Param("id") Long id);
+    int deleteComponentById(@Param("id") Long id);
 
-    int countTabByModuleId(@Param("moduleId") Long moduleId);
+    int countComponentByModuleId(@Param("moduleId") Long moduleId);
 
     List<SysModuleFieldEntity> selectFieldDefinitionsByModuleId(@Param("moduleId") Long moduleId);
 
@@ -67,7 +66,7 @@ public interface SysModuleMapper extends BaseCrudMapper<SysModuleEntity, SysModu
 
     int countFieldByModuleId(@Param("moduleId") Long moduleId);
 
-    int countFieldByTabId(@Param("tabId") Long tabId);
+    int countFieldByComponentId(@Param("componentId") Long componentId);
 
     List<SysModuleButtonEntity> selectButtonsByModuleId(@Param("moduleId") Long moduleId);
 
@@ -87,20 +86,8 @@ public interface SysModuleMapper extends BaseCrudMapper<SysModuleEntity, SysModu
 
     List<SysModuleTransitionEntity> selectTransitionsByModuleId(@Param("moduleId") Long moduleId);
 
-    /**
-     * 根据模块 ID 删除状态流转定义
-     *
-     * @param moduleId 模块 ID
-     * @return 影响行数
-     */
     int deleteTransitionsByModuleId(@Param("moduleId") Long moduleId);
 
-    /**
-     * 根据模块 ID 删除状态定义
-     *
-     * @param moduleId 模块 ID
-     * @return 影响行数
-     */
     int deleteStatesByModuleId(@Param("moduleId") Long moduleId);
 
 }

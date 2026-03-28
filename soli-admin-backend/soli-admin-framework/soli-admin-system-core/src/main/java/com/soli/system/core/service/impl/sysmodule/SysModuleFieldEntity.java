@@ -5,10 +5,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 模块字段实体
+ * Module field entity.
  *
  * @author lizhengqiang
- * @since 2026-03-25 00:15
+ * @since 2026-03-28 14:58
  */
 @Getter
 @Setter
@@ -16,9 +16,9 @@ public class SysModuleFieldEntity extends BaseEntity {
 
     private Long moduleId;
 
-    private Long tabId;
+    private Long componentId;
 
-    private String fieldScope;
+    private String componentCode;
 
     private String fieldCode;
 

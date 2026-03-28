@@ -57,6 +57,20 @@ public interface SysModuleTitleMapper {
     int updateDefinition(SysModuleFieldTitleEntity entity);
 
     /**
+     * Sync component code to title definitions.
+     *
+     * @param componentId component id
+     * @param componentCode component code
+     * @param updateBy update user
+     * @param updateTime update time
+     * @return affected rows
+     */
+    int updateComponentInfo(@Param("componentId") Long componentId,
+                            @Param("componentCode") String componentCode,
+                            @Param("updateBy") String updateBy,
+                            @Param("updateTime") java.time.LocalDateTime updateTime);
+
+    /**
      * 根据字段 ID 删除字段标题
      *
      * @param fieldId 字段 ID

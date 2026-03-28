@@ -9,16 +9,17 @@ import com.soli.system.core.service.impl.BaseCrudServiceImpl;
 import com.soli.system.core.service.impl.sysmodulepermission.SysOrgPostButtonAuthEntity;
 import com.soli.system.core.service.impl.sysmodulepermission.SysOrgPostFieldAuthEntity;
 import com.soli.system.core.service.impl.sysmodulepermission.SysOrgPostModuleAuthEntity;
+import com.soli.system.core.service.impl.sysmodulepermission.SysUserModuleNavPermissionModel;
 import com.soli.system.core.service.impl.sysmoduletitle.SysModuleFieldTitleEntity;
 import com.soli.system.service.sysmodule.SysModuleButtonDTO;
+import com.soli.system.service.sysmodule.SysModuleComponentDTO;
+import com.soli.system.service.sysmodule.SysModuleComponentDetailDTO;
 import com.soli.system.service.sysmodule.SysModuleDTO;
 import com.soli.system.service.sysmodule.SysModuleDetailDTO;
 import com.soli.system.service.sysmodule.SysModuleFieldDTO;
 import com.soli.system.service.sysmodule.SysModuleQuery;
 import com.soli.system.service.sysmodule.SysModuleService;
 import com.soli.system.service.sysmodule.SysModuleStateDTO;
-import com.soli.system.service.sysmodule.SysModuleTabDTO;
-import com.soli.system.service.sysmodule.SysModuleTabDetailDTO;
 import com.soli.system.service.sysmodule.SysModuleTransitionDTO;
 import com.soli.system.service.sysmodule.SysModuleTreeNodeDTO;
 import org.springframework.stereotype.Service;
@@ -34,52 +35,27 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-/**
- * 模块管理服务实现
- *
- * @author lizhengqiang
- * @since 2026-03-25 00:15
- */
 @Service
-public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysModuleEntity, SysModuleQuery>
-        implements SysModuleService {
+public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysModuleEntity, SysModuleQuery> implements SysModuleService {
 
     private static final String DEFAULT_LOCALE = "zh_CN";
-
     private static final String SYSTEM_USER = "system";
-
-    private static final Set<String> USER_HIDDEN_MODULE_CODE_SET = Set.of("sys_module");
-
-    private static final String MODULE_NOT_FOUND_MESSAGE = "\u6a21\u5757\u4e0d\u5b58\u5728";
-
-    private static final String PARENT_MODULE_NOT_FOUND_MESSAGE = "\u4e0a\u7ea7\u6a21\u5757\u4e0d\u5b58\u5728";
-
-    private static final String MODULE_CODE_EXISTS_MESSAGE = "\u6a21\u5757\u7f16\u7801\u5df2\u5b58\u5728";
-
-    private static final String TAB_CODE_EXISTS_MESSAGE = "Tab \u7f16\u7801\u5df2\u5b58\u5728";
-
-    private static final String FIELD_CODE_EXISTS_MESSAGE = "\u5b57\u6bb5\u7f16\u7801\u5df2\u5b58\u5728";
-
-    private static final String BUTTON_CODE_EXISTS_MESSAGE = "\u6309\u94ae\u7f16\u7801\u5df2\u5b58\u5728";
-
-    private static final String TAB_NOT_FOUND_MESSAGE = "Tab \u4e0d\u5b58\u5728";
-
-    private static final String FIELD_NOT_FOUND_MESSAGE = "\u5b57\u6bb5\u4e0d\u5b58\u5728";
-
-    private static final String BUTTON_NOT_FOUND_MESSAGE = "\u6309\u94ae\u4e0d\u5b58\u5728";
-
-    private static final String CHILD_MODULE_REQUIRES_CATALOG_MESSAGE = "\u5b58\u5728\u5b50\u6a21\u5757\u7684\u8282\u70b9\u53ea\u80fd\u7ef4\u62a4\u4e3a\u76ee\u5f55\u7c7b\u578b";
-
-    private static final String MODULE_DESIGN_DATA_EXISTS_MESSAGE = "\u5f53\u524d\u6a21\u5757\u5b58\u5728\u8bbe\u8ba1\u6570\u636e\uff0c\u4e0d\u80fd\u5220\u9664";
-
-    private static final String FIELD_TAB_MISMATCH_MESSAGE = "\u5b57\u6bb5\u6240\u5c5e\u6a21\u5757\u4e0e Tab \u4e0d\u4e00\u81f4";
+    private static final String MODULE_NOT_FOUND_MESSAGE = "Module does not exist";
+    private static final String PARENT_MODULE_NOT_FOUND_MESSAGE = "Parent module does not exist";
+    private static final String MODULE_CODE_EXISTS_MESSAGE = "Module code already exists";
+    private static final String COMPONENT_CODE_EXISTS_MESSAGE = "Component code already exists";
+    private static final String FIELD_CODE_EXISTS_MESSAGE = "Field code already exists";
+    private static final String BUTTON_CODE_EXISTS_MESSAGE = "Button code already exists";
+    private static final String COMPONENT_NOT_FOUND_MESSAGE = "Component does not exist";
+    private static final String FIELD_NOT_FOUND_MESSAGE = "Field does not exist";
+    private static final String BUTTON_NOT_FOUND_MESSAGE = "Button does not exist";
+    private static final String CHILD_MODULE_REQUIRES_CATALOG_MESSAGE = "Nodes with children must stay as catalog";
+    private static final String MODULE_DESIGN_DATA_EXISTS_MESSAGE = "Current module still has design data and cannot be removed";
+    private static final String FIELD_COMPONENT_MISMATCH_MESSAGE = "Field component does not belong to the module";
 
     private final SysModuleMapper sysModuleMapper;
-
     private final SysModuleTitleMapper sysModuleTitleMapper;
-
     private final SysModulePermissionMapper sysModulePermissionMapper;
-
     private final SysModuleConverter sysModuleConverter;
 
     public SysModuleServiceImpl(final SysModuleMapper mapper,
@@ -108,11 +84,12 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         if (userId == null || companyId == null) {
             return new ArrayList<>();
         }
-        List<Long> visibleModuleIdList = sysModulePermissionMapper.selectUserVisibleNavModuleIdList(userId, companyId);
-        if (visibleModuleIdList == null || visibleModuleIdList.isEmpty()) {
+        List<SysUserModuleNavPermissionModel> navPermissionList = sysModulePermissionMapper.selectUserNavPermissionList(userId, companyId);
+        if (navPermissionList == null || navPermissionList.isEmpty()) {
             return new ArrayList<>();
         }
-        return hideUserHiddenNavNode(filterNavTree(buildTreeList(), Set.copyOf(visibleModuleIdList)));
+        Map<Long, String> navVisibleMap = buildNavVisibleMap(navPermissionList);
+        return applyNavVisibility(filterNavTree(buildTreeList(), navVisibleMap.keySet()), navVisibleMap);
     }
 
     @Override
@@ -127,15 +104,15 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void createTab(SysModuleTabDTO dto) {
-        normalizeTab(dto);
+    public void createComponent(SysModuleComponentDTO dto) {
+        normalizeComponent(dto);
         validateModuleExists(dto.getModuleId());
-        validateTabCodeUnique(dto.getModuleId(), dto.getTabScope(), dto.getTabCode(), null);
+        validateComponentCodeUnique(dto.getModuleId(), dto.getComponentCode(), null);
         dto.setCreateTime(LocalDateTime.now());
-        SysModuleTabEntity entity = sysModuleConverter.toTabEntity(dto);
+        SysModuleComponentEntity entity = sysModuleConverter.toComponentEntity(dto);
         entity.setId(YitIdHelper.nextId());
-        if (sysModuleMapper.insertTab(entity) == 0) {
-            throw new BusinessException("模块 Tab 创建失败");
+        if (sysModuleMapper.insertComponent(entity) == 0) {
+            throw new BusinessException("Create component failed");
         }
         dto.setId(entity.getId());
         touchModuleVersion(dto.getModuleId());
@@ -143,30 +120,31 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void modifyTab(SysModuleTabDTO dto) {
-        normalizeTab(dto);
-        SysModuleTabEntity currentEntity = requireTab(dto.getId());
+    public void modifyComponent(SysModuleComponentDTO dto) {
+        normalizeComponent(dto);
+        SysModuleComponentEntity currentEntity = requireComponent(dto.getId());
         if (!Objects.equals(currentEntity.getModuleId(), dto.getModuleId())) {
-            throw new BusinessException("不支持跨模块移动 Tab");
+            throw new BusinessException("Moving component across modules is not supported");
         }
         validateModuleExists(dto.getModuleId());
-        validateTabCodeUnique(dto.getModuleId(), dto.getTabScope(), dto.getTabCode(), dto.getId());
+        validateComponentCodeUnique(dto.getModuleId(), dto.getComponentCode(), dto.getId());
         dto.setUpdateTime(LocalDateTime.now());
-        if (sysModuleMapper.updateTab(sysModuleConverter.toTabEntity(dto)) == 0) {
-            throw new BusinessException("模块 Tab 更新失败");
+        if (sysModuleMapper.updateComponent(sysModuleConverter.toComponentEntity(dto)) == 0) {
+            throw new BusinessException("Update component failed");
         }
+        sysModuleTitleMapper.updateComponentInfo(dto.getId(), dto.getComponentCode(), SYSTEM_USER, dto.getUpdateTime());
         touchModuleVersion(dto.getModuleId());
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void removeTab(Long id) {
-        SysModuleTabEntity currentEntity = requireTab(id);
-        if (sysModuleMapper.countFieldByTabId(id) > 0) {
-            throw new BusinessException("当前 Tab 下存在字段，不能删除");
+    public void removeComponent(Long id) {
+        SysModuleComponentEntity currentEntity = requireComponent(id);
+        if (sysModuleMapper.countFieldByComponentId(id) > 0) {
+            throw new BusinessException("Current component still contains fields");
         }
-        if (sysModuleMapper.deleteTabById(id) == 0) {
-            throw new BusinessException("模块 Tab 删除失败");
+        if (sysModuleMapper.deleteComponentById(id) == 0) {
+            throw new BusinessException("Remove component failed");
         }
         touchModuleVersion(currentEntity.getModuleId());
     }
@@ -176,15 +154,15 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
     public void createField(SysModuleFieldDTO dto) {
         normalizeField(dto);
         validateModuleExists(dto.getModuleId());
-        SysModuleTabEntity tabEntity = requireTab(dto.getTabId());
-        validateFieldBelongsToModule(dto.getModuleId(), tabEntity);
-        dto.setFieldScope(tabEntity.getTabScope());
+        SysModuleComponentEntity componentEntity = requireComponent(dto.getComponentId());
+        validateFieldBelongsToModule(dto.getModuleId(), componentEntity);
+        dto.setComponentCode(componentEntity.getComponentCode());
         validateFieldCodeUnique(dto.getModuleId(), dto.getFieldCode(), null);
         dto.setCreateTime(LocalDateTime.now());
         SysModuleFieldEntity entity = sysModuleConverter.toFieldEntity(dto);
         entity.setId(YitIdHelper.nextId());
         if (sysModuleMapper.insertField(entity) == 0) {
-            throw new BusinessException("模块字段创建失败");
+            throw new BusinessException("Create field failed");
         }
         dto.setId(entity.getId());
         createFieldTitleRelation(entity);
@@ -198,17 +176,17 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         normalizeField(dto);
         SysModuleFieldEntity currentEntity = requireField(dto.getId());
         if (!Objects.equals(currentEntity.getModuleId(), dto.getModuleId())) {
-            throw new BusinessException("不支持跨模块移动字段");
+            throw new BusinessException("Moving field across modules is not supported");
         }
         validateModuleExists(dto.getModuleId());
-        SysModuleTabEntity tabEntity = requireTab(dto.getTabId());
-        validateFieldBelongsToModule(dto.getModuleId(), tabEntity);
-        dto.setFieldScope(tabEntity.getTabScope());
+        SysModuleComponentEntity componentEntity = requireComponent(dto.getComponentId());
+        validateFieldBelongsToModule(dto.getModuleId(), componentEntity);
+        dto.setComponentCode(componentEntity.getComponentCode());
         validateFieldCodeUnique(dto.getModuleId(), dto.getFieldCode(), dto.getId());
         dto.setUpdateTime(LocalDateTime.now());
         SysModuleFieldEntity entity = sysModuleConverter.toFieldEntity(dto);
         if (sysModuleMapper.updateField(entity) == 0) {
-            throw new BusinessException("模块字段更新失败");
+            throw new BusinessException("Update field failed");
         }
         updateFieldTitleRelation(entity);
         touchModuleVersion(dto.getModuleId());
@@ -219,7 +197,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
     public void removeField(Long id) {
         SysModuleFieldEntity currentEntity = requireField(id);
         if (sysModuleMapper.deleteFieldById(id) == 0) {
-            throw new BusinessException("模块字段删除失败");
+            throw new BusinessException("Remove field failed");
         }
         removeFieldRelations(id);
         touchModuleVersion(currentEntity.getModuleId());
@@ -235,7 +213,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         SysModuleButtonEntity entity = sysModuleConverter.toButtonEntity(dto);
         entity.setId(YitIdHelper.nextId());
         if (sysModuleMapper.insertButton(entity) == 0) {
-            throw new BusinessException("模块按钮创建失败");
+            throw new BusinessException("Create button failed");
         }
         dto.setId(entity.getId());
         grantAdminButtonPermissions(entity);
@@ -248,13 +226,13 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         normalizeButton(dto);
         SysModuleButtonEntity currentEntity = requireButton(dto.getId());
         if (!Objects.equals(currentEntity.getModuleId(), dto.getModuleId())) {
-            throw new BusinessException("不支持跨模块移动按钮");
+            throw new BusinessException("Moving button across modules is not supported");
         }
         validateModuleExists(dto.getModuleId());
         validateButtonCodeUnique(dto.getModuleId(), dto.getButtonCode(), dto.getId());
         dto.setUpdateTime(LocalDateTime.now());
         if (sysModuleMapper.updateButton(sysModuleConverter.toButtonEntity(dto)) == 0) {
-            throw new BusinessException("模块按钮更新失败");
+            throw new BusinessException("Update button failed");
         }
         touchModuleVersion(dto.getModuleId());
     }
@@ -264,7 +242,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
     public void removeButton(Long id) {
         SysModuleButtonEntity currentEntity = requireButton(id);
         if (sysModuleMapper.deleteButtonById(id) == 0) {
-            throw new BusinessException("模块按钮删除失败");
+            throw new BusinessException("Remove button failed");
         }
         removeButtonRelations(id);
         touchModuleVersion(currentEntity.getModuleId());
@@ -272,7 +250,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
 
     @Override
     protected String moduleName() {
-        return "模块管理";
+        return "Module";
     }
 
     @Override
@@ -310,9 +288,8 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         }
         validateModuleParent(dto.getParentId());
         SysModuleEntity parentEntity = resolveParentModule(dto.getParentId());
-        if (parentEntity != null
-                && (Objects.equals(parentEntity.getId(), dto.getId()) || containsId(parentEntity.getAncestors(), dto.getId()))) {
-            throw new BusinessException("上级模块不能选择当前模块或其下级模块");
+        if (parentEntity != null && (Objects.equals(parentEntity.getId(), dto.getId()) || containsId(parentEntity.getAncestors(), dto.getId()))) {
+            throw new BusinessException("Parent module cannot be current module or its descendant");
         }
         if (!"CATALOG".equals(dto.getModuleType()) && sysModuleMapper.countChildModuleByParentId(dto.getId()) > 0) {
             throw new BusinessException(CHILD_MODULE_REQUIRES_CATALOG_MESSAGE);
@@ -335,11 +312,9 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
             throw new BusinessException(MODULE_NOT_FOUND_MESSAGE);
         }
         if (sysModuleMapper.countChildModuleByParentId(id) > 0) {
-            throw new BusinessException("当前模块存在子模块，不能删除");
+            throw new BusinessException("Current module still has child modules");
         }
-        if (sysModuleMapper.countTabByModuleId(id) > 0
-                || sysModuleMapper.countFieldByModuleId(id) > 0
-                || sysModuleMapper.countButtonByModuleId(id) > 0) {
+        if (sysModuleMapper.countComponentByModuleId(id) > 0 || sysModuleMapper.countFieldByModuleId(id) > 0 || sysModuleMapper.countButtonByModuleId(id) > 0) {
             throw new BusinessException(MODULE_DESIGN_DATA_EXISTS_MESSAGE);
         }
     }
@@ -350,13 +325,10 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
             throw new BusinessException(MODULE_NOT_FOUND_MESSAGE);
         }
         SysModuleDetailDTO detail = sysModuleConverter.toDetailDTO(moduleEntity);
-        List<SysModuleTabDTO> tabList = sysModuleConverter.toTabDTOList(sysModuleMapper.selectTabsByModuleId(id));
-        List<SysModuleFieldDTO> fieldList = sysModuleConverter.toFieldDTOList(includeFieldTitles
-                ? sysModuleMapper.selectFieldsByModuleId(id)
-                : sysModuleMapper.selectFieldDefinitionsByModuleId(id));
+        List<SysModuleComponentDTO> componentList = sysModuleConverter.toComponentDTOList(sysModuleMapper.selectComponentsByModuleId(id));
+        List<SysModuleFieldDTO> fieldList = sysModuleConverter.toFieldDTOList(includeFieldTitles ? sysModuleMapper.selectFieldsByModuleId(id) : sysModuleMapper.selectFieldDefinitionsByModuleId(id));
         List<SysModuleButtonDTO> buttonList = sysModuleConverter.toButtonDTOList(sysModuleMapper.selectButtonsByModuleId(id));
-        detail.setHeaderTabs(buildTabDetails(tabList, fieldList, "HEADER"));
-        detail.setDetailTabs(buildTabDetails(tabList, fieldList, "DETAIL"));
+        detail.setComponents(buildComponentDetails(componentList, fieldList));
         detail.setButtons(buttonList);
         detail.getButtons().sort(Comparator.comparing(SysModuleButtonDTO::getSort, Comparator.nullsLast(Integer::compareTo)));
         detail.setStates(sysModuleConverter.toStateDTOList(sysModuleMapper.selectStatesByModuleId(id)));
@@ -366,21 +338,15 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         return detail;
     }
 
-    private List<SysModuleTabDetailDTO> buildTabDetails(List<SysModuleTabDTO> tabList, List<SysModuleFieldDTO> fieldList, String scope) {
+    private List<SysModuleComponentDetailDTO> buildComponentDetails(List<SysModuleComponentDTO> componentList, List<SysModuleFieldDTO> fieldList) {
         Map<Long, List<SysModuleFieldDTO>> fieldMap = new LinkedHashMap<>();
-        fieldList.stream()
-                .sorted(Comparator.comparing(SysModuleFieldDTO::getSort, Comparator.nullsLast(Integer::compareTo)))
-                .forEach(field -> fieldMap.computeIfAbsent(field.getTabId(), key -> new ArrayList<>()).add(field));
-        return tabList.stream()
-                .filter(tab -> scope.equals(tab.getTabScope()))
-                .sorted(Comparator.comparing(SysModuleTabDTO::getSort, Comparator.nullsLast(Integer::compareTo)))
-                .map(tab -> {
-                    SysModuleTabDetailDTO detail = new SysModuleTabDetailDTO();
-                    detail.setTabInfo(tab);
-                    detail.setFields(fieldMap.getOrDefault(tab.getId(), new ArrayList<>()));
-                    return detail;
-                })
-                .toList();
+        fieldList.stream().sorted(Comparator.comparing(SysModuleFieldDTO::getSort, Comparator.nullsLast(Integer::compareTo))).forEach(field -> fieldMap.computeIfAbsent(field.getComponentId(), key -> new ArrayList<>()).add(field));
+        return componentList.stream().sorted(Comparator.comparing(SysModuleComponentDTO::getSort, Comparator.nullsLast(Integer::compareTo))).map(component -> {
+            SysModuleComponentDetailDTO detail = new SysModuleComponentDetailDTO();
+            detail.setComponentInfo(component);
+            detail.setFields(fieldMap.getOrDefault(component.getId(), new ArrayList<>()));
+            return detail;
+        }).toList();
     }
 
     private void normalizeModule(SysModuleDTO dto) {
@@ -416,21 +382,18 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         }
     }
 
-    private void normalizeTab(SysModuleTabDTO dto) {
+    private void normalizeComponent(SysModuleComponentDTO dto) {
         if (dto.getSort() == null || dto.getSort() <= 0) {
             dto.setSort(1);
         }
         if (!StringUtils.hasText(dto.getStatus())) {
             dto.setStatus("0");
         }
-        if (StringUtils.hasText(dto.getTabScope())) {
-            dto.setTabScope(dto.getTabScope().trim().toUpperCase());
+        if (StringUtils.hasText(dto.getComponentCode())) {
+            dto.setComponentCode(dto.getComponentCode().trim());
         }
-        if (StringUtils.hasText(dto.getTabCode())) {
-            dto.setTabCode(dto.getTabCode().trim());
-        }
-        if (StringUtils.hasText(dto.getTabName())) {
-            dto.setTabName(dto.getTabName().trim());
+        if (StringUtils.hasText(dto.getComponentName())) {
+            dto.setComponentName(dto.getComponentName().trim());
         }
     }
 
@@ -462,9 +425,6 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         if (!StringUtils.hasText(dto.getStatus())) {
             dto.setStatus("0");
         }
-        if (StringUtils.hasText(dto.getArea())) {
-            dto.setArea(dto.getArea().trim().toUpperCase());
-        }
         if (StringUtils.hasText(dto.getButtonCode())) {
             dto.setButtonCode(dto.getButtonCode().trim());
         }
@@ -482,7 +442,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
             throw new BusinessException(PARENT_MODULE_NOT_FOUND_MESSAGE);
         }
         if (!"CATALOG".equals(parentEntity.getModuleType())) {
-            throw new BusinessException("只有目录节点可以新增下级模块");
+            throw new BusinessException("Only catalog nodes can contain child modules");
         }
     }
 
@@ -503,15 +463,15 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         throw new BusinessException(MODULE_CODE_EXISTS_MESSAGE);
     }
 
-    private void validateTabCodeUnique(Long moduleId, String tabScope, String tabCode, Long currentId) {
-        SysModuleTabEntity entity = sysModuleMapper.selectTabByModuleIdAndScopeAndCode(moduleId, tabScope, tabCode);
+    private void validateComponentCodeUnique(Long moduleId, String componentCode, Long currentId) {
+        SysModuleComponentEntity entity = sysModuleMapper.selectComponentByModuleIdAndCode(moduleId, componentCode);
         if (entity == null) {
             return;
         }
         if (currentId != null && Objects.equals(entity.getId(), currentId)) {
             return;
         }
-        throw new BusinessException(TAB_CODE_EXISTS_MESSAGE);
+        throw new BusinessException(COMPONENT_CODE_EXISTS_MESSAGE);
     }
 
     private void validateFieldCodeUnique(Long moduleId, String fieldCode, Long currentId) {
@@ -536,9 +496,9 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         throw new BusinessException(BUTTON_CODE_EXISTS_MESSAGE);
     }
 
-    private void validateFieldBelongsToModule(Long moduleId, SysModuleTabEntity tabEntity) {
-        if (!Objects.equals(tabEntity.getModuleId(), moduleId)) {
-            throw new BusinessException(FIELD_TAB_MISMATCH_MESSAGE);
+    private void validateFieldBelongsToModule(Long moduleId, SysModuleComponentEntity componentEntity) {
+        if (!Objects.equals(componentEntity.getModuleId(), moduleId)) {
+            throw new BusinessException(FIELD_COMPONENT_MISMATCH_MESSAGE);
         }
     }
 
@@ -553,10 +513,10 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         return parentEntity;
     }
 
-    private SysModuleTabEntity requireTab(Long id) {
-        SysModuleTabEntity entity = sysModuleMapper.selectTabById(id);
+    private SysModuleComponentEntity requireComponent(Long id) {
+        SysModuleComponentEntity entity = sysModuleMapper.selectComponentById(id);
         if (entity == null) {
-            throw new BusinessException(TAB_NOT_FOUND_MESSAGE);
+            throw new BusinessException(COMPONENT_NOT_FOUND_MESSAGE);
         }
         return entity;
     }
@@ -624,8 +584,8 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         SysModuleFieldTitleEntity titleEntity = new SysModuleFieldTitleEntity();
         titleEntity.setFieldId(fieldEntity.getId());
         titleEntity.setModuleId(fieldEntity.getModuleId());
-        titleEntity.setTabId(fieldEntity.getTabId());
-        titleEntity.setFieldScope(fieldEntity.getFieldScope());
+        titleEntity.setComponentId(fieldEntity.getComponentId());
+        titleEntity.setComponentCode(fieldEntity.getComponentCode());
         titleEntity.setFieldCode(fieldEntity.getFieldCode());
         titleEntity.setDefaultTitle(fieldEntity.getDefaultTitle());
         titleEntity.setLocale(DEFAULT_LOCALE);
@@ -653,7 +613,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
             entity.setNavVisible("1".equals(moduleEntity.getNavVisible()) ? "1" : "0");
             entity.setCreateBy(SYSTEM_USER);
             entity.setCreateTime(now);
-            entity.setNote("admin 用户新增模块默认拥有可见权限");
+            entity.setNote("admin gets module visibility by default");
             sysModulePermissionMapper.insertOrgPostModuleAuth(entity);
         });
     }
@@ -673,7 +633,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
             entity.setPermissionLevel(2);
             entity.setCreateBy(SYSTEM_USER);
             entity.setCreateTime(now);
-            entity.setNote("admin 用户新增字段默认拥有可写权限");
+            entity.setNote("admin gets writable field permission by default");
             return entity;
         }).toList();
         sysModulePermissionMapper.insertOrgPostFieldAuthBatch(entityList);
@@ -694,7 +654,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
             entity.setPermissionLevel(2);
             entity.setCreateBy(SYSTEM_USER);
             entity.setCreateTime(now);
-            entity.setNote("admin 用户新增按钮默认拥有可用权限");
+            entity.setNote("admin gets button permission by default");
             return entity;
         }).toList();
         sysModulePermissionMapper.insertOrgPostButtonAuthBatch(entityList);
@@ -747,9 +707,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
     }
 
     private void sortTree(List<SysModuleTreeNodeDTO> nodes) {
-        nodes.sort(Comparator
-                .comparing(SysModuleTreeNodeDTO::getSort, Comparator.nullsLast(Integer::compareTo))
-                .thenComparing(SysModuleTreeNodeDTO::getId));
+        nodes.sort(Comparator.comparing(SysModuleTreeNodeDTO::getSort, Comparator.nullsLast(Integer::compareTo)).thenComparing(SysModuleTreeNodeDTO::getId));
         nodes.forEach(node -> {
             if (node.getChildren() != null && !node.getChildren().isEmpty()) {
                 sortTree(node.getChildren());
@@ -760,9 +718,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
     private List<SysModuleTreeNodeDTO> filterNavTree(List<SysModuleTreeNodeDTO> nodeList, Set<Long> visibleModuleIdSet) {
         List<SysModuleTreeNodeDTO> result = new ArrayList<>();
         for (SysModuleTreeNodeDTO node : nodeList) {
-            List<SysModuleTreeNodeDTO> children = node.getChildren() == null
-                    ? new ArrayList<>()
-                    : filterNavTree(node.getChildren(), visibleModuleIdSet);
+            List<SysModuleTreeNodeDTO> children = node.getChildren() == null ? new ArrayList<>() : filterNavTree(node.getChildren(), visibleModuleIdSet);
             if (visibleModuleIdSet.contains(node.getId()) || !children.isEmpty()) {
                 SysModuleTreeNodeDTO copied = copyTreeNode(node);
                 copied.setChildren(children);
@@ -775,9 +731,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
     private List<SysModuleTreeNodeDTO> filterUserVisibleTree(List<SysModuleTreeNodeDTO> nodeList) {
         List<SysModuleTreeNodeDTO> result = new ArrayList<>();
         for (SysModuleTreeNodeDTO node : nodeList) {
-            List<SysModuleTreeNodeDTO> children = node.getChildren() == null
-                    ? new ArrayList<>()
-                    : filterUserVisibleTree(node.getChildren());
+            List<SysModuleTreeNodeDTO> children = node.getChildren() == null ? new ArrayList<>() : filterUserVisibleTree(node.getChildren());
             if (isUserVisibleNode(node) || !children.isEmpty()) {
                 SysModuleTreeNodeDTO copied = copyTreeNode(node);
                 copied.setChildren(children);
@@ -788,16 +742,23 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
     }
 
     private boolean isUserVisibleNode(SysModuleTreeNodeDTO node) {
-        return "1".equals(node.getNavVisible()) && !USER_HIDDEN_MODULE_CODE_SET.contains(node.getModuleCode());
+        return "1".equals(node.getNavVisible());
     }
 
-    private List<SysModuleTreeNodeDTO> hideUserHiddenNavNode(List<SysModuleTreeNodeDTO> nodeList) {
+    private Map<Long, String> buildNavVisibleMap(List<SysUserModuleNavPermissionModel> navPermissionList) {
+        Map<Long, String> navVisibleMap = new LinkedHashMap<>();
+        navPermissionList.forEach(item -> navVisibleMap.put(item.getModuleId(), item.getNavVisible()));
+        return navVisibleMap;
+    }
+
+    private List<SysModuleTreeNodeDTO> applyNavVisibility(List<SysModuleTreeNodeDTO> nodeList, Map<Long, String> navVisibleMap) {
         nodeList.forEach(node -> {
-            if (USER_HIDDEN_MODULE_CODE_SET.contains(node.getModuleCode())) {
-                node.setNavVisible("0");
+            String navVisible = navVisibleMap.get(node.getId());
+            if (navVisible != null) {
+                node.setNavVisible(navVisible);
             }
             if (node.getChildren() != null && !node.getChildren().isEmpty()) {
-                hideUserHiddenNavNode(node.getChildren());
+                applyNavVisibility(node.getChildren(), navVisibleMap);
             }
         });
         return nodeList;

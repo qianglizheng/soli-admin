@@ -23,9 +23,6 @@ public class SysModuleButtonDTO extends BaseDTO {
     /** 默认标题 */
     private String defaultTitle;
 
-    /** 所属区域 */
-    private String area;
-
     /** 排序 */
     private Integer sort;
 

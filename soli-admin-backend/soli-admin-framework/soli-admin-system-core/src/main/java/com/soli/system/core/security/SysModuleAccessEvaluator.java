@@ -10,8 +10,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.util.Map;
-
 /**
  * 模块权限表达式计算器
  *
@@ -21,6 +19,8 @@ import java.util.Map;
 @Component("moduleAccess")
 @RequiredArgsConstructor
 public class SysModuleAccessEvaluator {
+
+    private static final String BUTTON_COMPONENT = "button";
 
     private final SysModulePermissionMapper sysModulePermissionMapper;
 
@@ -57,40 +57,14 @@ public class SysModuleAccessEvaluator {
         }
         try {
             SysModuleContextDTO context = sysModuleContextService.buildContext(moduleCode, userId, companyId, stateCode);
-            SysModuleContextDTO.ButtonItem buttonItem = resolveButtonItem(context, buttonCode);
-            return buttonItem != null
-                    && Boolean.TRUE.equals(buttonItem.getVisible())
-                    && !Boolean.TRUE.equals(buttonItem.getDisabled());
+            String configKey = BUTTON_COMPONENT + ":" + buttonCode;
+            SysModuleContextDTO.FieldConfig buttonConfig = context.getFieldConfigs() == null ? null : context.getFieldConfigs().get(configKey);
+            return buttonConfig != null
+                    && Boolean.TRUE.equals(buttonConfig.getVisible())
+                    && !Boolean.TRUE.equals(buttonConfig.getDisabled());
         } catch (BusinessException ex) {
             return false;
         }
-    }
-
-    private SysModuleContextDTO.ButtonItem resolveButtonItem(SysModuleContextDTO context, String buttonCode) {
-        if (context == null || context.getButtons() == null || !StringUtils.hasText(buttonCode)) {
-            return null;
-        }
-        SysModuleContextDTO.ButtonItem buttonItem = resolveButtonItem(context.getButtons().getListToolbar(), buttonCode);
-        if (buttonItem != null) {
-            return buttonItem;
-        }
-        buttonItem = resolveButtonItem(context.getButtons().getListRow(), buttonCode);
-        if (buttonItem != null) {
-            return buttonItem;
-        }
-        buttonItem = resolveButtonItem(context.getButtons().getHeaderToolbar(), buttonCode);
-        if (buttonItem != null) {
-            return buttonItem;
-        }
-        return resolveButtonItem(context.getButtons().getDetailRow(), buttonCode);
-    }
-
-    private SysModuleContextDTO.ButtonItem resolveButtonItem(Map<String, SysModuleContextDTO.ButtonItem> buttonMap,
-                                                             String buttonCode) {
-        if (buttonMap == null || !StringUtils.hasText(buttonCode)) {
-            return null;
-        }
-        return buttonMap.get(buttonCode);
     }
 
     private Long currentUserId() {

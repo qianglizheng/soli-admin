@@ -8,13 +8,13 @@ import com.soli.system.core.service.impl.sysmodulepermission.SysModuleStateField
 import com.soli.system.core.service.impl.sysmodulepermission.SysUserModuleButtonPermissionModel;
 import com.soli.system.core.service.impl.sysmodulepermission.SysUserModuleFieldPermissionModel;
 import com.soli.system.service.sysmodule.SysModuleButtonDTO;
+import com.soli.system.service.sysmodule.SysModuleComponentDetailDTO;
 import com.soli.system.service.sysmodule.SysModuleContextDTO;
 import com.soli.system.service.sysmodule.SysModuleContextService;
 import com.soli.system.service.sysmodule.SysModuleDetailDTO;
 import com.soli.system.service.sysmodule.SysModuleFieldDTO;
 import com.soli.system.service.sysmodule.SysModuleService;
 import com.soli.system.service.sysmodule.SysModuleStateDTO;
-import com.soli.system.service.sysmodule.SysModuleTabDetailDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -39,6 +39,12 @@ public class SysModuleContextServiceImpl implements SysModuleContextService {
 
     private static final int FULL_PERMISSION_LEVEL = 2;
 
+    private static final String FIELD_CONFIG_TYPE = "field";
+
+    private static final String BUTTON_CONFIG_TYPE = "button";
+
+    private static final String BUTTON_COMPONENT = "button";
+
     private final SysModuleMapper sysModuleMapper;
 
     private final SysModulePermissionMapper sysModulePermissionMapper;
@@ -61,6 +67,8 @@ public class SysModuleContextServiceImpl implements SysModuleContextService {
         Map<Long, Integer> fieldPermissionMap = buildFieldPermissionMap(moduleDetail, userId, companyId, currentStateCode);
         Map<Long, Integer> buttonPermissionMap = buildButtonPermissionMap(moduleDetail, userId, companyId, currentStateCode);
 
+        Map<String, SysModuleContextDTO.FieldConfig> fieldConfigs = buildFieldConfigs(moduleDetail, fieldPermissionMap, buttonPermissionMap);
+
         SysModuleContextDTO context = new SysModuleContextDTO();
         context.setModuleId(moduleDetail.getId());
         context.setModuleCode(moduleDetail.getModuleCode());
@@ -69,9 +77,7 @@ public class SysModuleContextServiceImpl implements SysModuleContextService {
         context.setStatefulFlag(moduleDetail.getStatefulFlag());
         context.setStateFieldCode(moduleDetail.getStateFieldCode());
         context.setState(currentState);
-        context.setHeaderTabs(buildTabContextList(moduleDetail.getHeaderTabs(), fieldPermissionMap));
-        context.setDetailTabs(buildTabContextList(moduleDetail.getDetailTabs(), fieldPermissionMap));
-        context.setButtons(buildButtonContext(moduleDetail.getButtons(), buttonPermissionMap));
+        context.setFieldConfigs(fieldConfigs);
         return context;
     }
 
@@ -185,112 +191,125 @@ public class SysModuleContextServiceImpl implements SysModuleContextService {
         return permissionMap;
     }
 
-    private List<SysModuleContextDTO.TabContext> buildTabContextList(List<SysModuleTabDetailDTO> tabList,
-                                                                     Map<Long, Integer> permissionMap) {
-        List<SysModuleContextDTO.TabContext> result = new ArrayList<>();
-        if (tabList == null) {
-            return result;
-        }
-        tabList.forEach(tab -> {
-            SysModuleContextDTO.TabContext tabContext = new SysModuleContextDTO.TabContext();
-            tabContext.setTabInfo(tab.getTabInfo());
-            List<SysModuleContextDTO.FieldContext> fieldContextList = buildFieldContextList(tab.getFields(), permissionMap);
-            tabContext.setFields(fieldContextList);
-            tabContext.setVisible(fieldContextList.stream().anyMatch(item -> Boolean.TRUE.equals(item.getVisible())));
-            result.add(tabContext);
-        });
-        return result;
+    private Map<String, SysModuleContextDTO.FieldConfig> buildFieldConfigs(SysModuleDetailDTO moduleDetail,
+                                                                           Map<Long, Integer> fieldPermissionMap,
+                                                                           Map<Long, Integer> buttonPermissionMap) {
+        Map<String, SysModuleContextDTO.FieldConfig> fieldConfigs = new LinkedHashMap<>();
+        appendFieldConfigs(fieldConfigs, moduleDetail.getComponents(), fieldPermissionMap);
+        appendButtonConfigs(fieldConfigs, moduleDetail.getButtons(), buttonPermissionMap);
+        return fieldConfigs;
     }
 
-    private List<SysModuleContextDTO.FieldContext> buildFieldContextList(List<SysModuleFieldDTO> fieldList,
-                                                                         Map<Long, Integer> permissionMap) {
-        List<SysModuleContextDTO.FieldContext> result = new ArrayList<>();
-        if (fieldList == null) {
-            return result;
+    private void appendFieldConfigs(Map<String, SysModuleContextDTO.FieldConfig> fieldConfigs,
+                                    List<SysModuleComponentDetailDTO> componentList,
+                                    Map<Long, Integer> permissionMap) {
+        if (componentList == null) {
+            return;
         }
-        fieldList.forEach(field -> {
-            int permissionLevel = permissionMap.getOrDefault(field.getId(), HIDDEN_PERMISSION_LEVEL);
-            String label = resolveFieldLabel(field);
-            SysModuleContextDTO.FieldContext fieldContext = new SysModuleContextDTO.FieldContext();
-            fieldContext.setFieldId(field.getId());
-            fieldContext.setFieldCode(field.getFieldCode());
-            fieldContext.setDefaultTitle(field.getDefaultTitle());
-            fieldContext.setDisplayTitle(label);
-            fieldContext.setLabel(label);
-            fieldContext.setPlaceholder(resolvePlaceholder(field));
-            fieldContext.setHelpText(resolveHelpText(field));
-            fieldContext.setComponentType(field.getComponentType());
-            fieldContext.setDataPath(field.getDataPath());
-            fieldContext.setValueType(field.getValueType());
-            fieldContext.setPermissionLevel(permissionLevel);
-            fieldContext.setVisible(permissionLevel > HIDDEN_PERMISSION_LEVEL);
-            fieldContext.setEditable(permissionLevel >= FULL_PERMISSION_LEVEL);
-            fieldContext.setRequired("1".equals(field.getRequiredFlag()));
-            result.add(fieldContext);
+        componentList.forEach(component -> {
+            if (component.getFields() == null) {
+                return;
+            }
+            component.getFields().forEach(field -> appendFieldConfig(fieldConfigs, field, permissionMap.getOrDefault(field.getId(), HIDDEN_PERMISSION_LEVEL)));
         });
-        return result;
     }
 
-    private SysModuleContextDTO.ButtonContext buildButtonContext(List<SysModuleButtonDTO> buttonList,
-                                                                 Map<Long, Integer> permissionMap) {
-        SysModuleContextDTO.ButtonContext context = new SysModuleContextDTO.ButtonContext();
-        context.setListToolbar(new LinkedHashMap<>());
-        context.setListRow(new LinkedHashMap<>());
-        context.setHeaderToolbar(new LinkedHashMap<>());
-        context.setDetailRow(new LinkedHashMap<>());
+    private void appendFieldConfig(Map<String, SysModuleContextDTO.FieldConfig> fieldConfigs,
+                                   SysModuleFieldDTO field,
+                                   Integer permissionLevel) {
+        String label = resolveFieldLabel(field);
+        String configKey = resolveFieldConfigKey(field);
+        SysModuleContextDTO.FieldConfig fieldConfig = new SysModuleContextDTO.FieldConfig();
+        fieldConfig.setConfigKey(configKey);
+        fieldConfig.setConfigType(FIELD_CONFIG_TYPE);
+        fieldConfig.setComponent(resolveFieldComponent(field));
+        fieldConfig.setCode(field.getFieldCode());
+        fieldConfig.setFieldId(field.getId());
+        fieldConfig.setDefaultTitle(field.getDefaultTitle());
+        fieldConfig.setDisplayTitle(label);
+        fieldConfig.setLabel(label);
+        fieldConfig.setPlaceholder(resolvePlaceholder(field));
+        fieldConfig.setHelpText(resolveHelpText(field));
+        fieldConfig.setComponentType(field.getComponentType());
+        fieldConfig.setDataPath(field.getDataPath());
+        fieldConfig.setValueType(field.getValueType());
+        fieldConfig.setPermissionLevel(permissionLevel);
+        fieldConfig.setVisible(permissionLevel > HIDDEN_PERMISSION_LEVEL);
+        fieldConfig.setEditable(permissionLevel >= FULL_PERMISSION_LEVEL);
+        fieldConfig.setRequired("1".equals(field.getRequiredFlag()));
+        fieldConfig.setDisabled(false);
+        fieldConfigs.put(configKey, fieldConfig);
+    }
+
+    private void appendButtonConfigs(Map<String, SysModuleContextDTO.FieldConfig> fieldConfigs,
+                                     List<SysModuleButtonDTO> buttonList,
+                                     Map<Long, Integer> permissionMap) {
         if (buttonList == null) {
-            return context;
+            return;
         }
         buttonList.stream()
                 .sorted(Comparator.comparing(SysModuleButtonDTO::getSort, Comparator.nullsLast(Integer::compareTo)))
-                .forEach(button -> appendButtonContext(context, button, permissionMap.getOrDefault(button.getId(), HIDDEN_PERMISSION_LEVEL)));
-        return context;
+                .forEach(button -> appendButtonConfig(fieldConfigs, button, permissionMap.getOrDefault(button.getId(), HIDDEN_PERMISSION_LEVEL)));
     }
 
-    private void appendButtonContext(SysModuleContextDTO.ButtonContext context,
-                                     SysModuleButtonDTO button,
-                                     Integer permissionLevel) {
-        SysModuleContextDTO.ButtonItem item = new SysModuleContextDTO.ButtonItem();
-        item.setButtonId(button.getId());
-        item.setButtonCode(button.getButtonCode());
-        item.setDefaultTitle(button.getDefaultTitle());
-        item.setLabel(button.getDefaultTitle());
-        item.setArea(button.getArea());
-        item.setPermissionLevel(permissionLevel);
-        item.setVisible(permissionLevel > HIDDEN_PERMISSION_LEVEL);
-        item.setDisabled(permissionLevel < FULL_PERMISSION_LEVEL);
+    private void appendButtonConfig(Map<String, SysModuleContextDTO.FieldConfig> fieldConfigs,
+                                    SysModuleButtonDTO button,
+                                    Integer permissionLevel) {
+        String configKey = resolveButtonConfigKey(button.getButtonCode());
+        SysModuleContextDTO.FieldConfig buttonConfig = new SysModuleContextDTO.FieldConfig();
+        buttonConfig.setConfigKey(configKey);
+        buttonConfig.setConfigType(BUTTON_CONFIG_TYPE);
+        buttonConfig.setComponent(BUTTON_COMPONENT);
+        buttonConfig.setCode(button.getButtonCode());
+        buttonConfig.setButtonId(button.getId());
+        buttonConfig.setDefaultTitle(button.getDefaultTitle());
+        buttonConfig.setDisplayTitle(button.getDefaultTitle());
+        buttonConfig.setLabel(button.getDefaultTitle());
+        buttonConfig.setComponentType(BUTTON_COMPONENT);
+        buttonConfig.setDataPath(BUTTON_COMPONENT + "." + button.getButtonCode());
+        buttonConfig.setPermissionLevel(permissionLevel);
+        buttonConfig.setVisible(permissionLevel > HIDDEN_PERMISSION_LEVEL);
+        buttonConfig.setEditable(permissionLevel >= FULL_PERMISSION_LEVEL);
+        buttonConfig.setRequired(false);
+        buttonConfig.setDisabled(permissionLevel < FULL_PERMISSION_LEVEL);
+        fieldConfigs.put(configKey, buttonConfig);
+    }
 
-        if ("LIST_TOOLBAR".equals(button.getArea())) {
-            context.getListToolbar().put(button.getButtonCode(), item);
-            return;
+    private String resolveFieldConfigKey(SysModuleFieldDTO field) {
+        return resolveFieldComponent(field) + ":" + field.getFieldCode();
+    }
+
+    private String resolveButtonConfigKey(String buttonCode) {
+        return BUTTON_COMPONENT + ":" + buttonCode;
+    }
+
+    private String resolveFieldComponent(SysModuleFieldDTO field) {
+        if (field != null && StringUtils.hasText(field.getComponentCode())) {
+            return field.getComponentCode().trim();
         }
-        if ("LIST_ROW_BUTTON".equals(button.getArea())) {
-            context.getListRow().put(button.getButtonCode(), item);
-            return;
+        if (field != null && StringUtils.hasText(field.getDataPath())) {
+            int separatorIndex = field.getDataPath().indexOf('.');
+            if (separatorIndex > 0) {
+                return field.getDataPath().substring(0, separatorIndex);
+            }
+            return field.getDataPath().trim();
         }
-        if ("HEADER_TOOLBAR".equals(button.getArea())) {
-            context.getHeaderToolbar().put(button.getButtonCode(), item);
-            return;
-        }
-        if ("DETAIL_ROW_BUTTON".equals(button.getArea())) {
-            context.getDetailRow().put(button.getButtonCode(), item);
-        }
+        return "field";
     }
 
     private List<SysModuleFieldDTO> flattenFields(SysModuleDetailDTO moduleDetail) {
         List<SysModuleFieldDTO> fieldList = new ArrayList<>();
-        appendTabFields(fieldList, moduleDetail.getHeaderTabs());
-        appendTabFields(fieldList, moduleDetail.getDetailTabs());
+        appendComponentFields(fieldList, moduleDetail.getComponents());
         return fieldList;
     }
 
-    private void appendTabFields(List<SysModuleFieldDTO> fieldList, List<SysModuleTabDetailDTO> tabList) {
-        if (tabList == null) {
+    private void appendComponentFields(List<SysModuleFieldDTO> fieldList, List<SysModuleComponentDetailDTO> componentList) {
+        if (componentList == null) {
             return;
         }
-        tabList.forEach(tab -> {
-            if (tab.getFields() != null) {
-                fieldList.addAll(tab.getFields());
+        componentList.forEach(component -> {
+            if (component.getFields() != null) {
+                fieldList.addAll(component.getFields());
             }
         });
     }

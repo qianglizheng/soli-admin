@@ -4,6 +4,9 @@ import com.soli.system.core.service.Converter;
 import com.soli.system.service.sysmodule.SysModuleButtonCreateRequest;
 import com.soli.system.service.sysmodule.SysModuleButtonDTO;
 import com.soli.system.service.sysmodule.SysModuleButtonModifyRequest;
+import com.soli.system.service.sysmodule.SysModuleComponentCreateRequest;
+import com.soli.system.service.sysmodule.SysModuleComponentDTO;
+import com.soli.system.service.sysmodule.SysModuleComponentModifyRequest;
 import com.soli.system.service.sysmodule.SysModuleCreateRequest;
 import com.soli.system.service.sysmodule.SysModuleDTO;
 import com.soli.system.service.sysmodule.SysModuleDetailDTO;
@@ -12,9 +15,6 @@ import com.soli.system.service.sysmodule.SysModuleFieldDTO;
 import com.soli.system.service.sysmodule.SysModuleFieldModifyRequest;
 import com.soli.system.service.sysmodule.SysModuleModifyRequest;
 import com.soli.system.service.sysmodule.SysModuleStateDTO;
-import com.soli.system.service.sysmodule.SysModuleTabCreateRequest;
-import com.soli.system.service.sysmodule.SysModuleTabDTO;
-import com.soli.system.service.sysmodule.SysModuleTabModifyRequest;
 import com.soli.system.service.sysmodule.SysModuleTransitionDTO;
 import com.soli.system.service.sysmodule.SysModuleTreeNodeDTO;
 import org.mapstruct.Mapper;
@@ -22,10 +22,10 @@ import org.mapstruct.Mapper;
 import java.util.List;
 
 /**
- * 模块对象转换器
+ * Module converter.
  *
  * @author lizhengqiang
- * @since 2026-03-25 00:15
+ * @since 2026-03-28 14:56
  */
 @Mapper(componentModel = "spring")
 public interface SysModuleConverter extends Converter<SysModuleDTO, SysModuleEntity> {
@@ -48,15 +48,15 @@ public interface SysModuleConverter extends Converter<SysModuleDTO, SysModuleEnt
 
     List<SysModuleTreeNodeDTO> toTreeNodeDTOList(List<SysModuleTreeNodeModel> modelList);
 
-    SysModuleTabDTO toTabDTO(SysModuleTabEntity entity);
+    SysModuleComponentDTO toComponentDTO(SysModuleComponentEntity entity);
 
-    List<SysModuleTabDTO> toTabDTOList(List<SysModuleTabEntity> entityList);
+    List<SysModuleComponentDTO> toComponentDTOList(List<SysModuleComponentEntity> entityList);
 
-    SysModuleTabDTO toDTO(SysModuleTabCreateRequest createRequest);
+    SysModuleComponentDTO toDTO(SysModuleComponentCreateRequest createRequest);
 
-    SysModuleTabDTO toDTO(SysModuleTabModifyRequest modifyRequest);
+    SysModuleComponentDTO toDTO(SysModuleComponentModifyRequest modifyRequest);
 
-    SysModuleTabEntity toTabEntity(SysModuleTabDTO dto);
+    SysModuleComponentEntity toComponentEntity(SysModuleComponentDTO dto);
 
     SysModuleFieldDTO toFieldDTO(SysModuleFieldEntity entity);
 
@@ -72,6 +72,12 @@ public interface SysModuleConverter extends Converter<SysModuleDTO, SysModuleEnt
 
     List<SysModuleButtonDTO> toButtonDTOList(List<SysModuleButtonEntity> entityList);
 
+    SysModuleButtonDTO toDTO(SysModuleButtonCreateRequest createRequest);
+
+    SysModuleButtonDTO toDTO(SysModuleButtonModifyRequest modifyRequest);
+
+    SysModuleButtonEntity toButtonEntity(SysModuleButtonDTO dto);
+
     SysModuleStateDTO toStateDTO(SysModuleStateEntity entity);
 
     List<SysModuleStateDTO> toStateDTOList(List<SysModuleStateEntity> entityList);
@@ -79,11 +85,5 @@ public interface SysModuleConverter extends Converter<SysModuleDTO, SysModuleEnt
     SysModuleTransitionDTO toTransitionDTO(SysModuleTransitionEntity entity);
 
     List<SysModuleTransitionDTO> toTransitionDTOList(List<SysModuleTransitionEntity> entityList);
-
-    SysModuleButtonDTO toDTO(SysModuleButtonCreateRequest createRequest);
-
-    SysModuleButtonDTO toDTO(SysModuleButtonModifyRequest modifyRequest);
-
-    SysModuleButtonEntity toButtonEntity(SysModuleButtonDTO dto);
 
 }

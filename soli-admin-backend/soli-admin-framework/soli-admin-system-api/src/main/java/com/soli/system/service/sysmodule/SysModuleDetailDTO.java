@@ -6,28 +6,21 @@ import lombok.Setter;
 import java.util.List;
 
 /**
- * 模块详情对象
+ * Module detail DTO.
  *
  * @author lizhengqiang
- * @since 2026-03-25 00:05
+ * @since 2026-03-28 14:52
  */
 @Getter
 @Setter
 public class SysModuleDetailDTO extends SysModuleDTO {
 
-    /** 表头 Tab 列表 */
-    private List<SysModuleTabDetailDTO> headerTabs;
+    private List<SysModuleComponentDetailDTO> components;
 
-    /** 明细 Tab 列表 */
-    private List<SysModuleTabDetailDTO> detailTabs;
-
-    /** 按钮列表 */
     private List<SysModuleButtonDTO> buttons;
 
-    /** 状态列表 */
     private List<SysModuleStateDTO> states;
 
-    /** 状态流转列表 */
     private List<SysModuleTransitionDTO> transitions;
 
 }

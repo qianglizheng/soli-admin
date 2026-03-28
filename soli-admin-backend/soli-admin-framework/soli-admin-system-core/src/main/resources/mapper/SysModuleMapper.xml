@@ -28,12 +28,11 @@
         <result property="note" column="note"/>
     </resultMap>
 
-    <resultMap id="SysModuleTabResultMap" type="com.soli.system.core.service.impl.sysmodule.SysModuleTabEntity">
+    <resultMap id="SysModuleComponentResultMap" type="com.soli.system.core.service.impl.sysmodule.SysModuleComponentEntity">
         <id property="id" column="id"/>
         <result property="moduleId" column="module_id"/>
-        <result property="tabScope" column="tab_scope"/>
-        <result property="tabCode" column="tab_code"/>
-        <result property="tabName" column="tab_name"/>
+        <result property="componentCode" column="component_code"/>
+        <result property="componentName" column="component_name"/>
         <result property="sort" column="sort"/>
         <result property="status" column="status"/>
         <result property="createBy" column="create_by"/>
@@ -46,8 +45,8 @@
     <resultMap id="SysModuleFieldResultMap" type="com.soli.system.core.service.impl.sysmodule.SysModuleFieldEntity">
         <id property="id" column="id"/>
         <result property="moduleId" column="module_id"/>
-        <result property="tabId" column="tab_id"/>
-        <result property="fieldScope" column="field_scope"/>
+        <result property="componentId" column="component_id"/>
+        <result property="componentCode" column="component_code"/>
         <result property="fieldCode" column="field_code"/>
         <result property="defaultTitle" column="default_title"/>
         <result property="displayTitle" column="display_title"/>
@@ -71,7 +70,6 @@
         <result property="moduleId" column="module_id"/>
         <result property="buttonCode" column="button_code"/>
         <result property="defaultTitle" column="default_title"/>
-        <result property="area" column="button_area"/>
         <result property="sort" column="sort"/>
         <result property="status" column="status"/>
         <result property="createBy" column="create_by"/>
@@ -153,40 +151,25 @@
     </update>
 
     <delete id="deleteById">
-        delete from sys_module
-        where id = #{id}
+        delete from sys_module where id = #{id}
     </delete>
 
     <select id="select" resultMap="SysModuleResultMap">
         select <include refid="Module_Column_List"/>
         from sys_module
         <where>
-            <if test="parentId != null">
-                and parent_id = #{parentId}
-            </if>
-            <if test="moduleCode != null and moduleCode != ''">
-                and module_code like concat('%', #{moduleCode}, '%')
-            </if>
-            <if test="moduleName != null and moduleName != ''">
-                and module_name like concat('%', #{moduleName}, '%')
-            </if>
-            <if test="moduleType != null and moduleType != ''">
-                and module_type = #{moduleType}
-            </if>
-            <if test="statefulFlag != null and statefulFlag != ''">
-                and stateful_flag = #{statefulFlag}
-            </if>
-            <if test="status != null and status != ''">
-                and status = #{status}
-            </if>
+            <if test="parentId != null">and parent_id = #{parentId}</if>
+            <if test="moduleCode != null and moduleCode != ''">and module_code like concat('%', #{moduleCode}, '%')</if>
+            <if test="moduleName != null and moduleName != ''">and module_name like concat('%', #{moduleName}, '%')</if>
+            <if test="moduleType != null and moduleType != ''">and module_type = #{moduleType}</if>
+            <if test="statefulFlag != null and statefulFlag != ''">and stateful_flag = #{statefulFlag}</if>
+            <if test="status != null and status != ''">and status = #{status}</if>
         </where>
         order by sort asc, id asc
     </select>
 
     <select id="selectById" resultMap="SysModuleResultMap">
-        select <include refid="Module_Column_List"/>
-        from sys_module
-        where id = #{id}
+        select <include refid="Module_Column_List"/> from sys_module where id = #{id}
     </select>
 
     <select id="selectTreeNodes" resultType="com.soli.system.core.service.impl.sysmodule.SysModuleTreeNodeModel">
@@ -207,75 +190,63 @@
     </select>
 
     <select id="selectAllModuleList" resultMap="SysModuleResultMap">
-        select <include refid="Module_Column_List"/>
-        from sys_module
-        order by sort asc, id asc
+        select <include refid="Module_Column_List"/> from sys_module order by sort asc, id asc
     </select>
 
     <select id="selectByModuleCode" resultMap="SysModuleResultMap">
-        select <include refid="Module_Column_List"/>
-        from sys_module
-        where module_code = #{moduleCode}
-        limit 1
+        select <include refid="Module_Column_List"/> from sys_module where module_code = #{moduleCode} limit 1
     </select>
 
     <select id="countChildModuleByParentId" resultType="int">
-        select count(1)
-        from sys_module
-        where parent_id = #{parentId}
+        select count(1) from sys_module where parent_id = #{parentId}
     </select>
 
     <update id="updateDescendantAncestors">
         update sys_module
-        set ancestors = replace(ancestors, #{oldPath}, #{newPath}),
-            update_time = #{updateTime}
-        where ancestors = #{oldPath}
-           or ancestors like concat(#{oldPath}, ',%')
+        set ancestors = replace(ancestors, #{oldPath}, #{newPath}), update_time = #{updateTime}
+        where ancestors = #{oldPath} or ancestors like concat(#{oldPath}, ',%')
     </update>
 
     <update id="incrementContextVersion">
         update sys_module
-        set context_version = ifnull(context_version, 0) + 1,
-            update_time = #{updateTime}
+        set context_version = ifnull(context_version, 0) + 1, update_time = #{updateTime}
         where id = #{moduleId}
     </update>
 
-    <select id="selectTabsByModuleId" resultMap="SysModuleTabResultMap">
-        select id, module_id, tab_scope, tab_code, tab_name, sort, status, create_by, create_time, update_by, update_time, note
-        from sys_module_tab
+    <select id="selectComponentsByModuleId" resultMap="SysModuleComponentResultMap">
+        select id, module_id, component_code, component_name, sort, status, create_by, create_time, update_by, update_time, note
+        from sys_module_component
         where module_id = #{moduleId}
-        order by tab_scope asc, sort asc, id asc
+        order by sort asc, id asc
     </select>
 
-    <select id="selectTabById" resultMap="SysModuleTabResultMap">
-        select id, module_id, tab_scope, tab_code, tab_name, sort, status, create_by, create_time, update_by, update_time, note
-        from sys_module_tab
+    <select id="selectComponentById" resultMap="SysModuleComponentResultMap">
+        select id, module_id, component_code, component_name, sort, status, create_by, create_time, update_by, update_time, note
+        from sys_module_component
         where id = #{id}
     </select>
 
-    <select id="selectTabByModuleIdAndScopeAndCode" resultMap="SysModuleTabResultMap">
-        select id, module_id, tab_scope, tab_code, tab_name, sort, status, create_by, create_time, update_by, update_time, note
-        from sys_module_tab
+    <select id="selectComponentByModuleIdAndCode" resultMap="SysModuleComponentResultMap">
+        select id, module_id, component_code, component_name, sort, status, create_by, create_time, update_by, update_time, note
+        from sys_module_component
         where module_id = #{moduleId}
-          and tab_scope = #{tabScope}
-          and tab_code = #{tabCode}
+          and component_code = #{componentCode}
         limit 1
     </select>
 
-    <insert id="insertTab" parameterType="com.soli.system.core.service.impl.sysmodule.SysModuleTabEntity">
-        insert into sys_module_tab (
-            id, module_id, tab_scope, tab_code, tab_name, sort, status, create_by, create_time, update_by, update_time, note
+    <insert id="insertComponent" parameterType="com.soli.system.core.service.impl.sysmodule.SysModuleComponentEntity">
+        insert into sys_module_component (
+            id, module_id, component_code, component_name, sort, status, create_by, create_time, update_by, update_time, note
         ) values (
-            #{id}, #{moduleId}, #{tabScope}, #{tabCode}, #{tabName}, #{sort}, #{status}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
+            #{id}, #{moduleId}, #{componentCode}, #{componentName}, #{sort}, #{status}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
         )
     </insert>
 
-    <update id="updateTab" parameterType="com.soli.system.core.service.impl.sysmodule.SysModuleTabEntity">
-        update sys_module_tab
+    <update id="updateComponent" parameterType="com.soli.system.core.service.impl.sysmodule.SysModuleComponentEntity">
+        update sys_module_component
         <set>
-            <if test="tabScope != null">tab_scope = #{tabScope},</if>
-            <if test="tabCode != null">tab_code = #{tabCode},</if>
-            <if test="tabName != null">tab_name = #{tabName},</if>
+            <if test="componentCode != null">component_code = #{componentCode},</if>
+            <if test="componentName != null">component_name = #{componentName},</if>
             <if test="sort != null">sort = #{sort},</if>
             <if test="status != null">status = #{status},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>
@@ -285,64 +256,65 @@
         where id = #{id}
     </update>
 
-    <delete id="deleteTabById">
-        delete from sys_module_tab
-        where id = #{id}
+    <delete id="deleteComponentById">
+        delete from sys_module_component where id = #{id}
     </delete>
 
-    <select id="countTabByModuleId" resultType="int">
-        select count(1)
-        from sys_module_tab
-        where module_id = #{moduleId}
+    <select id="countComponentByModuleId" resultType="int">
+        select count(1) from sys_module_component where module_id = #{moduleId}
     </select>
 
     <select id="selectFieldDefinitionsByModuleId" resultMap="SysModuleFieldResultMap">
-        select f.id, f.module_id, f.tab_id, f.field_scope, f.field_code, f.default_title,
+        select f.id, f.module_id, f.component_id, c.component_code, f.field_code, f.default_title,
                null as display_title, null as placeholder, null as help_text,
                f.component_type, f.data_path, f.value_type, f.required_flag, f.sort, f.status,
                f.create_by, f.create_time, f.update_by, f.update_time, f.note
         from sys_module_field f
+                 inner join sys_module_component c on c.id = f.component_id
         where f.module_id = #{moduleId}
-        order by f.field_scope asc, f.sort asc, f.id asc
+        order by c.sort asc, f.sort asc, f.id asc
     </select>
 
     <select id="selectFieldsByModuleId" resultMap="SysModuleFieldResultMap">
-        select field_id as id, module_id, tab_id, field_scope, field_code, default_title,
-               display_title, placeholder, help_text,
-               component_type, data_path, value_type, required_flag, sort, status,
-               create_by, create_time, update_by, update_time, note
-        from sys_module_field_title
-        where module_id = #{moduleId}
-          and locale = 'zh_CN'
-        order by field_scope asc, sort asc, field_id asc
+        select t.field_id as id, t.module_id, t.component_id, t.component_code, t.field_code, t.default_title,
+               t.display_title, t.placeholder, t.help_text,
+               t.component_type, t.data_path, t.value_type, t.required_flag, t.sort, t.status,
+               t.create_by, t.create_time, t.update_by, t.update_time, t.note
+        from sys_module_field_title t
+                 inner join sys_module_component c on c.id = t.component_id
+        where t.module_id = #{moduleId}
+          and t.locale = 'zh_CN'
+        order by c.sort asc, t.sort asc, t.field_id asc
     </select>
 
     <select id="selectFieldById" resultMap="SysModuleFieldResultMap">
-        select id, module_id, tab_id, field_scope, field_code, default_title,
+        select f.id, f.module_id, f.component_id, c.component_code, f.field_code, f.default_title,
                null as display_title, null as placeholder, null as help_text,
-               component_type, data_path, value_type, required_flag, sort, status,
-               create_by, create_time, update_by, update_time, note
-        from sys_module_field
-        where id = #{id}
+               f.component_type, f.data_path, f.value_type, f.required_flag, f.sort, f.status,
+               f.create_by, f.create_time, f.update_by, f.update_time, f.note
+        from sys_module_field f
+                 inner join sys_module_component c on c.id = f.component_id
+        where f.id = #{id}
     </select>
 
     <select id="selectFieldByModuleIdAndCode" resultMap="SysModuleFieldResultMap">
-        select id, module_id, tab_id, field_scope, field_code, default_title,
+        select f.id, f.module_id, f.component_id, c.component_code, f.field_code, f.default_title,
                null as display_title, null as placeholder, null as help_text,
-               component_type, data_path, value_type, required_flag, sort, status,
-               create_by, create_time, update_by, update_time, note
-        from sys_module_field
-        where module_id = #{moduleId}
-          and field_code = #{fieldCode}
+               f.component_type, f.data_path, f.value_type, f.required_flag, f.sort, f.status,
+               f.create_by, f.create_time, f.update_by, f.update_time, f.note
+        from sys_module_field f
+                 inner join sys_module_component c on c.id = f.component_id
+        where f.module_id = #{moduleId}
+          and f.field_code = #{fieldCode}
         limit 1
     </select>
 
     <insert id="insertField" parameterType="com.soli.system.core.service.impl.sysmodule.SysModuleFieldEntity">
         insert into sys_module_field (
-            id, module_id, tab_id, field_scope, field_code, default_title, component_type, data_path, value_type,
+            id, module_id, component_id, field_code, default_title, component_type, data_path, value_type,
             required_flag, sort, status, create_by, create_time, update_by, update_time, note
         ) values (
-            #{id}, #{moduleId}, #{tabId}, #{fieldScope}, #{fieldCode}, #{defaultTitle}, #{componentType}, #{dataPath}, #{valueType},
+            #{id}, #{moduleId}, #{componentId}, #{fieldCode}, #{defaultTitle}, #{componentType}, #{dataPath}, #{valueType},
             #{requiredFlag}, #{sort}, #{status}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
         )
     </insert>
@@ -350,8 +322,7 @@
     <update id="updateField" parameterType="com.soli.system.core.service.impl.sysmodule.SysModuleFieldEntity">
         update sys_module_field
         <set>
-            <if test="tabId != null">tab_id = #{tabId},</if>
-            <if test="fieldScope != null">field_scope = #{fieldScope},</if>
+            <if test="componentId != null">component_id = #{componentId},</if>
             <if test="fieldCode != null">field_code = #{fieldCode},</if>
             <if test="defaultTitle != null">default_title = #{defaultTitle},</if>
             <if test="componentType != null">component_type = #{componentType},</if>
@@ -368,37 +339,32 @@
     </update>
 
     <delete id="deleteFieldById">
-        delete from sys_module_field
-        where id = #{id}
+        delete from sys_module_field where id = #{id}
     </delete>
 
     <select id="countFieldByModuleId" resultType="int">
-        select count(1)
-        from sys_module_field
-        where module_id = #{moduleId}
+        select count(1) from sys_module_field where module_id = #{moduleId}
     </select>
 
-    <select id="countFieldByTabId" resultType="int">
-        select count(1)
-        from sys_module_field
-        where tab_id = #{tabId}
+    <select id="countFieldByComponentId" resultType="int">
+        select count(1) from sys_module_field where component_id = #{componentId}
     </select>
 
     <select id="selectButtonsByModuleId" resultMap="SysModuleButtonResultMap">
-        select id, module_id, button_code, default_title, button_area, sort, status, create_by, create_time, update_by, update_time, note
+        select id, module_id, button_code, default_title, sort, status, create_by, create_time, update_by, update_time, note
         from sys_module_button
         where module_id = #{moduleId}
-        order by button_area asc, sort asc, id asc
+        order by sort asc, id asc
     </select>
 
     <select id="selectButtonById" resultMap="SysModuleButtonResultMap">
-        select id, module_id, button_code, default_title, button_area, sort, status, create_by, create_time, update_by, update_time, note
+        select id, module_id, button_code, default_title, sort, status, create_by, create_time, update_by, update_time, note
         from sys_module_button
         where id = #{id}
     </select>
 
     <select id="selectButtonByModuleIdAndCode" resultMap="SysModuleButtonResultMap">
-        select id, module_id, button_code, default_title, button_area, sort, status, create_by, create_time, update_by, update_time, note
+        select id, module_id, button_code, default_title, sort, status, create_by, create_time, update_by, update_time, note
         from sys_module_button
         where module_id = #{moduleId}
           and button_code = #{buttonCode}
@@ -407,9 +373,9 @@
 
     <insert id="insertButton" parameterType="com.soli.system.core.service.impl.sysmodule.SysModuleButtonEntity">
         insert into sys_module_button (
-            id, module_id, button_code, default_title, button_area, sort, status, create_by, create_time, update_by, update_time, note
+            id, module_id, button_code, default_title, sort, status, create_by, create_time, update_by, update_time, note
         ) values (
-            #{id}, #{moduleId}, #{buttonCode}, #{defaultTitle}, #{area}, #{sort}, #{status}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
+            #{id}, #{moduleId}, #{buttonCode}, #{defaultTitle}, #{sort}, #{status}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
         )
     </insert>
 
@@ -418,7 +384,6 @@
         <set>
             <if test="buttonCode != null">button_code = #{buttonCode},</if>
             <if test="defaultTitle != null">default_title = #{defaultTitle},</if>
-            <if test="area != null">button_area = #{area},</if>
             <if test="sort != null">sort = #{sort},</if>
             <if test="status != null">status = #{status},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>
@@ -429,14 +394,11 @@
     </update>
 
     <delete id="deleteButtonById">
-        delete from sys_module_button
-        where id = #{id}
+        delete from sys_module_button where id = #{id}
     </delete>
 
     <select id="countButtonByModuleId" resultType="int">
-        select count(1)
-        from sys_module_button
-        where module_id = #{moduleId}
+        select count(1) from sys_module_button where module_id = #{moduleId}
     </select>
 
     <select id="selectStatesByModuleId" resultMap="SysModuleStateResultMap">
@@ -462,21 +424,17 @@
                t.update_time,
                t.note
         from sys_module_transition t
-                 left join sys_module_button b
-                           on b.module_id = t.module_id
-                               and b.button_code = t.action_button_code
+                 left join sys_module_button b on b.module_id = t.module_id and b.button_code = t.action_button_code
         where t.module_id = #{moduleId}
         order by t.sort asc, t.id asc
     </select>
 
     <delete id="deleteTransitionsByModuleId">
-        delete from sys_module_transition
-        where module_id = #{moduleId}
+        delete from sys_module_transition where module_id = #{moduleId}
     </delete>
 
     <delete id="deleteStatesByModuleId">
-        delete from sys_module_state
-        where module_id = #{moduleId}
+        delete from sys_module_state where module_id = #{moduleId}
     </delete>
 
 </mapper>

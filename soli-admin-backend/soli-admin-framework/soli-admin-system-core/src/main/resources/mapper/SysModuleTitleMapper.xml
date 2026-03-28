@@ -9,8 +9,8 @@
         <id property="id" column="id"/>
         <result property="fieldId" column="field_id"/>
         <result property="moduleId" column="module_id"/>
-        <result property="tabId" column="tab_id"/>
-        <result property="fieldScope" column="field_scope"/>
+        <result property="componentId" column="component_id"/>
+        <result property="componentCode" column="component_code"/>
         <result property="fieldCode" column="field_code"/>
         <result property="defaultTitle" column="default_title"/>
         <result property="locale" column="locale"/>
@@ -31,7 +31,7 @@
     </resultMap>
 
     <select id="selectByFieldIdAndLocale" resultMap="SysModuleFieldTitleResultMap">
-        select id, field_id, module_id, tab_id, field_scope, field_code, default_title, locale,
+        select id, field_id, module_id, component_id, component_code, field_code, default_title, locale,
                display_title, placeholder, help_text, component_type, data_path, value_type, required_flag, sort, status,
                create_by, create_time, update_by, update_time, note
         from sys_module_field_title
@@ -41,22 +41,22 @@
     </select>
 
     <select id="selectByModuleIdAndLocale" resultMap="SysModuleFieldTitleResultMap">
-        select id, field_id, module_id, tab_id, field_scope, field_code, default_title, locale,
+        select id, field_id, module_id, component_id, component_code, field_code, default_title, locale,
                display_title, placeholder, help_text, component_type, data_path, value_type, required_flag, sort, status,
                create_by, create_time, update_by, update_time, note
         from sys_module_field_title
         where module_id = #{moduleId}
           and locale = #{locale}
-        order by field_scope asc, sort asc, field_id asc
+        order by sort asc, field_id asc
     </select>
 
     <insert id="insert" parameterType="com.soli.system.core.service.impl.sysmoduletitle.SysModuleFieldTitleEntity">
         insert into sys_module_field_title (
-            id, field_id, module_id, tab_id, field_scope, field_code, default_title, locale,
+            id, field_id, module_id, component_id, component_code, field_code, default_title, locale,
             display_title, placeholder, help_text, component_type, data_path, value_type, required_flag, sort, status,
             create_by, create_time, update_by, update_time, note
         ) values (
-            #{id}, #{fieldId}, #{moduleId}, #{tabId}, #{fieldScope}, #{fieldCode}, #{defaultTitle}, #{locale},
+            #{id}, #{fieldId}, #{moduleId}, #{componentId}, #{componentCode}, #{fieldCode}, #{defaultTitle}, #{locale},
             #{displayTitle}, #{placeholder}, #{helpText}, #{componentType}, #{dataPath}, #{valueType}, #{requiredFlag}, #{sort}, #{status},
             #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
         )
@@ -76,8 +76,8 @@
     <update id="updateDefinition" parameterType="com.soli.system.core.service.impl.sysmoduletitle.SysModuleFieldTitleEntity">
         update sys_module_field_title
         set module_id = #{moduleId},
-            tab_id = #{tabId},
-            field_scope = #{fieldScope},
+            component_id = #{componentId},
+            component_code = #{componentCode},
             field_code = #{fieldCode},
             default_title = #{defaultTitle},
             component_type = #{componentType},
@@ -93,9 +93,16 @@
           and locale = #{locale}
     </update>
 
+    <update id="updateComponentInfo">
+        update sys_module_field_title
+        set component_code = #{componentCode},
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        where component_id = #{componentId}
+    </update>
+
     <delete id="deleteByFieldId">
-        delete from sys_module_field_title
-        where field_id = #{fieldId}
+        delete from sys_module_field_title where field_id = #{fieldId}
     </delete>
 
 </mapper>

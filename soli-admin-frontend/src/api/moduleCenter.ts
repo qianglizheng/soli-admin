@@ -1,10 +1,8 @@
-import request from './request';
+﻿import request from './request';
 import type { ApiResponse } from '@/types/global';
 
 export type ModuleType = 'CATALOG' | 'PAGE' | 'BILL';
 export type YesNo = '0' | '1';
-export type ModuleTabScope = 'HEADER' | 'DETAIL';
-export type ModuleButtonArea = 'LIST_TOOLBAR' | 'LIST_ROW_BUTTON' | 'HEADER_TOOLBAR' | 'DETAIL_ROW_BUTTON';
 
 export interface ModuleTreeNode {
   id: number;
@@ -25,8 +23,8 @@ export interface ModuleTreeNode {
 export interface ModuleFieldDefinition {
   id: number;
   moduleId: number;
-  tabId: number;
-  fieldScope: ModuleTabScope;
+  componentId: number;
+  componentCode: string;
   fieldCode: string;
   defaultTitle: string;
   displayTitle?: string | null;
@@ -41,19 +39,18 @@ export interface ModuleFieldDefinition {
   note?: string;
 }
 
-export interface ModuleTabInfo {
+export interface ModuleComponentInfo {
   id: number;
   moduleId: number;
-  tabScope: ModuleTabScope;
-  tabCode: string;
-  tabName: string;
+  componentCode: string;
+  componentName: string;
   sort: number;
   status?: YesNo;
   note?: string;
 }
 
-export interface ModuleTabDefinition {
-  tabInfo: ModuleTabInfo;
+export interface ModuleComponentDefinition {
+  componentInfo: ModuleComponentInfo;
   fields: ModuleFieldDefinition[];
 }
 
@@ -62,7 +59,6 @@ export interface ModuleButtonDefinition {
   moduleId: number;
   buttonCode: string;
   defaultTitle: string;
-  area: ModuleButtonArea;
   sort: number;
   status?: YesNo;
   note?: string;
@@ -109,11 +105,34 @@ export interface ModuleDetail {
   contextVersion: number;
   status: YesNo;
   note: string;
-  headerTabs: ModuleTabDefinition[];
-  detailTabs: ModuleTabDefinition[];
+  components: ModuleComponentDefinition[];
   buttons: ModuleButtonDefinition[];
   states: ModuleStateDefinition[];
   transitions: ModuleStateTransition[];
+}
+
+export type ModuleContextConfigType = 'field' | 'button';
+
+export interface ModuleContextConfigItem {
+  configKey: string;
+  configType: ModuleContextConfigType;
+  component: string;
+  code: string;
+  fieldId?: number;
+  buttonId?: number;
+  defaultTitle: string;
+  displayTitle?: string;
+  label: string;
+  placeholder?: string;
+  helpText?: string;
+  componentType: string;
+  dataPath?: string;
+  valueType?: string;
+  permissionLevel: number;
+  visible: boolean;
+  editable: boolean;
+  required: boolean;
+  disabled: boolean;
 }
 
 export interface ModuleContext {
@@ -128,88 +147,7 @@ export interface ModuleContext {
     currentLabel: string;
     stateField: string;
   } | null;
-  headerTabs: Array<{
-    tabInfo: ModuleTabInfo;
-    visible: boolean;
-    fields: Array<{
-      fieldId: number;
-      fieldCode: string;
-      defaultTitle: string;
-      displayTitle: string;
-      label: string;
-      placeholder: string;
-      helpText: string;
-      componentType: string;
-      dataPath: string;
-      valueType: string;
-      permissionLevel: number;
-      visible: boolean;
-      editable: boolean;
-      required: boolean;
-    }>;
-  }>;
-  detailTabs: Array<{
-    tabInfo: ModuleTabInfo;
-    visible: boolean;
-    fields: Array<{
-      fieldId: number;
-      fieldCode: string;
-      defaultTitle: string;
-      displayTitle: string;
-      label: string;
-      placeholder: string;
-      helpText: string;
-      componentType: string;
-      dataPath: string;
-      valueType: string;
-      permissionLevel: number;
-      visible: boolean;
-      editable: boolean;
-      required: boolean;
-    }>;
-  }>;
-  buttons: {
-    listToolbar: Record<string, {
-      buttonId: number;
-      buttonCode: string;
-      defaultTitle: string;
-      label: string;
-      area: ModuleButtonArea;
-      permissionLevel: number;
-      visible: boolean;
-      disabled: boolean;
-    }>;
-    listRow: Record<string, {
-      buttonId: number;
-      buttonCode: string;
-      defaultTitle: string;
-      label: string;
-      area: ModuleButtonArea;
-      permissionLevel: number;
-      visible: boolean;
-      disabled: boolean;
-    }>;
-    headerToolbar: Record<string, {
-      buttonId: number;
-      buttonCode: string;
-      defaultTitle: string;
-      label: string;
-      area: ModuleButtonArea;
-      permissionLevel: number;
-      visible: boolean;
-      disabled: boolean;
-    }>;
-    detailRow: Record<string, {
-      buttonId: number;
-      buttonCode: string;
-      defaultTitle: string;
-      label: string;
-      area: ModuleButtonArea;
-      permissionLevel: number;
-      visible: boolean;
-      disabled: boolean;
-    }>;
-  };
+  fieldConfigs: Record<string, ModuleContextConfigItem>;
 }
 
 export interface ModuleFormModel {
@@ -233,13 +171,6 @@ export const moduleTypeLabelMap: Record<ModuleType, string> = {
   BILL: '页面',
   CATALOG: '目录',
   PAGE: '页面'
-};
-
-export const buttonAreaLabelMap: Record<ModuleButtonArea, string> = {
-  DETAIL_ROW_BUTTON: '明细行按钮',
-  HEADER_TOOLBAR: '详情顶部按钮',
-  LIST_ROW_BUTTON: '列表行按钮',
-  LIST_TOOLBAR: '列表顶部按钮'
 };
 
 export function getModuleTree() {
@@ -293,30 +224,30 @@ export function deleteModule(id: number) {
   });
 }
 
-export function createModuleTab(data: Omit<ModuleTabInfo, 'id'> & { note?: string; status?: YesNo }) {
+export function createModuleComponent(data: Omit<ModuleComponentInfo, 'id'> & { note?: string; status?: YesNo }) {
   return request<ApiResponse<number>>({
     data,
     method: 'post',
-    url: '/sys/module/tab'
+    url: '/sys/module/component'
   });
 }
 
-export function updateModuleTab(data: ModuleTabInfo & { note?: string; status?: YesNo }) {
+export function updateModuleComponent(data: ModuleComponentInfo & { note?: string; status?: YesNo }) {
   return request<ApiResponse<void>>({
     data,
     method: 'put',
-    url: '/sys/module/tab'
+    url: '/sys/module/component'
   });
 }
 
-export function deleteModuleTab(id: number) {
+export function deleteModuleComponent(id: number) {
   return request<ApiResponse<void>>({
     method: 'delete',
-    url: `/sys/module/tab/${id}`
+    url: `/sys/module/component/${id}`
   });
 }
 
-export function createModuleField(data: Omit<ModuleFieldDefinition, 'id'> & { note?: string; status?: YesNo }) {
+export function createModuleField(data: Omit<ModuleFieldDefinition, 'id' | 'componentCode'> & { note?: string; status?: YesNo }) {
   return request<ApiResponse<number>>({
     data,
     method: 'post',
@@ -324,7 +255,7 @@ export function createModuleField(data: Omit<ModuleFieldDefinition, 'id'> & { no
   });
 }
 
-export function updateModuleField(data: ModuleFieldDefinition & { note?: string; status?: YesNo }) {
+export function updateModuleField(data: Omit<ModuleFieldDefinition, 'componentCode'> & { note?: string; status?: YesNo }) {
   return request<ApiResponse<void>>({
     data,
     method: 'put',
