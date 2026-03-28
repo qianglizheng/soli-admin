@@ -1,5 +1,6 @@
 import request from './request';
 import type { ApiResponse, PageResult, SysUser, UserInfo } from '@/types/global';
+import type { ModuleContext } from './moduleCenter';
 
 export interface UserPageQuery {
   pageNum: number;
@@ -78,6 +79,14 @@ export function getUserPage(data: UserPageQuery) {
     data,
     method: 'post',
     url: '/sys/user/page'
+  });
+}
+
+export function getUserModuleContext(stateCode?: 'create' | 'edit') {
+  return request<ApiResponse<ModuleContext>>({
+    method: 'get',
+    params: stateCode ? { stateCode } : undefined,
+    url: '/sys/user/context'
   });
 }
 

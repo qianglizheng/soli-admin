@@ -1386,5 +1386,10 @@ function deepClone<T>(value: T): T {
     min-height: auto;
   }
 }
+:deep(.el-tab-pane) {
+  min-width: 0;
+  width: 100%;
+}
+
 </style>
 
