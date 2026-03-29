@@ -382,6 +382,33 @@ const completedTodoCount = computed(() => {
   return todoList.value.length - unfinishedTodoCount.value;
 });
 
+const todoPieTotal = computed(() => {
+  return unfinishedTodoCount.value + completedTodoCount.value;
+});
+
+const todoPieChartData = computed(() => {
+  const source = [
+    {
+      color: '#1677ff',
+      name: '待开放',
+      rawValue: unfinishedTodoCount.value
+    },
+    {
+      color: '#52c41a',
+      name: '已接入',
+      rawValue: completedTodoCount.value
+    }
+  ];
+  const hasPositiveValue = source.some((item) => item.rawValue > 0);
+
+  return source.map((item) => ({
+    itemStyle: { color: item.color },
+    name: item.name,
+    rawValue: item.rawValue,
+    value: hasPositiveValue && item.rawValue === 0 ? 0.01 : item.rawValue
+  }));
+});
+
 const moduleCoverageBuckets = computed(() => {
   const bucketDefinitions = [
     {
@@ -548,7 +575,8 @@ const moduleBarOption = computed(() => {
 const todoPieOption = computed(() => {
   return {
     legend: {
-      bottom: 0,
+      bottom: 6,
+      left: 'center',
       icon: 'circle',
       itemHeight: 8,
       itemWidth: 8,
@@ -557,29 +585,36 @@ const todoPieOption = computed(() => {
       }
     },
     tooltip: {
+      formatter: (params: { marker: string; name: string; data: { rawValue: number } }) => {
+        return `${params.marker}${params.name}：${params.data.rawValue} 个`;
+      },
       trigger: 'item'
     },
     series: [
       {
-        center: ['50%', '42%'],
-        data: [
-          {
-            itemStyle: { color: '#1677ff' },
-            name: '待开放',
-            value: unfinishedTodoCount.value
-          },
-          {
-            itemStyle: { color: '#52c41a' },
-            name: '已接入',
-            value: completedTodoCount.value
-          }
-        ],
+        avoidLabelOverlap: true,
+        center: ['50%', '40%'],
+        data: todoPieChartData.value,
         label: {
+          alignTo: 'edge',
           color: '#334155',
-          formatter: '{b}\n{d}%',
-          fontSize: 12
+          edgeDistance: 12,
+          formatter: (params: { name: string; data: { rawValue: number } }) => {
+            const percent = todoPieTotal.value === 0
+              ? 0
+              : Math.round((params.data.rawValue / todoPieTotal.value) * 100);
+
+            return `${params.name}\n${percent}%`;
+          },
+          fontSize: 12,
+          lineHeight: 18
         },
-        radius: ['54%', '78%'],
+        labelLine: {
+          length: 10,
+          length2: 8
+        },
+        minAngle: 8,
+        radius: ['46%', '68%'],
         type: 'pie'
       }
     ]
@@ -859,7 +894,7 @@ function resolveRoutePath(parentPath: string, currentPath: string) {
 }
 
 .chart--small {
-  height: 260px;
+  height: 300px;
 }
 
 .todo-summary {
