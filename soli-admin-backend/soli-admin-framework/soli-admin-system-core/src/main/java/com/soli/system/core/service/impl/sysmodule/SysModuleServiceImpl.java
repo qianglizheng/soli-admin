@@ -157,7 +157,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         SysModuleComponentEntity componentEntity = requireComponent(dto.getComponentId());
         validateFieldBelongsToModule(dto.getModuleId(), componentEntity);
         dto.setComponentCode(componentEntity.getComponentCode());
-        validateFieldCodeUnique(dto.getModuleId(), dto.getFieldCode(), null);
+        validateFieldCodeUnique(dto.getModuleId(), dto.getComponentId(), dto.getFieldCode(), null);
         dto.setCreateTime(LocalDateTime.now());
         SysModuleFieldEntity entity = sysModuleConverter.toFieldEntity(dto);
         entity.setId(YitIdHelper.nextId());
@@ -182,7 +182,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         SysModuleComponentEntity componentEntity = requireComponent(dto.getComponentId());
         validateFieldBelongsToModule(dto.getModuleId(), componentEntity);
         dto.setComponentCode(componentEntity.getComponentCode());
-        validateFieldCodeUnique(dto.getModuleId(), dto.getFieldCode(), dto.getId());
+        validateFieldCodeUnique(dto.getModuleId(), dto.getComponentId(), dto.getFieldCode(), dto.getId());
         dto.setUpdateTime(LocalDateTime.now());
         SysModuleFieldEntity entity = sysModuleConverter.toFieldEntity(dto);
         if (sysModuleMapper.updateField(entity) == 0) {
@@ -474,8 +474,8 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         throw new BusinessException(COMPONENT_CODE_EXISTS_MESSAGE);
     }
 
-    private void validateFieldCodeUnique(Long moduleId, String fieldCode, Long currentId) {
-        SysModuleFieldEntity entity = sysModuleMapper.selectFieldByModuleIdAndCode(moduleId, fieldCode);
+    private void validateFieldCodeUnique(Long moduleId, Long componentId, String fieldCode, Long currentId) {
+        SysModuleFieldEntity entity = sysModuleMapper.selectFieldByModuleIdAndComponentIdAndCode(moduleId, componentId, fieldCode);
         if (entity == null) {
             return;
         }

@@ -5,6 +5,8 @@ import com.soli.common.api.vo.PageQuery;
 import java.util.List;
 
 /**
+ * 实现基础 Crud 的 Mapper 接口
+ *
  * @author lizhengqiang
  * @since 2026-03-19 21:44
  */
@@ -16,6 +18,7 @@ public interface BaseCrudMapper<E, Q extends PageQuery> {
      * @param entity 实体
      * @return 影响的行数
      */
+    @SuppressWarnings("all")
     int insert(E entity);
 
     /**
@@ -23,6 +26,7 @@ public interface BaseCrudMapper<E, Q extends PageQuery> {
      * @param id id
      * @return 影响的行数
      */
+    @SuppressWarnings("all")
     int deleteById(Long id);
 
     /**
@@ -31,6 +35,7 @@ public interface BaseCrudMapper<E, Q extends PageQuery> {
      * @param entity 实体
      * @return 影响的行数
      */
+    @SuppressWarnings("all")
     int update(E entity);
 
     /**
@@ -39,6 +44,7 @@ public interface BaseCrudMapper<E, Q extends PageQuery> {
      * @param query 查询参数
      * @return 分页信息
      */
+    @SuppressWarnings("all")
     List<E> select(Q query);
 
     /**
@@ -46,6 +52,7 @@ public interface BaseCrudMapper<E, Q extends PageQuery> {
      * @param id id
      * @return entity 实体
      */
+    @SuppressWarnings("all")
     E selectById(Long id);
 
 }

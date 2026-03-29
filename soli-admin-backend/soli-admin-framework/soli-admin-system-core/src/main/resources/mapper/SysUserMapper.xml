@@ -65,6 +65,9 @@
         select <include refid="Base_Column_List"/>
         from sys_user
         <where>
+            <if test="nickname != null and nickname != ''">
+                and nickname like concat('%', #{nickname}, '%')
+            </if>
             <if test="username != null and username != ''">
                 and username like concat('%', #{username}, '%')
             </if>

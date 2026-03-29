@@ -1,4 +1,5 @@
 import request from './request';
+import type { ModuleContext } from './moduleCenter';
 import type { ApiResponse, PageResult, SysDictData, SysDictType } from '@/types/global';
 
 export interface DictPageQuery {
@@ -60,6 +61,14 @@ export function getDictDetail(id: number) {
   });
 }
 
+export function getDictModuleContext(stateCode?: 'create' | 'edit') {
+  return request<ApiResponse<ModuleContext>>({
+    method: 'get',
+    params: stateCode ? { stateCode } : undefined,
+    url: '/sys/dict/context'
+  });
+}
+
 export function createDict(data: DictPayload) {
   return request<ApiResponse<void>>({
     data,
@@ -88,6 +97,14 @@ export function getDictDataPage(data: DictDataPageQuery) {
     data,
     method: 'post',
     url: '/sys/dict/data/page'
+  });
+}
+
+export function getDictDataModuleContext(stateCode?: 'create' | 'edit') {
+  return request<ApiResponse<ModuleContext>>({
+    method: 'get',
+    params: stateCode ? { stateCode } : undefined,
+    url: '/sys/dict/data/context'
   });
 }
 

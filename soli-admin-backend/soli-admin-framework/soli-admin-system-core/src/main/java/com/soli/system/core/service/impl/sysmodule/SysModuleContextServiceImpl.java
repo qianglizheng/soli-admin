@@ -228,8 +228,8 @@ public class SysModuleContextServiceImpl implements SysModuleContextService {
         fieldConfig.setDefaultTitle(field.getDefaultTitle());
         fieldConfig.setDisplayTitle(label);
         fieldConfig.setLabel(label);
-        fieldConfig.setPlaceholder(resolvePlaceholder(field));
-        fieldConfig.setHelpText(resolveHelpText(field));
+        fieldConfig.setPlaceholder(resolvePlaceholder(field, label));
+        fieldConfig.setHelpText(resolveHelpText(field, label));
         fieldConfig.setComponentType(field.getComponentType());
         fieldConfig.setDataPath(field.getDataPath());
         fieldConfig.setValueType(field.getValueType());
@@ -321,7 +321,7 @@ public class SysModuleContextServiceImpl implements SysModuleContextService {
         return field.getDefaultTitle();
     }
 
-    private String resolvePlaceholder(SysModuleFieldDTO field) {
+    private String resolvePlaceholder(SysModuleFieldDTO field, String label) {
         if (StringUtils.hasText(field.getPlaceholder())) {
             return field.getPlaceholder();
         }
@@ -331,12 +331,12 @@ public class SysModuleContextServiceImpl implements SysModuleContextService {
         if ("date".equals(field.getComponentType())
                 || "datetime".equals(field.getComponentType())
                 || "search-select".equals(field.getComponentType())) {
-            return "\u8bf7\u9009\u62e9" + field.getDefaultTitle();
+            return "请选择" + label;
         }
-        return "\u8bf7\u8f93\u5165" + field.getDefaultTitle();
+        return "请输入" + label;
     }
 
-    private String resolveHelpText(SysModuleFieldDTO field) {
+    private String resolveHelpText(SysModuleFieldDTO field, String label) {
         if (StringUtils.hasText(field.getHelpText())) {
             return field.getHelpText();
         }
@@ -344,9 +344,9 @@ public class SysModuleContextServiceImpl implements SysModuleContextService {
             return field.getNote();
         }
         if ("1".equals(field.getRequiredFlag())) {
-            return field.getDefaultTitle() + "\u4e3a\u5fc5\u586b\u9879\uff0c\u8bf7\u6309\u4e1a\u52a1\u89c4\u8303\u7ef4\u62a4\u3002";
+            return label + "为必填项，请按业务规范维护。";
         }
-        return field.getDefaultTitle() + "\u7528\u4e8e\u8865\u5145\u5f53\u524d\u4e1a\u52a1\u5355\u636e\u4fe1\u606f\u3002";
+        return label + "用于补充当前业务单据信息。";
     }
 
     private Integer normalizePermissionLevel(Integer permissionLevel) {

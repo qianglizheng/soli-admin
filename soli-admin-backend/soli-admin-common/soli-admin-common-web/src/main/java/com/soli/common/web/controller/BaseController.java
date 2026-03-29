@@ -1,6 +1,6 @@
 package com.soli.common.web.controller;
 
-import com.soli.common.web.security.jwt.CompanyContextHolder;
+import com.soli.common.core.security.CompanyContextHolder;
 import com.soli.system.service.sysmodule.SysModuleContextDTO;
 import com.soli.system.service.sysmodule.SysModuleContextService;
 import org.springframework.security.core.Authentication;
@@ -28,7 +28,7 @@ public abstract class BaseController {
         return sysModuleContextService.buildContext(moduleCode, currentUserId(), currentCompanyId(), stateCode);
     }
 
-    private Long currentUserId() {
+    protected Long currentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
             return null;
@@ -40,7 +40,7 @@ public abstract class BaseController {
         return null;
     }
 
-    private Long currentCompanyId() {
+    protected Long currentCompanyId() {
         Long companyId = CompanyContextHolder.getCurrentCompanyId();
         if (companyId != null) {
             return companyId;

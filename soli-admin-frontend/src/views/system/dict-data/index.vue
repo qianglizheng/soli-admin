@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="app-container">
     <div class="dict-header">
       <div>
@@ -10,38 +10,55 @@
 
     <el-form :model="queryParams" :inline="true" v-show="showSearch">
       <div ref="searchCollapseRef" class="search-collapse-container">
-        <el-form-item label="字典标签" prop="label" data-search-item="true">
+        <el-form-item
+          v-if="listFieldConfigMap.label.visible"
+          :label="listFieldConfigMap.label.label"
+          prop="label"
+          data-search-item="true"
+        >
           <el-input
             v-model="queryParams.label"
-            placeholder="请输入字典标签"
-            clearable
-            style="width: 240px"
-            @keyup.enter="handleQuery"
-          />
-        </el-form-item>
-        <el-form-item label="字典键值" prop="value" data-search-item="true">
-          <el-input
-            v-model="queryParams.value"
-            placeholder="请输入字典键值"
+            :placeholder="listFieldConfigMap.label.placeholder"
             clearable
             style="width: 240px"
             @keyup.enter="handleQuery"
           />
         </el-form-item>
         <el-form-item
-          label="状态"
+          v-if="listFieldConfigMap.value.visible"
+          :label="listFieldConfigMap.value.label"
+          prop="value"
+          data-search-item="true"
+        >
+          <el-input
+            v-model="queryParams.value"
+            :placeholder="listFieldConfigMap.value.placeholder"
+            clearable
+            style="width: 240px"
+            @keyup.enter="handleQuery"
+          />
+        </el-form-item>
+        <el-form-item
+          v-if="listFieldConfigMap.status.visible"
+          :label="listFieldConfigMap.status.label"
           prop="status"
           data-search-item="true"
           data-search-more="true"
           :class="{ 'search-collapse-item-hidden': !isSearchMeasured || (showMoreButton && !showMoreSearch) }"
         >
-          <el-select v-model="queryParams.status" placeholder="数据状态" clearable style="width: 240px">
+          <el-select
+            v-model="queryParams.status"
+            :placeholder="listFieldConfigMap.status.placeholder"
+            clearable
+            style="width: 240px"
+          >
             <el-option label="正常" value="0" />
             <el-option label="停用" value="1" />
           </el-select>
         </el-form-item>
         <el-form-item
-          label="回显样式"
+          v-if="listFieldConfigMap.listClass.visible"
+          :label="listFieldConfigMap.listClass.label"
           prop="listClassKeyword"
           data-search-item="true"
           data-search-more="true"
@@ -49,7 +66,7 @@
         >
           <el-input
             v-model="queryParams.listClassKeyword"
-            placeholder="请输入回显样式"
+            :placeholder="listFieldConfigMap.listClass.placeholder"
             clearable
             style="width: 240px"
             @keyup.enter="handleQuery"
@@ -67,44 +84,125 @@
     </el-form>
 
     <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button type="primary" plain icon="Plus" @click="handleAdd">新增</el-button>
+      <el-col v-if="createButtonConfig.visible" :span="1.5">
+        <el-button
+          type="primary"
+          plain
+          icon="Plus"
+          :disabled="createButtonConfig.disabled"
+          @click="handleAdd"
+        >
+          {{ createButtonConfig.label }}
+        </el-button>
       </el-col>
-      <el-col :span="1.5">
-        <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate()">修改</el-button>
+      <el-col v-if="editButtonConfig.visible" :span="1.5">
+        <el-button
+          type="success"
+          plain
+          icon="Edit"
+          :disabled="single || editButtonConfig.disabled"
+          @click="handleUpdate()"
+        >
+          {{ editButtonConfig.label }}
+        </el-button>
       </el-col>
-      <el-col :span="1.5">
-        <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()">删除</el-button>
+      <el-col v-if="listButtonConfigMap.remove.visible" :span="1.5">
+        <el-button
+          type="danger"
+          plain
+          icon="Delete"
+          :disabled="multiple || listButtonConfigMap.remove.disabled"
+          @click="handleDelete()"
+        >
+          {{ listButtonConfigMap.remove.label }}
+        </el-button>
       </el-col>
     </el-row>
 
     <el-table v-loading="loading" :data="dictDataList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="数据编号" prop="id" width="180" />
-      <el-table-column label="字典标签" prop="label" min-width="150" :show-overflow-tooltip="true" />
-      <el-table-column label="字典键值" prop="value" min-width="140" :show-overflow-tooltip="true" />
-      <el-table-column label="排序" prop="sort" align="center" width="90" />
-      <el-table-column label="默认" align="center" width="90">
-        <template #default="scope">
-          <el-tag :type="scope.row.defaultFlag === 'Y' ? 'success' : 'info'">
-            {{ scope.row.defaultFlag === 'Y' ? '是' : '否' }}
+      <el-table-column
+        v-if="listFieldConfigMap.label.visible"
+        :label="listFieldConfigMap.label.label"
+        prop="label"
+        min-width="150"
+        :show-overflow-tooltip="true"
+      />
+      <el-table-column
+        v-if="listFieldConfigMap.value.visible"
+        :label="listFieldConfigMap.value.label"
+        prop="value"
+        min-width="140"
+        :show-overflow-tooltip="true"
+      />
+      <el-table-column
+        v-if="listFieldConfigMap.sort.visible"
+        :label="listFieldConfigMap.sort.label"
+        prop="sort"
+        align="center"
+        width="90"
+      />
+      <el-table-column
+        v-if="listFieldConfigMap.defaultFlag.visible"
+        :label="listFieldConfigMap.defaultFlag.label"
+        align="center"
+        width="90"
+      >
+        <template #default="{ row }">
+          <el-tag :type="row.defaultFlag === 'Y' ? 'success' : 'info'">
+            {{ row.defaultFlag === 'Y' ? '是' : '否' }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="状态" align="center" width="100">
-        <template #default="scope">
-          <el-tag :type="scope.row.status === '0' ? 'success' : 'danger'">
-            {{ scope.row.status === '0' ? '正常' : '停用' }}
+      <el-table-column
+        v-if="listFieldConfigMap.status.visible"
+        :label="listFieldConfigMap.status.label"
+        align="center"
+        width="100"
+      >
+        <template #default="{ row }">
+          <el-tag :type="row.status === '0' ? 'success' : 'danger'">
+            {{ row.status === '0' ? '正常' : '停用' }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="回显样式" prop="listClass" min-width="120" />
-      <el-table-column label="备注" prop="note" min-width="180" :show-overflow-tooltip="true" />
+      <el-table-column
+        v-if="listFieldConfigMap.listClass.visible"
+        :label="listFieldConfigMap.listClass.label"
+        prop="listClass"
+        min-width="120"
+      />
+      <el-table-column
+        v-if="listFieldConfigMap.note.visible"
+        :label="listFieldConfigMap.note.label"
+        prop="note"
+        min-width="180"
+        :show-overflow-tooltip="true"
+      />
       <el-table-column label="创建时间" prop="createTime" align="center" width="180" />
       <el-table-column label="操作" align="center" width="180" fixed="right" class-name="small-padding fixed-width">
-        <template #default="scope">
-          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)">修改</el-button>
-          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)">删除</el-button>
+        <template #default="{ row }">
+          <el-button
+            v-if="editButtonConfig.visible"
+            link
+            type="primary"
+            icon="Edit"
+            :disabled="editButtonConfig.disabled"
+            @click="handleUpdate(row)"
+          >
+            {{ editButtonConfig.label }}
+          </el-button>
+          <el-button
+            v-if="listButtonConfigMap.remove.visible"
+            link
+            type="primary"
+            icon="Delete"
+            :disabled="listButtonConfigMap.remove.disabled"
+            @click="handleDelete(row)"
+          >
+            {{ listButtonConfigMap.remove.label }}
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -124,7 +222,9 @@
     <dict-data-form
       v-model="formVisible"
       :mode="formMode"
-      :initialData="formInitial"
+      :context="formContext"
+      :initial-data="formInitial"
+      :submitting="submitLoading"
       @submit="onFormSubmit"
       @cancel="onFormCancel"
     />
@@ -138,17 +238,46 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import {
   createDictData,
   deleteDictData,
+  getDictDataModuleContext,
   getDictDataPage,
   getDictDetail,
   updateDictData
 } from '@/api/dict';
+import { useStatefulModuleContext } from '@/composables/useStatefulModuleContext';
 import type { SysDictData, SysDictType } from '@/types/global';
 import DictDataForm from './components/DictDataForm.vue';
+import {
+  buildResolvedButtonConfigMap,
+  buildResolvedFieldConfigMap,
+  type ModuleButtonFallback,
+  type ModuleFieldFallback
+} from '@/utils/moduleContext';
 import { useSearchCollapse } from '@/utils/useSearchCollapse';
 
 defineOptions({
   name: 'SystemDictData'
 });
+
+type DictDataFieldCode = 'label' | 'value' | 'sort' | 'listClass' | 'cssClass' | 'defaultFlag' | 'status' | 'note';
+type DictDataButtonCode = 'create' | 'modify' | 'remove';
+const DICT_DATA_FORM_COMPONENT = 'dict_data_form';
+
+const dictDataFieldFallbackMap: Record<DictDataFieldCode, ModuleFieldFallback> = {
+  cssClass: { label: '样式属性', placeholder: '请输入样式属性', required: false, visible: true },
+  defaultFlag: { label: '是否默认', placeholder: '请选择是否默认', required: true, visible: true },
+  label: { label: '字典标签', placeholder: '请输入字典标签', required: true, visible: true },
+  listClass: { label: '回显样式', placeholder: '请输入回显样式', required: false, visible: true },
+  note: { label: '备注', placeholder: '请输入备注', required: false, visible: true },
+  sort: { label: '显示排序', placeholder: '请输入显示排序', required: false, visible: true },
+  status: { label: '状态', placeholder: '请选择状态', required: true, visible: true },
+  value: { label: '字典键值', placeholder: '请输入字典键值', required: true, visible: true }
+};
+
+const dictDataButtonFallbackMap: Record<DictDataButtonCode, ModuleButtonFallback> = {
+  create: { disabled: false, label: '新增', visible: true },
+  modify: { disabled: false, label: '修改', visible: true },
+  remove: { disabled: false, label: '删除', visible: true }
+};
 
 const route = useRoute();
 const router = useRouter();
@@ -158,9 +287,10 @@ const {
   isSearchMeasured,
   showMoreButton,
   showMoreSearch,
-  toggleMoreSearch,
+  toggleMoreSearch
 } = useSearchCollapse(showSearch);
 const loading = ref(false);
+const submitLoading = ref(false);
 const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
@@ -170,6 +300,24 @@ const selectedRows = ref<SysDictData[]>([]);
 const formVisible = ref(false);
 const formMode = ref<'create' | 'edit'>('create');
 const formInitial = ref<Partial<SysDictData>>({});
+
+const {
+  activeContext: formContext,
+  getStateContext,
+  listContext,
+  loadListContext,
+  preloadStateContexts,
+  setActiveStateContext
+} = useStatefulModuleContext<'create' | 'edit'>({
+  loadContext: async (stateCode) => {
+    try {
+      const { data } = await getDictDataModuleContext(stateCode);
+      return data;
+    } catch {
+      return null;
+    }
+  }
+});
 
 const currentDictId = computed(() => Number(route.params.dictId));
 
@@ -181,6 +329,32 @@ const queryParams = reactive({
   value: '',
   listClassKeyword: ''
 });
+
+const createContext = computed(() => getStateContext('create'));
+const editContext = computed(() => getStateContext('edit'));
+
+const listFieldConfigMap = computed(() => {
+  return buildResolvedFieldConfigMap(listContext.value?.fieldConfigs || {}, DICT_DATA_FORM_COMPONENT, dictDataFieldFallbackMap);
+});
+
+const listButtonConfigMap = computed(() => {
+  return buildResolvedButtonConfigMap(listContext.value?.fieldConfigs || {}, dictDataButtonFallbackMap);
+});
+
+const createButtonConfigMap = computed(() => {
+  return buildResolvedButtonConfigMap(createContext.value?.fieldConfigs || {}, dictDataButtonFallbackMap);
+});
+
+const editButtonConfigMap = computed(() => {
+  return buildResolvedButtonConfigMap(editContext.value?.fieldConfigs || {}, dictDataButtonFallbackMap);
+});
+
+const formFieldConfigMap = computed(() => {
+  return buildResolvedFieldConfigMap(formContext.value?.fieldConfigs || {}, DICT_DATA_FORM_COMPONENT, dictDataFieldFallbackMap);
+});
+
+const createButtonConfig = computed(() => createButtonConfigMap.value.create);
+const editButtonConfig = computed(() => editButtonConfigMap.value.modify);
 
 const loadDictInfo = async () => {
   if (!Number.isFinite(currentDictId.value)) {
@@ -215,8 +389,12 @@ const getList = async () => {
 };
 
 const loadPage = async () => {
-  await loadDictInfo();
-  await getList();
+  await Promise.allSettled([
+    loadDictInfo(),
+    loadListContext(),
+    preloadStateContexts(['create', 'edit']),
+    getList()
+  ]);
 };
 
 const handleQuery = () => {
@@ -243,30 +421,41 @@ const handleSelectionChange = (selection: SysDictData[]) => {
   multiple.value = !selection.length;
 };
 
-const handleAdd = () => {
+const handleAdd = async () => {
+  if (!createButtonConfig.value.visible || createButtonConfig.value.disabled) {
+    return;
+  }
   formMode.value = 'create';
+  formContext.value = await setActiveStateContext('create');
   formInitial.value = {
     dictTypeId: currentDictId.value
   };
   formVisible.value = true;
 };
 
-const handleUpdate = (row?: SysDictData) => {
+const handleUpdate = async (row?: SysDictData) => {
+  if (!editButtonConfig.value.visible || editButtonConfig.value.disabled) {
+    return;
+  }
   const currentRow = row || selectedRows.value[0];
   if (!currentRow) {
     return;
   }
   formMode.value = 'edit';
+  formContext.value = await setActiveStateContext('edit');
   formInitial.value = { ...currentRow };
   formVisible.value = true;
 };
 
 const handleDelete = async (row?: SysDictData) => {
+  if (!listButtonConfigMap.value.remove.visible || listButtonConfigMap.value.remove.disabled) {
+    return;
+  }
   const rows = row ? [row] : selectedRows.value;
   if (!rows.length) {
     return;
   }
-  const labels = rows.map(item => item.label).join('、');
+  const labels = rows.map((item) => item.label).join('、');
   await ElMessageBox.confirm(`确认要删除字典数据"${labels}"吗？`, '警告', {
     cancelButtonText: '取消',
     confirmButtonText: '确定',
@@ -284,40 +473,49 @@ const handleDelete = async (row?: SysDictData) => {
   await getList();
 };
 
+const pickWritableFormValue = <T,>(fieldCode: DictDataFieldCode, value: T | undefined) => {
+  const fieldConfig = formFieldConfigMap.value[fieldCode];
+  if (!fieldConfig.visible || !fieldConfig.editable) {
+    return undefined;
+  }
+  return value;
+};
+
 const onFormSubmit = async (data: Partial<SysDictData>) => {
-  loading.value = true;
+  submitLoading.value = true;
   try {
     if (formMode.value === 'create') {
       await createDictData({
-        cssClass: data.cssClass,
+        cssClass: pickWritableFormValue('cssClass', data.cssClass || undefined),
+        defaultFlag: pickWritableFormValue('defaultFlag', data.defaultFlag) || 'N',
         dictTypeId: currentDictId.value,
-        defaultFlag: data.defaultFlag,
-        label: data.label || '',
-        listClass: data.listClass,
-        note: data.note,
-        sort: data.sort,
-        status: data.status,
-        value: data.value || ''
+        label: pickWritableFormValue('label', data.label) || '',
+        listClass: pickWritableFormValue('listClass', data.listClass || undefined),
+        note: pickWritableFormValue('note', data.note || undefined),
+        sort: pickWritableFormValue('sort', data.sort || undefined),
+        status: pickWritableFormValue('status', data.status) || '0',
+        value: pickWritableFormValue('value', data.value) || ''
       });
       ElMessage.success('新增成功');
     } else if (data.id) {
       await updateDictData({
-        cssClass: data.cssClass,
+        cssClass: pickWritableFormValue('cssClass', data.cssClass || undefined),
+        defaultFlag: pickWritableFormValue('defaultFlag', data.defaultFlag) || 'N',
         dictTypeId: currentDictId.value,
         id: data.id,
-        defaultFlag: data.defaultFlag,
-        label: data.label || '',
-        listClass: data.listClass,
-        note: data.note,
-        sort: data.sort,
-        status: data.status,
-        value: data.value || ''
+        label: pickWritableFormValue('label', data.label) || '',
+        listClass: pickWritableFormValue('listClass', data.listClass || undefined),
+        note: pickWritableFormValue('note', data.note || undefined),
+        sort: pickWritableFormValue('sort', data.sort || undefined),
+        status: pickWritableFormValue('status', data.status) || '0',
+        value: pickWritableFormValue('value', data.value) || ''
       });
       ElMessage.success('修改成功');
     }
+    formVisible.value = false;
     await getList();
   } finally {
-    loading.value = false;
+    submitLoading.value = false;
   }
 };
 

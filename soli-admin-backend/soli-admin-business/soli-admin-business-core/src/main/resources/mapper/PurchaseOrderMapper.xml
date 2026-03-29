@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.soli.business.core.mapper.PurchaseOrderMapper">
+
+    <resultMap id="PurchaseOrderResultMap" type="com.soli.business.core.service.impl.purchaseorder.PurchaseOrderEntity">
+        <id property="id" column="id"/>
+        <result property="companyId" column="company_id"/>
+        <result property="billNo" column="bill_no"/>
+        <result property="billDate" column="bill_date"/>
+        <result property="supplierId" column="supplier_id"/>
+        <result property="supplierName" column="supplier_name"/>
+        <result property="settleType" column="settle_type"/>
+        <result property="warehouseId" column="warehouse_id"/>
+        <result property="warehouseName" column="warehouse_name"/>
+        <result property="userName" column="user_name"/>
+        <result property="currency" column="currency"/>
+        <result property="remark" column="remark"/>
+        <result property="status" column="status"/>
+        <result property="createUserId" column="create_user_id"/>
+        <result property="createByName" column="create_by_name"/>
+        <result property="auditUserId" column="audit_user_id"/>
+        <result property="auditUserName" column="audit_user_name"/>
+        <result property="auditTime" column="audit_time"/>
+        <result property="submitTime" column="submit_time"/>
+        <result property="shipTime" column="ship_time"/>
+        <result property="completeTime" column="complete_time"/>
+        <result property="totalQty" column="total_qty"/>
+        <result property="netAmount" column="net_amount"/>
+        <result property="taxAmount" column="tax_amount"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="note" column="note"/>
+    </resultMap>
+
+    <resultMap id="PurchaseOrderItemResultMap" type="com.soli.business.core.service.impl.purchaseorder.PurchaseOrderItemEntity">
+        <id property="id" column="id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="sort" column="sort"/>
+        <result property="itemCode" column="item_code"/>
+        <result property="itemName" column="item_name"/>
+        <result property="spec" column="spec"/>
+        <result property="unit" column="unit"/>
+        <result property="qty" column="qty"/>
+        <result property="priceExcl" column="price_excl"/>
+        <result property="taxRate" column="tax_rate"/>
+        <result property="taxAmount" column="tax_amount"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="note" column="note"/>
+    </resultMap>
+
+    <resultMap id="PurchaseOrderSourceResultMap" type="com.soli.business.core.service.impl.purchaseorder.PurchaseOrderSourceEntity">
+        <id property="id" column="id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="sort" column="sort"/>
+        <result property="sourceBillNo" column="source_bill_no"/>
+        <result property="sourceType" column="source_type"/>
+        <result property="supplierName" column="supplier_name"/>
+        <result property="billDate" column="bill_date"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="status" column="status"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="note" column="note"/>
+    </resultMap>
+
+    <resultMap id="PurchaseOrderAttachmentResultMap" type="com.soli.business.core.service.impl.purchaseorder.PurchaseOrderAttachmentEntity">
+        <id property="id" column="id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="sort" column="sort"/>
+        <result property="fileName" column="file_name"/>
+        <result property="fileType" column="file_type"/>
+        <result property="fileSize" column="file_size"/>
+        <result property="uploadUser" column="upload_user"/>
+        <result property="uploadTime" column="upload_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="note" column="note"/>
+    </resultMap>
+
+    <resultMap id="PurchaseOrderActivityResultMap" type="com.soli.business.core.service.impl.purchaseorder.PurchaseOrderActivityEntity">
+        <id property="id" column="id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="actionCode" column="action_code"/>
+        <result property="actionName" column="action_name"/>
+        <result property="content" column="content"/>
+        <result property="operatorUserId" column="operator_user_id"/>
+        <result property="operatorName" column="operator_name"/>
+        <result property="activityType" column="activity_type"/>
+        <result property="operateTime" column="operate_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="note" column="note"/>
+    </resultMap>
+
+    <resultMap id="PurchaseOrderOverviewResultMap" type="com.soli.business.core.service.impl.purchaseorder.PurchaseOrderOverviewModel">
+        <result property="totalCount" column="total_count"/>
+        <result property="unauditedCount" column="unaudited_count"/>
+        <result property="preAuditedCount" column="pre_audited_count"/>
+        <result property="completedCount" column="completed_count"/>
+        <result property="totalAmount" column="total_amount"/>
+    </resultMap>
+
+    <sql id="PurchaseOrderColumnList">
+        id, company_id, bill_no, bill_date, supplier_id, supplier_name, settle_type, warehouse_id, warehouse_name,
+        user_name, currency, remark, status, create_user_id, create_by_name, audit_user_id, audit_user_name,
+        audit_time, submit_time, ship_time, complete_time, total_qty, net_amount, tax_amount, total_amount,
+        create_by, create_time, update_by, update_time, note
+    </sql>
+
+    <sql id="PurchaseOrderItemColumnList">
+        id, order_id, sort, item_code, item_name, spec, unit, qty, price_excl, tax_rate, tax_amount, total_amount,
+        create_by, create_time, update_by, update_time, note
+    </sql>
+
+    <sql id="PurchaseOrderSourceColumnList">
+        id, order_id, sort, source_bill_no, source_type, supplier_name, bill_date, total_amount, status,
+        create_by, create_time, update_by, update_time, note
+    </sql>
+
+    <sql id="PurchaseOrderAttachmentColumnList">
+        id, order_id, sort, file_name, file_type, file_size, upload_user, upload_time,
+        create_by, create_time, update_by, update_time, note
+    </sql>
+
+    <sql id="PurchaseOrderActivityColumnList">
+        id, order_id, action_code, action_name, content, operator_user_id, operator_name, activity_type, operate_time,
+        create_by, create_time, update_by, update_time, note
+    </sql>
+
+    <select id="selectPage" resultMap="PurchaseOrderResultMap">
+        select <include refid="PurchaseOrderColumnList"/>
+        from purchase_order
+        <where>
+            company_id = #{companyId}
+            <if test="billNo != null and billNo != ''">
+                and bill_no like concat('%', #{billNo}, '%')
+            </if>
+            <if test="supplierId != null">
+                and supplier_id = #{supplierId}
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status}
+            </if>
+            <if test="startBillDate != null and startBillDate != ''">
+                and bill_date <![CDATA[>=]]> #{startBillDate}
+            </if>
+            <if test="endBillDate != null and endBillDate != ''">
+                and bill_date <![CDATA[<=]]> #{endBillDate}
+            </if>
+            <if test="userName != null and userName != ''">
+                and user_name like concat('%', #{userName}, '%')
+            </if>
+            <if test="warehouseId != null">
+                and warehouse_id = #{warehouseId}
+            </if>
+        </where>
+        order by bill_date desc, id desc
+    </select>
+
+    <select id="selectOverview" resultMap="PurchaseOrderOverviewResultMap">
+        select count(1) as total_count,
+               sum(case when status = 'unaudited' then 1 else 0 end) as unaudited_count,
+               sum(case when status = 'pre_audited' then 1 else 0 end) as pre_audited_count,
+               sum(case when status = 'completed' then 1 else 0 end) as completed_count,
+               coalesce(sum(total_amount), 0) as total_amount
+        from purchase_order
+        where company_id = #{companyId}
+    </select>
+
+    <select id="selectById" resultMap="PurchaseOrderResultMap">
+        select <include refid="PurchaseOrderColumnList"/>
+        from purchase_order
+        where id = #{id}
+          and company_id = #{companyId}
+    </select>
+
+    <insert id="insert" parameterType="com.soli.business.core.service.impl.purchaseorder.PurchaseOrderEntity">
+        insert into purchase_order (
+            id, company_id, bill_no, bill_date, supplier_id, supplier_name, settle_type, warehouse_id, warehouse_name,
+            user_name, currency, remark, status, create_user_id, create_by_name, audit_user_id, audit_user_name,
+            audit_time, submit_time, ship_time, complete_time, total_qty, net_amount, tax_amount, total_amount,
+            create_by, create_time, update_by, update_time, note
+        ) values (
+            #{id}, #{companyId}, #{billNo}, #{billDate}, #{supplierId}, #{supplierName}, #{settleType}, #{warehouseId}, #{warehouseName},
+            #{userName}, #{currency}, #{remark}, #{status}, #{createUserId}, #{createByName}, #{auditUserId}, #{auditUserName},
+            #{auditTime}, #{submitTime}, #{shipTime}, #{completeTime}, #{totalQty}, #{netAmount}, #{taxAmount}, #{totalAmount},
+            #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.soli.business.core.service.impl.purchaseorder.PurchaseOrderEntity">
+        update purchase_order
+        <set>
+            <if test="billDate != null">bill_date = #{billDate},</if>
+            <if test="supplierId != null">supplier_id = #{supplierId},</if>
+            <if test="supplierName != null">supplier_name = #{supplierName},</if>
+            <if test="settleType != null">settle_type = #{settleType},</if>
+            <if test="warehouseId != null">warehouse_id = #{warehouseId},</if>
+            <if test="warehouseName != null">warehouse_name = #{warehouseName},</if>
+            <if test="userName != null">user_name = #{userName},</if>
+            <if test="currency != null">currency = #{currency},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="auditUserId != null">audit_user_id = #{auditUserId},</if>
+            <if test="auditUserName != null">audit_user_name = #{auditUserName},</if>
+            <if test="auditTime != null">audit_time = #{auditTime},</if>
+            <if test="submitTime != null">submit_time = #{submitTime},</if>
+            <if test="shipTime != null">ship_time = #{shipTime},</if>
+            <if test="completeTime != null">complete_time = #{completeTime},</if>
+            <if test="totalQty != null">total_qty = #{totalQty},</if>
+            <if test="netAmount != null">net_amount = #{netAmount},</if>
+            <if test="taxAmount != null">tax_amount = #{taxAmount},</if>
+            <if test="totalAmount != null">total_amount = #{totalAmount},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="note != null">note = #{note},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="selectItemListByOrderId" resultMap="PurchaseOrderItemResultMap">
+        select <include refid="PurchaseOrderItemColumnList"/>
+        from purchase_order_item
+        where order_id = #{orderId}
+        order by sort asc, id asc
+    </select>
+
+    <delete id="deleteItemListByOrderId">
+        delete from purchase_order_item
+        where order_id = #{orderId}
+    </delete>
+
+    <insert id="insertItemBatch">
+        insert into purchase_order_item (
+            id, order_id, sort, item_code, item_name, spec, unit, qty, price_excl, tax_rate, tax_amount, total_amount,
+            create_by, create_time, update_by, update_time, note
+        ) values
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.id}, #{item.orderId}, #{item.sort}, #{item.itemCode}, #{item.itemName}, #{item.spec}, #{item.unit},
+                #{item.qty}, #{item.priceExcl}, #{item.taxRate}, #{item.taxAmount}, #{item.totalAmount},
+                #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime}, #{item.note}
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectSourceListByOrderId" resultMap="PurchaseOrderSourceResultMap">
+        select <include refid="PurchaseOrderSourceColumnList"/>
+        from purchase_order_source
+        where order_id = #{orderId}
+        order by sort asc, id asc
+    </select>
+
+    <delete id="deleteSourceListByOrderId">
+        delete from purchase_order_source
+        where order_id = #{orderId}
+    </delete>
+
+    <insert id="insertSourceBatch">
+        insert into purchase_order_source (
+            id, order_id, sort, source_bill_no, source_type, supplier_name, bill_date, total_amount, status,
+            create_by, create_time, update_by, update_time, note
+        ) values
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.id}, #{item.orderId}, #{item.sort}, #{item.sourceBillNo}, #{item.sourceType}, #{item.supplierName},
+                #{item.billDate}, #{item.totalAmount}, #{item.status}, #{item.createBy}, #{item.createTime},
+                #{item.updateBy}, #{item.updateTime}, #{item.note}
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectAttachmentListByOrderId" resultMap="PurchaseOrderAttachmentResultMap">
+        select <include refid="PurchaseOrderAttachmentColumnList"/>
+        from purchase_order_attachment
+        where order_id = #{orderId}
+        order by sort asc, id asc
+    </select>
+
+    <delete id="deleteAttachmentListByOrderId">
+        delete from purchase_order_attachment
+        where order_id = #{orderId}
+    </delete>
+
+    <insert id="insertAttachmentBatch">
+        insert into purchase_order_attachment (
+            id, order_id, sort, file_name, file_type, file_size, upload_user, upload_time,
+            create_by, create_time, update_by, update_time, note
+        ) values
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.id}, #{item.orderId}, #{item.sort}, #{item.fileName}, #{item.fileType}, #{item.fileSize},
+                #{item.uploadUser}, #{item.uploadTime}, #{item.createBy}, #{item.createTime}, #{item.updateBy},
+                #{item.updateTime}, #{item.note}
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectActivityListByOrderId" resultMap="PurchaseOrderActivityResultMap">
+        select <include refid="PurchaseOrderActivityColumnList"/>
+        from purchase_order_activity
+        where order_id = #{orderId}
+        order by operate_time desc, id desc
+    </select>
+
+    <insert id="insertActivity" parameterType="com.soli.business.core.service.impl.purchaseorder.PurchaseOrderActivityEntity">
+        insert into purchase_order_activity (
+            id, order_id, action_code, action_name, content, operator_user_id, operator_name, activity_type, operate_time,
+            create_by, create_time, update_by, update_time, note
+        ) values (
+            #{id}, #{orderId}, #{actionCode}, #{actionName}, #{content}, #{operatorUserId}, #{operatorName}, #{activityType}, #{operateTime},
+            #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
+        )
+    </insert>
+
+</mapper>

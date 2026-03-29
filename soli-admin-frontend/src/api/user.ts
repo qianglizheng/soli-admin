@@ -5,6 +5,7 @@ import type { ModuleContext } from './moduleCenter';
 export interface UserPageQuery {
   pageNum: number;
   pageSize: number;
+  nickname?: string;
   username?: string;
   phone?: string;
   status?: string;

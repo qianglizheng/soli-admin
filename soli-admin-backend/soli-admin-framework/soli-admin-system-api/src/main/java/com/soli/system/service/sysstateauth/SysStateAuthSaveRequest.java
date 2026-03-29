@@ -16,9 +16,11 @@ import java.util.List;
 @Setter
 public class SysStateAuthSaveRequest {
 
+    /** 模块 ID */
     @NotNull(message = "模块 ID 不能为空")
     private Long moduleId;
 
+    /** 按状态分组的权限配置 */
     private List<SysStatePermissionByStateDTO> permissionsByState;
 
 }

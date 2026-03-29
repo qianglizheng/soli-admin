@@ -2,64 +2,104 @@
   <el-dialog v-model="visible" :title="dialogTitle" width="620px" top="6vh" destroy-on-close>
     <div class="dialog-scroll-body">
       <el-form ref="formRef" :model="form" :rules="rules" label-width="110px">
-        <el-form-item label="上级节点" prop="parentNodeKey">
+        <el-form-item
+          v-if="fieldConfigMap.postParentNodeKey.visible"
+          :label="fieldConfigMap.postParentNodeKey.label"
+          prop="parentNodeKey"
+        >
           <el-tree-select
             v-model="form.parentNodeKey"
-            :data="treeOptions"
-            :props="treeSelectProps"
             check-strictly
             filterable
-            placeholder="请选择上级节点"
             style="width: 100%"
+            :data="treeOptions"
+            :disabled="!fieldConfigMap.postParentNodeKey.editable"
+            :placeholder="fieldConfigMap.postParentNodeKey.placeholder"
+            :props="treeSelectProps"
           />
         </el-form-item>
 
-        <el-form-item label="岗位名称" prop="postName">
-          <el-input v-model="form.postName" placeholder="请输入岗位名称" />
+        <el-form-item v-if="fieldConfigMap.postName.visible" :label="fieldConfigMap.postName.label" prop="postName">
+          <el-input
+            v-model="form.postName"
+            :disabled="!fieldConfigMap.postName.editable"
+            :placeholder="fieldConfigMap.postName.placeholder"
+          />
         </el-form-item>
 
-        <el-form-item label="岗位编码" prop="postCode">
-          <el-input v-model="form.postCode" placeholder="请输入岗位编码" />
+        <el-form-item v-if="fieldConfigMap.postCode.visible" :label="fieldConfigMap.postCode.label" prop="postCode">
+          <el-input
+            v-model="form.postCode"
+            :disabled="!fieldConfigMap.postCode.editable"
+            :placeholder="fieldConfigMap.postCode.placeholder"
+          />
         </el-form-item>
 
         <el-row :gutter="16">
-          <el-col :span="12">
-            <el-form-item label="岗位类型" prop="postType">
-              <el-select v-model="form.postType" placeholder="请选择岗位类型" style="width: 100%">
-                <el-option v-for="item in POST_TYPE_OPTIONS" :key="item.value" :label="item.label" :value="item.value" />
+          <el-col v-if="fieldConfigMap.postType.visible" :span="12">
+            <el-form-item :label="fieldConfigMap.postType.label" prop="postType">
+              <el-select
+                v-model="form.postType"
+                style="width: 100%"
+                :disabled="!fieldConfigMap.postType.editable"
+                :placeholder="fieldConfigMap.postType.placeholder"
+              >
+                <el-option
+                  v-for="item in POST_TYPE_OPTIONS"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
               </el-select>
             </el-form-item>
           </el-col>
 
-          <el-col :span="12">
-            <el-form-item label="岗位负责人" prop="managerUserId">
+          <el-col v-if="fieldConfigMap.managerUserId.visible" :span="12">
+            <el-form-item :label="fieldConfigMap.managerUserId.label" prop="managerUserId">
               <el-select
                 v-model="form.managerUserId"
                 clearable
                 filterable
                 remote
                 reserve-keyword
-                :loading="managerLoading"
-                :remote-method="handleManagerSearch"
-                placeholder="请输入账号搜索负责人"
                 style="width: 100%"
+                :disabled="!fieldConfigMap.managerUserId.editable"
+                :loading="userLoading"
+                :placeholder="fieldConfigMap.managerUserId.placeholder"
+                :remote-method="handleManagerSearch"
               >
-                <el-option v-for="item in managerOptions" :key="item.id" :label="item.label" :value="item.id" />
+                <el-option
+                  v-for="item in userOptions"
+                  :key="item.id"
+                  :label="item.label"
+                  :value="item.id"
+                />
               </el-select>
             </el-form-item>
           </el-col>
         </el-row>
 
         <el-row :gutter="16">
-          <el-col :span="12">
-            <el-form-item label="显示顺序" prop="sort">
-              <el-input-number v-model="form.sort" :min="1" controls-position="right" style="width: 100%" />
+          <el-col v-if="fieldConfigMap.postSort.visible" :span="12">
+            <el-form-item :label="fieldConfigMap.postSort.label" prop="sort">
+              <el-input-number
+                v-model="form.sort"
+                controls-position="right"
+                style="width: 100%"
+                :disabled="!fieldConfigMap.postSort.editable"
+                :min="1"
+              />
             </el-form-item>
           </el-col>
 
-          <el-col :span="12">
-            <el-form-item label="岗位状态" prop="status">
-              <el-select v-model="form.status" placeholder="请选择岗位状态" style="width: 100%">
+          <el-col v-if="fieldConfigMap.postStatus.visible" :span="12">
+            <el-form-item :label="fieldConfigMap.postStatus.label" prop="status">
+              <el-select
+                v-model="form.status"
+                style="width: 100%"
+                :disabled="!fieldConfigMap.postStatus.editable"
+                :placeholder="fieldConfigMap.postStatus.placeholder"
+              >
                 <el-option label="启用" value="0" />
                 <el-option label="停用" value="1" />
               </el-select>
@@ -67,15 +107,29 @@
           </el-col>
         </el-row>
 
-        <el-form-item label="岗位说明" prop="note">
-          <el-input v-model="form.note" type="textarea" :rows="3" placeholder="请输入岗位说明" />
+        <el-form-item v-if="fieldConfigMap.postNote.visible" :label="fieldConfigMap.postNote.label" prop="note">
+          <el-input
+            v-model="form.note"
+            type="textarea"
+            :rows="3"
+            :disabled="!fieldConfigMap.postNote.editable"
+            :placeholder="fieldConfigMap.postNote.placeholder"
+          />
         </el-form-item>
       </el-form>
     </div>
 
     <template #footer>
       <el-button @click="handleCancel">取消</el-button>
-      <el-button type="primary" @click="handleSubmit">确定</el-button>
+      <el-button
+        v-if="actionButton.visible"
+        type="primary"
+        :disabled="actionButton.disabled"
+        :loading="submitting"
+        @click="handleSubmit"
+      >
+        {{ actionButton.label }}
+      </el-button>
     </template>
   </el-dialog>
 </template>
@@ -83,28 +137,39 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
+import type { ModuleContext } from '@/api/moduleCenter';
 import { POST_TYPE_OPTIONS, type OrgPostFormModel, type OrgPostTreeNode, type YesNo } from '@/api/orgPost';
-import { getUserDetail, getUserPage } from '@/api/user';
+import { useRemoteUserOptions } from '@/composables/useRemoteUserOptions';
+import { buildResolvedButtonConfigMap, buildResolvedFieldConfigMap } from '@/utils/moduleContext';
+import {
+  POST_FORM_COMPONENT,
+  orgPostButtonFallbackMap,
+  postFieldFallbackMap,
+  type PostFormFieldCode
+} from '../moduleConfig';
 
 interface TreeOption extends OrgPostTreeNode {
   disabled?: boolean;
   children?: TreeOption[];
 }
 
-interface ManagerOption {
-  id: number;
-  label: string;
-}
-
 interface Props {
   modelValue: boolean;
   mode: 'create' | 'edit';
+  context?: ModuleContext | null;
   initialData?: Partial<OrgPostFormModel>;
   treeData?: OrgPostTreeNode[];
   currentNodeKey?: string;
+  submitting?: boolean;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  context: null,
+  initialData: () => ({}),
+  submitting: false,
+  treeData: () => []
+});
+
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
   (e: 'submit', value: OrgPostFormModel): void;
@@ -115,6 +180,9 @@ const visible = computed({
   get: () => props.modelValue,
   set: (value: boolean) => emit('update:modelValue', value)
 });
+
+const formRef = ref<FormInstance>();
+const { ensureUserOption, loadUserOptions, loading: userLoading, userOptions } = useRemoteUserOptions();
 
 function createDefaultForm(): OrgPostFormModel {
   return {
@@ -128,18 +196,48 @@ function createDefaultForm(): OrgPostFormModel {
   };
 }
 
-const formRef = ref<FormInstance>();
 const form = reactive<OrgPostFormModel>(createDefaultForm());
-const managerOptions = ref<ManagerOption[]>([]);
-const managerLoading = ref(false);
 
-const rules: FormRules<OrgPostFormModel> = {
-  parentNodeKey: [{ message: '请选择上级节点', required: true, trigger: 'change' }],
-  postCode: [{ message: '请输入岗位编码', required: true, trigger: 'blur' }],
-  postName: [{ message: '请输入岗位名称', required: true, trigger: 'blur' }],
-  postType: [{ message: '请选择岗位类型', required: true, trigger: 'change' }],
-  status: [{ message: '请选择岗位状态', required: true, trigger: 'change' }]
+const fieldConfigMap = computed(() => {
+  return buildResolvedFieldConfigMap(props.context?.fieldConfigs || {}, POST_FORM_COMPONENT, postFieldFallbackMap);
+});
+
+const buttonConfigMap = computed(() => {
+  return buildResolvedButtonConfigMap(props.context?.fieldConfigs || {}, orgPostButtonFallbackMap);
+});
+
+const actionButton = computed(() => {
+  return buttonConfigMap.value[props.mode === 'edit' ? 'modify' : 'create'];
+});
+
+const dialogTitle = computed(() => (props.mode === 'create' ? '新增岗位' : '编辑岗位'));
+
+const createRequiredRule = (fieldCode: PostFormFieldCode) => {
+  return {
+    trigger: ['blur', 'change'],
+    validator: (_rule: unknown, value: string | number | undefined, callback: (error?: Error) => void) => {
+      const fieldConfig = fieldConfigMap.value[fieldCode];
+      const shouldValidate = fieldConfig.visible && fieldConfig.required && fieldConfig.editable;
+      if (!shouldValidate) {
+        callback();
+        return;
+      }
+      if (value === undefined || value === null || String(value).trim() === '') {
+        callback(new Error(fieldConfig.placeholder || `请输入${fieldConfig.label}`));
+        return;
+      }
+      callback();
+    }
+  };
 };
+
+const rules = computed<FormRules<OrgPostFormModel>>(() => ({
+  parentNodeKey: [createRequiredRule('postParentNodeKey')],
+  postCode: [createRequiredRule('postCode')],
+  postName: [createRequiredRule('postName')],
+  postType: [createRequiredRule('postType')],
+  status: [createRequiredRule('postStatus')]
+}));
 
 const treeSelectProps = {
   children: 'children',
@@ -194,51 +292,21 @@ const treeOptions = computed(() => {
 });
 
 watch(
-  () => [props.modelValue, props.initialData],
+  () => [props.modelValue, props.initialData] as const,
   async ([open]) => {
     if (!open) {
       return;
     }
     Object.assign(form, createDefaultForm(), props.initialData || {});
     formRef.value?.clearValidate();
-    await loadManagerOptions();
-    await ensureManagerOption(form.managerUserId);
+    await loadUserOptions();
+    await ensureUserOption(form.managerUserId);
   },
   { deep: true, immediate: true }
 );
 
-const dialogTitle = computed(() => (props.mode === 'create' ? '新增岗位' : '编辑岗位'));
-
-async function loadManagerOptions(keyword = '') {
-  managerLoading.value = true;
-  try {
-    const { data } = await getUserPage({
-      pageNum: 1,
-      pageSize: 20,
-      username: keyword || undefined
-    });
-    managerOptions.value = data.list.map((item) => ({
-      id: item.id,
-      label: item.nickname ? `${item.nickname} / ${item.username}` : item.username
-    }));
-  } finally {
-    managerLoading.value = false;
-  }
-}
-
-async function ensureManagerOption(managerUserId?: number) {
-  if (!managerUserId || managerOptions.value.some((item) => item.id === managerUserId)) {
-    return;
-  }
-  const { data } = await getUserDetail(managerUserId);
-  managerOptions.value.unshift({
-    id: data.id,
-    label: data.nickname ? `${data.nickname} / ${data.username}` : data.username
-  });
-}
-
 function handleManagerSearch(keyword: string) {
-  void loadManagerOptions(keyword);
+  void loadUserOptions(keyword);
 }
 
 function handleCancel() {
@@ -247,10 +315,13 @@ function handleCancel() {
 }
 
 async function handleSubmit() {
-  if (!formRef.value) {
+  if (!formRef.value || !actionButton.value.visible || actionButton.value.disabled) {
     return;
   }
-  await formRef.value.validate();
+  const valid = await formRef.value.validate().catch(() => false);
+  if (!valid) {
+    return;
+  }
   emit('submit', { ...form, status: form.status as YesNo });
 }
 </script>

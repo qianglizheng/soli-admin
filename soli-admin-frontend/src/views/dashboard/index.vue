@@ -293,11 +293,11 @@ const shortcutSeeds: Omit<ShortcutCard, 'available'>[] = [
     path: '/system/state-auth'
   },
   {
-    key: 'bill-template',
+    key: 'purchase-order',
     icon: Document,
     title: '采购订单页面',
     description: '进入采购订单页面，查看业务页面联动效果。',
-    path: '/purchase/bill-template'
+    path: '/purchase/order'
   }
 ];
 

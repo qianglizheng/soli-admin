@@ -297,7 +297,7 @@
         where f.id = #{id}
     </select>
 
-    <select id="selectFieldByModuleIdAndCode" resultMap="SysModuleFieldResultMap">
+    <select id="selectFieldByModuleIdAndComponentIdAndCode" resultMap="SysModuleFieldResultMap">
         select f.id, f.module_id, f.component_id, c.component_code, f.field_code, f.default_title,
                null as display_title, null as placeholder, null as help_text,
                f.component_type, f.data_path, f.value_type, f.required_flag, f.sort, f.status,
@@ -305,6 +305,7 @@
         from sys_module_field f
                  inner join sys_module_component c on c.id = f.component_id
         where f.module_id = #{moduleId}
+          and f.component_id = #{componentId}
           and f.field_code = #{fieldCode}
         limit 1
     </select>

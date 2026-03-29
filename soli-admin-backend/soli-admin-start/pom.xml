@@ -29,6 +29,11 @@
             <artifactId>soli-admin-system-web</artifactId>
             <version>${soli-admin.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.soli</groupId>
+            <artifactId>soli-admin-business-web</artifactId>
+            <version>${soli-admin.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" :inline="true" v-show="showSearch">
+    <el-form v-show="showSearch" :inline="true" :model="queryParams">
       <div ref="searchCollapseRef" class="search-collapse-container">
         <el-form-item
           v-if="listFieldConfigMap.username.visible"
@@ -64,44 +64,46 @@
           />
         </el-form-item>
         <el-form-item data-search-actions="true">
-          <el-button type="primary" icon="Search" @click="handleQuery">查询</el-button>
+          <el-button icon="Search" type="primary" @click="handleQuery">查询</el-button>
           <el-button icon="Refresh" @click="resetQuery">重置</el-button>
           <el-button v-if="isSearchMeasured && showMoreButton" link @click="toggleMoreSearch">
             {{ showMoreSearch ? '收起' : '更多' }}
-            <el-icon class="el-icon--right"><component :is="showMoreSearch ? 'ArrowUp' : 'ArrowDown'" /></el-icon>
+            <el-icon class="el-icon--right">
+              <component :is="showMoreSearch ? 'ArrowUp' : 'ArrowDown'" />
+            </el-icon>
           </el-button>
         </el-form-item>
       </div>
     </el-form>
 
     <el-row :gutter="10" class="mb8">
-      <el-col v-if="listButtonConfigMap.create.visible" :span="1.5">
+      <el-col v-if="createButtonConfig.visible" :span="1.5">
         <el-button
-          type="primary"
           plain
           icon="Plus"
-          :disabled="listButtonConfigMap.create.disabled"
+          type="primary"
+          :disabled="createButtonConfig.disabled"
           @click="handleAdd"
         >
-          {{ listButtonConfigMap.create.label }}
+          {{ createButtonConfig.label }}
         </el-button>
       </el-col>
-      <el-col v-if="listButtonConfigMap.modify.visible" :span="1.5">
+      <el-col v-if="editButtonConfig.visible" :span="1.5">
         <el-button
-          type="success"
           plain
           icon="Edit"
-          :disabled="single || listButtonConfigMap.modify.disabled"
+          type="success"
+          :disabled="single || editButtonConfig.disabled"
           @click="handleUpdate()"
         >
-          {{ listButtonConfigMap.modify.label }}
+          {{ editButtonConfig.label }}
         </el-button>
       </el-col>
       <el-col v-if="listButtonConfigMap.remove.visible" :span="1.5">
         <el-button
-          type="danger"
           plain
           icon="Delete"
+          type="danger"
           :disabled="multiple || listButtonConfigMap.remove.disabled"
           @click="handleDelete()"
         >
@@ -111,43 +113,43 @@
     </el-row>
 
     <el-table v-loading="loading" :data="userList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="用户编号" align="center" prop="id" width="120" />
+      <el-table-column align="center" type="selection" width="55" />
+      <el-table-column align="center" label="用户编号" prop="id" width="120" />
       <el-table-column
         v-if="listFieldConfigMap.username.visible"
-        :label="listFieldConfigMap.username.label"
         align="center"
-        prop="username"
-        :show-overflow-tooltip="true"
+        :label="listFieldConfigMap.username.label"
         min-width="140"
+        prop="username"
+        show-overflow-tooltip
       />
       <el-table-column
         v-if="listFieldConfigMap.nickname.visible"
-        :label="listFieldConfigMap.nickname.label"
         align="center"
-        prop="nickname"
-        :show-overflow-tooltip="true"
+        :label="listFieldConfigMap.nickname.label"
         min-width="140"
+        prop="nickname"
+        show-overflow-tooltip
       />
       <el-table-column
         v-if="listFieldConfigMap.phone.visible"
-        :label="listFieldConfigMap.phone.label"
         align="center"
+        :label="listFieldConfigMap.phone.label"
         prop="phone"
         width="140"
       />
       <el-table-column
         v-if="listFieldConfigMap.email.visible"
-        :label="listFieldConfigMap.email.label"
         align="center"
-        prop="email"
-        :show-overflow-tooltip="true"
+        :label="listFieldConfigMap.email.label"
         min-width="180"
+        prop="email"
+        show-overflow-tooltip
       />
       <el-table-column
         v-if="listFieldConfigMap.type.visible"
-        :label="listFieldConfigMap.type.label"
         align="center"
+        :label="listFieldConfigMap.type.label"
         width="120"
       >
         <template #default="{ row }">
@@ -158,45 +160,45 @@
       </el-table-column>
       <el-table-column
         v-if="listFieldConfigMap.status.visible"
-        :label="listFieldConfigMap.status.label"
         align="center"
+        :label="listFieldConfigMap.status.label"
         width="100"
       >
         <template #default="{ row }">
           <el-switch
-            :model-value="row.status"
             active-value="0"
             inactive-value="1"
             :disabled="isStatusSwitchDisabled()"
+            :model-value="row.status"
             @change="handleStatusSwitchChange(row, $event)"
           />
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180" />
+      <el-table-column align="center" label="创建时间" prop="createTime" width="180" />
       <el-table-column
         v-if="showOperationColumn"
-        label="操作"
         align="center"
-        fixed="right"
-        min-width="260"
         class-name="small-padding fixed-width"
+        fixed="right"
+        label="操作"
+        min-width="260"
       >
         <template #default="{ row }">
           <el-button
-            v-if="listButtonConfigMap.modify.visible"
+            v-if="editButtonConfig.visible"
             link
-            type="primary"
             icon="Edit"
-            :disabled="listButtonConfigMap.modify.disabled"
+            type="primary"
+            :disabled="editButtonConfig.disabled"
             @click="handleUpdate(row)"
           >
-            {{ listButtonConfigMap.modify.label }}
+            {{ editButtonConfig.label }}
           </el-button>
           <el-button
             v-if="listButtonConfigMap.remove.visible"
             link
-            type="primary"
             icon="Delete"
+            type="primary"
             :disabled="listButtonConfigMap.remove.disabled"
             @click="handleDelete(row)"
           >
@@ -211,21 +213,21 @@
         v-model:current-page="queryParams.pageNum"
         v-model:page-size="queryParams.pageSize"
         :page-sizes="[10, 20, 30, 50]"
-        layout="total, sizes, prev, pager, next, jumper"
         :total="total"
-        @size-change="handlePageSizeChange"
+        layout="total, sizes, prev, pager, next, jumper"
         @current-change="getList"
+        @size-change="handlePageSizeChange"
       />
     </div>
 
     <user-form
       v-model="formVisible"
-      :mode="formMode"
       :context="formContext"
       :initial-data="formInitial"
+      :mode="formMode"
       :submitting="submitLoading"
-      @submit="handleFormSubmit"
       @cancel="handleFormCancel"
+      @submit="handleFormSubmit"
     />
   </div>
 </template>
@@ -243,107 +245,25 @@ import {
   type CreateUserPayload,
   type UpdateUserPayload
 } from '@/api/user';
-import type { ModuleContext, ModuleContextConfigItem } from '@/api/moduleCenter';
+import { useStatefulModuleContext } from '@/composables/useStatefulModuleContext';
 import type { SysUser } from '@/types/global';
-import UserForm, { type UserFormModel } from './components/UserForm.vue';
+import {
+  buildResolvedButtonConfigMap,
+  buildResolvedFieldConfigMap,
+  pickWritableModuleValue
+} from '@/utils/moduleContext';
 import { useSearchCollapse } from '@/utils/useSearchCollapse';
+import UserForm, { type UserFormModel } from './components/UserForm.vue';
+import {
+  USER_FORM_COMPONENT,
+  userButtonFallbackMap,
+  userFieldFallbackMap,
+  type UserFieldCode
+} from './moduleConfig';
 
 defineOptions({
   name: 'SystemUser'
 });
-
-type UserFieldCode = 'username' | 'password' | 'nickname' | 'email' | 'phone' | 'sex' | 'type' | 'status';
-type UserButtonCode = 'create' | 'modify' | 'remove';
-const FIELD_COMPONENT = 'form';
-const BUTTON_COMPONENT = 'button';
-
-interface ResolvedFieldConfig {
-  label: string;
-  placeholder: string;
-  helpText: string;
-  visible: boolean;
-  editable: boolean;
-  required: boolean;
-}
-
-interface ResolvedButtonConfig {
-  label: string;
-  visible: boolean;
-  disabled: boolean;
-}
-
-const userFieldFallbackMap: Record<UserFieldCode, ResolvedFieldConfig> = {
-  username: {
-    editable: true,
-    helpText: '',
-    label: '用户名称',
-    placeholder: '请输入用户名称',
-    required: true,
-    visible: true
-  },
-  password: {
-    editable: true,
-    helpText: '',
-    label: '用户密码',
-    placeholder: '请输入用户密码',
-    required: true,
-    visible: true
-  },
-  nickname: {
-    editable: true,
-    helpText: '',
-    label: '用户昵称',
-    placeholder: '请输入用户昵称',
-    required: false,
-    visible: true
-  },
-  email: {
-    editable: true,
-    helpText: '',
-    label: '用户邮箱',
-    placeholder: '请输入用户邮箱',
-    required: false,
-    visible: true
-  },
-  phone: {
-    editable: true,
-    helpText: '',
-    label: '手机号码',
-    placeholder: '请输入手机号码',
-    required: false,
-    visible: true
-  },
-  sex: {
-    editable: true,
-    helpText: '',
-    label: '性别',
-    placeholder: '请选择性别',
-    required: false,
-    visible: true
-  },
-  type: {
-    editable: true,
-    helpText: '',
-    label: '账号类型',
-    placeholder: '请选择账号类型',
-    required: false,
-    visible: true
-  },
-  status: {
-    editable: true,
-    helpText: '',
-    label: '状态',
-    placeholder: '请选择用户状态',
-    required: false,
-    visible: true
-  }
-};
-
-const userButtonFallbackMap: Record<UserButtonCode, ResolvedButtonConfig> = {
-  create: { disabled: false, label: '新增', visible: true },
-  modify: { disabled: false, label: '修改', visible: true },
-  remove: { disabled: false, label: '删除', visible: true }
-};
 
 const showSearch = ref(true);
 const {
@@ -351,7 +271,7 @@ const {
   isSearchMeasured,
   showMoreButton,
   showMoreSearch,
-  toggleMoreSearch,
+  toggleMoreSearch
 } = useSearchCollapse(showSearch);
 const loading = ref(false);
 const submitLoading = ref(false);
@@ -363,8 +283,24 @@ const selectedRows = ref<SysUser[]>([]);
 const formVisible = ref(false);
 const formMode = ref<'create' | 'edit'>('create');
 const formInitial = ref<Partial<UserFormModel>>({});
-const listContext = ref<ModuleContext | null>(null);
-const formContext = ref<ModuleContext | null>(null);
+
+const {
+  activeContext: formContext,
+  getStateContext,
+  listContext,
+  loadListContext,
+  preloadStateContexts,
+  setActiveStateContext
+} = useStatefulModuleContext<'create' | 'edit'>({
+  loadContext: async (stateCode) => {
+    try {
+      const { data } = await getUserModuleContext(stateCode);
+      return data;
+    } catch {
+      return null;
+    }
+  }
+});
 
 const queryParams = reactive({
   pageNum: 1,
@@ -375,77 +311,50 @@ const queryParams = reactive({
   nicknameKeyword: ''
 });
 
-const resolveFieldConfig = (fieldConfigs: Record<string, ModuleContextConfigItem>, fieldCode: UserFieldCode) => {
-  return fieldConfigs[`${FIELD_COMPONENT}:${fieldCode}`];
-};
+const createContext = computed(() => getStateContext('create'));
+const editContext = computed(() => getStateContext('edit'));
 
-const resolveButtonConfig = (fieldConfigs: Record<string, ModuleContextConfigItem>, buttonCode: UserButtonCode) => {
-  return fieldConfigs[`${BUTTON_COMPONENT}:${buttonCode}`];
-};
-
-const buildResolvedFieldConfigMap = (fieldConfigs: Record<string, ModuleContextConfigItem>) => {
-  return (Object.keys(userFieldFallbackMap) as UserFieldCode[]).reduce<Record<UserFieldCode, ResolvedFieldConfig>>((result, fieldCode) => {
-    const fallback = userFieldFallbackMap[fieldCode];
-    const field = resolveFieldConfig(fieldConfigs, fieldCode);
-    result[fieldCode] = {
-      editable: field?.editable ?? fallback.editable,
-      helpText: field?.helpText || fallback.helpText,
-      label: field?.label || field?.displayTitle || field?.defaultTitle || fallback.label,
-      placeholder: field?.placeholder || fallback.placeholder,
-      required: field?.required ?? fallback.required,
-      visible: field?.visible ?? fallback.visible
-    };
-    return result;
-  }, {} as Record<UserFieldCode, ResolvedFieldConfig>);
-};
-
-const buildResolvedButtonConfigMap = (fieldConfigs: Record<string, ModuleContextConfigItem>) => {
-  return (Object.keys(userButtonFallbackMap) as UserButtonCode[]).reduce<Record<UserButtonCode, ResolvedButtonConfig>>((result, buttonCode) => {
-    const fallback = userButtonFallbackMap[buttonCode];
-    const button = resolveButtonConfig(fieldConfigs, buttonCode);
-    result[buttonCode] = {
-      disabled: button?.disabled ?? fallback.disabled,
-      label: button?.label || button?.defaultTitle || fallback.label,
-      visible: button?.visible ?? fallback.visible
-    };
-    return result;
-  }, {} as Record<UserButtonCode, ResolvedButtonConfig>);
-};
-
-const listFieldConfigMap = computed(() => buildResolvedFieldConfigMap(listContext.value?.fieldConfigs || {}));
-const listButtonConfigMap = computed(() => buildResolvedButtonConfigMap(listContext.value?.fieldConfigs || {}));
-
-const showOperationColumn = computed(() => {
-  return listButtonConfigMap.value.modify.visible || listButtonConfigMap.value.remove.visible;
+const listFieldConfigMap = computed(() => {
+  return buildResolvedFieldConfigMap(listContext.value?.fieldConfigs || {}, USER_FORM_COMPONENT, userFieldFallbackMap);
 });
 
-const loadListContext = async () => {
-  try {
-    const res = await getUserModuleContext();
-    listContext.value = res.data;
-  } catch {
-    listContext.value = null;
-  }
-};
+const listButtonConfigMap = computed(() => {
+  return buildResolvedButtonConfigMap(listContext.value?.fieldConfigs || {}, userButtonFallbackMap);
+});
 
-const loadFormContext = async (stateCode: 'create' | 'edit') => {
-  try {
-    const res = await getUserModuleContext(stateCode);
-    return res.data;
-  } catch {
-    return null;
-  }
-};
+const editFieldConfigMap = computed(() => {
+  return buildResolvedFieldConfigMap(editContext.value?.fieldConfigs || {}, USER_FORM_COMPONENT, userFieldFallbackMap);
+});
+
+const formFieldConfigMap = computed(() => {
+  return buildResolvedFieldConfigMap(formContext.value?.fieldConfigs || {}, USER_FORM_COMPONENT, userFieldFallbackMap);
+});
+
+const createButtonConfigMap = computed(() => {
+  return buildResolvedButtonConfigMap(createContext.value?.fieldConfigs || {}, userButtonFallbackMap);
+});
+
+const editButtonConfigMap = computed(() => {
+  return buildResolvedButtonConfigMap(editContext.value?.fieldConfigs || {}, userButtonFallbackMap);
+});
+
+const createButtonConfig = computed(() => createButtonConfigMap.value.create);
+const editButtonConfig = computed(() => editButtonConfigMap.value.modify);
+
+const showOperationColumn = computed(() => {
+  return editButtonConfig.value.visible || listButtonConfigMap.value.remove.visible;
+});
 
 const getList = async () => {
   loading.value = true;
   try {
     const res = await getUserPage({
+      nickname: queryParams.nicknameKeyword || undefined,
       pageNum: queryParams.pageNum,
       pageSize: queryParams.pageSize,
-      username: queryParams.username,
-      phone: queryParams.phone,
-      status: queryParams.status
+      phone: queryParams.phone || undefined,
+      status: queryParams.status || undefined,
+      username: queryParams.username || undefined
     });
     userList.value = res.data.list || [];
     total.value = res.data.total || 0;
@@ -479,11 +388,11 @@ const handleSelectionChange = (selection: SysUser[]) => {
 };
 
 const handleAdd = async () => {
-  if (!listButtonConfigMap.value.create.visible || listButtonConfigMap.value.create.disabled) {
+  if (!createButtonConfig.value.visible || createButtonConfig.value.disabled) {
     return;
   }
   formMode.value = 'create';
-  formContext.value = await loadFormContext('create');
+  formContext.value = await setActiveStateContext('create');
   formInitial.value = {
     username: '',
     password: '',
@@ -498,7 +407,7 @@ const handleAdd = async () => {
 };
 
 const handleUpdate = async (row?: SysUser) => {
-  if (!listButtonConfigMap.value.modify.visible || listButtonConfigMap.value.modify.disabled) {
+  if (!editButtonConfig.value.visible || editButtonConfig.value.disabled) {
     return;
   }
   const currentRow = row || selectedRows.value[0];
@@ -509,11 +418,11 @@ const handleUpdate = async (row?: SysUser) => {
   try {
     const [detailRes, context] = await Promise.all([
       getUserDetail(currentRow.id),
-      loadFormContext('edit')
+      setActiveStateContext('edit')
     ]);
     const detail = detailRes.data;
-    formContext.value = context;
     formMode.value = 'edit';
+    formContext.value = context;
     formInitial.value = {
       id: detail.id,
       username: detail.username || '',
@@ -532,11 +441,7 @@ const handleUpdate = async (row?: SysUser) => {
 };
 
 const pickWritableFormValue = <T,>(fieldCode: UserFieldCode, value: T | undefined) => {
-  const fieldConfig = formFieldConfigMap.value[fieldCode];
-  if (!fieldConfig.visible || !fieldConfig.editable) {
-    return undefined;
-  }
-  return value;
+  return pickWritableModuleValue(formFieldConfigMap.value, fieldCode, value);
 };
 
 const handleFormSubmit = async (data: UserFormModel) => {
@@ -545,25 +450,25 @@ const handleFormSubmit = async (data: UserFormModel) => {
     if (formMode.value === 'edit' && data.id) {
       const payload: UpdateUserPayload = {
         id: data.id,
-        nickname: pickWritableFormValue('nickname', data.nickname || undefined),
         email: pickWritableFormValue('email', data.email || undefined),
+        nickname: pickWritableFormValue('nickname', data.nickname || undefined),
         phone: pickWritableFormValue('phone', data.phone || undefined),
         sex: pickWritableFormValue('sex', data.sex),
-        type: pickWritableFormValue('type', data.type),
-        status: pickWritableFormValue('status', data.status)
+        status: pickWritableFormValue('status', data.status),
+        type: pickWritableFormValue('type', data.type)
       };
       await updateUser(payload);
       ElMessage.success('修改成功');
     } else {
       const payload: CreateUserPayload = {
-        username: pickWritableFormValue('username', data.username) || '',
-        password: pickWritableFormValue('password', data.password) || '',
-        nickname: pickWritableFormValue('nickname', data.nickname || undefined),
         email: pickWritableFormValue('email', data.email || undefined),
+        nickname: pickWritableFormValue('nickname', data.nickname || undefined),
+        password: pickWritableFormValue('password', data.password) || '',
         phone: pickWritableFormValue('phone', data.phone || undefined),
         sex: pickWritableFormValue('sex', data.sex),
+        status: pickWritableFormValue('status', data.status),
         type: pickWritableFormValue('type', data.type),
-        status: pickWritableFormValue('status', data.status)
+        username: pickWritableFormValue('username', data.username) || ''
       };
       await createUser(payload);
       ElMessage.success('新增成功');
@@ -588,9 +493,9 @@ const handleDelete = async (row?: SysUser) => {
     return;
   }
   const names = rows.map((item) => item.username).join('、');
-  await ElMessageBox.confirm(`是否确认删除用户名称为“${names}”的数据项？`, '警告', {
-    confirmButtonText: '确定',
+  await ElMessageBox.confirm(`是否确认删除用户“${names}”？`, '警告', {
     cancelButtonText: '取消',
+    confirmButtonText: '确定',
     type: 'warning'
   });
   for (const item of rows) {
@@ -604,9 +509,9 @@ const handleDelete = async (row?: SysUser) => {
 };
 
 const isStatusSwitchDisabled = () => {
-  return !listFieldConfigMap.value.status.editable
-    || !listButtonConfigMap.value.modify.visible
-    || listButtonConfigMap.value.modify.disabled;
+  return !editFieldConfigMap.value.status.editable
+    || !editButtonConfig.value.visible
+    || editButtonConfig.value.disabled;
 };
 
 const handleStatusChange = async (row: SysUser, value: string) => {
@@ -631,6 +536,10 @@ const handleStatusSwitchChange = (row: SysUser, value: string | number | boolean
 };
 
 onMounted(() => {
-  void Promise.allSettled([loadListContext(), getList()]);
+  void Promise.allSettled([
+    loadListContext(),
+    preloadStateContexts(['create', 'edit']),
+    getList()
+  ]);
 });
 </script>

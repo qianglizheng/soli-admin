@@ -1,5 +1,7 @@
 package com.soli.common.web.security.jwt;
 
+import com.soli.common.core.security.CompanyContextHolder;
+
 import java.io.IOException;
 import java.util.List;
 

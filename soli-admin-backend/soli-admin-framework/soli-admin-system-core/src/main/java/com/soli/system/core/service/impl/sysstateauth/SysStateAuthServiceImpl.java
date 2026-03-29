@@ -75,10 +75,7 @@ public class SysStateAuthServiceImpl implements SysStateAuthService {
         List<SysModuleButtonDTO> buttonList = moduleDetail.getButtons() == null ? new ArrayList<>() : moduleDetail.getButtons();
         Set<Long> validFieldIdSet = fieldList.stream().map(SysModuleFieldDTO::getId).collect(Collectors.toSet());
         Set<Long> validButtonIdSet = buttonList.stream().map(SysModuleButtonDTO::getId).collect(Collectors.toSet());
-        Set<String> validStateCodeSet = (moduleDetail.getStates() == null ? new ArrayList<SysModuleStateDTO>() : moduleDetail.getStates())
-                .stream()
-                .map(SysModuleStateDTO::getStateCode)
-                .collect(Collectors.toSet());
+        Set<String> validStateCodeSet = (moduleDetail.getStates() == null ? new ArrayList<SysModuleStateDTO>() : moduleDetail.getStates()).stream().map(SysModuleStateDTO::getStateCode).collect(Collectors.toSet());
 
         LocalDateTime now = LocalDateTime.now();
         sysModulePermissionMapper.deleteStateFieldAuthList(request.getModuleId());
@@ -110,13 +107,9 @@ public class SysStateAuthServiceImpl implements SysStateAuthService {
 
     private SysStateAuthConfigDTO buildConfig(SysModuleDetailDTO moduleDetail) {
         Map<String, Map<Long, Integer>> fieldPermissionMap = new LinkedHashMap<>();
-        sysModulePermissionMapper.selectStateFieldAuthList(moduleDetail.getId()).forEach(item ->
-                fieldPermissionMap.computeIfAbsent(item.getStateCode(), key -> new LinkedHashMap<>()).put(item.getFieldId(), item.getPermissionLevel())
-        );
+        sysModulePermissionMapper.selectStateFieldAuthList(moduleDetail.getId()).forEach(item -> fieldPermissionMap.computeIfAbsent(item.getStateCode(), key -> new LinkedHashMap<>()).put(item.getFieldId(), item.getPermissionLevel()));
         Map<String, Map<Long, Integer>> buttonPermissionMap = new LinkedHashMap<>();
-        sysModulePermissionMapper.selectStateButtonAuthList(moduleDetail.getId()).forEach(item ->
-                buttonPermissionMap.computeIfAbsent(item.getStateCode(), key -> new LinkedHashMap<>()).put(item.getButtonId(), item.getPermissionLevel())
-        );
+        sysModulePermissionMapper.selectStateButtonAuthList(moduleDetail.getId()).forEach(item -> buttonPermissionMap.computeIfAbsent(item.getStateCode(), key -> new LinkedHashMap<>()).put(item.getButtonId(), item.getPermissionLevel()));
 
         List<SysModuleFieldDTO> fieldList = flattenFields(moduleDetail);
         List<SysModuleButtonDTO> buttonList = moduleDetail.getButtons() == null ? new ArrayList<>() : moduleDetail.getButtons();
@@ -149,11 +142,7 @@ public class SysStateAuthServiceImpl implements SysStateAuthService {
         return config;
     }
 
-    private void appendStateFieldAuth(List<SysModuleStateFieldAuthEntity> entityList,
-                                      Long moduleId,
-                                      SysStatePermissionByStateDTO item,
-                                      Set<Long> validFieldIdSet,
-                                      LocalDateTime now) {
+    private void appendStateFieldAuth(List<SysModuleStateFieldAuthEntity> entityList, Long moduleId, SysStatePermissionByStateDTO item, Set<Long> validFieldIdSet, LocalDateTime now) {
         if (item.getFieldPermissions() == null) {
             return;
         }
@@ -177,11 +166,7 @@ public class SysStateAuthServiceImpl implements SysStateAuthService {
         });
     }
 
-    private void appendStateButtonAuth(List<SysModuleStateButtonAuthEntity> entityList,
-                                       Long moduleId,
-                                       SysStatePermissionByStateDTO item,
-                                       Set<Long> validButtonIdSet,
-                                       LocalDateTime now) {
+    private void appendStateButtonAuth(List<SysModuleStateButtonAuthEntity> entityList, Long moduleId, SysStatePermissionByStateDTO item, Set<Long> validButtonIdSet, LocalDateTime now) {
         if (item.getButtonPermissions() == null) {
             return;
         }

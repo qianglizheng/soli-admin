@@ -1,4 +1,5 @@
 import request from './request';
+import type { ModuleContext } from './moduleCenter';
 import type { ApiResponse, PageResult, SysConfig } from '@/types/global';
 
 export interface ConfigPageQuery {
@@ -33,6 +34,14 @@ export function getConfigDetail(id: number) {
   return request<ApiResponse<SysConfig>>({
     method: 'get',
     url: `/sys/config/${id}`
+  });
+}
+
+export function getConfigModuleContext(stateCode?: 'create' | 'edit') {
+  return request<ApiResponse<ModuleContext>>({
+    method: 'get',
+    params: stateCode ? { stateCode } : undefined,
+    url: '/sys/config/context'
   });
 }
 

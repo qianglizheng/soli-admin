@@ -2,60 +2,107 @@
   <el-dialog v-model="visible" :title="dialogTitle" width="620px" top="6vh" destroy-on-close>
     <div class="dialog-scroll-body">
       <el-form ref="formRef" :model="form" :rules="rules" label-width="110px">
-        <el-form-item label="上级组织">
-          <el-input :model-value="parentNodeLabel" disabled />
+        <el-form-item
+          v-if="fieldConfigMap.orgParentNodeKey.visible"
+          :label="fieldConfigMap.orgParentNodeKey.label"
+          prop="parentNodeKey"
+        >
+          <el-input
+            disabled
+            :model-value="parentNodeLabel"
+            :placeholder="fieldConfigMap.orgParentNodeKey.placeholder"
+          />
         </el-form-item>
 
-        <el-form-item label="分公司名称" prop="orgName">
-          <el-input v-model="form.orgName" placeholder="请输入分公司名称" />
+        <el-form-item v-if="fieldConfigMap.orgName.visible" :label="fieldConfigMap.orgName.label" prop="orgName">
+          <el-input
+            v-model="form.orgName"
+            :disabled="!fieldConfigMap.orgName.editable"
+            :placeholder="fieldConfigMap.orgName.placeholder"
+          />
         </el-form-item>
 
-        <el-form-item label="分公司编码" prop="orgCode">
-          <el-input v-model="form.orgCode" placeholder="请输入分公司编码" />
+        <el-form-item v-if="fieldConfigMap.orgCode.visible" :label="fieldConfigMap.orgCode.label" prop="orgCode">
+          <el-input
+            v-model="form.orgCode"
+            :disabled="!fieldConfigMap.orgCode.editable"
+            :placeholder="fieldConfigMap.orgCode.placeholder"
+          />
         </el-form-item>
 
         <el-row :gutter="16">
-          <el-col :span="12">
-            <el-form-item label="负责人" prop="leaderUserId">
+          <el-col v-if="fieldConfigMap.leaderUserId.visible" :span="12">
+            <el-form-item :label="fieldConfigMap.leaderUserId.label" prop="leaderUserId">
               <el-select
                 v-model="form.leaderUserId"
                 clearable
                 filterable
                 remote
                 reserve-keyword
-                :loading="leaderLoading"
-                :remote-method="handleLeaderSearch"
-                placeholder="请输入账号搜索负责人"
                 style="width: 100%"
+                :disabled="!fieldConfigMap.leaderUserId.editable"
+                :loading="userLoading"
+                :placeholder="fieldConfigMap.leaderUserId.placeholder"
+                :remote-method="handleLeaderSearch"
               >
-                <el-option v-for="item in leaderOptions" :key="item.id" :label="item.label" :value="item.id" />
+                <el-option
+                  v-for="item in userOptions"
+                  :key="item.id"
+                  :label="item.label"
+                  :value="item.id"
+                />
               </el-select>
             </el-form-item>
           </el-col>
 
-          <el-col :span="12">
-            <el-form-item label="显示顺序" prop="sort">
-              <el-input-number v-model="form.sort" :min="1" controls-position="right" style="width: 100%" />
+          <el-col v-if="fieldConfigMap.orgSort.visible" :span="12">
+            <el-form-item :label="fieldConfigMap.orgSort.label" prop="sort">
+              <el-input-number
+                v-model="form.sort"
+                controls-position="right"
+                style="width: 100%"
+                :disabled="!fieldConfigMap.orgSort.editable"
+                :min="1"
+              />
             </el-form-item>
           </el-col>
         </el-row>
 
-        <el-form-item label="状态" prop="status">
-          <el-select v-model="form.status" placeholder="请选择状态" style="width: 100%">
+        <el-form-item v-if="fieldConfigMap.orgStatus.visible" :label="fieldConfigMap.orgStatus.label" prop="status">
+          <el-select
+            v-model="form.status"
+            style="width: 100%"
+            :disabled="!fieldConfigMap.orgStatus.editable"
+            :placeholder="fieldConfigMap.orgStatus.placeholder"
+          >
             <el-option label="启用" value="0" />
             <el-option label="停用" value="1" />
           </el-select>
         </el-form-item>
 
-        <el-form-item label="说明" prop="note">
-          <el-input v-model="form.note" type="textarea" :rows="3" placeholder="请输入分公司说明" />
+        <el-form-item v-if="fieldConfigMap.orgNote.visible" :label="fieldConfigMap.orgNote.label" prop="note">
+          <el-input
+            v-model="form.note"
+            type="textarea"
+            :rows="3"
+            :disabled="!fieldConfigMap.orgNote.editable"
+            :placeholder="fieldConfigMap.orgNote.placeholder"
+          />
         </el-form-item>
       </el-form>
     </div>
 
     <template #footer>
       <el-button @click="handleCancel">取消</el-button>
-      <el-button type="primary" @click="handleSubmit">确定</el-button>
+      <el-button
+        v-if="actionButton.visible"
+        type="primary"
+        :disabled="actionButton.disabled"
+        :loading="submitting"
+        @click="handleSubmit"
+      >
+        {{ actionButton.label }}
+      </el-button>
     </template>
   </el-dialog>
 </template>
@@ -63,27 +110,38 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
+import type { ModuleContext } from '@/api/moduleCenter';
 import type { OrgPostTreeNode, OrgUnitFormModel } from '@/api/orgPost';
-import { getUserDetail, getUserPage } from '@/api/user';
+import { useRemoteUserOptions } from '@/composables/useRemoteUserOptions';
+import { buildResolvedButtonConfigMap, buildResolvedFieldConfigMap } from '@/utils/moduleContext';
+import {
+  ORG_FORM_COMPONENT,
+  orgFieldFallbackMap,
+  orgPostButtonFallbackMap,
+  type OrgFormFieldCode
+} from '../moduleConfig';
 
 interface TreeOption extends OrgPostTreeNode {
   disabled?: boolean;
   children?: TreeOption[];
 }
 
-interface LeaderOption {
-  id: number;
-  label: string;
-}
-
 interface Props {
   modelValue: boolean;
-  mode?: 'create' | 'edit';
+  mode: 'create' | 'edit';
+  context?: ModuleContext | null;
   initialData?: Partial<OrgUnitFormModel>;
   treeData?: OrgPostTreeNode[];
+  submitting?: boolean;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  context: null,
+  initialData: () => ({}),
+  submitting: false,
+  treeData: () => []
+});
+
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
   (e: 'submit', value: OrgUnitFormModel): void;
@@ -96,6 +154,8 @@ const visible = computed({
 });
 
 const dialogTitle = computed(() => (props.mode === 'edit' ? '编辑分公司' : '新增分公司'));
+const formRef = ref<FormInstance>();
+const { ensureUserOption, loadUserOptions, loading: userLoading, userOptions } = useRemoteUserOptions();
 
 function createDefaultForm(): OrgUnitFormModel {
   return {
@@ -108,17 +168,45 @@ function createDefaultForm(): OrgUnitFormModel {
   };
 }
 
-const formRef = ref<FormInstance>();
 const form = reactive<OrgUnitFormModel>(createDefaultForm());
-const leaderOptions = ref<LeaderOption[]>([]);
-const leaderLoading = ref(false);
 
-const rules: FormRules<OrgUnitFormModel> = {
-  parentNodeKey: [{ message: '请选择上级组织', required: true, trigger: 'change' }],
-  orgCode: [{ message: '请输入分公司编码', required: true, trigger: 'blur' }],
-  orgName: [{ message: '请输入分公司名称', required: true, trigger: 'blur' }],
-  status: [{ message: '请选择状态', required: true, trigger: 'change' }]
+const fieldConfigMap = computed(() => {
+  return buildResolvedFieldConfigMap(props.context?.fieldConfigs || {}, ORG_FORM_COMPONENT, orgFieldFallbackMap);
+});
+
+const buttonConfigMap = computed(() => {
+  return buildResolvedButtonConfigMap(props.context?.fieldConfigs || {}, orgPostButtonFallbackMap);
+});
+
+const actionButton = computed(() => {
+  return buttonConfigMap.value[props.mode === 'edit' ? 'modify' : 'create'];
+});
+
+const createRequiredRule = (fieldCode: OrgFormFieldCode) => {
+  return {
+    trigger: ['blur', 'change'],
+    validator: (_rule: unknown, value: string | number | undefined, callback: (error?: Error) => void) => {
+      const fieldConfig = fieldConfigMap.value[fieldCode];
+      const shouldValidate = fieldConfig.visible && fieldConfig.required && fieldConfig.editable;
+      if (!shouldValidate) {
+        callback();
+        return;
+      }
+      if (value === undefined || value === null || String(value).trim() === '') {
+        callback(new Error(fieldConfig.placeholder || `请输入${fieldConfig.label}`));
+        return;
+      }
+      callback();
+    }
+  };
 };
+
+const rules = computed<FormRules<OrgUnitFormModel>>(() => ({
+  parentNodeKey: [createRequiredRule('orgParentNodeKey')],
+  orgCode: [createRequiredRule('orgCode')],
+  orgName: [createRequiredRule('orgName')],
+  status: [createRequiredRule('orgStatus')]
+}));
 
 function mapOrgTreeOptions(nodes: OrgPostTreeNode[] | undefined): TreeOption[] {
   if (!nodes) {
@@ -136,49 +224,21 @@ const treeOptions = computed(() => mapOrgTreeOptions(props.treeData));
 const parentNodeLabel = computed(() => resolveNodeName(treeOptions.value, form.parentNodeKey) || '未选择');
 
 watch(
-  () => [props.modelValue, props.initialData],
+  () => [props.modelValue, props.initialData] as const,
   async ([open]) => {
     if (!open) {
       return;
     }
     Object.assign(form, createDefaultForm(), props.initialData || {});
     formRef.value?.clearValidate();
-    await loadLeaderOptions();
-    await ensureLeaderOption(form.leaderUserId);
+    await loadUserOptions();
+    await ensureUserOption(form.leaderUserId);
   },
   { deep: true, immediate: true }
 );
 
-async function loadLeaderOptions(keyword = '') {
-  leaderLoading.value = true;
-  try {
-    const { data } = await getUserPage({
-      pageNum: 1,
-      pageSize: 20,
-      username: keyword || undefined
-    });
-    leaderOptions.value = data.list.map((item) => ({
-      id: item.id,
-      label: item.nickname ? `${item.nickname} / ${item.username}` : item.username
-    }));
-  } finally {
-    leaderLoading.value = false;
-  }
-}
-
-async function ensureLeaderOption(leaderUserId?: number) {
-  if (!leaderUserId || leaderOptions.value.some((item) => item.id === leaderUserId)) {
-    return;
-  }
-  const { data } = await getUserDetail(leaderUserId);
-  leaderOptions.value.unshift({
-    id: data.id,
-    label: data.nickname ? `${data.nickname} / ${data.username}` : data.username
-  });
-}
-
 function handleLeaderSearch(keyword: string) {
-  void loadLeaderOptions(keyword);
+  void loadUserOptions(keyword);
 }
 
 function resolveNodeName(nodes: TreeOption[], nodeKey?: string): string {
@@ -205,10 +265,13 @@ function handleCancel() {
 }
 
 async function handleSubmit() {
-  if (!formRef.value) {
+  if (!formRef.value || !actionButton.value.visible || actionButton.value.disabled) {
     return;
   }
-  await formRef.value.validate();
+  const valid = await formRef.value.validate().catch(() => false);
+  if (!valid) {
+    return;
+  }
   emit('submit', { ...form });
 }
 </script>

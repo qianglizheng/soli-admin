@@ -1,8 +1,8 @@
 package com.soli.system.web.controller.sysmodule;
 
 import com.soli.common.api.vo.Result;
+import com.soli.common.core.security.CompanyContextHolder;
 import com.soli.common.web.controller.BaseController;
-import com.soli.common.web.security.jwt.CompanyContextHolder;
 import com.soli.system.core.service.impl.sysmodule.SysModuleConverter;
 import com.soli.system.service.sysmodule.SysModuleButtonCreateRequest;
 import com.soli.system.service.sysmodule.SysModuleButtonDTO;

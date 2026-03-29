@@ -210,7 +210,7 @@ create table sys_module_field (
     update_time    datetime          default null             comment '更新时间',
     note           varchar(500)      default null             comment '备注',
     primary key (id),
-    unique key uk_sys_module_field (module_id, field_code),
+    unique key uk_sys_module_field (module_id, component_id, field_code),
     key idx_sys_module_field_component (component_id, sort),
     key idx_sys_module_field_status (module_id, status)
 ) engine=innodb comment = '模块字段定义表';
@@ -412,4 +412,129 @@ create table sys_module_publish_log (
     primary key (id),
     key idx_sys_module_publish_log_module (module_id, publish_time)
 ) engine=innodb comment = '模块发布日志表';
+
+-- 采购订单主表
+drop table if exists purchase_order;
+create table purchase_order (
+    id             bigint(20)        not null                 comment '采购订单ID',
+    company_id     bigint(20)        not null                 comment '公司ID',
+    bill_no        varchar(64)       not null                 comment '单据编号',
+    bill_date      date              not null                 comment '单据日期',
+    supplier_id    bigint(20)        not null                 comment '供应商ID',
+    supplier_name  varchar(128)      not null                 comment '供应商名称',
+    settle_type    varchar(32)       not null                 comment '结算方式',
+    warehouse_id   bigint(20)        not null                 comment '仓库ID',
+    warehouse_name varchar(128)      not null                 comment '仓库名称',
+    user_name      varchar(64)       not null                 comment '业务员',
+    currency       varchar(32)       not null                 comment '币种',
+    remark         varchar(500)      default null             comment '备注',
+    status         varchar(32)       not null                 comment '单据状态',
+    create_user_id bigint(20)        default null             comment '制单用户ID',
+    create_by_name varchar(64)       default null             comment '制单人',
+    audit_user_id  bigint(20)        default null             comment '审核用户ID',
+    audit_user_name varchar(64)      default null             comment '审核人',
+    audit_time     datetime          default null             comment '审核时间',
+    submit_time    datetime          default null             comment '提交时间',
+    ship_time      datetime          default null             comment '发运时间',
+    complete_time  datetime          default null             comment '完成时间',
+    total_qty      decimal(18, 2)    default 0 not null       comment '合计数量',
+    net_amount     decimal(18, 2)    default 0 not null       comment '不含税金额',
+    tax_amount     decimal(18, 2)    default 0 not null       comment '税额',
+    total_amount   decimal(18, 2)    default 0 not null       comment '价税合计',
+    create_by      varchar(32)       default null             comment '创建者',
+    create_time    datetime          default null             comment '创建时间',
+    update_by      varchar(32)       default null             comment '更新者',
+    update_time    datetime          default null             comment '更新时间',
+    note           varchar(500)      default null             comment '说明',
+    primary key (id),
+    unique key uk_purchase_order_bill_no (company_id, bill_no),
+    key idx_purchase_order_status (company_id, status, bill_date),
+    key idx_purchase_order_supplier (company_id, supplier_id, bill_date)
+) engine=innodb comment = '采购订单主表';
+
+-- 采购订单明细表
+drop table if exists purchase_order_item;
+create table purchase_order_item (
+    id            bigint(20)        not null                 comment '明细ID',
+    order_id      bigint(20)        not null                 comment '采购订单ID',
+    sort          int(11)           default 1 not null       comment '排序',
+    item_code     varchar(64)       not null                 comment '物料编码',
+    item_name     varchar(128)      not null                 comment '物料名称',
+    spec          varchar(128)      default null             comment '规格型号',
+    unit          varchar(32)       default null             comment '单位',
+    qty           decimal(18, 2)    default 0 not null       comment '数量',
+    price_excl    decimal(18, 4)    default 0 not null       comment '不含税单价',
+    tax_rate      decimal(10, 2)    default 0 not null       comment '税率',
+    tax_amount    decimal(18, 2)    default 0 not null       comment '税额',
+    total_amount  decimal(18, 2)    default 0 not null       comment '价税合计',
+    create_by     varchar(32)       default null             comment '创建者',
+    create_time   datetime          default null             comment '创建时间',
+    update_by     varchar(32)       default null             comment '更新者',
+    update_time   datetime          default null             comment '更新时间',
+    note          varchar(500)      default null             comment '备注',
+    primary key (id),
+    key idx_purchase_order_item_order (order_id, sort)
+) engine=innodb comment = '采购订单明细表';
+
+-- 采购订单来源单据表
+drop table if exists purchase_order_source;
+create table purchase_order_source (
+    id             bigint(20)        not null                 comment '来源ID',
+    order_id       bigint(20)        not null                 comment '采购订单ID',
+    sort           int(11)           default 1 not null       comment '排序',
+    source_bill_no varchar(64)       not null                 comment '来源单号',
+    source_type    varchar(64)       not null                 comment '来源类型',
+    supplier_name  varchar(128)      default null             comment '供应商名称',
+    bill_date      date              default null             comment '单据日期',
+    total_amount   decimal(18, 2)    default 0 not null       comment '价税合计',
+    status         varchar(32)       default null             comment '状态',
+    create_by      varchar(32)       default null             comment '创建者',
+    create_time    datetime          default null             comment '创建时间',
+    update_by      varchar(32)       default null             comment '更新者',
+    update_time    datetime          default null             comment '更新时间',
+    note           varchar(500)      default null             comment '备注',
+    primary key (id),
+    key idx_purchase_order_source_order (order_id, sort)
+) engine=innodb comment = '采购订单来源单据表';
+
+-- 采购订单附件表
+drop table if exists purchase_order_attachment;
+create table purchase_order_attachment (
+    id            bigint(20)        not null                 comment '附件ID',
+    order_id      bigint(20)        not null                 comment '采购订单ID',
+    sort          int(11)           default 1 not null       comment '排序',
+    file_name     varchar(255)      not null                 comment '文件名称',
+    file_type     varchar(64)       default null             comment '文件类型',
+    file_size     varchar(32)       default null             comment '文件大小',
+    upload_user   varchar(64)       default null             comment '上传人',
+    upload_time   datetime          default null             comment '上传时间',
+    create_by     varchar(32)       default null             comment '创建者',
+    create_time   datetime          default null             comment '创建时间',
+    update_by     varchar(32)       default null             comment '更新者',
+    update_time   datetime          default null             comment '更新时间',
+    note          varchar(500)      default null             comment '备注',
+    primary key (id),
+    key idx_purchase_order_attachment_order (order_id, sort)
+) engine=innodb comment = '采购订单附件表';
+
+-- 采购订单操作日志表
+drop table if exists purchase_order_activity;
+create table purchase_order_activity (
+    id               bigint(20)        not null                 comment '日志ID',
+    order_id         bigint(20)        not null                 comment '采购订单ID',
+    action_code      varchar(64)       not null                 comment '动作编码',
+    action_name      varchar(64)       not null                 comment '动作名称',
+    content          varchar(500)      not null                 comment '日志内容',
+    operator_user_id bigint(20)        default null             comment '操作人ID',
+    operator_name    varchar(64)       default null             comment '操作人',
+    activity_type    varchar(32)       default null             comment '日志类型',
+    operate_time     datetime          default null             comment '操作时间',
+    create_by        varchar(32)       default null             comment '创建者',
+    create_time      datetime          default null             comment '创建时间',
+    update_by        varchar(32)       default null             comment '更新者',
+    update_time      datetime          default null             comment '更新时间',
+    note             varchar(500)      default null             comment '备注',
+    primary key (id),
+    key idx_purchase_order_activity_order (order_id, operate_time)
+) engine=innodb comment = '采购订单操作日志表';
 

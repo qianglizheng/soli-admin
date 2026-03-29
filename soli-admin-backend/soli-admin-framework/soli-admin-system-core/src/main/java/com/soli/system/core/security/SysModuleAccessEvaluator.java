@@ -1,6 +1,7 @@
 package com.soli.system.core.security;
 
 import com.soli.common.api.exception.BusinessException;
+import com.soli.common.core.security.CompanyContextHolder;
 import com.soli.system.core.mapper.SysModulePermissionMapper;
 import com.soli.system.service.sysmodule.SysModuleContextDTO;
 import com.soli.system.service.sysmodule.SysModuleContextService;
@@ -26,28 +27,70 @@ public class SysModuleAccessEvaluator {
 
     private final SysModuleContextService sysModuleContextService;
 
-    public boolean hasModule(String moduleCode) {
+    /**
+     * 判断当前用户是否可见指定模块。
+     *
+     * @param moduleCode 模块编码
+     * @return 是否可见
+     */
+    public boolean hasModule(final String moduleCode) {
         Long userId = currentUserId();
         Long companyId = currentCompanyId();
-        if (userId == null || companyId == null || moduleCode == null || moduleCode.isBlank()) {
+        if (userId == null || companyId == null || !StringUtils.hasText(moduleCode)) {
             return false;
         }
-        return sysModulePermissionMapper.countUserVisibleModule(userId, companyId, moduleCode) > 0;
+        return sysModulePermissionMapper.countUserVisibleModule(userId, companyId, moduleCode.trim()) > 0;
     }
 
-    public boolean hasButton(String moduleCode, String buttonCode) {
+    /**
+     * 判断当前用户是否拥有指定按钮权限。
+     *
+     * @param moduleCode 模块编码
+     * @param buttonCode 按钮编码
+     * @return 是否可用
+     */
+    public boolean hasButton(final String moduleCode, final String buttonCode) {
         Long userId = currentUserId();
         Long companyId = currentCompanyId();
-        if (userId == null || companyId == null || moduleCode == null || moduleCode.isBlank() || buttonCode == null || buttonCode.isBlank()) {
+        if (userId == null || companyId == null || !StringUtils.hasText(moduleCode) || !StringUtils.hasText(buttonCode)) {
             return false;
         }
-        Integer permissionLevel = sysModulePermissionMapper.selectUserButtonPermissionLevel(userId, companyId, moduleCode, buttonCode);
+        Integer permissionLevel = sysModulePermissionMapper.selectUserButtonPermissionLevel(
+                userId,
+                companyId,
+                moduleCode.trim(),
+                buttonCode.trim()
+        );
         return permissionLevel != null && permissionLevel >= 2;
     }
 
-    public boolean hasStateButton(String moduleCode, String buttonCode, String stateCode) {
-        Long userId = currentUserId();
-        Long companyId = currentCompanyId();
+    /**
+     * 按当前登录上下文判断状态按钮权限。
+     *
+     * @param moduleCode 模块编码
+     * @param buttonCode 按钮编码
+     * @param stateCode 状态编码
+     * @return 是否可用
+     */
+    public boolean hasStateButton(final String moduleCode, final String buttonCode, final String stateCode) {
+        return hasStateButton(moduleCode, buttonCode, stateCode, currentUserId(), currentCompanyId());
+    }
+
+    /**
+     * 按指定用户上下文判断状态按钮权限。
+     *
+     * @param moduleCode 模块编码
+     * @param buttonCode 按钮编码
+     * @param stateCode 状态编码
+     * @param userId 用户 ID
+     * @param companyId 公司 ID
+     * @return 是否可用
+     */
+    public boolean hasStateButton(final String moduleCode,
+                                  final String buttonCode,
+                                  final String stateCode,
+                                  final Long userId,
+                                  final Long companyId) {
         if (userId == null
                 || companyId == null
                 || !StringUtils.hasText(moduleCode)
@@ -56,9 +99,16 @@ public class SysModuleAccessEvaluator {
             return false;
         }
         try {
-            SysModuleContextDTO context = sysModuleContextService.buildContext(moduleCode, userId, companyId, stateCode);
-            String configKey = BUTTON_COMPONENT + ":" + buttonCode;
-            SysModuleContextDTO.FieldConfig buttonConfig = context.getFieldConfigs() == null ? null : context.getFieldConfigs().get(configKey);
+            SysModuleContextDTO context = sysModuleContextService.buildContext(
+                    moduleCode.trim(),
+                    userId,
+                    companyId,
+                    stateCode.trim()
+            );
+            String configKey = BUTTON_COMPONENT + ":" + buttonCode.trim();
+            SysModuleContextDTO.FieldConfig buttonConfig = context.getFieldConfigs() == null
+                    ? null
+                    : context.getFieldConfigs().get(configKey);
             return buttonConfig != null
                     && Boolean.TRUE.equals(buttonConfig.getVisible())
                     && !Boolean.TRUE.equals(buttonConfig.getDisabled());
@@ -68,7 +118,7 @@ public class SysModuleAccessEvaluator {
     }
 
     private Long currentUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = getAuthentication();
         if (authentication == null) {
             return null;
         }
@@ -80,15 +130,23 @@ public class SysModuleAccessEvaluator {
     }
 
     private Long currentCompanyId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long companyId = CompanyContextHolder.getCurrentCompanyId();
+        if (companyId != null) {
+            return companyId;
+        }
+        Authentication authentication = getAuthentication();
         if (authentication == null) {
             return null;
         }
         Object details = authentication.getDetails();
-        if (details instanceof Long companyId) {
-            return companyId;
+        if (details instanceof Long currentCompanyId) {
+            return currentCompanyId;
         }
         return null;
+    }
+
+    private static Authentication getAuthentication() {
+        return SecurityContextHolder.getContext().getAuthentication();
     }
 
 }

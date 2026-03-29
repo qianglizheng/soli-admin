@@ -35,25 +35,94 @@
                     <div class="tree-node__meta">
                       <div class="tree-node__actions">
                         <template v-if="isHeadquarterNode(data)">
-                          <el-button link type="primary" size="small" @click.stop="handleCreateOrgUnit(data)">新增分公司</el-button>
-                          <el-button link size="small" @click.stop="handleCreateChild(data)">新增岗位</el-button>
+                          <el-button
+                            v-if="createButtonConfig.visible"
+                            link
+                            size="small"
+                            type="primary"
+                            :disabled="createButtonConfig.disabled"
+                            @click.stop="handleCreateOrgUnit(data)"
+                          >
+                            新增分公司
+                          </el-button>
+                          <el-button
+                            v-if="createButtonConfig.visible"
+                            link
+                            size="small"
+                            :disabled="createButtonConfig.disabled"
+                            @click.stop="handleCreateChild(data)"
+                          >
+                            新增岗位
+                          </el-button>
                         </template>
                         <template v-else-if="isBranchNode(data)">
-                          <el-button link type="primary" size="small" @click.stop="handleCreateChild(data)">新增岗位</el-button>
-                          <el-button link size="small" @click.stop="handleEditOrgUnit(data)">编辑</el-button>
-                          <el-button link type="danger" size="small" @click.stop="handleRemoveOrgUnit(data)">删除</el-button>
+                          <el-button
+                            v-if="createButtonConfig.visible"
+                            link
+                            size="small"
+                            type="primary"
+                            :disabled="createButtonConfig.disabled"
+                            @click.stop="handleCreateChild(data)"
+                          >
+                            新增岗位
+                          </el-button>
+                          <el-button
+                            v-if="editButtonConfig.visible"
+                            link
+                            size="small"
+                            :disabled="editButtonConfig.disabled"
+                            @click.stop="handleEditOrgUnit(data)"
+                          >
+                            编辑
+                          </el-button>
+                          <el-button
+                            v-if="listButtonConfigMap.remove.visible"
+                            link
+                            size="small"
+                            type="danger"
+                            :disabled="listButtonConfigMap.remove.disabled"
+                            @click.stop="handleRemoveOrgUnit(data)"
+                          >
+                            {{ listButtonConfigMap.remove.label }}
+                          </el-button>
                         </template>
                         <template v-else-if="isPostNode(data)">
-                          <el-button link type="primary" size="small" @click.stop="handleCreateChild(data)">新增</el-button>
-                          <el-button link size="small" @click.stop="handleEditPost(data)">编辑</el-button>
-                          <el-button link type="danger" size="small" @click.stop="handleRemovePost(data)">删除</el-button>
+                          <el-button
+                            v-if="createButtonConfig.visible"
+                            link
+                            size="small"
+                            type="primary"
+                            :disabled="createButtonConfig.disabled"
+                            @click.stop="handleCreateChild(data)"
+                          >
+                            {{ createButtonConfig.label }}
+                          </el-button>
+                          <el-button
+                            v-if="editButtonConfig.visible"
+                            link
+                            size="small"
+                            :disabled="editButtonConfig.disabled"
+                            @click.stop="handleEditPost(data)"
+                          >
+                            {{ editButtonConfig.label }}
+                          </el-button>
+                          <el-button
+                            v-if="listButtonConfigMap.remove.visible"
+                            link
+                            size="small"
+                            type="danger"
+                            :disabled="listButtonConfigMap.remove.disabled"
+                            @click.stop="handleRemovePost(data)"
+                          >
+                            {{ listButtonConfigMap.remove.label }}
+                          </el-button>
                         </template>
                       </div>
                       <el-tag
                         size="small"
                         effect="plain"
-                        :type="getNodeTagType(data.nodeType)"
                         class="tree-node__tag"
+                        :type="getNodeTagType(data.nodeType)"
                       >
                         {{ getOrgNodeTypeLabel(data.nodeType) }}
                       </el-tag>
@@ -77,15 +146,25 @@
                     <span>{{ selectedPostDetail?.postName || selectedPostNode.nodeName }}</span>
                     <el-tag size="small" type="primary" effect="plain">{{ currentPostTypeLabel }}</el-tag>
                     <el-tag size="small" type="info" effect="plain">{{ currentOrgTypeLabel }}</el-tag>
-                    <el-tag size="small" :type="currentStatus === '0' ? 'success' : 'danger'" effect="plain">
+                    <el-tag size="small" effect="plain" :type="currentStatus === '0' ? 'success' : 'danger'">
                       {{ currentStatus === '0' ? '启用' : '停用' }}
                     </el-tag>
                   </div>
-                  <div class="overview-subtitle">{{ selectedPostDetail?.note || '当前岗位暂未填写说明。' }}</div>
+                  <div class="overview-subtitle">
+                    {{ selectedPostDetail?.note || '当前岗位暂未填写说明。' }}
+                  </div>
                 </div>
 
                 <div class="overview-actions">
-                  <el-button type="primary" icon="UserFilled" @click="openAssignEmployeeDialog">添加员工</el-button>
+                  <el-button
+                    v-if="bindButtonConfig.visible"
+                    icon="UserFilled"
+                    type="primary"
+                    :disabled="bindButtonConfig.disabled"
+                    @click="openAssignEmployeeDialog"
+                  >
+                    {{ bindButtonConfig.label }}
+                  </el-button>
                   <el-button plain icon="View" @click="openViewEmployeeDialog">查看员工</el-button>
                 </div>
               </div>
@@ -126,15 +205,15 @@
               </div>
 
               <el-empty v-if="!employeePreviewResult.list.length" description="当前岗位暂无员工" />
-              <el-table v-else :data="employeePreviewResult.list" border height="100%">
-                <el-table-column prop="username" label="账号" min-width="120" />
-                <el-table-column prop="nickname" label="姓名" min-width="110" />
-                <el-table-column prop="phone" label="手机号" min-width="140" />
-                <el-table-column prop="email" label="邮箱" min-width="180" show-overflow-tooltip />
-                <el-table-column label="状态" width="90" align="center">
-                  <template #default="scope">
-                    <el-tag size="small" :type="scope.row.status === '0' ? 'success' : 'danger'" effect="plain">
-                      {{ scope.row.status === '0' ? '启用' : '停用' }}
+              <el-table v-else border height="100%" :data="employeePreviewResult.list">
+                <el-table-column label="账号" min-width="120" prop="username" />
+                <el-table-column label="姓名" min-width="110" prop="nickname" />
+                <el-table-column label="手机号" min-width="140" prop="phone" />
+                <el-table-column label="邮箱" min-width="180" prop="email" show-overflow-tooltip />
+                <el-table-column align="center" label="状态" width="90">
+                  <template #default="{ row }">
+                    <el-tag size="small" effect="plain" :type="row.status === '0' ? 'success' : 'danger'">
+                      {{ row.status === '0' ? '启用' : '停用' }}
                     </el-tag>
                   </template>
                 </el-table-column>
@@ -147,7 +226,7 @@
           </template>
 
           <div v-else class="workspace-empty">
-            <el-empty :description="selectedOrgNode ? '当前选中的是组织节点，可直接在该树节点右侧执行新增、编辑、删除操作' : '请选择左侧岗位节点后查看岗位员工'" />
+            <el-empty :description="selectedOrgNode ? '当前选中的是组织节点，可直接在树节点右侧执行新增、编辑、删除操作。' : '请选择左侧岗位节点后查看岗位员工。'" />
             <el-alert
               v-if="selectedNode"
               title="当前选中的是组织节点，可直接使用节点右侧操作按钮维护分公司或岗位；如需维护员工，请选择具体岗位。"
@@ -162,39 +241,47 @@
 
     <post-manage-form
       v-model="formVisible"
-      :mode="formMode"
-      :initial-data="formInitial"
-      :tree-data="postTree"
+      :context="formContext"
       :current-node-key="formMode === 'edit' ? selectedPostNode?.nodeKey : undefined"
-      @submit="handleFormSubmit"
+      :initial-data="formInitial"
+      :mode="formMode"
+      :submitting="postSubmitting"
+      :tree-data="postTree"
       @cancel="handleFormCancel"
+      @submit="handleFormSubmit"
     />
 
     <org-unit-form
       v-model="orgFormVisible"
-      :mode="orgFormMode"
+      :context="formContext"
       :initial-data="orgFormInitial"
+      :mode="orgFormMode"
+      :submitting="orgSubmitting"
       :tree-data="postTree"
-      @submit="handleOrgFormSubmit"
       @cancel="handleOrgFormCancel"
+      @submit="handleOrgFormSubmit"
     />
 
     <post-employee-dialog
       v-model="assignDialogVisible"
-      mode="assign"
+      :bind-button="bindButtonConfig"
       :post-id="selectedPostDetail?.id"
       :post-name="selectedPostDetail?.postName"
-      @submit="handleEmployeeChanged"
+      :unbind-button="unbindButtonConfig"
+      mode="assign"
       @cancel="assignDialogVisible = false"
+      @submit="handleEmployeeChanged"
     />
 
     <post-employee-dialog
       v-model="viewDialogVisible"
-      mode="view"
+      :bind-button="bindButtonConfig"
       :post-id="selectedPostDetail?.id"
       :post-name="selectedPostDetail?.postName"
-      @submit="handleEmployeeChanged"
+      :unbind-button="unbindButtonConfig"
+      mode="view"
       @cancel="viewDialogVisible = false"
+      @submit="handleEmployeeChanged"
     />
   </div>
 </template>
@@ -206,29 +293,45 @@ import OrgUnitForm from './components/OrgUnitForm.vue';
 import PostEmployeeDialog from './components/PostEmployeeDialog.vue';
 import PostManageForm from './components/PostManageForm.vue';
 import {
+  createOrgPost,
   createOrgUnit,
   deleteOrgPost,
   deleteOrgUnit,
-  createOrgPost,
   getOrgNodeTypeLabel,
   getOrgPostDetail,
+  getOrgPostModuleContext,
   getOrgPostTree,
   getOrgPostUserPage,
   getOrgUnitDetail,
   getPostTypeLabel,
   POST_TYPE_OPTIONS,
-  updateOrgUnit,
   updateOrgPost,
+  updateOrgUnit,
   type CreateOrgPostPayload,
   type CreateOrgUnitPayload,
   type OrgPostDetail,
   type OrgPostFormModel,
   type OrgPostTreeNode,
   type OrgPostUser,
-  type UpdateOrgUnitPayload,
-  type OrgUnitFormModel
+  type OrgUnitFormModel,
+  type UpdateOrgUnitPayload
 } from '@/api/orgPost';
+import { useStatefulModuleContext } from '@/composables/useStatefulModuleContext';
 import type { PageResult } from '@/types/global';
+import {
+  buildResolvedButtonConfigMap,
+  buildResolvedFieldConfigMap,
+  pickWritableModuleValue
+} from '@/utils/moduleContext';
+import {
+  ORG_FORM_COMPONENT,
+  POST_FORM_COMPONENT,
+  orgFieldFallbackMap,
+  orgPostButtonFallbackMap,
+  postFieldFallbackMap,
+  type OrgFormFieldCode,
+  type PostFormFieldCode
+} from './moduleConfig';
 
 defineOptions({
   name: 'SystemPostManage'
@@ -238,6 +341,8 @@ const treeRef = ref();
 const treeKeyword = ref('');
 const treeLoading = ref(false);
 const workspaceLoading = ref(false);
+const postSubmitting = ref(false);
+const orgSubmitting = ref(false);
 const postTree = ref<OrgPostTreeNode[]>([]);
 const selectedNodeKey = ref<string>();
 const selectedPostDetail = ref<OrgPostDetail>();
@@ -255,6 +360,24 @@ const orgFormMode = ref<'create' | 'edit'>('create');
 const orgFormInitial = ref<Partial<OrgUnitFormModel>>({});
 const assignDialogVisible = ref(false);
 const viewDialogVisible = ref(false);
+
+const {
+  activeContext: formContext,
+  getStateContext,
+  listContext,
+  loadListContext,
+  preloadStateContexts,
+  setActiveStateContext
+} = useStatefulModuleContext<'create' | 'edit'>({
+  loadContext: async (stateCode) => {
+    try {
+      const { data } = await getOrgPostModuleContext(stateCode);
+      return data;
+    } catch {
+      return null;
+    }
+  }
+});
 
 function findTreeNode(nodes: OrgPostTreeNode[], nodeKey?: string): OrgPostTreeNode | undefined {
   if (!nodeKey) {
@@ -310,6 +433,33 @@ function countPostNodes(nodes: OrgPostTreeNode[]): number {
     return count + current + (node.children?.length ? countPostNodes(node.children) : 0);
   }, 0);
 }
+const createContext = computed(() => getStateContext('create'));
+const editContext = computed(() => getStateContext('edit'));
+
+const listButtonConfigMap = computed(() => {
+  return buildResolvedButtonConfigMap(listContext.value?.fieldConfigs || {}, orgPostButtonFallbackMap);
+});
+
+const createButtonConfig = computed(() => {
+  const buttonConfigMap = buildResolvedButtonConfigMap(createContext.value?.fieldConfigs || {}, orgPostButtonFallbackMap);
+  return buttonConfigMap.create;
+});
+
+const editButtonConfig = computed(() => {
+  const buttonConfigMap = buildResolvedButtonConfigMap(editContext.value?.fieldConfigs || {}, orgPostButtonFallbackMap);
+  return buttonConfigMap.modify;
+});
+
+const bindButtonConfig = computed(() => listButtonConfigMap.value.userBind);
+const unbindButtonConfig = computed(() => listButtonConfigMap.value.userUnbind);
+
+const postFormFieldConfigMap = computed(() => {
+  return buildResolvedFieldConfigMap(formContext.value?.fieldConfigs || {}, POST_FORM_COMPONENT, postFieldFallbackMap);
+});
+
+const orgFormFieldConfigMap = computed(() => {
+  return buildResolvedFieldConfigMap(formContext.value?.fieldConfigs || {}, ORG_FORM_COMPONENT, orgFieldFallbackMap);
+});
 
 const selectedNode = computed(() => findTreeNode(postTree.value, selectedNodeKey.value));
 const selectedOrgNode = computed(() => (selectedNode.value && selectedNode.value.nodeType !== 'POST' ? selectedNode.value : undefined));
@@ -444,21 +594,29 @@ function getCreateOrgParentNodeKey() {
   return rootOrgNode.value?.nodeKey || '';
 }
 
+const pickWritablePostFieldValue = <T,>(fieldCode: PostFormFieldCode, value: T | undefined) => {
+  return pickWritableModuleValue(postFormFieldConfigMap.value, fieldCode, value);
+};
+
+const pickWritableOrgFieldValue = <T,>(fieldCode: OrgFormFieldCode, value: T | undefined) => {
+  return pickWritableModuleValue(orgFormFieldConfigMap.value, fieldCode, value);
+};
+
 function buildFormPayload(formData: OrgPostFormModel): CreateOrgPostPayload {
   const parentNode = findTreeNode(postTree.value, formData.parentNodeKey);
   if (!parentNode) {
     throw new Error('上级节点不存在');
   }
   return {
-    managerUserId: formData.managerUserId,
-    note: formData.note,
+    managerUserId: pickWritablePostFieldValue('managerUserId', formData.managerUserId),
+    note: pickWritablePostFieldValue('postNote', formData.note || undefined),
     orgUnitId: parentNode.nodeType === 'POST' ? parentNode.orgUnitId : parentNode.id,
     parentPostId: parentNode.nodeType === 'POST' ? parentNode.id : 0,
-    postCode: formData.postCode,
-    postName: formData.postName,
-    postType: formData.postType,
-    sort: formData.sort,
-    status: formData.status
+    postCode: pickWritablePostFieldValue('postCode', formData.postCode) || '',
+    postName: pickWritablePostFieldValue('postName', formData.postName) || '',
+    postType: pickWritablePostFieldValue('postType', formData.postType),
+    sort: pickWritablePostFieldValue('postSort', formData.sort || undefined),
+    status: pickWritablePostFieldValue('postStatus', formData.status)
   };
 }
 
@@ -468,13 +626,13 @@ function buildOrgFormPayload(formData: OrgUnitFormModel): CreateOrgUnitPayload {
     throw new Error('上级组织不存在');
   }
   return {
-    leaderUserId: formData.leaderUserId,
-    note: formData.note,
-    orgCode: formData.orgCode,
-    orgName: formData.orgName,
+    leaderUserId: pickWritableOrgFieldValue('leaderUserId', formData.leaderUserId),
+    note: pickWritableOrgFieldValue('orgNote', formData.note || undefined),
+    orgCode: pickWritableOrgFieldValue('orgCode', formData.orgCode) || '',
+    orgName: pickWritableOrgFieldValue('orgName', formData.orgName) || '',
     parentId: parentNode.id,
-    sort: formData.sort,
-    status: formData.status
+    sort: pickWritableOrgFieldValue('orgSort', formData.sort || undefined),
+    status: pickWritableOrgFieldValue('orgStatus', formData.status)
   };
 }
 
@@ -484,32 +642,16 @@ function buildUpdateOrgFormPayload(formData: OrgUnitFormModel): UpdateOrgUnitPay
     id: formData.id!
   };
 }
-
-function handleCreateRoot(targetNode?: OrgPostTreeNode) {
-  const parentNodeKey = targetNode?.nodeKey || getCreateParentNodeKey();
-  if (!parentNodeKey) {
-    ElMessage.warning('请先初始化组织节点后再新增岗位');
+async function handleCreateOrgUnit(targetNode?: OrgPostTreeNode) {
+  if (!createButtonConfig.value.visible || createButtonConfig.value.disabled) {
     return;
   }
-  formMode.value = 'create';
-  formInitial.value = {
-    note: '',
-    parentNodeKey,
-    postCode: '',
-    postName: '',
-    postType: POST_TYPE_OPTIONS[0]!.value,
-    sort: resolveNextSort(parentNodeKey),
-    status: '0'
-  };
-  formVisible.value = true;
-}
-
-function handleCreateOrgUnit(targetNode?: OrgPostTreeNode) {
   const parentNodeKey = targetNode?.nodeKey || getCreateOrgParentNodeKey();
   if (!parentNodeKey) {
     ElMessage.warning('请先初始化总公司节点后再新增分公司');
     return;
   }
+  formContext.value = await setActiveStateContext('create');
   orgFormMode.value = 'create';
   orgFormInitial.value = {
     note: '',
@@ -522,13 +664,43 @@ function handleCreateOrgUnit(targetNode?: OrgPostTreeNode) {
   orgFormVisible.value = true;
 }
 
+async function handleCreateChild(targetNode?: OrgPostTreeNode) {
+  if (!createButtonConfig.value.visible || createButtonConfig.value.disabled) {
+    return;
+  }
+  const currentNode = targetNode || selectedNode.value;
+  if (!currentNode) {
+    return;
+  }
+  formContext.value = await setActiveStateContext('create');
+  formMode.value = 'create';
+  formInitial.value = {
+    note: '',
+    parentNodeKey: currentNode.nodeKey,
+    postCode: '',
+    postName: '',
+    postType: POST_TYPE_OPTIONS[0]!.value,
+    sort: resolveNextSort(currentNode.nodeKey),
+    status: '0'
+  };
+  formVisible.value = true;
+}
+
 async function handleEditOrgUnit(targetNode?: OrgPostTreeNode) {
+  if (!editButtonConfig.value.visible || editButtonConfig.value.disabled) {
+    return;
+  }
   const currentNode = targetNode || selectedBranchNode.value;
   if (!currentNode || !isBranchNode(currentNode)) {
     return;
   }
   try {
-    const { data } = await getOrgUnitDetail(currentNode.id);
+    const [detailRes, context] = await Promise.all([
+      getOrgUnitDetail(currentNode.id),
+      setActiveStateContext('edit')
+    ]);
+    const data = detailRes.data;
+    formContext.value = context;
     orgFormMode.value = 'edit';
     orgFormInitial.value = {
       id: data.id,
@@ -549,12 +721,15 @@ async function handleEditOrgUnit(targetNode?: OrgPostTreeNode) {
 }
 
 async function handleRemoveOrgUnit(targetNode?: OrgPostTreeNode) {
+  if (!listButtonConfigMap.value.remove.visible || listButtonConfigMap.value.remove.disabled) {
+    return;
+  }
   const currentNode = targetNode || selectedBranchNode.value;
   if (!currentNode || !isBranchNode(currentNode)) {
     return;
   }
   try {
-    await ElMessageBox.confirm(`确认删除分公司「${currentNode.nodeName}」吗？`, '删除提示', {
+    await ElMessageBox.confirm(`确认删除分公司“${currentNode.nodeName}”吗？`, '删除提示', {
       confirmButtonText: '删除',
       cancelButtonText: '取消',
       type: 'warning'
@@ -569,32 +744,21 @@ async function handleRemoveOrgUnit(targetNode?: OrgPostTreeNode) {
   }
 }
 
-function handleCreateChild(targetNode?: OrgPostTreeNode) {
-  const currentNode = targetNode || selectedNode.value;
-  if (!currentNode) {
+async function handleEditPost(targetNode?: OrgPostTreeNode) {
+  if (!editButtonConfig.value.visible || editButtonConfig.value.disabled) {
     return;
   }
-  formMode.value = 'create';
-  formInitial.value = {
-    note: '',
-    parentNodeKey: currentNode.nodeKey,
-    postCode: '',
-    postName: '',
-    postType: POST_TYPE_OPTIONS[0]!.value,
-    sort: resolveNextSort(currentNode.nodeKey),
-    status: '0'
-  };
-  formVisible.value = true;
-}
-
-async function handleEditPost(targetNode?: OrgPostTreeNode) {
   const currentNode = targetNode || selectedPostNode.value;
   if (!currentNode || !isPostNode(currentNode)) {
     return;
   }
-  const detail = currentNode.id === selectedPostDetail.value?.id
-    ? selectedPostDetail.value
-    : (await getOrgPostDetail(currentNode.id)).data;
+  const [detail, context] = await Promise.all([
+    currentNode.id === selectedPostDetail.value?.id
+      ? Promise.resolve(selectedPostDetail.value!)
+      : getOrgPostDetail(currentNode.id).then((response) => response.data),
+    setActiveStateContext('edit')
+  ]);
+  formContext.value = context;
   formMode.value = 'edit';
   formInitial.value = {
     id: detail.id,
@@ -611,12 +775,15 @@ async function handleEditPost(targetNode?: OrgPostTreeNode) {
 }
 
 async function handleRemovePost(targetNode?: OrgPostTreeNode) {
+  if (!listButtonConfigMap.value.remove.visible || listButtonConfigMap.value.remove.disabled) {
+    return;
+  }
   const currentNode = targetNode || selectedPostNode.value;
   if (!currentNode || !isPostNode(currentNode)) {
     return;
   }
   try {
-    await ElMessageBox.confirm(`确认删除岗位「${currentNode.nodeName}」吗？`, '删除提示', {
+    await ElMessageBox.confirm(`确认删除岗位“${currentNode.nodeName}”吗？`, '删除提示', {
       confirmButtonText: '删除',
       cancelButtonText: '取消',
       type: 'warning'
@@ -632,6 +799,7 @@ async function handleRemovePost(targetNode?: OrgPostTreeNode) {
 }
 
 async function handleFormSubmit(formData: OrgPostFormModel) {
+  postSubmitting.value = true;
   try {
     const payload = buildFormPayload(formData);
     if (formMode.value === 'create') {
@@ -652,6 +820,8 @@ async function handleFormSubmit(formData: OrgPostFormModel) {
     if (error instanceof Error) {
       ElMessage.error(error.message);
     }
+  } finally {
+    postSubmitting.value = false;
   }
 }
 
@@ -660,6 +830,7 @@ function handleFormCancel() {
 }
 
 async function handleOrgFormSubmit(formData: OrgUnitFormModel) {
+  orgSubmitting.value = true;
   try {
     if (orgFormMode.value === 'create') {
       const payload = buildOrgFormPayload(formData);
@@ -677,6 +848,8 @@ async function handleOrgFormSubmit(formData: OrgUnitFormModel) {
     if (error instanceof Error) {
       ElMessage.error(error.message);
     }
+  } finally {
+    orgSubmitting.value = false;
   }
 }
 
@@ -685,7 +858,7 @@ function handleOrgFormCancel() {
 }
 
 function openAssignEmployeeDialog() {
-  if (!selectedPostDetail.value?.id) {
+  if (!selectedPostDetail.value?.id || bindButtonConfig.value.disabled) {
     return;
   }
   assignDialogVisible.value = true;
@@ -710,10 +883,13 @@ watch(treeKeyword, (value) => {
 });
 
 onMounted(() => {
-  void loadTree();
+  void Promise.allSettled([
+    loadListContext(),
+    preloadStateContexts(['create', 'edit']),
+    loadTree()
+  ]);
 });
 </script>
-
 <style scoped>
 .post-manage-page {
   box-sizing: border-box;

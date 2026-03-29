@@ -32,12 +32,12 @@
         <el-row :gutter="16">
           <el-col :span="12">
             <el-form-item label="路由地址" prop="routePath">
-              <el-input v-model="form.routePath" placeholder="如 /purchase 或 bill-template" />
+              <el-input v-model="form.routePath" placeholder="如 /purchase 或 order" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="组件路径" prop="componentPath">
-              <el-input v-model="form.componentPath" placeholder="如 purchase/bill-template/BillTemplateIndex" />
+              <el-input v-model="form.componentPath" placeholder="如 purchase/order/PurchaseOrderIndex" />
             </el-form-item>
           </el-col>
         </el-row>

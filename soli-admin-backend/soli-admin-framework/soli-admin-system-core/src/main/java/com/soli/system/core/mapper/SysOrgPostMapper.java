@@ -69,10 +69,28 @@ public interface SysOrgPostMapper extends BaseCrudMapper<SysOrgPostEntity, SysOr
      */
     int countOrgUnitById(@Param("orgUnitId") Long orgUnitId);
 
+    /**
+     * 根据组织单元 ID 查询组织单元
+     *
+     * @param id 组织单元 ID
+     * @return 组织单元实体
+     */
     SysOrgUnitEntity selectOrgUnitById(@Param("id") Long id);
 
+    /**
+     * 根据组织编码查询组织单元
+     *
+     * @param orgCode 组织编码
+     * @return 组织单元实体
+     */
     SysOrgUnitEntity selectOrgUnitByCode(@Param("orgCode") String orgCode);
 
+    /**
+     * 新增组织单元
+     *
+     * @param entity 组织单元实体
+     * @return 影响行数
+     */
     int insertOrgUnit(SysOrgUnitEntity entity);
 
     /**

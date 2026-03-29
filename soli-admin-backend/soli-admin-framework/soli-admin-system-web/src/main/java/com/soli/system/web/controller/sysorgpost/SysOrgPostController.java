@@ -2,8 +2,11 @@ package com.soli.system.web.controller.sysorgpost;
 
 import com.soli.common.api.vo.PageResult;
 import com.soli.common.api.vo.Result;
+import com.soli.common.web.controller.BaseController;
 import com.soli.system.core.service.impl.sysorgpost.SysOrgPostConverter;
 import com.soli.system.core.service.impl.sysorgpost.SysOrgUnitConverter;
+import com.soli.system.service.sysmodule.SysModuleContextDTO;
+import com.soli.system.service.sysmodule.SysModuleContextService;
 import com.soli.system.service.sysorgpost.SysOrgPostBindUserRequest;
 import com.soli.system.service.sysorgpost.SysOrgPostCreateRequest;
 import com.soli.system.service.sysorgpost.SysOrgPostDTO;
@@ -21,7 +24,6 @@ import com.soli.system.service.sysorgpost.SysOrgUnitModifyRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +32,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -43,8 +46,7 @@ import java.util.List;
 @Tag(name = "岗位管理", description = "岗位管理相关接口")
 @RestController
 @RequestMapping("/sys/org-post")
-@RequiredArgsConstructor
-public class SysOrgPostController {
+public class SysOrgPostController extends BaseController {
 
     private final SysOrgPostService service;
 
@@ -52,7 +54,17 @@ public class SysOrgPostController {
 
     private final SysOrgUnitConverter sysOrgUnitConverter;
 
-    @Operation(summary = "Query org post tree")
+    public SysOrgPostController(final SysOrgPostService service,
+                                final SysOrgPostConverter converter,
+                                final SysOrgUnitConverter sysOrgUnitConverter,
+                                final SysModuleContextService sysModuleContextService) {
+        super(sysModuleContextService);
+        this.service = service;
+        this.converter = converter;
+        this.sysOrgUnitConverter = sysOrgUnitConverter;
+    }
+
+    @Operation(summary = "查询岗位树")
     @PreAuthorize("@moduleAccess.hasModule('sys_org_post')")
     @GetMapping("/tree")
     public Result<List<SysOrgPostTreeNodeDTO>> tree() {
@@ -73,8 +85,15 @@ public class SysOrgPostController {
         return Result.success(service.page(query));
     }
 
+    @Operation(summary = "查询岗位管理模块上下文")
+    @PreAuthorize("@moduleAccess.hasModule('sys_org_post')")
+    @GetMapping("/context")
+    public Result<SysModuleContextDTO> context(@RequestParam(required = false) String stateCode) {
+        return Result.success(buildModuleContext("sys_org_post", stateCode));
+    }
+
     @Operation(summary = "新增岗位")
-    @PreAuthorize("@moduleAccess.hasButton('sys_org_post', 'create')")
+    @PreAuthorize("@moduleAccess.hasStateButton('sys_org_post', 'create', 'create')")
     @PostMapping
     public Result<Long> create(@Valid @RequestBody SysOrgPostCreateRequest createRequest) {
         SysOrgPostDTO dto = converter.toDTO(createRequest);
@@ -83,7 +102,7 @@ public class SysOrgPostController {
     }
 
     @Operation(summary = "新增组织单元")
-    @PreAuthorize("@moduleAccess.hasButton('sys_org_post', 'create')")
+    @PreAuthorize("@moduleAccess.hasStateButton('sys_org_post', 'create', 'create')")
     @PostMapping("/org-unit")
     public Result<Long> createOrgUnit(@Valid @RequestBody SysOrgUnitCreateRequest createRequest) {
         SysOrgUnitDTO dto = sysOrgUnitConverter.toDTO(createRequest);
@@ -99,7 +118,7 @@ public class SysOrgPostController {
     }
 
     @Operation(summary = "修改组织单元")
-    @PreAuthorize("@moduleAccess.hasButton('sys_org_post', 'modify')")
+    @PreAuthorize("@moduleAccess.hasStateButton('sys_org_post', 'modify', 'edit')")
     @PutMapping("/org-unit")
     public Result<Void> modifyOrgUnit(@Valid @RequestBody SysOrgUnitModifyRequest modifyRequest) {
         service.modifyOrgUnit(sysOrgUnitConverter.toDTO(modifyRequest));
@@ -115,7 +134,7 @@ public class SysOrgPostController {
     }
 
     @Operation(summary = "修改岗位")
-    @PreAuthorize("@moduleAccess.hasButton('sys_org_post', 'modify')")
+    @PreAuthorize("@moduleAccess.hasStateButton('sys_org_post', 'modify', 'edit')")
     @PutMapping
     public Result<Void> modify(@Valid @RequestBody SysOrgPostModifyRequest modifyRequest) {
         service.modify(converter.toDTO(modifyRequest));
@@ -137,7 +156,7 @@ public class SysOrgPostController {
         return Result.success(service.queryUserPage(query));
     }
 
-    @Operation(summary = "Query candidate users by page")
+    @Operation(summary = "分页查询岗位候选员工")
     @PreAuthorize("@moduleAccess.hasModule('sys_org_post')")
     @PostMapping("/user/options/page")
     public Result<PageResult<SysOrgPostUserDTO>> userOptionPage(@RequestBody SysOrgPostUserQuery query) {

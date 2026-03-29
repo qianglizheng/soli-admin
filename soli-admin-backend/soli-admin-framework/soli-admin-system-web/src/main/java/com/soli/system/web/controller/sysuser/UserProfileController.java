@@ -4,7 +4,7 @@ import com.soli.auth.api.service.JwtService;
 import com.soli.auth.api.service.auth.TokenDTO;
 import com.soli.common.api.exception.BusinessException;
 import com.soli.common.api.vo.Result;
-import com.soli.common.web.security.jwt.CompanyContextHolder;
+import com.soli.common.core.security.CompanyContextHolder;
 import com.soli.system.service.sysorgpost.SysOrgCompanyDTO;
 import com.soli.system.service.sysorgpost.SysOrgPostService;
 import com.soli.system.service.sysuser.SysUserDTO;

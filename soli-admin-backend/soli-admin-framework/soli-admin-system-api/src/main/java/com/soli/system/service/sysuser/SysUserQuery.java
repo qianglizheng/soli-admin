@@ -13,6 +13,8 @@ import lombok.Setter;
 @Setter
 public class SysUserQuery extends PageQuery {
 
+    private String nickname;
+
     private String username;
 
     private String phone;

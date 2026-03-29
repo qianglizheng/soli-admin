@@ -1,42 +1,98 @@
-﻿<template>
-  <el-dialog v-model="visible" :title="dialogTitle" width="560px" destroy-on-close>
+<template>
+  <el-dialog v-model="visible" :title="dialogTitle" width="560px" destroy-on-close @closed="handleClosed">
     <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
-      <el-form-item label="字典名称" prop="name">
-        <el-input v-model="form.name" placeholder="请输入字典名称" />
+      <el-form-item v-if="fieldConfigMap.name.visible" :label="fieldConfigMap.name.label" prop="name">
+        <el-input
+          v-model="form.name"
+          :disabled="!fieldConfigMap.name.editable"
+          :placeholder="fieldConfigMap.name.placeholder"
+        />
       </el-form-item>
-      <el-form-item label="字典类型" prop="type">
-        <el-input v-model="form.type" placeholder="请输入字典类型" />
+      <el-form-item v-if="fieldConfigMap.type.visible" :label="fieldConfigMap.type.label" prop="type">
+        <el-input
+          v-model="form.type"
+          :disabled="!fieldConfigMap.type.editable"
+          :placeholder="fieldConfigMap.type.placeholder"
+        />
       </el-form-item>
-      <el-form-item label="状态" prop="status">
-        <el-radio-group v-model="form.status">
+      <el-form-item v-if="fieldConfigMap.status.visible" :label="fieldConfigMap.status.label" prop="status">
+        <el-radio-group v-model="form.status" :disabled="!fieldConfigMap.status.editable">
           <el-radio value="0">正常</el-radio>
           <el-radio value="1">停用</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item label="备注" prop="note">
-        <el-input v-model="form.note" type="textarea" :rows="3" placeholder="请输入备注" />
+      <el-form-item v-if="fieldConfigMap.note.visible" :label="fieldConfigMap.note.label" prop="note">
+        <el-input
+          v-model="form.note"
+          :disabled="!fieldConfigMap.note.editable"
+          :placeholder="fieldConfigMap.note.placeholder"
+          type="textarea"
+          :rows="3"
+        />
       </el-form-item>
     </el-form>
     <template #footer>
       <el-button @click="handleCancel">取消</el-button>
-      <el-button type="primary" @click="handleSubmit">确定</el-button>
+      <el-button
+        v-if="actionButton.visible"
+        type="primary"
+        :loading="submitting"
+        :disabled="actionButton.disabled"
+        @click="handleSubmit"
+      >
+        {{ actionButton.label }}
+      </el-button>
     </template>
   </el-dialog>
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue';
+import { computed, nextTick, reactive, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
+import type { ModuleContext } from '@/api/moduleCenter';
 import type { SysDictType } from '@/types/global';
+import {
+  buildResolvedButtonConfigMap,
+  buildResolvedFieldConfigMap,
+  type ModuleButtonFallback,
+  type ModuleFieldFallback
+} from '@/utils/moduleContext';
+
+type DictFieldCode = 'name' | 'type' | 'status' | 'note';
+type DictButtonCode = 'create' | 'modify';
+const DICT_FORM_COMPONENT = 'dict_form';
 
 interface Props {
   modelValue: boolean;
   mode: 'create' | 'edit';
+  context?: ModuleContext | null;
   initialData?: Partial<SysDictType>;
+  submitting?: boolean;
 }
 
-const props = defineProps<Props>();
-const emit = defineEmits(['update:modelValue', 'submit', 'cancel']);
+const props = withDefaults(defineProps<Props>(), {
+  context: null,
+  initialData: () => ({}),
+  submitting: false
+});
+
+const emit = defineEmits<{
+  'update:modelValue': [value: boolean];
+  submit: [value: Partial<SysDictType>];
+  cancel: [];
+}>();
+
+const dictFieldFallbackMap: Record<DictFieldCode, ModuleFieldFallback> = {
+  name: { label: '字典名称', placeholder: '请输入字典名称', required: true, visible: true },
+  note: { label: '备注', placeholder: '请输入备注', required: false, visible: true },
+  status: { label: '状态', placeholder: '请选择状态', required: true, visible: true },
+  type: { label: '字典类型', placeholder: '请输入字典类型', required: true, visible: true }
+};
+
+const dictButtonFallbackMap: Record<DictButtonCode, ModuleButtonFallback> = {
+  create: { disabled: false, label: '新增', visible: true },
+  modify: { disabled: false, label: '修改', visible: true }
+};
 
 const visible = computed({
   get: () => props.modelValue,
@@ -54,40 +110,79 @@ const createDefaultForm = (): Partial<SysDictType> => ({
 
 const form = reactive<Partial<SysDictType>>(createDefaultForm());
 
-const rules: FormRules = {
-  name: [{ message: '请输入字典名称', required: true, trigger: 'blur' }],
-  status: [{ message: '请选择状态', required: true, trigger: 'change' }],
-  type: [{ message: '请输入字典类型', required: true, trigger: 'blur' }]
+const fieldConfigMap = computed(() => {
+  return buildResolvedFieldConfigMap(props.context?.fieldConfigs || {}, DICT_FORM_COMPONENT, dictFieldFallbackMap);
+});
+
+const buttonConfigMap = computed(() => {
+  return buildResolvedButtonConfigMap(props.context?.fieldConfigs || {}, dictButtonFallbackMap);
+});
+
+const actionButton = computed(() => {
+  const buttonCode: DictButtonCode = props.mode === 'create' ? 'create' : 'modify';
+  return buttonConfigMap.value[buttonCode];
+});
+
+const createRequiredRule = (fieldCode: DictFieldCode) => {
+  return {
+    trigger: ['blur', 'change'],
+    validator: (_rule: unknown, value: string, callback: (error?: Error) => void) => {
+      const fieldConfig = fieldConfigMap.value[fieldCode];
+      if (!fieldConfig.visible || !fieldConfig.required || !fieldConfig.editable) {
+        callback();
+        return;
+      }
+      if (!String(value || '').trim()) {
+        callback(new Error(fieldConfig.placeholder || `请输入${fieldConfig.label}`));
+        return;
+      }
+      callback();
+    }
+  };
 };
 
-const syncForm = () => {
-  Object.assign(form, createDefaultForm(), props.initialData || {});
+const rules = computed<FormRules<Partial<SysDictType>>>(() => ({
+  name: [createRequiredRule('name')],
+  status: [createRequiredRule('status')],
+  type: [createRequiredRule('type')]
+}));
+
+const dialogTitle = computed(() => (props.mode === 'create' ? '新增字典' : '修改字典'));
+
+const resetForm = () => {
+  Object.assign(form, createDefaultForm());
+  formRef.value?.clearValidate();
 };
 
 watch(
-  () => [props.modelValue, props.initialData],
-  ([open]) => {
-    if (open) {
-      syncForm();
-      formRef.value?.clearValidate();
+  () => [props.modelValue, props.initialData] as const,
+  ([open, initialData]) => {
+    if (!open) {
+      return;
     }
+    Object.assign(form, createDefaultForm(), initialData || {});
+    nextTick(() => formRef.value?.clearValidate());
   },
-  { deep: true, immediate: true }
+  { immediate: true }
 );
-
-const dialogTitle = computed(() => (props.mode === 'create' ? '新增字典' : '修改字典'));
 
 const handleCancel = () => {
   emit('cancel');
   visible.value = false;
 };
 
+const handleClosed = () => {
+  resetForm();
+};
+
 const handleSubmit = async () => {
-  if (!formRef.value) {
+  if (!formRef.value || !actionButton.value.visible || actionButton.value.disabled) {
     return;
   }
-  await formRef.value.validate();
+  const valid = await formRef.value.validate().catch(() => false);
+  if (!valid) {
+    return;
+  }
   emit('submit', { ...form });
-  visible.value = false;
 };
 </script>

@@ -11,10 +11,10 @@
       <el-form-item v-if="!isEdit && fieldConfigMap.password.visible" :label="fieldConfigMap.password.label" prop="password">
         <el-input
           v-model="form.password"
-          :disabled="!fieldConfigMap.password.editable"
-          :placeholder="fieldConfigMap.password.placeholder"
           show-password
           type="password"
+          :disabled="!fieldConfigMap.password.editable"
+          :placeholder="fieldConfigMap.password.placeholder"
         />
       </el-form-item>
       <el-form-item v-if="fieldConfigMap.nickname.visible" :label="fieldConfigMap.nickname.label" prop="nickname">
@@ -61,9 +61,9 @@
       <el-button @click="handleCancel">取消</el-button>
       <el-button
         v-if="actionButton.visible"
-        :loading="submitting"
-        :disabled="actionButton.disabled"
         type="primary"
+        :disabled="actionButton.disabled"
+        :loading="submitting"
         @click="handleSubmit"
       >
         {{ actionButton.label }}
@@ -75,26 +75,15 @@
 <script setup lang="ts">
 import { computed, nextTick, reactive, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
-import type { ModuleContext, ModuleContextConfigItem } from '@/api/moduleCenter';
-
-type UserFieldCode = 'username' | 'password' | 'nickname' | 'email' | 'phone' | 'sex' | 'type' | 'status';
-type UserButtonCode = 'create' | 'modify';
-const FIELD_COMPONENT = 'form';
-const BUTTON_COMPONENT = 'button';
-
-interface ResolvedFieldConfig {
-  label: string;
-  placeholder: string;
-  visible: boolean;
-  editable: boolean;
-  required: boolean;
-}
-
-interface ResolvedButtonConfig {
-  label: string;
-  visible: boolean;
-  disabled: boolean;
-}
+import type { ModuleContext } from '@/api/moduleCenter';
+import { buildResolvedButtonConfigMap, buildResolvedFieldConfigMap } from '@/utils/moduleContext';
+import {
+  USER_FORM_COMPONENT,
+  userButtonFallbackMap,
+  userFieldFallbackMap,
+  type UserButtonCode,
+  type UserFieldCode
+} from '../moduleConfig';
 
 export interface UserFormModel {
   id?: number;
@@ -128,22 +117,6 @@ const emit = defineEmits<{
   cancel: [];
 }>();
 
-const userFieldFallbackMap: Record<UserFieldCode, ResolvedFieldConfig> = {
-  username: { editable: true, label: '用户名称', placeholder: '请输入用户名称', required: true, visible: true },
-  password: { editable: true, label: '用户密码', placeholder: '请输入用户密码', required: true, visible: true },
-  nickname: { editable: true, label: '用户昵称', placeholder: '请输入用户昵称', required: false, visible: true },
-  email: { editable: true, label: '用户邮箱', placeholder: '请输入用户邮箱', required: false, visible: true },
-  phone: { editable: true, label: '手机号码', placeholder: '请输入手机号码', required: false, visible: true },
-  sex: { editable: true, label: '性别', placeholder: '请选择性别', required: false, visible: true },
-  type: { editable: true, label: '账号类型', placeholder: '请选择账号类型', required: false, visible: true },
-  status: { editable: true, label: '状态', placeholder: '请选择用户状态', required: false, visible: true }
-};
-
-const userButtonFallbackMap: Record<UserButtonCode, ResolvedButtonConfig> = {
-  create: { disabled: false, label: '新增', visible: true },
-  modify: { disabled: false, label: '修改', visible: true }
-};
-
 const visible = computed({
   get: () => props.modelValue,
   set: (value: boolean) => emit('update:modelValue', value)
@@ -166,41 +139,17 @@ const createDefaultForm = (): UserFormModel => ({
 
 const form = reactive<UserFormModel>(createDefaultForm());
 
-const resolveFieldConfig = (fieldConfigs: Record<string, ModuleContextConfigItem>, fieldCode: UserFieldCode) => {
-  return fieldConfigs[`${FIELD_COMPONENT}:${fieldCode}`];
-};
-
-const resolveButtonConfig = (fieldConfigs: Record<string, ModuleContextConfigItem>, buttonCode: UserButtonCode) => {
-  return fieldConfigs[`${BUTTON_COMPONENT}:${buttonCode}`];
-};
-
 const fieldConfigMap = computed(() => {
-  const fieldConfigs = props.context?.fieldConfigs || {};
-  return (Object.keys(userFieldFallbackMap) as UserFieldCode[]).reduce<Record<UserFieldCode, ResolvedFieldConfig>>((result, fieldCode) => {
-    const fallback = userFieldFallbackMap[fieldCode];
-    const field = resolveFieldConfig(fieldConfigs, fieldCode);
-    result[fieldCode] = {
-      editable: field?.editable ?? fallback.editable,
-      label: field?.label || field?.displayTitle || field?.defaultTitle || fallback.label,
-      placeholder: field?.placeholder || fallback.placeholder,
-      required: field?.required ?? fallback.required,
-      visible: field?.visible ?? fallback.visible
-    };
-    return result;
-  }, {} as Record<UserFieldCode, ResolvedFieldConfig>);
+  return buildResolvedFieldConfigMap(props.context?.fieldConfigs || {}, USER_FORM_COMPONENT, userFieldFallbackMap);
+});
+
+const buttonConfigMap = computed(() => {
+  return buildResolvedButtonConfigMap(props.context?.fieldConfigs || {}, userButtonFallbackMap);
 });
 
 const actionButton = computed(() => {
-  const fieldConfigs = props.context?.fieldConfigs || {};
   const buttonCode: UserButtonCode = isEdit.value ? 'modify' : 'create';
-  const fallback = userButtonFallbackMap[buttonCode];
-  const button = resolveButtonConfig(fieldConfigs, buttonCode);
-
-  return {
-    disabled: button?.disabled ?? fallback.disabled,
-    label: button?.label || button?.defaultTitle || fallback.label,
-    visible: button?.visible ?? fallback.visible
-  };
+  return buttonConfigMap.value[buttonCode];
 });
 
 const createRequiredRule = (fieldCode: UserFieldCode) => {
@@ -245,7 +194,9 @@ watch(
     if (isEdit.value) {
       form.password = '';
     }
-    nextTick(() => formRef.value?.clearValidate());
+    nextTick(() => {
+      formRef.value?.clearValidate();
+    });
   },
   { immediate: true }
 );

@@ -19,29 +19,29 @@
                 clearable
                 placeholder="搜索账号 / 姓名 / 手机"
                 style="width: 240px"
-                @keyup.enter="handleOptionSearch"
                 @clear="handleOptionSearch"
+                @keyup.enter="handleOptionSearch"
               />
-              <el-button type="primary" plain @click="handleOptionSearch">搜索</el-button>
+              <el-button plain type="primary" @click="handleOptionSearch">搜索</el-button>
             </div>
           </div>
 
           <el-table
             ref="optionTableRef"
             v-loading="optionLoading"
-            :data="optionResult.list"
             border
             height="420"
+            :data="optionResult.list"
             @selection-change="handleOptionSelectionChange"
           >
             <el-table-column type="selection" width="50" />
-            <el-table-column prop="username" label="账号" min-width="130" />
-            <el-table-column prop="nickname" label="姓名" min-width="120" />
-            <el-table-column prop="phone" label="手机号" min-width="140" />
-            <el-table-column label="状态" width="90" align="center">
-              <template #default="scope">
-                <el-tag size="small" :type="scope.row.status === '0' ? 'success' : 'danger'" effect="plain">
-                  {{ scope.row.status === '0' ? '启用' : '停用' }}
+            <el-table-column label="账号" min-width="130" prop="username" />
+            <el-table-column label="姓名" min-width="120" prop="nickname" />
+            <el-table-column label="手机号" min-width="140" prop="phone" />
+            <el-table-column align="center" label="状态" width="90">
+              <template #default="{ row }">
+                <el-tag size="small" effect="plain" :type="row.status === '0' ? 'success' : 'danger'">
+                  {{ row.status === '0' ? '启用' : '停用' }}
                 </el-tag>
               </template>
             </el-table-column>
@@ -50,14 +50,20 @@
           <div class="panel-card__footer">
             <el-pagination
               background
-              layout="total, prev, pager, next"
               :current-page="optionResult.pageNum"
+              layout="total, prev, pager, next"
               :page-size="optionResult.pageSize"
               :total="optionResult.total"
               @current-change="handleOptionPageChange"
             />
-            <el-button type="primary" :disabled="!selectedOptionUserIds.length" :loading="actionLoading" @click="handleBindUsers">
-              添加已选
+            <el-button
+              v-if="bindButton.visible"
+              type="primary"
+              :disabled="bindButton.disabled || !selectedOptionUserIds.length"
+              :loading="actionLoading"
+              @click="handleBindUsers"
+            >
+              {{ bindButton.label }}
             </el-button>
           </div>
         </section>
@@ -71,28 +77,36 @@
                 clearable
                 placeholder="搜索账号 / 姓名 / 手机"
                 style="width: 240px"
-                @keyup.enter="handleAssignedSearch"
                 @clear="handleAssignedSearch"
+                @keyup.enter="handleAssignedSearch"
               />
               <el-button plain @click="handleAssignedSearch">搜索</el-button>
             </div>
           </div>
 
-          <el-table v-loading="assignedLoading" :data="assignedResult.list" border height="420">
-            <el-table-column prop="username" label="账号" min-width="130" />
-            <el-table-column prop="nickname" label="姓名" min-width="120" />
-            <el-table-column prop="phone" label="手机号" min-width="140" />
-            <el-table-column prop="email" label="邮箱" min-width="180" show-overflow-tooltip />
-            <el-table-column label="状态" width="90" align="center">
-              <template #default="scope">
-                <el-tag size="small" :type="scope.row.status === '0' ? 'success' : 'danger'" effect="plain">
-                  {{ scope.row.status === '0' ? '启用' : '停用' }}
+          <el-table v-loading="assignedLoading" border height="420" :data="assignedResult.list">
+            <el-table-column label="账号" min-width="130" prop="username" />
+            <el-table-column label="姓名" min-width="120" prop="nickname" />
+            <el-table-column label="手机号" min-width="140" prop="phone" />
+            <el-table-column label="邮箱" min-width="180" prop="email" show-overflow-tooltip />
+            <el-table-column align="center" label="状态" width="90">
+              <template #default="{ row }">
+                <el-tag size="small" effect="plain" :type="row.status === '0' ? 'success' : 'danger'">
+                  {{ row.status === '0' ? '启用' : '停用' }}
                 </el-tag>
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="110" fixed="right" align="center">
-              <template #default="scope">
-                <el-button link type="danger" :loading="actionLoading" @click="handleUnbindUsers([scope.row.userId])">解除分配</el-button>
+            <el-table-column v-if="unbindButton.visible" align="center" fixed="right" label="操作" width="110">
+              <template #default="{ row }">
+                <el-button
+                  link
+                  type="danger"
+                  :disabled="unbindButton.disabled"
+                  :loading="actionLoading"
+                  @click="handleUnbindUsers([row.userId])"
+                >
+                  {{ unbindButton.label }}
+                </el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -100,8 +114,8 @@
           <div class="panel-card__footer">
             <el-pagination
               background
-              layout="total, prev, pager, next"
               :current-page="assignedResult.pageNum"
+              layout="total, prev, pager, next"
               :page-size="assignedResult.pageSize"
               :total="assignedResult.total"
               @current-change="handleAssignedPageChange"
@@ -120,28 +134,36 @@
                 clearable
                 placeholder="搜索账号 / 姓名 / 手机"
                 style="width: 260px"
-                @keyup.enter="handleAssignedSearch"
                 @clear="handleAssignedSearch"
+                @keyup.enter="handleAssignedSearch"
               />
-              <el-button type="primary" plain @click="handleAssignedSearch">搜索</el-button>
+              <el-button plain type="primary" @click="handleAssignedSearch">搜索</el-button>
             </div>
           </div>
 
-          <el-table v-loading="assignedLoading" :data="assignedResult.list" border height="460">
-            <el-table-column prop="username" label="账号" min-width="130" />
-            <el-table-column prop="nickname" label="姓名" min-width="120" />
-            <el-table-column prop="phone" label="手机号" min-width="140" />
-            <el-table-column prop="email" label="邮箱" min-width="200" show-overflow-tooltip />
-            <el-table-column label="状态" width="90" align="center">
-              <template #default="scope">
-                <el-tag size="small" :type="scope.row.status === '0' ? 'success' : 'danger'" effect="plain">
-                  {{ scope.row.status === '0' ? '启用' : '停用' }}
+          <el-table v-loading="assignedLoading" border height="460" :data="assignedResult.list">
+            <el-table-column label="账号" min-width="130" prop="username" />
+            <el-table-column label="姓名" min-width="120" prop="nickname" />
+            <el-table-column label="手机号" min-width="140" prop="phone" />
+            <el-table-column label="邮箱" min-width="200" prop="email" show-overflow-tooltip />
+            <el-table-column align="center" label="状态" width="90">
+              <template #default="{ row }">
+                <el-tag size="small" effect="plain" :type="row.status === '0' ? 'success' : 'danger'">
+                  {{ row.status === '0' ? '启用' : '停用' }}
                 </el-tag>
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="110" fixed="right" align="center">
-              <template #default="scope">
-                <el-button link type="danger" :loading="actionLoading" @click="handleUnbindUsers([scope.row.userId])">解除分配</el-button>
+            <el-table-column v-if="unbindButton.visible" align="center" fixed="right" label="操作" width="110">
+              <template #default="{ row }">
+                <el-button
+                  link
+                  type="danger"
+                  :disabled="unbindButton.disabled"
+                  :loading="actionLoading"
+                  @click="handleUnbindUsers([row.userId])"
+                >
+                  {{ unbindButton.label }}
+                </el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -149,8 +171,8 @@
           <div class="panel-card__footer panel-card__footer--single">
             <el-pagination
               background
-              layout="total, prev, pager, next"
               :current-page="assignedResult.pageNum"
+              layout="total, prev, pager, next"
               :page-size="assignedResult.pageSize"
               :total="assignedResult.total"
               @current-change="handleAssignedPageChange"
@@ -171,15 +193,30 @@ import { computed, ref, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { bindOrgPostUsers, getOrgPostUserOptionPage, getOrgPostUserPage, unbindOrgPostUsers, type OrgPostUser } from '@/api/orgPost';
 import type { PageResult } from '@/types/global';
+import type { ResolvedModuleButtonConfig } from '@/utils/moduleContext';
 
 interface Props {
   modelValue: boolean;
   mode: 'assign' | 'view';
   postId?: number;
   postName?: string;
+  bindButton?: ResolvedModuleButtonConfig;
+  unbindButton?: ResolvedModuleButtonConfig;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  bindButton: () => ({
+    disabled: false,
+    label: '绑定员工',
+    visible: true
+  }),
+  unbindButton: () => ({
+    disabled: false,
+    label: '解绑员工',
+    visible: true
+  })
+});
+
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
   (e: 'submit'): void;
@@ -211,7 +248,7 @@ const optionResult = ref<PageResult<OrgPostUser>>(createEmptyPageResult());
 const assignedResult = ref<PageResult<OrgPostUser>>(createEmptyPageResult());
 
 watch(
-  () => [props.modelValue, props.postId, props.mode],
+  () => [props.modelValue, props.postId, props.mode] as const,
   ([open, postId]) => {
     if (!open || !postId) {
       return;
@@ -294,7 +331,7 @@ function handleAssignedPageChange(pageNum: number) {
 }
 
 async function handleBindUsers() {
-  if (!props.postId || !selectedOptionUserIds.value.length) {
+  if (!props.postId || !selectedOptionUserIds.value.length || props.bindButton.disabled) {
     return;
   }
   actionLoading.value = true;
@@ -303,7 +340,7 @@ async function handleBindUsers() {
       orgPostId: props.postId,
       userIds: [...selectedOptionUserIds.value]
     });
-    ElMessage.success('岗位员工分配成功');
+    ElMessage.success('岗位员工绑定成功');
     emit('submit');
     selectedOptionUserIds.value = [];
     optionTableRef.value?.clearSelection();
@@ -314,7 +351,7 @@ async function handleBindUsers() {
 }
 
 async function handleUnbindUsers(userIds: number[]) {
-  if (!props.postId || !userIds.length) {
+  if (!props.postId || !userIds.length || props.unbindButton.disabled) {
     return;
   }
   try {
@@ -330,7 +367,7 @@ async function handleUnbindUsers(userIds: number[]) {
       orgPostId: props.postId,
       userIds
     });
-    ElMessage.success('岗位员工已解除分配');
+    ElMessage.success('岗位员工已解除绑定');
     emit('submit');
     await Promise.all([
       loadAssignedUsers(assignedResult.value.pageNum || 1),

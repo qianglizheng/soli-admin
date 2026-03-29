@@ -1,4 +1,5 @@
 import request from './request';
+import type { ModuleContext } from './moduleCenter';
 import type { ApiResponse, PageResult } from '@/types/global';
 
 export type YesNo = '0' | '1';
@@ -191,6 +192,14 @@ export function getOrgPostPage(data: OrgPostPageQuery) {
     data,
     method: 'post',
     url: '/sys/org-post/page'
+  });
+}
+
+export function getOrgPostModuleContext(stateCode?: 'create' | 'edit') {
+  return request<ApiResponse<ModuleContext>>({
+    method: 'get',
+    params: stateCode ? { stateCode } : undefined,
+    url: '/sys/org-post/context'
   });
 }
 

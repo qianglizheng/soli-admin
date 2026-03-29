@@ -1,6 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>com.soli</groupId>
         <artifactId>soli-admin-backend</artifactId>
@@ -12,6 +13,12 @@
 
     <name>soli-admin-buisness-parent</name>
     <url>http://maven.apache.org</url>
+
+    <modules>
+        <module>soli-admin-business-api</module>
+        <module>soli-admin-business-core</module>
+        <module>soli-admin-business-web</module>
+    </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
