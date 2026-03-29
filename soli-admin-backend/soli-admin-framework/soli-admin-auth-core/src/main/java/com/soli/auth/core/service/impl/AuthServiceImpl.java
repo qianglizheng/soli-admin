@@ -6,13 +6,13 @@ import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import com.soli.auth.api.service.JwtService;
+import com.soli.auth.api.service.auth.AuthService;
 import com.soli.auth.api.service.auth.TokenDTO;
 import com.soli.auth.api.service.auth.UsernamePasswordLoginDTO;
 import com.soli.auth.api.service.captcha.CaptchaScene;
-import com.soli.auth.api.service.captcha.CaptchaType;
-import com.soli.auth.api.service.auth.AuthService;
 import com.soli.auth.api.service.captcha.CaptchaService;
-import com.soli.auth.api.service.JwtService;
+import com.soli.auth.api.service.captcha.CaptchaType;
 import com.soli.auth.core.config.CaptchaProperties;
 import com.soli.common.api.exception.BusinessException;
 import com.soli.system.service.sysuser.SysUserDTO;
@@ -21,11 +21,11 @@ import com.soli.system.service.sysuser.SysUserService;
 import lombok.RequiredArgsConstructor;
 
 /**
- * 系统用户认证服务
+ * 认证授权服务实现
  *
  * @author lizhengqiang
  * @since 2026-03-08 15:59
-*/
+ */
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -38,6 +38,13 @@ public class AuthServiceImpl implements AuthService {
 
     private final CaptchaProperties captchaProperties;
 
+    /**
+     * 使用用户名和密码登录
+     *
+     * @param userInfo 用户登录信息
+     * @return 令牌对象
+     * @throws BusinessException 业务异常
+     */
     @Override
     public TokenDTO loginByUsernameAndPassword(UsernamePasswordLoginDTO userInfo) throws BusinessException {
         Assert.notNull(userInfo, "用户登录信息不能为空");
@@ -46,11 +53,18 @@ public class AuthServiceImpl implements AuthService {
         }
         SysUserDTO userDTO = service.getByUsername(userInfo.getUsername());
         if (Objects.isNull(userDTO) || !Objects.equals(userDTO.getPassword(), userInfo.getPassword())) {
-            throw new BusinessException("登录失败：请检查用户名或者密码");
+            throw new BusinessException("登录失败：请检查用户名或密码");
         }
         return jwtService.generateTokenDTO(userDTO.getId());
     }
 
+    /**
+     * 校验登录验证码
+     *
+     * @param captchaType 验证码类型
+     * @param captchaUUID 验证码唯一标识
+     * @param targetCaptcha 待校验验证码
+     */
     private void validateCaptcha(CaptchaType captchaType, String captchaUUID, String targetCaptcha) {
         CaptchaService captchaService = captchaServices.stream()
                 .filter(service -> service.type() == captchaType)

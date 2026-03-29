@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Create module component request.
+ * 新增模块组件请求
  *
  * @author lizhengqiang
  * @since 2026-03-28 14:52
@@ -15,19 +15,37 @@ import lombok.Setter;
 @Setter
 public class SysModuleComponentCreateRequest {
 
-    @NotNull(message = "moduleId cannot be null")
+    /**
+     * 模块 ID
+     */
+    @NotNull(message = "模块 ID 不能为空")
     private Long moduleId;
 
-    @NotBlank(message = "componentCode cannot be blank")
+    /**
+     * 组件编码
+     */
+    @NotBlank(message = "组件编码不能为空")
     private String componentCode;
 
-    @NotBlank(message = "componentName cannot be blank")
+    /**
+     * 组件名称
+     */
+    @NotBlank(message = "组件名称不能为空")
     private String componentName;
 
+    /**
+     * 排序
+     */
     private Integer sort;
 
+    /**
+     * 状态
+     */
     private String status;
 
+    /**
+     * 备注
+     */
     private String note;
 
 }

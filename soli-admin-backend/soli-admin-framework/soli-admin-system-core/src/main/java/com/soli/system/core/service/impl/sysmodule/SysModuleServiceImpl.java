@@ -35,23 +35,29 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * 模块服务实现
+ *
+ * @author lizhengqiang
+ * @since 2026-03-29 18:10
+ */
 @Service
 public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysModuleEntity, SysModuleQuery> implements SysModuleService {
 
     private static final String DEFAULT_LOCALE = "zh_CN";
     private static final String SYSTEM_USER = "system";
-    private static final String MODULE_NOT_FOUND_MESSAGE = "Module does not exist";
-    private static final String PARENT_MODULE_NOT_FOUND_MESSAGE = "Parent module does not exist";
-    private static final String MODULE_CODE_EXISTS_MESSAGE = "Module code already exists";
-    private static final String COMPONENT_CODE_EXISTS_MESSAGE = "Component code already exists";
-    private static final String FIELD_CODE_EXISTS_MESSAGE = "Field code already exists";
-    private static final String BUTTON_CODE_EXISTS_MESSAGE = "Button code already exists";
-    private static final String COMPONENT_NOT_FOUND_MESSAGE = "Component does not exist";
-    private static final String FIELD_NOT_FOUND_MESSAGE = "Field does not exist";
-    private static final String BUTTON_NOT_FOUND_MESSAGE = "Button does not exist";
-    private static final String CHILD_MODULE_REQUIRES_CATALOG_MESSAGE = "Nodes with children must stay as catalog";
-    private static final String MODULE_DESIGN_DATA_EXISTS_MESSAGE = "Current module still has design data and cannot be removed";
-    private static final String FIELD_COMPONENT_MISMATCH_MESSAGE = "Field component does not belong to the module";
+    private static final String MODULE_NOT_FOUND_MESSAGE = "模块不存在";
+    private static final String PARENT_MODULE_NOT_FOUND_MESSAGE = "上级模块不存在";
+    private static final String MODULE_CODE_EXISTS_MESSAGE = "模块编码已存在";
+    private static final String COMPONENT_CODE_EXISTS_MESSAGE = "组件编码已存在";
+    private static final String FIELD_CODE_EXISTS_MESSAGE = "字段编码已存在";
+    private static final String BUTTON_CODE_EXISTS_MESSAGE = "按钮编码已存在";
+    private static final String COMPONENT_NOT_FOUND_MESSAGE = "组件不存在";
+    private static final String FIELD_NOT_FOUND_MESSAGE = "字段不存在";
+    private static final String BUTTON_NOT_FOUND_MESSAGE = "按钮不存在";
+    private static final String CHILD_MODULE_REQUIRES_CATALOG_MESSAGE = "存在子模块的节点必须保持为目录";
+    private static final String MODULE_DESIGN_DATA_EXISTS_MESSAGE = "当前模块仍存在设计数据，不能删除";
+    private static final String FIELD_COMPONENT_MISMATCH_MESSAGE = "字段所属组件不属于当前模块";
 
     private final SysModuleMapper sysModuleMapper;
     private final SysModuleTitleMapper sysModuleTitleMapper;
@@ -112,7 +118,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         SysModuleComponentEntity entity = sysModuleConverter.toComponentEntity(dto);
         entity.setId(YitIdHelper.nextId());
         if (sysModuleMapper.insertComponent(entity) == 0) {
-            throw new BusinessException("Create component failed");
+            throw new BusinessException("新增组件失败");
         }
         dto.setId(entity.getId());
         touchModuleVersion(dto.getModuleId());
@@ -124,13 +130,13 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         normalizeComponent(dto);
         SysModuleComponentEntity currentEntity = requireComponent(dto.getId());
         if (!Objects.equals(currentEntity.getModuleId(), dto.getModuleId())) {
-            throw new BusinessException("Moving component across modules is not supported");
+            throw new BusinessException("不支持跨模块移动组件");
         }
         validateModuleExists(dto.getModuleId());
         validateComponentCodeUnique(dto.getModuleId(), dto.getComponentCode(), dto.getId());
         dto.setUpdateTime(LocalDateTime.now());
         if (sysModuleMapper.updateComponent(sysModuleConverter.toComponentEntity(dto)) == 0) {
-            throw new BusinessException("Update component failed");
+            throw new BusinessException("修改组件失败");
         }
         sysModuleTitleMapper.updateComponentInfo(dto.getId(), dto.getComponentCode(), SYSTEM_USER, dto.getUpdateTime());
         touchModuleVersion(dto.getModuleId());
@@ -141,10 +147,10 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
     public void removeComponent(Long id) {
         SysModuleComponentEntity currentEntity = requireComponent(id);
         if (sysModuleMapper.countFieldByComponentId(id) > 0) {
-            throw new BusinessException("Current component still contains fields");
+            throw new BusinessException("当前组件仍包含字段，不能删除");
         }
         if (sysModuleMapper.deleteComponentById(id) == 0) {
-            throw new BusinessException("Remove component failed");
+            throw new BusinessException("删除组件失败");
         }
         touchModuleVersion(currentEntity.getModuleId());
     }
@@ -162,7 +168,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         SysModuleFieldEntity entity = sysModuleConverter.toFieldEntity(dto);
         entity.setId(YitIdHelper.nextId());
         if (sysModuleMapper.insertField(entity) == 0) {
-            throw new BusinessException("Create field failed");
+            throw new BusinessException("新增字段失败");
         }
         dto.setId(entity.getId());
         createFieldTitleRelation(entity);
@@ -176,7 +182,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         normalizeField(dto);
         SysModuleFieldEntity currentEntity = requireField(dto.getId());
         if (!Objects.equals(currentEntity.getModuleId(), dto.getModuleId())) {
-            throw new BusinessException("Moving field across modules is not supported");
+            throw new BusinessException("不支持跨模块移动字段");
         }
         validateModuleExists(dto.getModuleId());
         SysModuleComponentEntity componentEntity = requireComponent(dto.getComponentId());
@@ -186,7 +192,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         dto.setUpdateTime(LocalDateTime.now());
         SysModuleFieldEntity entity = sysModuleConverter.toFieldEntity(dto);
         if (sysModuleMapper.updateField(entity) == 0) {
-            throw new BusinessException("Update field failed");
+            throw new BusinessException("修改字段失败");
         }
         updateFieldTitleRelation(entity);
         touchModuleVersion(dto.getModuleId());
@@ -197,7 +203,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
     public void removeField(Long id) {
         SysModuleFieldEntity currentEntity = requireField(id);
         if (sysModuleMapper.deleteFieldById(id) == 0) {
-            throw new BusinessException("Remove field failed");
+            throw new BusinessException("删除字段失败");
         }
         removeFieldRelations(id);
         touchModuleVersion(currentEntity.getModuleId());
@@ -213,7 +219,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         SysModuleButtonEntity entity = sysModuleConverter.toButtonEntity(dto);
         entity.setId(YitIdHelper.nextId());
         if (sysModuleMapper.insertButton(entity) == 0) {
-            throw new BusinessException("Create button failed");
+            throw new BusinessException("新增按钮失败");
         }
         dto.setId(entity.getId());
         grantAdminButtonPermissions(entity);
@@ -226,13 +232,13 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         normalizeButton(dto);
         SysModuleButtonEntity currentEntity = requireButton(dto.getId());
         if (!Objects.equals(currentEntity.getModuleId(), dto.getModuleId())) {
-            throw new BusinessException("Moving button across modules is not supported");
+            throw new BusinessException("不支持跨模块移动按钮");
         }
         validateModuleExists(dto.getModuleId());
         validateButtonCodeUnique(dto.getModuleId(), dto.getButtonCode(), dto.getId());
         dto.setUpdateTime(LocalDateTime.now());
         if (sysModuleMapper.updateButton(sysModuleConverter.toButtonEntity(dto)) == 0) {
-            throw new BusinessException("Update button failed");
+            throw new BusinessException("修改按钮失败");
         }
         touchModuleVersion(dto.getModuleId());
     }
@@ -242,7 +248,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
     public void removeButton(Long id) {
         SysModuleButtonEntity currentEntity = requireButton(id);
         if (sysModuleMapper.deleteButtonById(id) == 0) {
-            throw new BusinessException("Remove button failed");
+            throw new BusinessException("删除按钮失败");
         }
         removeButtonRelations(id);
         touchModuleVersion(currentEntity.getModuleId());
@@ -250,7 +256,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
 
     @Override
     protected String moduleName() {
-        return "Module";
+        return "模块管理";
     }
 
     @Override
@@ -289,7 +295,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         validateModuleParent(dto.getParentId());
         SysModuleEntity parentEntity = resolveParentModule(dto.getParentId());
         if (parentEntity != null && (Objects.equals(parentEntity.getId(), dto.getId()) || containsId(parentEntity.getAncestors(), dto.getId()))) {
-            throw new BusinessException("Parent module cannot be current module or its descendant");
+            throw new BusinessException("上级模块不能选择当前模块或其下级模块");
         }
         if (!"CATALOG".equals(dto.getModuleType()) && sysModuleMapper.countChildModuleByParentId(dto.getId()) > 0) {
             throw new BusinessException(CHILD_MODULE_REQUIRES_CATALOG_MESSAGE);
@@ -312,7 +318,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
             throw new BusinessException(MODULE_NOT_FOUND_MESSAGE);
         }
         if (sysModuleMapper.countChildModuleByParentId(id) > 0) {
-            throw new BusinessException("Current module still has child modules");
+            throw new BusinessException("当前模块仍存在子模块，不能删除");
         }
         if (sysModuleMapper.countComponentByModuleId(id) > 0 || sysModuleMapper.countFieldByModuleId(id) > 0 || sysModuleMapper.countButtonByModuleId(id) > 0) {
             throw new BusinessException(MODULE_DESIGN_DATA_EXISTS_MESSAGE);
@@ -442,7 +448,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
             throw new BusinessException(PARENT_MODULE_NOT_FOUND_MESSAGE);
         }
         if (!"CATALOG".equals(parentEntity.getModuleType())) {
-            throw new BusinessException("Only catalog nodes can contain child modules");
+            throw new BusinessException("只有目录节点允许包含子模块");
         }
     }
 
@@ -613,7 +619,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
             entity.setNavVisible("1".equals(moduleEntity.getNavVisible()) ? "1" : "0");
             entity.setCreateBy(SYSTEM_USER);
             entity.setCreateTime(now);
-            entity.setNote("admin gets module visibility by default");
+            entity.setNote("admin 账号默认拥有模块可见权限");
             sysModulePermissionMapper.insertOrgPostModuleAuth(entity);
         });
     }
@@ -633,7 +639,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
             entity.setPermissionLevel(2);
             entity.setCreateBy(SYSTEM_USER);
             entity.setCreateTime(now);
-            entity.setNote("admin gets writable field permission by default");
+            entity.setNote("admin 账号默认拥有字段可写权限");
             return entity;
         }).toList();
         sysModulePermissionMapper.insertOrgPostFieldAuthBatch(entityList);
@@ -654,7 +660,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
             entity.setPermissionLevel(2);
             entity.setCreateBy(SYSTEM_USER);
             entity.setCreateTime(now);
-            entity.setNote("admin gets button permission by default");
+            entity.setNote("admin 账号默认拥有按钮权限");
             return entity;
         }).toList();
         sysModulePermissionMapper.insertOrgPostButtonAuthBatch(entityList);

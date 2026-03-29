@@ -1,4 +1,3 @@
-
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
 </script>
@@ -8,7 +7,7 @@ import { RouterView } from 'vue-router'
 </template>
 
 <style>
-/* Global styles or reset if needed, but handled in styles/index.scss usually */
+/* 全局样式或基础重置，通常在 styles/index.scss 中统一处理 */
 html, body, #app {
   height: 100%;
   margin: 0;

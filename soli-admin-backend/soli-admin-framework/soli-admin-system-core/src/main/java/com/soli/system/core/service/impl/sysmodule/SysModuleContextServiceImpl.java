@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Runtime module context service implementation.
+ * 模块上下文服务实现
  *
  * @author lizhengqiang
  * @since 2026-03-27 16:40
@@ -54,11 +54,11 @@ public class SysModuleContextServiceImpl implements SysModuleContextService {
     @Override
     public SysModuleContextDTO buildContext(String moduleCode, Long userId, Long companyId, String stateCode) {
         if (!StringUtils.hasText(moduleCode)) {
-            throw new BusinessException("Module code must not be blank");
+            throw new BusinessException("模块编码不能为空");
         }
         SysModuleEntity moduleEntity = sysModuleMapper.selectByModuleCode(moduleCode.trim());
         if (moduleEntity == null) {
-            throw new BusinessException("Module does not exist");
+            throw new BusinessException("模块不存在");
         }
 
         SysModuleDetailDTO moduleDetail = sysModuleService.queryDetailById(moduleEntity.getId());
@@ -86,11 +86,11 @@ public class SysModuleContextServiceImpl implements SysModuleContextService {
             return null;
         }
         if (!"1".equals(moduleDetail.getStatefulFlag())) {
-            throw new BusinessException("Module is not stateful");
+            throw new BusinessException("当前模块不是状态型模块");
         }
         SysModuleStateDTO matchedState = resolveState(moduleDetail.getStates(), stateCode);
         if (matchedState == null) {
-            throw new BusinessException("State code does not belong to the current module");
+            throw new BusinessException("状态编码不属于当前模块");
         }
 
         SysModuleContextDTO.CurrentState currentState = new SysModuleContextDTO.CurrentState();

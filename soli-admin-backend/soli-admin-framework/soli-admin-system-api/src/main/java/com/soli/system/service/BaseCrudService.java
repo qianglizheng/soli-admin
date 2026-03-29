@@ -8,34 +8,35 @@ import java.util.Optional;
 
 /**
  * 基础增删改查服务接口
+ *
  * @param <D> DTO 对象
- * @param <Q> PageQuery 对象
+ * @param <Q> 分页查询对象
  * @author lizhengqiang
  * @since 2026-03-19 22:23
  */
 public interface BaseCrudService<D, Q extends PageQuery> {
 
     /**
-     * 创建
+     * 新增数据
      *
      * @param dto DTO 对象
-     * @throws BusinessException 异常
+     * @throws BusinessException 业务异常
      */
     void create(D dto) throws BusinessException;
 
     /**
-     * 删除角色
+     * 删除数据
      *
-     * @param id Id
-     * @throws BusinessException 异常
+     * @param id 主键 ID
+     * @throws BusinessException 业务异常
      */
     void remove(Long id) throws BusinessException;
 
     /**
-     * 修改
+     * 修改数据
      *
      * @param dto DTO 对象
-     * @throws BusinessException 异常
+     * @throws BusinessException 业务异常
      */
     void modify(D dto) throws BusinessException;
 
@@ -43,14 +44,14 @@ public interface BaseCrudService<D, Q extends PageQuery> {
      * 分页查询
      *
      * @param query 分页查询参数
-     * @return 分页信息
+     * @return 分页结果
      */
     PageResult<D> page(Q query);
 
     /**
-     * 根据角色 Id 获取
+     * 根据 ID 查询单条数据
      *
-     * @param id Id
+     * @param id 主键 ID
      * @return DTO 对象
      */
     Optional<D> getById(Long id);

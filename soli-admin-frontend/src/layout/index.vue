@@ -1,4 +1,3 @@
-
 <template>
   <div class="layout-container">
     <div class="menu-container" :class="{ collapse: !sidebar.opened }">
@@ -55,7 +54,7 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-/* Transitions */
+/* 页面过渡动画 */
 .fade-transform-leave-active,
 .fade-transform-enter-active {
   transition: all 0.5s;

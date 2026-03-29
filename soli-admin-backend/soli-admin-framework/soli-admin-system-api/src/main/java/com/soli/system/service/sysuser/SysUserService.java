@@ -1,6 +1,5 @@
 package com.soli.system.service.sysuser;
 
-
 import com.soli.system.service.BaseCrudService;
 
 /**
@@ -13,6 +12,7 @@ public interface SysUserService extends BaseCrudService<SysUserDTO, SysUserQuery
 
     /**
      * 根据用户名查询系统用户
+     *
      * @param username 用户名
      * @return 系统用户
      */

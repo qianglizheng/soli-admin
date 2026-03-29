@@ -16,18 +16,24 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * 具有基础增删改查能力的抽象类
+ * 具备基础增删改查能力的抽象服务实现
  *
  * @param <D> DTO 对象
- * @param <E> Entity 对象
- * @param <Q> PageQuery 对象
+ * @param <E> 实体对象
+ * @param <Q> 分页查询对象
  * @author lizhengqiang
  * @since 2026-03-19 22:22
  */
 public abstract class BaseCrudServiceImpl<D, E extends IdEntity, Q extends PageQuery> implements BaseCrudService<D, Q> {
 
+    /**
+     * DTO 与实体转换器
+     */
     public final Converter<D, E> converter;
 
+    /**
+     * 基础 Mapper
+     */
     public final BaseCrudMapper<E, Q> mapper;
 
     public BaseCrudServiceImpl(final BaseCrudMapper<E, Q> mapper, final Converter<D, E> converter) {
@@ -35,6 +41,12 @@ public abstract class BaseCrudServiceImpl<D, E extends IdEntity, Q extends PageQ
         this.converter = converter;
     }
 
+    /**
+     * 新增数据
+     *
+     * @param dto DTO 对象
+     * @throws BusinessException 业务异常
+     */
     @Transactional(rollbackFor = Exception.class)
     public void create(D dto) throws BusinessException {
         beforeCreate(dto);
@@ -46,6 +58,12 @@ public abstract class BaseCrudServiceImpl<D, E extends IdEntity, Q extends PageQ
         afterCreate(dto, entity);
     }
 
+    /**
+     * 删除数据
+     *
+     * @param id 主键 ID
+     * @throws BusinessException 业务异常
+     */
     @Transactional(rollbackFor = Exception.class)
     public void remove(Long id) throws BusinessException {
         beforeRemove(id);
@@ -55,6 +73,12 @@ public abstract class BaseCrudServiceImpl<D, E extends IdEntity, Q extends PageQ
         afterRemove(id);
     }
 
+    /**
+     * 修改数据
+     *
+     * @param dto DTO 对象
+     * @throws BusinessException 业务异常
+     */
     @Transactional(rollbackFor = Exception.class)
     public void modify(D dto) throws BusinessException {
         beforeModify(dto);
@@ -65,6 +89,12 @@ public abstract class BaseCrudServiceImpl<D, E extends IdEntity, Q extends PageQ
         afterModify(dto, entity);
     }
 
+    /**
+     * 分页查询
+     *
+     * @param query 分页查询参数
+     * @return 分页结果
+     */
     @SuppressWarnings("resource")
     public PageResult<D> page(Q query) {
         PageHelper.startPage(query.getPageNum(), query.getPageSize());
@@ -79,6 +109,12 @@ public abstract class BaseCrudServiceImpl<D, E extends IdEntity, Q extends PageQ
         );
     }
 
+    /**
+     * 根据 ID 查询数据
+     *
+     * @param id 主键 ID
+     * @return DTO 对象
+     */
     public Optional<D> getById(Long id) {
         E entity = mapper.selectById(id);
         if (entity == null) {
@@ -89,14 +125,14 @@ public abstract class BaseCrudServiceImpl<D, E extends IdEntity, Q extends PageQ
     }
 
     /**
-     * 模块名称
+     * 返回当前模块名称
      *
      * @return 模块名称
      */
     protected abstract String moduleName();
 
     /**
-     * 创建之前的操作，留给子类自行判断是否实现
+     * 新增前置处理
      *
      * @param dto DTO 对象
      */
@@ -105,35 +141,35 @@ public abstract class BaseCrudServiceImpl<D, E extends IdEntity, Q extends PageQ
     }
 
     /**
-     * 创建成功之后的操作，留给子类自行判断是否实现
+     * 新增后置处理
      *
      * @param dto DTO 对象
-     * @param entity Entity 对象
+     * @param entity 实体对象
      */
     protected void afterCreate(D dto, E entity) {
 
     }
 
     /**
-     * 删除之前的操作，留给子类自行判断是否实现
+     * 删除前置处理
      *
-     * @param id ID
+     * @param id 主键 ID
      */
     protected void beforeRemove(Long id) {
 
     }
 
     /**
-     * 删除成功之后的操作，留给子类自行判断是否实现
+     * 删除后置处理
      *
-     * @param id ID
+     * @param id 主键 ID
      */
     protected void afterRemove(Long id) {
 
     }
 
     /**
-     * 修改之前的操作，留给子类自行判断是否实现
+     * 修改前置处理
      *
      * @param dto DTO 对象
      */
@@ -142,10 +178,10 @@ public abstract class BaseCrudServiceImpl<D, E extends IdEntity, Q extends PageQ
     }
 
     /**
-     * 修改成功之后的操作，留给子类自行判断是否实现
+     * 修改后置处理
      *
      * @param dto DTO 对象
-     * @param entity Entity 对象
+     * @param entity 实体对象
      */
     protected void afterModify(D dto, E entity) {
 

@@ -36,7 +36,7 @@ public class AccessTokenFilter extends OncePerRequestFilter {
 
         String accessToken = request.getHeader("Authorization");
         if (StringUtils.isBlank(accessToken)) {
-            throw new BusinessException("accessToken 不能为空");
+            throw new BusinessException("访问令牌不能为空");
         }
         if (accessToken.startsWith("Bearer ")) {
             accessToken = accessToken.substring(7);

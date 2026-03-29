@@ -29,7 +29,7 @@ public interface SysOrgPostService extends BaseCrudService<SysOrgPostDTO, SysOrg
     List<SysOrgCompanyDTO> queryUserCompanyList(Long userId);
 
     /**
-     * 查询用户当前可选公司
+     * 查询用户当前公司信息
      *
      * @param userId 用户 ID
      * @param companyId 公司 ID
@@ -53,7 +53,7 @@ public interface SysOrgPostService extends BaseCrudService<SysOrgPostDTO, SysOrg
     void createOrgUnit(SysOrgUnitDTO dto);
 
     /**
-     * 根据组织单元 ID 查询组织详情
+     * 根据组织单元 ID 查询详情
      *
      * @param id 组织单元 ID
      * @return 组织单元详情

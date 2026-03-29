@@ -134,7 +134,7 @@ const queryParams = reactive({
   browser: ''
 });
 
-// Mock Data
+// 模拟数据
 loginList.value = [
   { infoId: 1, userName: 'admin', ipaddr: '127.0.0.1', loginLocation: '内网IP', browser: 'Chrome', os: 'Windows 10', status: '0', msg: '登录成功', loginTime: '2023-01-01 10:00:00' },
   { infoId: 2, userName: 'admin', ipaddr: '127.0.0.1', loginLocation: '内网IP', browser: 'Chrome', os: 'Windows 10', status: '1', msg: '密码错误', loginTime: '2023-01-01 11:00:00' }

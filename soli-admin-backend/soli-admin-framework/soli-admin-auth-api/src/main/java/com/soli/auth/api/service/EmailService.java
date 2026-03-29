@@ -8,6 +8,12 @@ package com.soli.auth.api.service;
  */
 public interface EmailService {
 
+    /**
+     * 发送邮件验证码
+     *
+     * @param email 邮箱
+     * @param code 验证码
+     */
     void send(String email, String code);
 
 }

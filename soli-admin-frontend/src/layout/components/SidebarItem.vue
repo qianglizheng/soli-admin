@@ -1,6 +1,6 @@
 <template>
   <div class="sidebar-item-container">
-    <!-- Leaf node (no children) -->
+    <!-- 叶子节点 -->
     <template v-if="!hasChildren(item)">
       <div class="menu-item" :class="{ 'is-active': isActive }" @click="handleClick">
         <el-icon v-if="item.meta && item.meta.icon" class="menu-icon">
@@ -10,7 +10,7 @@
       </div>
     </template>
 
-    <!-- Node with children -->
+    <!-- 带子节点的菜单 -->
     <template v-else>
       <el-popover v-model:visible="popoverVisible" placement="right-start" :width="200" trigger="click"
         popper-class="sidebar-popper" transition="el-zoom-in-top">
@@ -84,21 +84,21 @@ const isChildActive = computed(() => route.path.startsWith(fullPath.value + '/')
 
 const handleClick = () => {
   router.push(fullPath.value);
-  emit('item-click'); // Trigger auto-close
+  emit('item-click'); // 触发自动收起
 };
 
 const handleChildClick = () => {
-  popoverVisible.value = false; // Close current level
-  emit('item-click'); // Propagate close event up to parent
+  popoverVisible.value = false; // 关闭当前层级
+  emit('item-click'); // 将关闭事件继续向上派发
 };
 </script>
 
 <style scoped lang="scss">
-// Variables
+// 颜色变量
 $menuText: rgba(255, 255, 255, 0.65);
 $menuActiveText: #fff;
 $menuHover: rgba(255, 255, 255, 0.08);
-$menuActiveBg: transparent; // No background for active state
+$menuActiveBg: transparent; // 激活态不使用背景色
 $menuOpenedBg: rgba(0, 0, 0, 0.25);
 
 .sidebar-item-container {
@@ -126,7 +126,7 @@ $menuOpenedBg: rgba(0, 0, 0, 0.25);
   &.is-active {
     color: $menuActiveText;
     background-color: $menuActiveBg;
-    
+
     .menu-icon {
       color: #fff;
     }

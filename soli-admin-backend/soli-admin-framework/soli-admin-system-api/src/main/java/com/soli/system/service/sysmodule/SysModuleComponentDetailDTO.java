@@ -6,7 +6,7 @@ import lombok.Setter;
 import java.util.List;
 
 /**
- * Module component detail DTO.
+ * 模块组件详情 DTO
  *
  * @author lizhengqiang
  * @since 2026-03-28 14:52
@@ -15,8 +15,14 @@ import java.util.List;
 @Setter
 public class SysModuleComponentDetailDTO {
 
+    /**
+     * 组件信息
+     */
     private SysModuleComponentDTO componentInfo;
 
+    /**
+     * 字段列表
+     */
     private List<SysModuleFieldDTO> fields;
 
 }

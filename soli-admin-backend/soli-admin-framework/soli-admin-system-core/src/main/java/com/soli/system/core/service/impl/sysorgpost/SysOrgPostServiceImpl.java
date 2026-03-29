@@ -115,7 +115,7 @@ public class SysOrgPostServiceImpl extends BaseCrudServiceImpl<SysOrgPostDTO, Sy
     public SysOrgPostDetailDTO queryDetailById(Long id) {
         SysOrgPostDetailDTO detail = sysOrgPostConverter.toDetailDTO(sysOrgPostMapper.selectDetailById(id));
         if (detail == null) {
-            throw new BusinessException("Post does not exist");
+            throw new BusinessException("岗位不存在");
         }
         return detail;
     }
@@ -262,7 +262,7 @@ public class SysOrgPostServiceImpl extends BaseCrudServiceImpl<SysOrgPostDTO, Sy
         normalizePost(dto);
         SysOrgPostEntity currentEntity = sysOrgPostMapper.selectById(dto.getId());
         if (currentEntity == null) {
-            throw new BusinessException("Post does not exist");
+            throw new BusinessException("岗位不存在");
         }
         validateManagerUser(dto.getManagerUserId());
         SysOrgPostEntity parentPost = resolveParentPost(dto.getParentPostId());
@@ -271,12 +271,12 @@ public class SysOrgPostServiceImpl extends BaseCrudServiceImpl<SysOrgPostDTO, Sy
                 throw new BusinessException("上级岗位不能选择当前岗位或其下级岗位");
             }
             if (!Objects.equals(currentEntity.getOrgUnitId(), parentPost.getOrgUnitId())) {
-                throw new BusinessException("Cross-org post moving is not supported");
+                throw new BusinessException("不支持跨组织移动岗位");
             }
             dto.setOrgUnitId(parentPost.getOrgUnitId());
         }
         if (!Objects.equals(currentEntity.getOrgUnitId(), dto.getOrgUnitId())) {
-            throw new BusinessException("Cross-org post moving is not supported");
+            throw new BusinessException("不支持跨组织移动岗位");
         }
         validateOrgUnitExists(dto.getOrgUnitId());
         validatePostCodeUnique(dto.getOrgUnitId(), dto.getPostCode(), dto.getId());
@@ -296,7 +296,7 @@ public class SysOrgPostServiceImpl extends BaseCrudServiceImpl<SysOrgPostDTO, Sy
     protected void beforeRemove(Long id) {
         validatePostExists(id);
         if (sysOrgPostMapper.countChildPostByParentId(id) > 0) {
-            throw new BusinessException("Current post has child posts and cannot be removed");
+            throw new BusinessException("当前岗位仍存在下级岗位，不能删除");
         }
         if (sysOrgPostMapper.countUserRelationByOrgPostId(id) > 0) {
             throw new BusinessException("当前岗位已绑定员工，不能删除");
@@ -416,7 +416,7 @@ public class SysOrgPostServiceImpl extends BaseCrudServiceImpl<SysOrgPostDTO, Sy
         if (currentId != null && Objects.equals(entity.getId(), currentId)) {
             return;
         }
-        throw new BusinessException("Post code already exists in the same org");
+        throw new BusinessException("同一组织下岗位编码已存在");
     }
 
     private SysOrgUnitEntity requireOrgUnit(Long orgUnitId) {
@@ -435,7 +435,7 @@ public class SysOrgPostServiceImpl extends BaseCrudServiceImpl<SysOrgPostDTO, Sy
 
     private void validatePostExists(Long orgPostId) {
         if (orgPostId == null || sysOrgPostMapper.selectById(orgPostId) == null) {
-            throw new BusinessException("Post does not exist");
+            throw new BusinessException("岗位不存在");
         }
     }
 
@@ -445,7 +445,7 @@ public class SysOrgPostServiceImpl extends BaseCrudServiceImpl<SysOrgPostDTO, Sy
         }
         SysOrgPostEntity parentPost = sysOrgPostMapper.selectById(parentPostId);
         if (parentPost == null) {
-            throw new BusinessException("Parent post does not exist");
+            throw new BusinessException("上级岗位不存在");
         }
         return parentPost;
     }

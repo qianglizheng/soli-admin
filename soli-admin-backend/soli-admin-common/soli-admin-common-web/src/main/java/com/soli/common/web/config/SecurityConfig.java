@@ -79,7 +79,7 @@ public class SecurityConfig {
     }
 
     /**
-     * 拦截所有请求，并校验 accessToken
+     * 拦截所有请求，并校验访问令牌
      *
      * @param http HttpSecurity
      * @return SecurityFilterChain

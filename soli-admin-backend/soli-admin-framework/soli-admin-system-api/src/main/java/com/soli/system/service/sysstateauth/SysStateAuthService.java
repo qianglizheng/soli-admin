@@ -28,7 +28,7 @@ public interface SysStateAuthService {
     SysStateAuthPageDetailDTO queryPageDetail(Long moduleId);
 
     /**
-     * 保存状态限制
+     * 保存状态权限配置
      *
      * @param request 保存请求
      */

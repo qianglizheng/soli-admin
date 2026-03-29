@@ -1,4 +1,3 @@
-
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import ElementPlus from 'element-plus';
@@ -22,13 +21,13 @@ app.use(ElementPlus, {
   locale: zhCn,
 });
 
-// Register icons globally
+// 全局注册图标
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component);
 }
 app.component('EnterFocusScope', EnterFocusScope);
 
-// --- Mock 权限指令演示 ---
+// --- 模拟权限指令演示 ---
 const mockUserPermissions = ['purchase:bill:save', 'purchase:bill:add', 'purchase:bill:export', 'purchase:bill:audit', 'purchase:bill:log', 'purchase:bill:print'];
 
 app.directive('hasPermi', {
@@ -37,7 +36,7 @@ app.directive('hasPermi', {
     if (value && Array.isArray(value) && value.length > 0) {
       const hasPermission = value.some(perm => mockUserPermissions.includes(perm));
       if (!hasPermission) {
-        el.style.display = 'none'; // 使用隐藏代替移除，更安全
+        el.style.display = 'none'; // 使用隐藏替代移除，更安全
       }
     }
   }

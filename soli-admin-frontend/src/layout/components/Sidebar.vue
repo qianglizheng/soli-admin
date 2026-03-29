@@ -34,20 +34,20 @@ const showLogo = true;
 
 const permissionStore = usePermissionStore();
 
-// Use dynamic routes from permission store
+// 使用权限仓库中的动态路由
 const menuRoutes = computed(() => {
   const routes = permissionStore.routes as any[];
   const constantRoutes = routes.filter((r: any) => !r.meta?.hidden);
 
-  // Process routes to lift Dashboard children if needed
+  // 处理路由结构，必要时提升仪表盘子路由
   return constantRoutes.map((route: any) => {
-    // Special handling for Dashboard: if it has children but we want to show it as root
+    // 仪表盘特殊处理：当它只有一个 dashboard 子路由时，直接作为根节点展示
     if (route.path === '/' && route.children && route.children.length === 1 && route.children[0]?.path === 'dashboard') {
       const dashboardChild = route.children[0];
       return {
         ...dashboardChild,
-        path: '/dashboard', // Absolute path
-        children: undefined // Remove children to make it a leaf node
+        path: '/dashboard', // 改为绝对路径
+        children: undefined // 移除子节点，使其成为叶子节点
       };
     }
     return route;
@@ -56,7 +56,7 @@ const menuRoutes = computed(() => {
 </script>
 
 <style scoped lang="scss">
-// Variables
+// 颜色变量
 $menuBg: #001529;
 $subMenuBg: #000c17;
 $menuHover: #1890ff;
@@ -115,7 +115,7 @@ $menuActiveText: #fff;
 </style>
 
 <style lang="scss">
-/* Global styles for popover content */
+/* 弹出菜单的全局样式 */
 .sidebar-popper {
   padding: 0 !important;
   background-color: #001529 !important;

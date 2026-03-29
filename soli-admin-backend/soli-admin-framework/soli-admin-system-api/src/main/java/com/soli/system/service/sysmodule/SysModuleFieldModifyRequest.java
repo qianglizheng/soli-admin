@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Modify module field request.
+ * 修改模块字段请求
  *
  * @author lizhengqiang
  * @since 2026-03-28 14:52
@@ -15,36 +15,72 @@ import lombok.Setter;
 @Setter
 public class SysModuleFieldModifyRequest {
 
-    @NotNull(message = "id cannot be null")
+    /**
+     * 字段 ID
+     */
+    @NotNull(message = "字段 ID 不能为空")
     private Long id;
 
-    @NotNull(message = "moduleId cannot be null")
+    /**
+     * 模块 ID
+     */
+    @NotNull(message = "模块 ID 不能为空")
     private Long moduleId;
 
-    @NotNull(message = "componentId cannot be null")
+    /**
+     * 组件 ID
+     */
+    @NotNull(message = "组件 ID 不能为空")
     private Long componentId;
 
-    @NotBlank(message = "fieldCode cannot be blank")
+    /**
+     * 字段编码
+     */
+    @NotBlank(message = "字段编码不能为空")
     private String fieldCode;
 
-    @NotBlank(message = "defaultTitle cannot be blank")
+    /**
+     * 默认标题
+     */
+    @NotBlank(message = "默认标题不能为空")
     private String defaultTitle;
 
-    @NotBlank(message = "componentType cannot be blank")
+    /**
+     * 组件类型
+     */
+    @NotBlank(message = "组件类型不能为空")
     private String componentType;
 
-    @NotBlank(message = "dataPath cannot be blank")
+    /**
+     * 数据路径
+     */
+    @NotBlank(message = "数据路径不能为空")
     private String dataPath;
 
-    @NotBlank(message = "valueType cannot be blank")
+    /**
+     * 值类型
+     */
+    @NotBlank(message = "值类型不能为空")
     private String valueType;
 
+    /**
+     * 是否必填
+     */
     private String requiredFlag;
 
+    /**
+     * 排序
+     */
     private Integer sort;
 
+    /**
+     * 状态
+     */
     private String status;
 
+    /**
+     * 备注
+     */
     private String note;
 
 }

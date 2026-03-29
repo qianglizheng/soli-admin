@@ -1,7 +1,7 @@
 package com.soli.system.service.sysfunctionauth;
 
-import com.soli.system.service.sysorgpost.SysOrgPostTreeNodeDTO;
 import com.soli.system.service.sysmodule.SysModuleTreeNodeDTO;
+import com.soli.system.service.sysorgpost.SysOrgPostTreeNodeDTO;
 
 import java.util.List;
 
@@ -37,7 +37,7 @@ public interface SysFunctionAuthService {
     SysFunctionAuthPageDetailDTO queryPageDetail(Long orgPostId, Long moduleId);
 
     /**
-     * 保存岗位基线权限
+     * 保存岗位功能权限
      *
      * @param request 保存请求
      */

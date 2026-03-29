@@ -93,7 +93,7 @@ const focusTarget = (target: HTMLElement) => {
         const length = target.value.length;
         target.setSelectionRange(length, length);
       } catch {
-        // Ignore components that do not support selection range.
+        // 忽略不支持设置选区范围的组件。
       }
     });
   }
