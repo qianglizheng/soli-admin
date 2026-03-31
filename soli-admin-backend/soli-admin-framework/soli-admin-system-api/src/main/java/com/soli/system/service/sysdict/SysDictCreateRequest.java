@@ -1,5 +1,7 @@
 package com.soli.system.service.sysdict;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,7 +25,8 @@ public class SysDictCreateRequest {
     private String type;
 
     /** 字典状态 */
-    private String status;
+    @JsonSetter(nulls = Nulls.SKIP)
+    private String status = "0";
 
     /** 备注 */
     private String note;

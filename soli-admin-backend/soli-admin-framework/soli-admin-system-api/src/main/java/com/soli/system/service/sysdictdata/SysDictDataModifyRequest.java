@@ -1,5 +1,7 @@
 package com.soli.system.service.sysdictdata;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -32,7 +34,8 @@ public class SysDictDataModifyRequest {
     private String value;
 
     /** 显示排序 */
-    private String sort;
+    @JsonSetter(nulls = Nulls.SKIP)
+    private String sort = "0";
 
     /** 样式属性 */
     private String cssClass;
@@ -41,10 +44,12 @@ public class SysDictDataModifyRequest {
     private String listClass;
 
     /** 是否默认 */
-    private String defaultFlag;
+    @JsonSetter(nulls = Nulls.SKIP)
+    private String defaultFlag = "N";
 
     /** 状态 */
-    private String status;
+    @JsonSetter(nulls = Nulls.SKIP)
+    private String status = "0";
 
     /** 备注 */
     private String note;

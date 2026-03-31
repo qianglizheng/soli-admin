@@ -154,7 +154,7 @@ public class SysModuleTitleServiceImpl implements SysModuleTitleService {
         if (!StringUtils.hasText(text)) {
             return null;
         }
-        return text.trim();
+        return text;
     }
 
 }

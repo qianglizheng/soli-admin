@@ -79,16 +79,8 @@ public class SysConfigServiceImpl extends BaseCrudServiceImpl<SysConfigDTO, SysC
     }
 
     private void normalize(SysConfigDTO dto) {
-        if (dto.getConfigName() != null) {
-            dto.setConfigName(dto.getConfigName().trim());
-        }
-        if (dto.getConfigKey() != null) {
-            dto.setConfigKey(dto.getConfigKey().trim());
-        }
-        if (dto.getConfigType() == null || dto.getConfigType().isBlank()) {
-            dto.setConfigType("N");
-        } else {
-            dto.setConfigType(dto.getConfigType().trim().toUpperCase());
+        if (dto.getConfigType() != null) {
+            dto.setConfigType(dto.getConfigType().toUpperCase());
         }
     }
 

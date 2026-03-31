@@ -1,5 +1,7 @@
 package com.soli.system.service.sysmodule;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -24,9 +26,11 @@ public class SysModuleButtonCreateRequest {
     @NotBlank(message = "默认标题不能为空")
     private String defaultTitle;
 
-    private Integer sort;
+    @JsonSetter(nulls = Nulls.SKIP)
+    private Integer sort = 1;
 
-    private String status;
+    @JsonSetter(nulls = Nulls.SKIP)
+    private String status = "0";
 
     private String note;
 

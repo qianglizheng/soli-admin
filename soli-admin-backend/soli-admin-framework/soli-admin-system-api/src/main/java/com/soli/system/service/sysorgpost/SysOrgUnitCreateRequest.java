@@ -1,5 +1,7 @@
 package com.soli.system.service.sysorgpost;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -31,10 +33,12 @@ public class SysOrgUnitCreateRequest {
     private Long leaderUserId;
 
     /** 显示顺序 */
-    private Integer sort;
+    @JsonSetter(nulls = Nulls.SKIP)
+    private Integer sort = 1;
 
     /** 状态 */
-    private String status;
+    @JsonSetter(nulls = Nulls.SKIP)
+    private String status = "0";
 
     /** 备注 */
     private String note;

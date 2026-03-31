@@ -1,5 +1,7 @@
 package com.soli.system.service.sysmodule;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -60,17 +62,20 @@ public class SysModuleFieldCreateRequest {
     /**
      * 是否必填
      */
-    private String requiredFlag;
+    @JsonSetter(nulls = Nulls.SKIP)
+    private String requiredFlag = "0";
 
     /**
      * 排序
      */
-    private Integer sort;
+    @JsonSetter(nulls = Nulls.SKIP)
+    private Integer sort = 1;
 
     /**
      * 状态
      */
-    private String status;
+    @JsonSetter(nulls = Nulls.SKIP)
+    private String status = "0";
 
     /**
      * 备注

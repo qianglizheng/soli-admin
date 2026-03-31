@@ -1,5 +1,7 @@
 package com.soli.system.service.sysmodule;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +16,8 @@ import lombok.Setter;
 @Setter
 public class SysModuleCreateRequest {
 
-    private Long parentId;
+    @JsonSetter(nulls = Nulls.SKIP)
+    private Long parentId = 0L;
 
     @NotBlank(message = "模块编码不能为空")
     private String moduleCode;
@@ -31,15 +34,19 @@ public class SysModuleCreateRequest {
 
     private String icon;
 
-    private Integer sort;
+    @JsonSetter(nulls = Nulls.SKIP)
+    private Integer sort = 1;
 
-    private String navVisible;
+    @JsonSetter(nulls = Nulls.SKIP)
+    private String navVisible = "1";
 
-    private String statefulFlag;
+    @JsonSetter(nulls = Nulls.SKIP)
+    private String statefulFlag = "0";
 
     private String stateFieldCode;
 
-    private String status;
+    @JsonSetter(nulls = Nulls.SKIP)
+    private String status = "0";
 
     private String note;
 

@@ -356,32 +356,14 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
     }
 
     private void normalizeModule(SysModuleDTO dto) {
-        if (dto.getParentId() == null) {
-            dto.setParentId(0L);
-        }
-        if (dto.getSort() == null || dto.getSort() <= 0) {
+        if (dto.getSort() != null && dto.getSort() <= 0) {
             dto.setSort(1);
-        }
-        if (!StringUtils.hasText(dto.getNavVisible())) {
-            dto.setNavVisible("1");
-        }
-        if (!StringUtils.hasText(dto.getStatefulFlag())) {
-            dto.setStatefulFlag("0");
         }
         if (!"1".equals(dto.getStatefulFlag())) {
             dto.setStateFieldCode("");
         }
-        if (!StringUtils.hasText(dto.getStatus())) {
-            dto.setStatus("0");
-        }
-        if (StringUtils.hasText(dto.getModuleCode())) {
-            dto.setModuleCode(dto.getModuleCode().trim());
-        }
-        if (StringUtils.hasText(dto.getModuleName())) {
-            dto.setModuleName(dto.getModuleName().trim());
-        }
         if (StringUtils.hasText(dto.getModuleType())) {
-            dto.setModuleType(dto.getModuleType().trim().toUpperCase());
+            dto.setModuleType(dto.getModuleType().toUpperCase());
         }
         if ("BILL".equals(dto.getModuleType())) {
             dto.setModuleType("PAGE");
@@ -389,53 +371,20 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
     }
 
     private void normalizeComponent(SysModuleComponentDTO dto) {
-        if (dto.getSort() == null || dto.getSort() <= 0) {
+        if (dto.getSort() != null && dto.getSort() <= 0) {
             dto.setSort(1);
-        }
-        if (!StringUtils.hasText(dto.getStatus())) {
-            dto.setStatus("0");
-        }
-        if (StringUtils.hasText(dto.getComponentCode())) {
-            dto.setComponentCode(dto.getComponentCode().trim());
-        }
-        if (StringUtils.hasText(dto.getComponentName())) {
-            dto.setComponentName(dto.getComponentName().trim());
         }
     }
 
     private void normalizeField(SysModuleFieldDTO dto) {
-        if (dto.getSort() == null || dto.getSort() <= 0) {
+        if (dto.getSort() != null && dto.getSort() <= 0) {
             dto.setSort(1);
-        }
-        if (!StringUtils.hasText(dto.getRequiredFlag())) {
-            dto.setRequiredFlag("0");
-        }
-        if (!StringUtils.hasText(dto.getStatus())) {
-            dto.setStatus("0");
-        }
-        if (StringUtils.hasText(dto.getFieldCode())) {
-            dto.setFieldCode(dto.getFieldCode().trim());
-        }
-        if (StringUtils.hasText(dto.getDefaultTitle())) {
-            dto.setDefaultTitle(dto.getDefaultTitle().trim());
-        }
-        if (StringUtils.hasText(dto.getDataPath())) {
-            dto.setDataPath(dto.getDataPath().trim());
         }
     }
 
     private void normalizeButton(SysModuleButtonDTO dto) {
-        if (dto.getSort() == null || dto.getSort() <= 0) {
+        if (dto.getSort() != null && dto.getSort() <= 0) {
             dto.setSort(1);
-        }
-        if (!StringUtils.hasText(dto.getStatus())) {
-            dto.setStatus("0");
-        }
-        if (StringUtils.hasText(dto.getButtonCode())) {
-            dto.setButtonCode(dto.getButtonCode().trim());
-        }
-        if (StringUtils.hasText(dto.getDefaultTitle())) {
-            dto.setDefaultTitle(dto.getDefaultTitle().trim());
         }
     }
 

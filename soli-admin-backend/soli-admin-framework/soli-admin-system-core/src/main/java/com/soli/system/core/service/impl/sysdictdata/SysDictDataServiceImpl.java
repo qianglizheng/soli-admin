@@ -36,7 +36,6 @@ public class SysDictDataServiceImpl extends BaseCrudServiceImpl<SysDictDataDTO, 
 
     @Override
     protected void beforeCreate(SysDictDataDTO dto) {
-        normalize(dto);
         ensureDictExists(dto.getDictTypeId());
         if ("Y".equals(dto.getDefaultFlag())) {
             sysDictDataMapper.clearDefaultByDictTypeId(dto.getDictTypeId(), null);
@@ -46,7 +45,6 @@ public class SysDictDataServiceImpl extends BaseCrudServiceImpl<SysDictDataDTO, 
 
     @Override
     protected void beforeModify(SysDictDataDTO dto) {
-        normalize(dto);
         ensureDictExists(dto.getDictTypeId());
         if ("Y".equals(dto.getDefaultFlag())) {
             sysDictDataMapper.clearDefaultByDictTypeId(dto.getDictTypeId(), dto.getId());
@@ -63,18 +61,6 @@ public class SysDictDataServiceImpl extends BaseCrudServiceImpl<SysDictDataDTO, 
         SysDictEntity dictEntity = sysDictMapper.selectById(dictTypeId);
         if (dictEntity == null) {
             throw new BusinessException("字典类型不存在");
-        }
-    }
-
-    private void normalize(SysDictDataDTO dto) {
-        if (dto.getSort() == null || dto.getSort().isBlank()) {
-            dto.setSort("0");
-        }
-        if (dto.getStatus() == null || dto.getStatus().isBlank()) {
-            dto.setStatus("0");
-        }
-        if (dto.getDefaultFlag() == null || dto.getDefaultFlag().isBlank()) {
-            dto.setDefaultFlag("N");
         }
     }
 

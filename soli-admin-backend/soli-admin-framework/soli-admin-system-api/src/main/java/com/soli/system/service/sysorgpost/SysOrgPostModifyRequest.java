@@ -1,5 +1,7 @@
 package com.soli.system.service.sysorgpost;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -24,7 +26,8 @@ public class SysOrgPostModifyRequest {
     private Long orgUnitId;
 
     /** 父岗位 ID */
-    private Long parentPostId;
+    @JsonSetter(nulls = Nulls.SKIP)
+    private Long parentPostId = 0L;
 
     /** 岗位编码 */
     @NotBlank(message = "岗位编码不能为空")
@@ -41,10 +44,12 @@ public class SysOrgPostModifyRequest {
     private Long managerUserId;
 
     /** 显示顺序 */
-    private Integer sort;
+    @JsonSetter(nulls = Nulls.SKIP)
+    private Integer sort = 1;
 
     /** 岗位状态 */
-    private String status;
+    @JsonSetter(nulls = Nulls.SKIP)
+    private String status = "0";
 
     /** 备注 */
     private String note;

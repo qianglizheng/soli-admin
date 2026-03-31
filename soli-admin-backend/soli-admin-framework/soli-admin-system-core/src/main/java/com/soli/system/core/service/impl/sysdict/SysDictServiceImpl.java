@@ -36,7 +36,6 @@ public class SysDictServiceImpl extends BaseCrudServiceImpl<SysDictDTO, SysDictE
 
     @Override
     protected void beforeCreate(SysDictDTO dto) {
-        normalize(dto);
         if (sysDictMapper.selectByType(dto.getType()) != null) {
             throw new BusinessException("字典类型已存在");
         }
@@ -45,7 +44,6 @@ public class SysDictServiceImpl extends BaseCrudServiceImpl<SysDictDTO, SysDictE
 
     @Override
     protected void beforeModify(SysDictDTO dto) {
-        normalize(dto);
         SysDictEntity entity = sysDictMapper.selectByType(dto.getType());
         if (entity != null && !Objects.equals(entity.getId(), dto.getId())) {
             throw new BusinessException("字典类型已存在");
@@ -61,12 +59,6 @@ public class SysDictServiceImpl extends BaseCrudServiceImpl<SysDictDTO, SysDictE
     @Override
     protected String moduleName() {
         return "字典管理";
-    }
-
-    private void normalize(SysDictDTO dto) {
-        if (dto.getStatus() == null || dto.getStatus().isBlank()) {
-            dto.setStatus("0");
-        }
     }
 
 }

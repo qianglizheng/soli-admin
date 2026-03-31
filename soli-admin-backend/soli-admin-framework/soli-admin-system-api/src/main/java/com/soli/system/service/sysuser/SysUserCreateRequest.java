@@ -1,5 +1,7 @@
 package com.soli.system.service.sysuser;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,11 +37,14 @@ public class SysUserCreateRequest {
     private String avatar;
 
     /** 用户类型 */
-    private String type;
+    @JsonSetter(nulls = Nulls.SKIP)
+    private String type = "1";
 
     /** 用户性别 */
-    private String sex;
+    @JsonSetter(nulls = Nulls.SKIP)
+    private String sex = "0";
 
     /** 用户状态 */
-    private String status;
+    @JsonSetter(nulls = Nulls.SKIP)
+    private String status = "0";
 }

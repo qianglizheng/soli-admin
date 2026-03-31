@@ -335,35 +335,14 @@ public class SysOrgPostServiceImpl extends BaseCrudServiceImpl<SysOrgPostDTO, Sy
     }
 
     private void normalizePost(SysOrgPostDTO dto) {
-        if (dto.getParentPostId() == null) {
-            dto.setParentPostId(0L);
-        }
-        if (dto.getSort() == null || dto.getSort() <= 0) {
+        if (dto.getSort() != null && dto.getSort() <= 0) {
             dto.setSort(1);
-        }
-        if (!StringUtils.hasText(dto.getStatus())) {
-            dto.setStatus("0");
-        }
-        if (StringUtils.hasText(dto.getPostCode())) {
-            dto.setPostCode(dto.getPostCode().trim());
-        }
-        if (StringUtils.hasText(dto.getPostName())) {
-            dto.setPostName(dto.getPostName().trim());
         }
     }
 
     private void normalizeOrgUnit(SysOrgUnitDTO dto) {
-        if (dto.getSort() == null || dto.getSort() <= 0) {
+        if (dto.getSort() != null && dto.getSort() <= 0) {
             dto.setSort(1);
-        }
-        if (!StringUtils.hasText(dto.getStatus())) {
-            dto.setStatus("0");
-        }
-        if (StringUtils.hasText(dto.getOrgCode())) {
-            dto.setOrgCode(dto.getOrgCode().trim());
-        }
-        if (StringUtils.hasText(dto.getOrgName())) {
-            dto.setOrgName(dto.getOrgName().trim());
         }
     }
 
