@@ -5,6 +5,7 @@ import com.soli.auth.api.service.auth.TokenDTO;
 import com.soli.common.api.exception.BusinessException;
 import com.soli.common.api.vo.Result;
 import com.soli.common.core.security.CompanyContextHolder;
+import com.soli.system.service.enums.UserTypeEnum;
 import com.soli.system.service.sysorgpost.SysOrgCompanyDTO;
 import com.soli.system.service.sysorgpost.SysOrgPostService;
 import com.soli.system.service.sysuser.SysUserDTO;
@@ -42,7 +43,7 @@ public class UserProfileController {
         SysUserDTO user = sysUserService.getById(userId)
                 .orElseThrow(() -> new BusinessException("当前登录用户不存在"));
 
-        List<String> roles = "0".equals(user.getType()) ? List.of("admin") : List.of();
+        List<String> roles = UserTypeEnum.ADMIN == user.getType() ? List.of("admin") : List.of();
 
         SysUserProfileDTO profile = new SysUserProfileDTO();
         profile.setId(user.getId());

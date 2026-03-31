@@ -1,5 +1,6 @@
 package com.soli.system.core.service.impl.sysmodule;
 
+import com.soli.common.api.enums.BinaryFlagEnum;
 import com.soli.common.api.exception.BusinessException;
 import com.soli.system.core.mapper.SysModuleMapper;
 import com.soli.system.core.mapper.SysModulePermissionMapper;
@@ -15,6 +16,8 @@ import com.soli.system.service.sysmodule.SysModuleDetailDTO;
 import com.soli.system.service.sysmodule.SysModuleFieldDTO;
 import com.soli.system.service.sysmodule.SysModuleService;
 import com.soli.system.service.sysmodule.SysModuleStateDTO;
+import com.soli.system.service.enums.ModuleComponentTypeEnum;
+import com.soli.system.service.enums.PermissionLevelEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -85,7 +88,7 @@ public class SysModuleContextServiceImpl implements SysModuleContextService {
         if (!StringUtils.hasText(stateCode)) {
             return null;
         }
-        if (!"1".equals(moduleDetail.getStatefulFlag())) {
+        if (BinaryFlagEnum.YES != moduleDetail.getStatefulFlag()) {
             throw new BusinessException("当前模块不是状态型模块");
         }
         SysModuleStateDTO matchedState = resolveState(moduleDetail.getStates(), stateCode);
@@ -233,10 +236,10 @@ public class SysModuleContextServiceImpl implements SysModuleContextService {
         fieldConfig.setComponentType(field.getComponentType());
         fieldConfig.setDataPath(field.getDataPath());
         fieldConfig.setValueType(field.getValueType());
-        fieldConfig.setPermissionLevel(permissionLevel);
+        fieldConfig.setPermissionLevel(toPermissionLevel(permissionLevel));
         fieldConfig.setVisible(permissionLevel > HIDDEN_PERMISSION_LEVEL);
         fieldConfig.setEditable(permissionLevel >= FULL_PERMISSION_LEVEL);
-        fieldConfig.setRequired("1".equals(field.getRequiredFlag()));
+        fieldConfig.setRequired(BinaryFlagEnum.YES == field.getRequiredFlag());
         fieldConfig.setDisabled(false);
         fieldConfigs.put(configKey, fieldConfig);
     }
@@ -265,9 +268,9 @@ public class SysModuleContextServiceImpl implements SysModuleContextService {
         buttonConfig.setDefaultTitle(button.getDefaultTitle());
         buttonConfig.setDisplayTitle(button.getDefaultTitle());
         buttonConfig.setLabel(button.getDefaultTitle());
-        buttonConfig.setComponentType(BUTTON_COMPONENT);
+        buttonConfig.setComponentType(ModuleComponentTypeEnum.BUTTON);
         buttonConfig.setDataPath(BUTTON_COMPONENT + "." + button.getButtonCode());
-        buttonConfig.setPermissionLevel(permissionLevel);
+        buttonConfig.setPermissionLevel(toPermissionLevel(permissionLevel));
         buttonConfig.setVisible(permissionLevel > HIDDEN_PERMISSION_LEVEL);
         buttonConfig.setEditable(permissionLevel >= FULL_PERMISSION_LEVEL);
         buttonConfig.setRequired(false);
@@ -325,12 +328,12 @@ public class SysModuleContextServiceImpl implements SysModuleContextService {
         if (StringUtils.hasText(field.getPlaceholder())) {
             return field.getPlaceholder();
         }
-        if ("tag".equals(field.getComponentType()) || "text".equals(field.getComponentType())) {
+        if (field.getComponentType() == ModuleComponentTypeEnum.TAG || field.getComponentType() == ModuleComponentTypeEnum.TEXT) {
             return "";
         }
-        if ("date".equals(field.getComponentType())
-                || "datetime".equals(field.getComponentType())
-                || "search-select".equals(field.getComponentType())) {
+        if (field.getComponentType() == ModuleComponentTypeEnum.DATE
+                || field.getComponentType() == ModuleComponentTypeEnum.DATETIME
+                || field.getComponentType() == ModuleComponentTypeEnum.SEARCH_SELECT) {
             return "请选择" + label;
         }
         return "请输入" + label;
@@ -343,10 +346,22 @@ public class SysModuleContextServiceImpl implements SysModuleContextService {
         if (StringUtils.hasText(field.getNote())) {
             return field.getNote();
         }
-        if ("1".equals(field.getRequiredFlag())) {
+        if (BinaryFlagEnum.YES == field.getRequiredFlag()) {
             return label + "为必填项，请按业务规范维护。";
         }
         return label + "用于补充当前业务单据信息。";
+    }
+
+    private PermissionLevelEnum toPermissionLevel(Integer permissionLevel) {
+        return switch (normalizePermissionLevel(permissionLevel)) {
+            case 1 -> PermissionLevelEnum.LEVEL_1;
+            case 2 -> PermissionLevelEnum.LEVEL_2;
+            default -> PermissionLevelEnum.LEVEL_0;
+        };
+    }
+
+    private Integer normalizePermissionLevel(PermissionLevelEnum permissionLevel) {
+        return normalizePermissionLevel(permissionLevel == null ? null : permissionLevel.getValue());
     }
 
     private Integer normalizePermissionLevel(Integer permissionLevel) {
@@ -354,6 +369,10 @@ public class SysModuleContextServiceImpl implements SysModuleContextService {
             return HIDDEN_PERMISSION_LEVEL;
         }
         return Math.min(permissionLevel, FULL_PERMISSION_LEVEL);
+    }
+
+    private Integer normalizeStatePermissionLevel(PermissionLevelEnum permissionLevel) {
+        return normalizeStatePermissionLevel(permissionLevel == null ? null : permissionLevel.getValue());
     }
 
     private Integer normalizeStatePermissionLevel(Integer permissionLevel) {

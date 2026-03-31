@@ -2,6 +2,7 @@ package com.soli.system.service.sysdict;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
+import com.soli.common.api.enums.NormalDisableStatusEnum;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,7 +27,7 @@ public class SysDictCreateRequest {
 
     /** 字典状态 */
     @JsonSetter(nulls = Nulls.SKIP)
-    private String status = "0";
+    private NormalDisableStatusEnum status = NormalDisableStatusEnum.NORMAL;
 
     /** 备注 */
     private String note;

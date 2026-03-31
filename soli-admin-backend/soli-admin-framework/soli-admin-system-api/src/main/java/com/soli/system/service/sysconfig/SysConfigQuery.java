@@ -1,5 +1,6 @@
 package com.soli.system.service.sysconfig;
 
+import com.soli.common.api.enums.YesNoEnum;
 import com.soli.common.api.vo.PageQuery;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,6 +22,6 @@ public class SysConfigQuery extends PageQuery {
     private String configKey;
 
     /** 系统内置 */
-    private String configType;
+    private YesNoEnum configType;
 
 }

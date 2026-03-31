@@ -1,6 +1,7 @@
 package com.soli.system.service.sysmodule;
 
 import com.soli.common.api.dto.BaseDTO;
+import com.soli.common.api.enums.NormalDisableStatusEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -37,6 +38,6 @@ public class SysModuleComponentDTO extends BaseDTO {
     /**
      * 状态
      */
-    private String status;
+    private NormalDisableStatusEnum status;
 
 }

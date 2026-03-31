@@ -1,5 +1,6 @@
 package com.soli.system.core.service.impl.sysmodulepermission;
 
+import com.soli.common.api.enums.BinaryFlagEnum;
 import com.soli.common.core.entity.BaseEntity;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,8 +19,8 @@ public class SysOrgPostModuleAuthEntity extends BaseEntity {
 
     private Long moduleId;
 
-    private String moduleVisible;
+    private BinaryFlagEnum moduleVisible;
 
-    private String navVisible;
+    private BinaryFlagEnum navVisible;
 
 }

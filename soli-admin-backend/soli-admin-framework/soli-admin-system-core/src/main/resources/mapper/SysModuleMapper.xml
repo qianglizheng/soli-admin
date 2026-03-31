@@ -11,16 +11,16 @@
         <result property="ancestors" column="ancestors"/>
         <result property="moduleCode" column="module_code"/>
         <result property="moduleName" column="module_name"/>
-        <result property="moduleType" column="module_type"/>
+        <result property="moduleType" column="module_type" javaType="com.soli.system.service.enums.ModuleTypeEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
         <result property="routePath" column="route_path"/>
         <result property="componentPath" column="component_path"/>
         <result property="icon" column="icon"/>
         <result property="sort" column="sort"/>
-        <result property="navVisible" column="nav_visible"/>
-        <result property="statefulFlag" column="stateful_flag"/>
+        <result property="navVisible" column="nav_visible" javaType="com.soli.common.api.enums.BinaryFlagEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
+        <result property="statefulFlag" column="stateful_flag" javaType="com.soli.common.api.enums.BinaryFlagEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
         <result property="stateFieldCode" column="state_field_code"/>
         <result property="contextVersion" column="context_version"/>
-        <result property="status" column="status"/>
+        <result property="status" column="status" javaType="com.soli.common.api.enums.NormalDisableStatusEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>
         <result property="updateBy" column="update_by"/>
@@ -34,7 +34,7 @@
         <result property="componentCode" column="component_code"/>
         <result property="componentName" column="component_name"/>
         <result property="sort" column="sort"/>
-        <result property="status" column="status"/>
+        <result property="status" column="status" javaType="com.soli.common.api.enums.NormalDisableStatusEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>
         <result property="updateBy" column="update_by"/>
@@ -52,12 +52,12 @@
         <result property="displayTitle" column="display_title"/>
         <result property="placeholder" column="placeholder"/>
         <result property="helpText" column="help_text"/>
-        <result property="componentType" column="component_type"/>
+        <result property="componentType" column="component_type" javaType="com.soli.system.service.enums.ModuleComponentTypeEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
         <result property="dataPath" column="data_path"/>
-        <result property="valueType" column="value_type"/>
-        <result property="requiredFlag" column="required_flag"/>
+        <result property="valueType" column="value_type" javaType="com.soli.system.service.enums.ModuleValueTypeEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
+        <result property="requiredFlag" column="required_flag" javaType="com.soli.common.api.enums.BinaryFlagEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
         <result property="sort" column="sort"/>
-        <result property="status" column="status"/>
+        <result property="status" column="status" javaType="com.soli.common.api.enums.NormalDisableStatusEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>
         <result property="updateBy" column="update_by"/>
@@ -71,7 +71,7 @@
         <result property="buttonCode" column="button_code"/>
         <result property="defaultTitle" column="default_title"/>
         <result property="sort" column="sort"/>
-        <result property="status" column="status"/>
+        <result property="status" column="status" javaType="com.soli.common.api.enums.NormalDisableStatusEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>
         <result property="updateBy" column="update_by"/>
@@ -87,7 +87,7 @@
         <result property="sort" column="sort"/>
         <result property="isInitial" column="is_initial"/>
         <result property="isFinal" column="is_final"/>
-        <result property="status" column="status"/>
+        <result property="status" column="status" javaType="com.soli.common.api.enums.NormalDisableStatusEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>
         <result property="updateBy" column="update_by"/>
@@ -103,12 +103,27 @@
         <result property="fromStateCode" column="from_state_code"/>
         <result property="toStateCode" column="to_state_code"/>
         <result property="sort" column="sort"/>
-        <result property="status" column="status"/>
+        <result property="status" column="status" javaType="com.soli.common.api.enums.NormalDisableStatusEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>
         <result property="updateBy" column="update_by"/>
         <result property="updateTime" column="update_time"/>
         <result property="note" column="note"/>
+    </resultMap>
+
+    <resultMap id="SysModuleTreeNodeResultMap" type="com.soli.system.core.service.impl.sysmodule.SysModuleTreeNodeModel">
+        <id property="id" column="id"/>
+        <result property="parentId" column="parentId"/>
+        <result property="moduleCode" column="moduleCode"/>
+        <result property="moduleName" column="moduleName"/>
+        <result property="moduleType" column="moduleType" javaType="com.soli.system.service.enums.ModuleTypeEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
+        <result property="routePath" column="routePath"/>
+        <result property="componentPath" column="componentPath"/>
+        <result property="icon" column="icon"/>
+        <result property="sort" column="sort"/>
+        <result property="navVisible" column="navVisible" javaType="com.soli.common.api.enums.BinaryFlagEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
+        <result property="statefulFlag" column="statefulFlag" javaType="com.soli.common.api.enums.BinaryFlagEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
+        <result property="status" column="status" javaType="com.soli.common.api.enums.NormalDisableStatusEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
     </resultMap>
 
     <sql id="Module_Column_List">
@@ -121,8 +136,8 @@
             id, parent_id, ancestors, module_code, module_name, module_type, route_path, component_path, icon, sort,
             nav_visible, stateful_flag, state_field_code, context_version, status, create_by, create_time, update_by, update_time, note
         ) values (
-            #{id}, #{parentId}, #{ancestors}, #{moduleCode}, #{moduleName}, #{moduleType}, #{routePath}, #{componentPath}, #{icon}, #{sort},
-            #{navVisible}, #{statefulFlag}, #{stateFieldCode}, #{contextVersion}, #{status}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
+            #{id}, #{parentId}, #{ancestors}, #{moduleCode}, #{moduleName}, #{moduleType, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}, #{routePath}, #{componentPath}, #{icon}, #{sort},
+            #{navVisible, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}, #{statefulFlag, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}, #{stateFieldCode}, #{contextVersion}, #{status, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
         )
     </insert>
 
@@ -133,16 +148,16 @@
             <if test="ancestors != null">ancestors = #{ancestors},</if>
             <if test="moduleCode != null">module_code = #{moduleCode},</if>
             <if test="moduleName != null">module_name = #{moduleName},</if>
-            <if test="moduleType != null">module_type = #{moduleType},</if>
+            <if test="moduleType != null">module_type = #{moduleType, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler},</if>
             <if test="routePath != null">route_path = #{routePath},</if>
             <if test="componentPath != null">component_path = #{componentPath},</if>
             <if test="icon != null">icon = #{icon},</if>
             <if test="sort != null">sort = #{sort},</if>
-            <if test="navVisible != null">nav_visible = #{navVisible},</if>
-            <if test="statefulFlag != null">stateful_flag = #{statefulFlag},</if>
+            <if test="navVisible != null">nav_visible = #{navVisible, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler},</if>
+            <if test="statefulFlag != null">stateful_flag = #{statefulFlag, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler},</if>
             <if test="stateFieldCode != null">state_field_code = #{stateFieldCode},</if>
             <if test="contextVersion != null">context_version = #{contextVersion},</if>
-            <if test="status != null">status = #{status},</if>
+            <if test="status != null">status = #{status, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
             <if test="note != null">note = #{note},</if>
@@ -161,9 +176,9 @@
             <if test="parentId != null">and parent_id = #{parentId}</if>
             <if test="moduleCode != null and moduleCode != ''">and module_code like concat('%', #{moduleCode}, '%')</if>
             <if test="moduleName != null and moduleName != ''">and module_name like concat('%', #{moduleName}, '%')</if>
-            <if test="moduleType != null and moduleType != ''">and module_type = #{moduleType}</if>
-            <if test="statefulFlag != null and statefulFlag != ''">and stateful_flag = #{statefulFlag}</if>
-            <if test="status != null and status != ''">and status = #{status}</if>
+            <if test="moduleType != null">and module_type = #{moduleType, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}</if>
+            <if test="statefulFlag != null">and stateful_flag = #{statefulFlag, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}</if>
+            <if test="status != null">and status = #{status, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}</if>
         </where>
         order by sort asc, id asc
     </select>
@@ -172,7 +187,7 @@
         select <include refid="Module_Column_List"/> from sys_module where id = #{id}
     </select>
 
-    <select id="selectTreeNodes" resultType="com.soli.system.core.service.impl.sysmodule.SysModuleTreeNodeModel">
+    <select id="selectTreeNodes" resultMap="SysModuleTreeNodeResultMap">
         select id,
                parent_id as parentId,
                module_code as moduleCode,
@@ -238,7 +253,7 @@
         insert into sys_module_component (
             id, module_id, component_code, component_name, sort, status, create_by, create_time, update_by, update_time, note
         ) values (
-            #{id}, #{moduleId}, #{componentCode}, #{componentName}, #{sort}, #{status}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
+            #{id}, #{moduleId}, #{componentCode}, #{componentName}, #{sort}, #{status, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
         )
     </insert>
 
@@ -248,7 +263,7 @@
             <if test="componentCode != null">component_code = #{componentCode},</if>
             <if test="componentName != null">component_name = #{componentName},</if>
             <if test="sort != null">sort = #{sort},</if>
-            <if test="status != null">status = #{status},</if>
+            <if test="status != null">status = #{status, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
             <if test="note != null">note = #{note},</if>
@@ -315,8 +330,8 @@
             id, module_id, component_id, field_code, default_title, component_type, data_path, value_type,
             required_flag, sort, status, create_by, create_time, update_by, update_time, note
         ) values (
-            #{id}, #{moduleId}, #{componentId}, #{fieldCode}, #{defaultTitle}, #{componentType}, #{dataPath}, #{valueType},
-            #{requiredFlag}, #{sort}, #{status}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
+            #{id}, #{moduleId}, #{componentId}, #{fieldCode}, #{defaultTitle}, #{componentType, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}, #{dataPath}, #{valueType, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler},
+            #{requiredFlag, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}, #{sort}, #{status, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
         )
     </insert>
 
@@ -326,12 +341,12 @@
             <if test="componentId != null">component_id = #{componentId},</if>
             <if test="fieldCode != null">field_code = #{fieldCode},</if>
             <if test="defaultTitle != null">default_title = #{defaultTitle},</if>
-            <if test="componentType != null">component_type = #{componentType},</if>
+            <if test="componentType != null">component_type = #{componentType, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler},</if>
             <if test="dataPath != null">data_path = #{dataPath},</if>
-            <if test="valueType != null">value_type = #{valueType},</if>
-            <if test="requiredFlag != null">required_flag = #{requiredFlag},</if>
+            <if test="valueType != null">value_type = #{valueType, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler},</if>
+            <if test="requiredFlag != null">required_flag = #{requiredFlag, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler},</if>
             <if test="sort != null">sort = #{sort},</if>
-            <if test="status != null">status = #{status},</if>
+            <if test="status != null">status = #{status, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
             <if test="note != null">note = #{note},</if>
@@ -376,7 +391,7 @@
         insert into sys_module_button (
             id, module_id, button_code, default_title, sort, status, create_by, create_time, update_by, update_time, note
         ) values (
-            #{id}, #{moduleId}, #{buttonCode}, #{defaultTitle}, #{sort}, #{status}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
+            #{id}, #{moduleId}, #{buttonCode}, #{defaultTitle}, #{sort}, #{status, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
         )
     </insert>
 
@@ -386,7 +401,7 @@
             <if test="buttonCode != null">button_code = #{buttonCode},</if>
             <if test="defaultTitle != null">default_title = #{defaultTitle},</if>
             <if test="sort != null">sort = #{sort},</if>
-            <if test="status != null">status = #{status},</if>
+            <if test="status != null">status = #{status, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
             <if test="note != null">note = #{note},</if>

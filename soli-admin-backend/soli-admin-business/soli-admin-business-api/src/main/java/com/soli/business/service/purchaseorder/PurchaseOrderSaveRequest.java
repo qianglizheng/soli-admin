@@ -42,7 +42,7 @@ public class PurchaseOrderSaveRequest {
      * 结算方式
      */
     @NotBlank(message = "结算方式不能为空")
-    private String settleType;
+    private PurchaseOrderSettleTypeEnum settleType;
 
     /**
      * 仓库 ID
@@ -60,7 +60,7 @@ public class PurchaseOrderSaveRequest {
      * 币种
      */
     @NotBlank(message = "币种不能为空")
-    private String currency;
+    private CurrencyEnum currency;
 
     /**
      * 备注

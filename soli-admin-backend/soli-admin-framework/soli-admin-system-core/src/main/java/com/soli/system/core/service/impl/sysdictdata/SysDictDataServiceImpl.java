@@ -1,5 +1,6 @@
 package com.soli.system.core.service.impl.sysdictdata;
 
+import com.soli.common.api.enums.YesNoEnum;
 import com.soli.common.api.exception.BusinessException;
 import com.soli.system.core.mapper.SysDictDataMapper;
 import com.soli.system.core.mapper.SysDictMapper;
@@ -37,7 +38,7 @@ public class SysDictDataServiceImpl extends BaseCrudServiceImpl<SysDictDataDTO, 
     @Override
     protected void beforeCreate(SysDictDataDTO dto) {
         ensureDictExists(dto.getDictTypeId());
-        if ("Y".equals(dto.getDefaultFlag())) {
+        if (YesNoEnum.YES == dto.getDefaultFlag()) {
             sysDictDataMapper.clearDefaultByDictTypeId(dto.getDictTypeId(), null);
         }
         dto.setCreateTime(LocalDateTime.now());
@@ -46,7 +47,7 @@ public class SysDictDataServiceImpl extends BaseCrudServiceImpl<SysDictDataDTO, 
     @Override
     protected void beforeModify(SysDictDataDTO dto) {
         ensureDictExists(dto.getDictTypeId());
-        if ("Y".equals(dto.getDefaultFlag())) {
+        if (YesNoEnum.YES == dto.getDefaultFlag()) {
             sysDictDataMapper.clearDefaultByDictTypeId(dto.getDictTypeId(), dto.getId());
         }
         dto.setUpdateTime(LocalDateTime.now());

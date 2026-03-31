@@ -1,5 +1,7 @@
 package com.soli.business.core.service.impl.purchaseorder;
 
+import com.soli.business.service.purchaseorder.PurchaseOrderSourceStatusEnum;
+import com.soli.business.service.purchaseorder.PurchaseOrderSourceTypeEnum;
 import com.soli.common.core.entity.BaseEntity;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,7 +25,7 @@ public class PurchaseOrderSourceEntity extends BaseEntity {
 
     private String sourceBillNo;
 
-    private String sourceType;
+    private PurchaseOrderSourceTypeEnum sourceType;
 
     private String supplierName;
 
@@ -31,5 +33,5 @@ public class PurchaseOrderSourceEntity extends BaseEntity {
 
     private BigDecimal totalAmount;
 
-    private String status;
+    private PurchaseOrderSourceStatusEnum status;
 }

@@ -2,6 +2,7 @@ package com.soli.system.service.sysmodule;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
+import com.soli.common.api.enums.NormalDisableStatusEnum;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -30,7 +31,7 @@ public class SysModuleButtonCreateRequest {
     private Integer sort = 1;
 
     @JsonSetter(nulls = Nulls.SKIP)
-    private String status = "0";
+    private NormalDisableStatusEnum status = NormalDisableStatusEnum.NORMAL;
 
     private String note;
 

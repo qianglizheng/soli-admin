@@ -1,6 +1,9 @@
 package com.soli.system.service.sysmodule;
 
+import com.soli.common.api.enums.BinaryFlagEnum;
+import com.soli.common.api.enums.NormalDisableStatusEnum;
 import com.soli.common.api.vo.PageQuery;
+import com.soli.system.service.enums.ModuleTypeEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,12 +27,12 @@ public class SysModuleQuery extends PageQuery {
     private String moduleName;
 
     /** 模块类型 */
-    private String moduleType;
+    private ModuleTypeEnum moduleType;
 
     /** 状态型模块标识 */
-    private String statefulFlag;
+    private BinaryFlagEnum statefulFlag;
 
     /** 状态 */
-    private String status;
+    private NormalDisableStatusEnum status;
 
 }

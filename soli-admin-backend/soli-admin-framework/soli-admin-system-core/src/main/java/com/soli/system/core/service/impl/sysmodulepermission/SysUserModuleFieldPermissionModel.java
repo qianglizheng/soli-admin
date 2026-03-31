@@ -1,5 +1,6 @@
 package com.soli.system.core.service.impl.sysmodulepermission;
 
+import com.soli.system.service.enums.PermissionLevelEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,6 +18,6 @@ public class SysUserModuleFieldPermissionModel {
     private Long fieldId;
 
     /** 权限级别 */
-    private Integer permissionLevel;
+    private PermissionLevelEnum permissionLevel;
 
 }

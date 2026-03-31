@@ -15,6 +15,7 @@ mybatis:
   configuration:
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    default-enum-type-handler: com.soli.common.core.mybatis.handler.DbEnumTypeHandler
   mapper-locations: classpath*:mapper/**/*.xml
   type-aliases-package: com.soli.*.core.entity
 

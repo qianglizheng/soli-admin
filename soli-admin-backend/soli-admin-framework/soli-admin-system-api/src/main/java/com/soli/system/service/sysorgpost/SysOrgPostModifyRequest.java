@@ -2,6 +2,8 @@ package com.soli.system.service.sysorgpost;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
+import com.soli.common.api.enums.NormalDisableStatusEnum;
+import com.soli.system.service.enums.PostTypeEnum;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -38,7 +40,7 @@ public class SysOrgPostModifyRequest {
     private String postName;
 
     /** 岗位类型 */
-    private String postType;
+    private PostTypeEnum postType;
 
     /** 岗位负责人用户 ID */
     private Long managerUserId;
@@ -49,7 +51,7 @@ public class SysOrgPostModifyRequest {
 
     /** 岗位状态 */
     @JsonSetter(nulls = Nulls.SKIP)
-    private String status = "0";
+    private NormalDisableStatusEnum status = NormalDisableStatusEnum.NORMAL;
 
     /** 备注 */
     private String note;

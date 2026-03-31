@@ -1,6 +1,7 @@
 package com.soli.system.service.sysdict;
 
 import com.soli.common.api.dto.BaseDTO;
+import com.soli.common.api.enums.NormalDisableStatusEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,6 +22,6 @@ public class SysDictDTO extends BaseDTO {
     private String type;
 
     /** 字典状态 */
-    private String status;
+    private NormalDisableStatusEnum status;
 
 }

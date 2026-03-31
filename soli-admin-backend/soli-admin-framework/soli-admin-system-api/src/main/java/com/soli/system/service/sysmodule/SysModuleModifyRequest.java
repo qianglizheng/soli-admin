@@ -2,6 +2,9 @@ package com.soli.system.service.sysmodule;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
+import com.soli.common.api.enums.BinaryFlagEnum;
+import com.soli.common.api.enums.NormalDisableStatusEnum;
+import com.soli.system.service.enums.ModuleTypeEnum;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -30,7 +33,7 @@ public class SysModuleModifyRequest {
     private String moduleName;
 
     @NotBlank(message = "模块类型不能为空")
-    private String moduleType;
+    private ModuleTypeEnum moduleType;
 
     private String routePath;
 
@@ -42,15 +45,15 @@ public class SysModuleModifyRequest {
     private Integer sort = 1;
 
     @JsonSetter(nulls = Nulls.SKIP)
-    private String navVisible = "1";
+    private BinaryFlagEnum navVisible = BinaryFlagEnum.YES;
 
     @JsonSetter(nulls = Nulls.SKIP)
-    private String statefulFlag = "0";
+    private BinaryFlagEnum statefulFlag = BinaryFlagEnum.NO;
 
     private String stateFieldCode;
 
     @JsonSetter(nulls = Nulls.SKIP)
-    private String status = "0";
+    private NormalDisableStatusEnum status = NormalDisableStatusEnum.NORMAL;
 
     private String note;
 

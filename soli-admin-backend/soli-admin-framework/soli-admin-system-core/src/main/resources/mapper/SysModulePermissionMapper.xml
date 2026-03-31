@@ -34,7 +34,7 @@
         order by m.sort asc, m.id asc
     </select>
 
-    <select id="selectUserNavPermissionList" resultType="com.soli.system.core.service.impl.sysmodulepermission.SysUserModuleNavPermissionModel">
+    <select id="selectUserNavPermissionList" resultMap="SysUserModuleNavPermissionResultMap">
         select ma.module_id as moduleId,
                case when max(case when ma.nav_visible = '1' then 1 else 0 end) > 0 then '1' else '0' end as navVisible
         from sys_user_org_post uop
@@ -98,7 +98,7 @@
           and uop.status = '0'
     </select>
 
-    <select id="selectUserFieldPermissionList" resultType="com.soli.system.core.service.impl.sysmodulepermission.SysUserModuleFieldPermissionModel">
+    <select id="selectUserFieldPermissionList" resultMap="SysUserModuleFieldPermissionResultMap">
         select fa.field_id as fieldId,
                max(fa.permission_level) as permissionLevel
         from sys_user_org_post uop
@@ -123,7 +123,7 @@
         order by fa.field_id asc
     </select>
 
-    <select id="selectUserButtonPermissionList" resultType="com.soli.system.core.service.impl.sysmodulepermission.SysUserModuleButtonPermissionModel">
+    <select id="selectUserButtonPermissionList" resultMap="SysUserModuleButtonPermissionResultMap">
         select ba.button_id as buttonId,
                max(ba.permission_level) as permissionLevel
         from sys_user_org_post uop
@@ -151,8 +151,8 @@
         <id property="id" column="id"/>
         <result property="orgPostId" column="org_post_id"/>
         <result property="moduleId" column="module_id"/>
-        <result property="moduleVisible" column="module_visible"/>
-        <result property="navVisible" column="nav_visible"/>
+        <result property="moduleVisible" column="module_visible" javaType="com.soli.common.api.enums.BinaryFlagEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
+        <result property="navVisible" column="nav_visible" javaType="com.soli.common.api.enums.BinaryFlagEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>
         <result property="updateBy" column="update_by"/>
@@ -160,12 +160,27 @@
         <result property="note" column="note"/>
     </resultMap>
 
+    <resultMap id="SysUserModuleNavPermissionResultMap" type="com.soli.system.core.service.impl.sysmodulepermission.SysUserModuleNavPermissionModel">
+        <result property="moduleId" column="moduleId"/>
+        <result property="navVisible" column="navVisible" javaType="com.soli.common.api.enums.BinaryFlagEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
+    </resultMap>
+
+    <resultMap id="SysUserModuleFieldPermissionResultMap" type="com.soli.system.core.service.impl.sysmodulepermission.SysUserModuleFieldPermissionModel">
+        <result property="fieldId" column="fieldId"/>
+        <result property="permissionLevel" column="permissionLevel" javaType="com.soli.system.service.enums.PermissionLevelEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
+    </resultMap>
+
+    <resultMap id="SysUserModuleButtonPermissionResultMap" type="com.soli.system.core.service.impl.sysmodulepermission.SysUserModuleButtonPermissionModel">
+        <result property="buttonId" column="buttonId"/>
+        <result property="permissionLevel" column="permissionLevel" javaType="com.soli.system.service.enums.PermissionLevelEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
+    </resultMap>
+
     <resultMap id="SysOrgPostFieldAuthResultMap" type="com.soli.system.core.service.impl.sysmodulepermission.SysOrgPostFieldAuthEntity">
         <id property="id" column="id"/>
         <result property="orgPostId" column="org_post_id"/>
         <result property="moduleId" column="module_id"/>
         <result property="fieldId" column="field_id"/>
-        <result property="permissionLevel" column="permission_level"/>
+        <result property="permissionLevel" column="permission_level" javaType="com.soli.system.service.enums.PermissionLevelEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>
         <result property="updateBy" column="update_by"/>
@@ -178,7 +193,7 @@
         <result property="orgPostId" column="org_post_id"/>
         <result property="moduleId" column="module_id"/>
         <result property="buttonId" column="button_id"/>
-        <result property="permissionLevel" column="permission_level"/>
+        <result property="permissionLevel" column="permission_level" javaType="com.soli.system.service.enums.PermissionLevelEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>
         <result property="updateBy" column="update_by"/>
@@ -191,7 +206,7 @@
         <result property="moduleId" column="module_id"/>
         <result property="stateCode" column="state_code"/>
         <result property="fieldId" column="field_id"/>
-        <result property="permissionLevel" column="permission_level"/>
+        <result property="permissionLevel" column="permission_level" javaType="com.soli.system.service.enums.PermissionLevelEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>
         <result property="updateBy" column="update_by"/>
@@ -204,7 +219,7 @@
         <result property="moduleId" column="module_id"/>
         <result property="stateCode" column="state_code"/>
         <result property="buttonId" column="button_id"/>
-        <result property="permissionLevel" column="permission_level"/>
+        <result property="permissionLevel" column="permission_level" javaType="com.soli.system.service.enums.PermissionLevelEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>
         <result property="updateBy" column="update_by"/>
@@ -288,7 +303,7 @@
         insert into sys_org_post_module_auth (
             id, org_post_id, module_id, module_visible, nav_visible, create_by, create_time, update_by, update_time, note
         ) values (
-            #{id}, #{orgPostId}, #{moduleId}, #{moduleVisible}, #{navVisible}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
+            #{id}, #{orgPostId}, #{moduleId}, #{moduleVisible, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}, #{navVisible, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
         )
     </insert>
 
@@ -297,7 +312,7 @@
             id, org_post_id, module_id, field_id, permission_level, create_by, create_time, update_by, update_time, note
         ) values
         <foreach collection="list" item="item" separator=",">
-            (#{item.id}, #{item.orgPostId}, #{item.moduleId}, #{item.fieldId}, #{item.permissionLevel}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime}, #{item.note})
+            (#{item.id}, #{item.orgPostId}, #{item.moduleId}, #{item.fieldId}, #{item.permissionLevel, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime}, #{item.note})
         </foreach>
     </insert>
 
@@ -306,7 +321,7 @@
             id, org_post_id, module_id, button_id, permission_level, create_by, create_time, update_by, update_time, note
         ) values
         <foreach collection="list" item="item" separator=",">
-            (#{item.id}, #{item.orgPostId}, #{item.moduleId}, #{item.buttonId}, #{item.permissionLevel}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime}, #{item.note})
+            (#{item.id}, #{item.orgPostId}, #{item.moduleId}, #{item.buttonId}, #{item.permissionLevel, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime}, #{item.note})
         </foreach>
     </insert>
 
@@ -349,7 +364,7 @@
             id, module_id, state_code, field_id, permission_level, create_by, create_time, update_by, update_time, note
         ) values
         <foreach collection="list" item="item" separator=",">
-            (#{item.id}, #{item.moduleId}, #{item.stateCode}, #{item.fieldId}, #{item.permissionLevel}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime}, #{item.note})
+            (#{item.id}, #{item.moduleId}, #{item.stateCode}, #{item.fieldId}, #{item.permissionLevel, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime}, #{item.note})
         </foreach>
     </insert>
 
@@ -358,7 +373,7 @@
             id, module_id, state_code, button_id, permission_level, create_by, create_time, update_by, update_time, note
         ) values
         <foreach collection="list" item="item" separator=",">
-            (#{item.id}, #{item.moduleId}, #{item.stateCode}, #{item.buttonId}, #{item.permissionLevel}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime}, #{item.note})
+            (#{item.id}, #{item.moduleId}, #{item.stateCode}, #{item.buttonId}, #{item.permissionLevel, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime}, #{item.note})
         </foreach>
     </insert>
 

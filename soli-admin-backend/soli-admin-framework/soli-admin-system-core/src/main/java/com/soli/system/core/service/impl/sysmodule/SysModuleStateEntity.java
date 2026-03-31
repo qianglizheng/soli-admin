@@ -1,5 +1,6 @@
 package com.soli.system.core.service.impl.sysmodule;
 
+import com.soli.common.api.enums.NormalDisableStatusEnum;
 import com.soli.common.core.entity.BaseEntity;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,6 +27,6 @@ public class SysModuleStateEntity extends BaseEntity {
 
     private String isFinal;
 
-    private String status;
+    private NormalDisableStatusEnum status;
 
 }

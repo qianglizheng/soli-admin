@@ -3,10 +3,13 @@ package com.soli.system.core.service.impl.sysorgpost;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.github.yitter.idgen.YitIdHelper;
+import com.soli.common.api.enums.NormalDisableStatusEnum;
+import com.soli.common.api.enums.YesNoEnum;
 import com.soli.common.api.exception.BusinessException;
 import com.soli.common.api.vo.PageResult;
 import com.soli.system.core.mapper.SysOrgPostMapper;
 import com.soli.system.core.service.impl.BaseCrudServiceImpl;
+import com.soli.system.service.enums.OrgTypeEnum;
 import com.soli.system.service.sysorgpost.SysOrgCompanyDTO;
 import com.soli.system.service.sysorgpost.SysOrgPostDTO;
 import com.soli.system.service.sysorgpost.SysOrgPostDetailDTO;
@@ -42,9 +45,9 @@ public class SysOrgPostServiceImpl extends BaseCrudServiceImpl<SysOrgPostDTO, Sy
 
     private static final String ORG_TYPE_GROUP = "GROUP";
 
-    private static final String ORG_TYPE_HEADQUARTERS = "HEADQUARTERS";
+    private static final OrgTypeEnum ORG_TYPE_HEADQUARTERS = OrgTypeEnum.HEADQUARTERS;
 
-    private static final String ORG_TYPE_BRANCH = "BRANCH";
+    private static final OrgTypeEnum ORG_TYPE_BRANCH = OrgTypeEnum.BRANCH;
 
     private static final int DEFAULT_PAGE_NUM = 1;
 
@@ -480,8 +483,8 @@ public class SysOrgPostServiceImpl extends BaseCrudServiceImpl<SysOrgPostDTO, Sy
         entity.setId(YitIdHelper.nextId());
         entity.setOrgPostId(orgPostId);
         entity.setUserId(userId);
-        entity.setPrimaryFlag("N");
-        entity.setStatus("0");
+        entity.setPrimaryFlag(YesNoEnum.NO);
+        entity.setStatus(NormalDisableStatusEnum.NORMAL);
         entity.setCreateTime(LocalDateTime.now());
         return entity;
     }

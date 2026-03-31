@@ -1,5 +1,8 @@
 package com.soli.system.core.service.impl.sysmodule;
 
+import com.soli.common.api.enums.BinaryFlagEnum;
+import com.soli.common.api.enums.NormalDisableStatusEnum;
+import com.soli.system.service.enums.ModuleTypeEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,7 +24,7 @@ public class SysModuleTreeNodeModel {
 
     private String moduleName;
 
-    private String moduleType;
+    private ModuleTypeEnum moduleType;
 
     private String routePath;
 
@@ -31,10 +34,10 @@ public class SysModuleTreeNodeModel {
 
     private Integer sort;
 
-    private String navVisible;
+    private BinaryFlagEnum navVisible;
 
-    private String statefulFlag;
+    private BinaryFlagEnum statefulFlag;
 
-    private String status;
+    private NormalDisableStatusEnum status;
 
 }

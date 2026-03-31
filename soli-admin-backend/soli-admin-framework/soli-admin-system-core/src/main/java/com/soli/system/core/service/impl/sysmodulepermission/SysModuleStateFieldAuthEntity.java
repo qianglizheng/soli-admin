@@ -1,6 +1,7 @@
 package com.soli.system.core.service.impl.sysmodulepermission;
 
 import com.soli.common.core.entity.BaseEntity;
+import com.soli.system.service.enums.PermissionLevelEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,6 +21,6 @@ public class SysModuleStateFieldAuthEntity extends BaseEntity {
 
     private Long fieldId;
 
-    private Integer permissionLevel;
+    private PermissionLevelEnum permissionLevel;
 
 }

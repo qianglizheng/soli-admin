@@ -12,15 +12,88 @@
         <result property="ancestors" column="ancestors"/>
         <result property="postCode" column="post_code"/>
         <result property="postName" column="post_name"/>
-        <result property="postType" column="post_type"/>
+        <result property="postType" column="post_type" javaType="com.soli.system.service.enums.PostTypeEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
         <result property="managerUserId" column="manager_user_id"/>
         <result property="sort" column="sort"/>
-        <result property="status" column="status"/>
+        <result property="status" column="status" javaType="com.soli.common.api.enums.NormalDisableStatusEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>
         <result property="updateBy" column="update_by"/>
         <result property="updateTime" column="update_time"/>
         <result property="note" column="note"/>
+    </resultMap>
+
+    <resultMap id="SysOrgUnitResultMap" type="com.soli.system.core.service.impl.sysorgpost.SysOrgUnitEntity">
+        <id property="id" column="id"/>
+        <result property="parentId" column="parentId"/>
+        <result property="ancestors" column="ancestors"/>
+        <result property="orgCode" column="orgCode"/>
+        <result property="orgName" column="orgName"/>
+        <result property="orgType" column="orgType" javaType="com.soli.system.service.enums.OrgTypeEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
+        <result property="sort" column="sort"/>
+        <result property="leaderUserId" column="leaderUserId"/>
+        <result property="status" column="status" javaType="com.soli.common.api.enums.NormalDisableStatusEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
+        <result property="createBy" column="createBy"/>
+        <result property="createTime" column="createTime"/>
+        <result property="updateBy" column="updateBy"/>
+        <result property="updateTime" column="updateTime"/>
+        <result property="note" column="note"/>
+    </resultMap>
+
+    <resultMap id="SysOrgPostTreeNodeResultMap" type="com.soli.system.core.service.impl.sysorgpost.SysOrgPostTreeNodeModel">
+        <id property="id" column="id"/>
+        <result property="nodeKey" column="nodeKey"/>
+        <result property="parentNodeKey" column="parentNodeKey"/>
+        <result property="nodeType" column="nodeType"/>
+        <result property="nodeCode" column="nodeCode"/>
+        <result property="nodeName" column="nodeName"/>
+        <result property="status" column="status" javaType="com.soli.common.api.enums.NormalDisableStatusEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
+        <result property="orgUnitId" column="orgUnitId"/>
+        <result property="parentPostId" column="parentPostId"/>
+        <result property="sort" column="sort"/>
+        <result property="employeeCount" column="employeeCount"/>
+        <result property="childPostCount" column="childPostCount"/>
+    </resultMap>
+
+    <resultMap id="SysOrgCompanyResultMap" type="com.soli.system.core.service.impl.sysorgpost.SysOrgCompanyModel">
+        <id property="id" column="id"/>
+        <result property="nodeKey" column="nodeKey"/>
+        <result property="nodeCode" column="nodeCode"/>
+        <result property="nodeName" column="nodeName"/>
+        <result property="nodeType" column="nodeType" javaType="com.soli.system.service.enums.OrgTypeEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
+        <result property="sort" column="sort"/>
+    </resultMap>
+
+    <resultMap id="SysOrgPostDetailResultMap" type="com.soli.system.core.service.impl.sysorgpost.SysOrgPostDetailModel">
+        <id property="id" column="id"/>
+        <result property="orgUnitId" column="orgUnitId"/>
+        <result property="parentPostId" column="parentPostId"/>
+        <result property="postCode" column="postCode"/>
+        <result property="postName" column="postName"/>
+        <result property="postType" column="postType" javaType="com.soli.system.service.enums.PostTypeEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
+        <result property="managerUserId" column="managerUserId"/>
+        <result property="managerName" column="managerName"/>
+        <result property="orgName" column="orgName"/>
+        <result property="orgType" column="orgType" javaType="com.soli.system.service.enums.OrgTypeEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
+        <result property="parentNodeName" column="parentNodeName"/>
+        <result property="sort" column="sort"/>
+        <result property="status" column="status" javaType="com.soli.common.api.enums.NormalDisableStatusEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
+        <result property="childPostCount" column="childPostCount"/>
+        <result property="employeeCount" column="employeeCount"/>
+        <result property="note" column="note"/>
+    </resultMap>
+
+    <resultMap id="SysOrgPostUserResultMap" type="com.soli.system.core.service.impl.sysorgpost.SysOrgPostUserModel">
+        <id property="id" column="id"/>
+        <result property="userId" column="userId"/>
+        <result property="username" column="username"/>
+        <result property="nickname" column="nickname"/>
+        <result property="phone" column="phone"/>
+        <result property="email" column="email"/>
+        <result property="orgPostId" column="orgPostId"/>
+        <result property="primaryFlag" column="primaryFlag" javaType="com.soli.common.api.enums.YesNoEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
+        <result property="status" column="status" javaType="com.soli.common.api.enums.NormalDisableStatusEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
+        <result property="createTime" column="createTime"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -31,7 +104,7 @@
         insert into sys_org_post (
             id, org_unit_id, parent_post_id, ancestors, post_code, post_name, post_type, manager_user_id, sort, status, create_by, create_time, update_by, update_time, note
         ) values (
-            #{id}, #{orgUnitId}, #{parentPostId}, #{ancestors}, #{postCode}, #{postName}, #{postType}, #{managerUserId}, #{sort}, #{status}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
+            #{id}, #{orgUnitId}, #{parentPostId}, #{ancestors}, #{postCode}, #{postName}, #{postType, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}, #{managerUserId}, #{sort}, #{status, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
         )
     </insert>
 
@@ -43,10 +116,10 @@
             <if test="ancestors != null">ancestors = #{ancestors},</if>
             <if test="postCode != null">post_code = #{postCode},</if>
             <if test="postName != null">post_name = #{postName},</if>
-            <if test="postType != null">post_type = #{postType},</if>
+            <if test="postType != null">post_type = #{postType, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler},</if>
             <if test="managerUserId != null">manager_user_id = #{managerUserId},</if>
             <if test="sort != null">sort = #{sort},</if>
-            <if test="status != null">status = #{status},</if>
+            <if test="status != null">status = #{status, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
             <if test="note != null">note = #{note},</if>
@@ -75,8 +148,8 @@
             <if test="postName != null and postName != ''">
                 and post_name like concat('%', #{postName}, '%')
             </if>
-            <if test="status != null and status != ''">
-                and status = #{status}
+            <if test="status != null">
+                and status = #{status, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}
             </if>
         </where>
         order by sort asc, id asc
@@ -88,7 +161,7 @@
         where id = #{id}
     </select>
 
-    <select id="selectOrgUnitTreeNodes" resultType="com.soli.system.core.service.impl.sysorgpost.SysOrgPostTreeNodeModel">
+    <select id="selectOrgUnitTreeNodes" resultMap="SysOrgPostTreeNodeResultMap">
         select concat('ORG_', id) as nodeKey,
                id as id,
                case when parent_id = 0 then null else concat('ORG_', parent_id) end as parentNodeKey,
@@ -105,7 +178,7 @@
         order by sort asc, id asc
     </select>
 
-    <select id="selectPostTreeNodes" resultType="com.soli.system.core.service.impl.sysorgpost.SysOrgPostTreeNodeModel">
+    <select id="selectPostTreeNodes" resultMap="SysOrgPostTreeNodeResultMap">
         select concat('POST_', op.id) as nodeKey,
                op.id as id,
                case when op.parent_post_id = 0 then concat('ORG_', op.org_unit_id) else concat('POST_', op.parent_post_id) end as parentNodeKey,
@@ -128,7 +201,7 @@
         order by op.sort asc, op.id asc
     </select>
 
-    <select id="selectCompanyListByUserId" resultType="com.soli.system.core.service.impl.sysorgpost.SysOrgCompanyModel">
+    <select id="selectCompanyListByUserId" resultMap="SysOrgCompanyResultMap">
         select distinct ou.id as id,
                concat('ORG_', ou.id) as nodeKey,
                ou.org_code as nodeCode,
@@ -146,7 +219,7 @@
         order by ou.sort asc, ou.id asc
     </select>
 
-    <select id="selectDetailById" resultType="com.soli.system.core.service.impl.sysorgpost.SysOrgPostDetailModel">
+    <select id="selectDetailById" resultMap="SysOrgPostDetailResultMap">
         select op.id as id,
                op.org_unit_id as orgUnitId,
                op.parent_post_id as parentPostId,
@@ -190,7 +263,7 @@
         where id = #{orgUnitId}
     </select>
 
-    <select id="selectOrgUnitById" resultType="com.soli.system.core.service.impl.sysorgpost.SysOrgUnitEntity">
+    <select id="selectOrgUnitById" resultMap="SysOrgUnitResultMap">
         select id,
                parent_id as parentId,
                ancestors,
@@ -209,7 +282,7 @@
         where id = #{id}
     </select>
 
-    <select id="selectOrgUnitByCode" resultType="com.soli.system.core.service.impl.sysorgpost.SysOrgUnitEntity">
+    <select id="selectOrgUnitByCode" resultMap="SysOrgUnitResultMap">
         select id,
                parent_id as parentId,
                ancestors,
@@ -233,7 +306,7 @@
         insert into sys_org_unit (
             id, parent_id, ancestors, org_code, org_name, org_type, sort, leader_user_id, status, create_by, create_time, update_by, update_time, note
         ) values (
-            #{id}, #{parentId}, #{ancestors}, #{orgCode}, #{orgName}, #{orgType}, #{sort}, #{leaderUserId}, #{status}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
+            #{id}, #{parentId}, #{ancestors}, #{orgCode}, #{orgName}, #{orgType, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}, #{sort}, #{leaderUserId}, #{status, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
         )
     </insert>
 
@@ -245,7 +318,7 @@
             <if test="orgName != null">org_name = #{orgName},</if>
             <if test="sort != null">sort = #{sort},</if>
             <if test="leaderUserId != null">leader_user_id = #{leaderUserId},</if>
-            <if test="status != null">status = #{status},</if>
+            <if test="status != null">status = #{status, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
             <if test="note != null">note = #{note},</if>
@@ -306,7 +379,7 @@
            or ancestors like concat(#{oldPath}, ',%')
     </update>
 
-    <select id="selectUserPage" resultType="com.soli.system.core.service.impl.sysorgpost.SysOrgPostUserModel">
+    <select id="selectUserPage" resultMap="SysOrgPostUserResultMap">
         select su.id as id,
                su.id as userId,
                su.username as username,
@@ -326,13 +399,13 @@
                 or su.nickname like concat('%', #{keyword}, '%')
                 or su.phone like concat('%', #{keyword}, '%'))
         </if>
-        <if test="status != null and status != ''">
-            and su.status = #{status}
+        <if test="status != null">
+            and su.status = #{status, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}
         </if>
         order by uop.create_time desc, su.id desc
     </select>
 
-    <select id="selectUserOptionPage" resultType="com.soli.system.core.service.impl.sysorgpost.SysOrgPostUserModel">
+    <select id="selectUserOptionPage" resultMap="SysOrgPostUserResultMap">
         select su.id as id,
                su.id as userId,
                su.username as username,
@@ -356,8 +429,8 @@
                 or su.nickname like concat('%', #{keyword}, '%')
                 or su.phone like concat('%', #{keyword}, '%'))
         </if>
-        <if test="status != null and status != ''">
-            and su.status = #{status}
+        <if test="status != null">
+            and su.status = #{status, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}
         </if>
         order by su.create_time desc, su.id desc
     </select>
@@ -377,7 +450,7 @@
             id, user_id, org_post_id, primary_flag, status, create_by, create_time, update_by, update_time, note
         ) values
         <foreach collection="relationList" item="item" separator=",">
-            (#{item.id}, #{item.userId}, #{item.orgPostId}, #{item.primaryFlag}, #{item.status}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime}, #{item.note})
+            (#{item.id}, #{item.userId}, #{item.orgPostId}, #{item.primaryFlag, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}, #{item.status, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime}, #{item.note})
         </foreach>
     </insert>
 

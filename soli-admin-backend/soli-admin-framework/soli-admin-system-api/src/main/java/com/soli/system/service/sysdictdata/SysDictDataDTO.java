@@ -1,6 +1,8 @@
 package com.soli.system.service.sysdictdata;
 
 import com.soli.common.api.dto.BaseDTO;
+import com.soli.common.api.enums.NormalDisableStatusEnum;
+import com.soli.common.api.enums.YesNoEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -33,9 +35,9 @@ public class SysDictDataDTO extends BaseDTO {
     private String listClass;
 
     /** 是否默认 */
-    private String defaultFlag;
+    private YesNoEnum defaultFlag;
 
     /** 状态 */
-    private String status;
+    private NormalDisableStatusEnum status;
 
 }

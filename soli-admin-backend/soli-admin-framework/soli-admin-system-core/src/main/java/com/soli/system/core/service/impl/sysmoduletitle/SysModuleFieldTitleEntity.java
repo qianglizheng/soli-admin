@@ -1,6 +1,10 @@
 package com.soli.system.core.service.impl.sysmoduletitle;
 
+import com.soli.common.api.enums.BinaryFlagEnum;
+import com.soli.common.api.enums.NormalDisableStatusEnum;
 import com.soli.common.core.entity.BaseEntity;
+import com.soli.system.service.enums.ModuleComponentTypeEnum;
+import com.soli.system.service.enums.ModuleValueTypeEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -34,16 +38,16 @@ public class SysModuleFieldTitleEntity extends BaseEntity {
 
     private String helpText;
 
-    private String componentType;
+    private ModuleComponentTypeEnum componentType;
 
     private String dataPath;
 
-    private String valueType;
+    private ModuleValueTypeEnum valueType;
 
-    private String requiredFlag;
+    private BinaryFlagEnum requiredFlag;
 
     private Integer sort;
 
-    private String status;
+    private NormalDisableStatusEnum status;
 
 }

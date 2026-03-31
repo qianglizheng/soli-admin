@@ -1,6 +1,7 @@
 package com.soli.system.service.sysconfig;
 
 import com.soli.common.api.dto.BaseDTO;
+import com.soli.common.api.enums.YesNoEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,6 +25,6 @@ public class SysConfigDTO extends BaseDTO {
     private String configValue;
 
     /** 系统内置 */
-    private String configType;
+    private YesNoEnum configType;
 
 }

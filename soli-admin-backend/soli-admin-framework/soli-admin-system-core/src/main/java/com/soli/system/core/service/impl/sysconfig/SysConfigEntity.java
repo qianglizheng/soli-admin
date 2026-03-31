@@ -1,5 +1,6 @@
 package com.soli.system.core.service.impl.sysconfig;
 
+import com.soli.common.api.enums.YesNoEnum;
 import com.soli.common.core.entity.BaseEntity;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,6 +25,6 @@ public class SysConfigEntity extends BaseEntity {
     private String configValue;
 
     /** 系统内置 */
-    private String configType;
+    private YesNoEnum configType;
 
 }

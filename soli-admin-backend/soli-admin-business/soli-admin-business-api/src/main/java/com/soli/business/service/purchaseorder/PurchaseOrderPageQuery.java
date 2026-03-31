@@ -20,7 +20,7 @@ public class PurchaseOrderPageQuery extends PageQuery {
 
     private Long supplierId;
 
-    private String status;
+    private PurchaseOrderStatusEnum status;
 
     private String startBillDate;
 

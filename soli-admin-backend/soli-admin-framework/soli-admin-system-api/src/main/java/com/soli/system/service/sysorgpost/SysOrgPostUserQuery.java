@@ -1,5 +1,6 @@
 package com.soli.system.service.sysorgpost;
 
+import com.soli.common.api.enums.NormalDisableStatusEnum;
 import com.soli.common.api.vo.PageQuery;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,6 +22,6 @@ public class SysOrgPostUserQuery extends PageQuery {
     private String keyword;
 
     /** 状态 */
-    private String status;
+    private NormalDisableStatusEnum status;
 
 }

@@ -1,5 +1,6 @@
 package com.soli.system.core.service.impl.sysmodulepermission;
 
+import com.soli.common.api.enums.BinaryFlagEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,6 +16,6 @@ public class SysUserModuleNavPermissionModel {
 
     private Long moduleId;
 
-    private String navVisible;
+    private BinaryFlagEnum navVisible;
 
 }

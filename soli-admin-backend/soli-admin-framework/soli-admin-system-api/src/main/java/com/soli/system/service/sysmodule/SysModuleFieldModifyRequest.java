@@ -2,6 +2,10 @@ package com.soli.system.service.sysmodule;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
+import com.soli.common.api.enums.BinaryFlagEnum;
+import com.soli.common.api.enums.NormalDisableStatusEnum;
+import com.soli.system.service.enums.ModuleComponentTypeEnum;
+import com.soli.system.service.enums.ModuleValueTypeEnum;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -51,7 +55,7 @@ public class SysModuleFieldModifyRequest {
      * 组件类型
      */
     @NotBlank(message = "组件类型不能为空")
-    private String componentType;
+    private ModuleComponentTypeEnum componentType;
 
     /**
      * 数据路径
@@ -63,13 +67,13 @@ public class SysModuleFieldModifyRequest {
      * 值类型
      */
     @NotBlank(message = "值类型不能为空")
-    private String valueType;
+    private ModuleValueTypeEnum valueType;
 
     /**
      * 是否必填
      */
     @JsonSetter(nulls = Nulls.SKIP)
-    private String requiredFlag = "0";
+    private BinaryFlagEnum requiredFlag = BinaryFlagEnum.NO;
 
     /**
      * 排序
@@ -81,7 +85,7 @@ public class SysModuleFieldModifyRequest {
      * 状态
      */
     @JsonSetter(nulls = Nulls.SKIP)
-    private String status = "0";
+    private NormalDisableStatusEnum status = NormalDisableStatusEnum.NORMAL;
 
     /**
      * 备注

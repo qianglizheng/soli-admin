@@ -4,7 +4,9 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.github.yitter.idgen.YitIdHelper;
 import com.soli.business.core.mapper.PurchaseOrderMapper;
+import com.soli.business.service.purchaseorder.PurchaseOrderActionEnum;
 import com.soli.business.service.purchaseorder.PurchaseOrderActivityDTO;
+import com.soli.business.service.purchaseorder.PurchaseOrderActivityTypeEnum;
 import com.soli.business.service.purchaseorder.PurchaseOrderAttachmentDTO;
 import com.soli.business.service.purchaseorder.PurchaseOrderDetailDTO;
 import com.soli.business.service.purchaseorder.PurchaseOrderHeaderDTO;
@@ -17,6 +19,7 @@ import com.soli.business.service.purchaseorder.PurchaseOrderSaveRequest;
 import com.soli.business.service.purchaseorder.PurchaseOrderSaveRequest.PurchaseOrderItemSaveRequest;
 import com.soli.business.service.purchaseorder.PurchaseOrderService;
 import com.soli.business.service.purchaseorder.PurchaseOrderSourceDTO;
+import com.soli.business.service.purchaseorder.PurchaseOrderStatusEnum;
 import com.soli.common.api.exception.BusinessException;
 import com.soli.common.api.vo.PageResult;
 import com.soli.system.core.mapper.SysUserMapper;
@@ -47,15 +50,15 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
-    private static final String STATUS_UNAUDITED = "unaudited";
+    private static final PurchaseOrderStatusEnum STATUS_UNAUDITED = PurchaseOrderStatusEnum.UNAUDITED;
 
-    private static final String STATUS_PRE_AUDITED = "pre_audited";
+    private static final PurchaseOrderStatusEnum STATUS_PRE_AUDITED = PurchaseOrderStatusEnum.PRE_AUDITED;
 
-    private static final String STATUS_AUDITED = "audited";
+    private static final PurchaseOrderStatusEnum STATUS_AUDITED = PurchaseOrderStatusEnum.AUDITED;
 
-    private static final String STATUS_SHIPPED = "shipped";
+    private static final PurchaseOrderStatusEnum STATUS_SHIPPED = PurchaseOrderStatusEnum.SHIPPED;
 
-    private static final String STATUS_COMPLETED = "completed";
+    private static final PurchaseOrderStatusEnum STATUS_COMPLETED = PurchaseOrderStatusEnum.COMPLETED;
 
     private static final String BILL_TYPE_NAME = "采购订单";
 
@@ -67,7 +70,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    private static final Map<String, String> STATUS_NAME_MAP = new LinkedHashMap<>();
+    private static final Map<PurchaseOrderStatusEnum, String> STATUS_NAME_MAP = new LinkedHashMap<>();
 
     private static final Map<String, String> SUPPLIER_NAME_MAP = new LinkedHashMap<>();
 
@@ -165,7 +168,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         entity.setUserName(request.getUserName());
         entity.setCurrency(request.getCurrency());
         entity.setRemark(request.getRemark());
-        entity.setStatus(STATUS_UNAUDITED);
+        entity.setStatus(PurchaseOrderStatusEnum.UNAUDITED);
         entity.setCreateUserId(userId);
         entity.setCreateByName(operatorName);
         entity.setTotalQty(amount.totalQty());
@@ -437,7 +440,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         dto.setContent(entity.getContent());
         dto.setTimestamp(formatDateTime(entity.getOperateTime()));
         dto.setOperator(entity.getOperatorName());
-        dto.setType(StringUtils.hasText(entity.getActivityType()) ? entity.getActivityType() : "primary");
+        dto.setType(entity.getActivityType() == null ? PurchaseOrderActivityTypeEnum.PRIMARY : entity.getActivityType());
         return dto;
     }
 
@@ -493,12 +496,12 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         PurchaseOrderActivityEntity activityEntity = new PurchaseOrderActivityEntity();
         activityEntity.setId(YitIdHelper.nextId());
         activityEntity.setOrderId(orderId);
-        activityEntity.setActionCode(actionCode);
+        activityEntity.setActionCode(resolveActionEnum(actionCode));
         activityEntity.setActionName(actionName);
         activityEntity.setContent(content);
         activityEntity.setOperatorUserId(operatorUserId);
         activityEntity.setOperatorName(operatorName);
-        activityEntity.setActivityType(activityType);
+        activityEntity.setActivityType(resolveActivityType(activityType));
         activityEntity.setOperateTime(now);
         activityEntity.setCreateBy(operatorName);
         activityEntity.setCreateTime(now);
@@ -551,8 +554,32 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         return value == null ? "" : value.format(DATE_TIME_FORMATTER);
     }
 
-    private String resolveStatusName(final String status) {
-        return STATUS_NAME_MAP.getOrDefault(status, status);
+    private String resolveStatusName(final PurchaseOrderStatusEnum status) {
+        if (status == null) {
+            return "";
+        }
+        return STATUS_NAME_MAP.getOrDefault(status, status.getLabel());
+    }
+
+    private PurchaseOrderActionEnum resolveActionEnum(final String actionCode) {
+        for (PurchaseOrderActionEnum actionEnum : PurchaseOrderActionEnum.values()) {
+            if (actionEnum.getValue().equals(actionCode)) {
+                return actionEnum;
+            }
+        }
+        throw new BusinessException("涓嶆敮鎸佺殑閲囪喘璁㈠崟鍔ㄤ綔");
+    }
+
+    private PurchaseOrderActivityTypeEnum resolveActivityType(final String activityType) {
+        if (!StringUtils.hasText(activityType)) {
+            return PurchaseOrderActivityTypeEnum.PRIMARY;
+        }
+        for (PurchaseOrderActivityTypeEnum typeEnum : PurchaseOrderActivityTypeEnum.values()) {
+            if (typeEnum.getValue().equals(activityType)) {
+                return typeEnum;
+            }
+        }
+        return PurchaseOrderActivityTypeEnum.PRIMARY;
     }
 
     private String resolveSupplierName(final Long supplierId) {
@@ -649,7 +676,10 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     private record OrderAmount(BigDecimal totalQty, BigDecimal netAmount, BigDecimal taxAmount, BigDecimal totalAmount) {
     }
 
-    private record ActionDefinition(String fromStatus, String toStatus, String actionName, String activityType) {
+    private record ActionDefinition(PurchaseOrderStatusEnum fromStatus,
+                                    PurchaseOrderStatusEnum toStatus,
+                                    String actionName,
+                                    String activityType) {
     }
 
 }

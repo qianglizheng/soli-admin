@@ -2,6 +2,7 @@ package com.soli.system.service.sysconfig;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
+import com.soli.common.api.enums.YesNoEnum;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,7 +30,7 @@ public class SysConfigCreateRequest {
 
     /** 系统内置 */
     @JsonSetter(nulls = Nulls.SKIP)
-    private String configType = "N";
+    private YesNoEnum configType = YesNoEnum.NO;
 
     /** 备注 */
     private String note;

@@ -13,9 +13,9 @@
         <result property="email" column="email"/>
         <result property="phone" column="phone"/>
         <result property="avatar" column="avatar"/>
-        <result property="type" column="type"/>
-        <result property="sex" column="sex"/>
-        <result property="status" column="status"/>
+        <result property="type" column="type" javaType="com.soli.system.service.enums.UserTypeEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
+        <result property="sex" column="sex" javaType="com.soli.system.service.enums.UserSexEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
+        <result property="status" column="status" javaType="com.soli.common.api.enums.NormalDisableStatusEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
         <result property="loginIp" column="login_ip"/>
         <result property="loginTime" column="login_time"/>
         <result property="createBy" column="create_by"/>
@@ -33,7 +33,7 @@
         insert into sys_user (
             id, username, password, nickname, email, phone, avatar, type, sex, status, login_ip, login_time, create_by, create_time, update_by, update_time, note
         ) values (
-            #{id}, #{username}, #{password}, #{nickname}, #{email}, #{phone}, #{avatar}, #{type}, #{sex}, #{status}, #{loginIp}, #{loginTime}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
+            #{id}, #{username}, #{password}, #{nickname}, #{email}, #{phone}, #{avatar}, #{type, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}, #{sex, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}, #{status, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}, #{loginIp}, #{loginTime}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
         )
     </insert>
 
@@ -45,9 +45,9 @@
             <if test="email != null">email = #{email},</if>
             <if test="phone != null">phone = #{phone},</if>
             <if test="avatar != null">avatar = #{avatar},</if>
-            <if test="type != null">type = #{type},</if>
-            <if test="sex != null">sex = #{sex},</if>
-            <if test="status != null">status = #{status},</if>
+            <if test="type != null">type = #{type, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler},</if>
+            <if test="sex != null">sex = #{sex, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler},</if>
+            <if test="status != null">status = #{status, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler},</if>
             <if test="loginIp != null">login_ip = #{loginIp},</if>
             <if test="loginTime != null">login_time = #{loginTime},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>
@@ -74,8 +74,8 @@
             <if test="phone != null and phone != ''">
                 and phone like concat('%', #{phone}, '%')
             </if>
-            <if test="status != null and status != ''">
-                and status = #{status}
+            <if test="status != null">
+                and status = #{status, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}
             </if>
         </where>
         order by create_time desc, id desc

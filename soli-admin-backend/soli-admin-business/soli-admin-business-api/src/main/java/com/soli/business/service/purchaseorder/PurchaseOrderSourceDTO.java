@@ -19,7 +19,7 @@ public class PurchaseOrderSourceDTO {
 
     private String sourceBillNo;
 
-    private String sourceType;
+    private PurchaseOrderSourceTypeEnum sourceType;
 
     private String supplierName;
 
@@ -27,7 +27,7 @@ public class PurchaseOrderSourceDTO {
 
     private BigDecimal totalAmount;
 
-    private String status;
+    private PurchaseOrderSourceStatusEnum status;
 
     private String remark;
 }

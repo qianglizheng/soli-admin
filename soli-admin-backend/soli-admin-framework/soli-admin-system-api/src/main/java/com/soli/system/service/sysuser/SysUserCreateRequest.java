@@ -2,6 +2,9 @@ package com.soli.system.service.sysuser;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
+import com.soli.common.api.enums.NormalDisableStatusEnum;
+import com.soli.system.service.enums.UserSexEnum;
+import com.soli.system.service.enums.UserTypeEnum;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
@@ -38,13 +41,13 @@ public class SysUserCreateRequest {
 
     /** 用户类型 */
     @JsonSetter(nulls = Nulls.SKIP)
-    private String type = "1";
+    private UserTypeEnum type = UserTypeEnum.NORMAL;
 
     /** 用户性别 */
     @JsonSetter(nulls = Nulls.SKIP)
-    private String sex = "0";
+    private UserSexEnum sex = UserSexEnum.MALE;
 
     /** 用户状态 */
     @JsonSetter(nulls = Nulls.SKIP)
-    private String status = "0";
+    private NormalDisableStatusEnum status = NormalDisableStatusEnum.NORMAL;
 }

@@ -13,8 +13,8 @@
         <result property="sort" column="sort"/>
         <result property="cssClass" column="css_class"/>
         <result property="listClass" column="list_class"/>
-        <result property="defaultFlag" column="default_flag"/>
-        <result property="status" column="status"/>
+        <result property="defaultFlag" column="default_flag" javaType="com.soli.common.api.enums.YesNoEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
+        <result property="status" column="status" javaType="com.soli.common.api.enums.NormalDisableStatusEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>
         <result property="updateBy" column="update_by"/>
@@ -30,7 +30,7 @@
         insert into sys_dict_data (
             id, dict_type_id, label, value, sort, css_class, list_class, default_flag, status, create_by, create_time, update_by, update_time, note
         ) values (
-            #{id}, #{dictTypeId}, #{label}, #{value}, #{sort}, #{cssClass}, #{listClass}, #{defaultFlag}, #{status}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
+            #{id}, #{dictTypeId}, #{label}, #{value}, #{sort}, #{cssClass}, #{listClass}, #{defaultFlag, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}, #{status, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
         )
     </insert>
 
@@ -43,8 +43,8 @@
             <if test="sort != null">sort = #{sort},</if>
             <if test="cssClass != null">css_class = #{cssClass},</if>
             <if test="listClass != null">list_class = #{listClass},</if>
-            <if test="defaultFlag != null">default_flag = #{defaultFlag},</if>
-            <if test="status != null">status = #{status},</if>
+            <if test="defaultFlag != null">default_flag = #{defaultFlag, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler},</if>
+            <if test="status != null">status = #{status, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
             <if test="note != null">note = #{note},</if>
@@ -83,8 +83,8 @@
             <if test="value != null and value != ''">
                 and value like concat('%', #{value}, '%')
             </if>
-            <if test="status != null and status != ''">
-                and status = #{status}
+            <if test="status != null">
+                and status = #{status, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}
             </if>
         </where>
         order by sort asc, id desc

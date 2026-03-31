@@ -1,5 +1,6 @@
 package com.soli.system.core.service.impl.sysorgpost;
 
+import com.soli.common.api.enums.NormalDisableStatusEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -32,7 +33,7 @@ public class SysOrgPostTreeNodeModel {
     private String nodeName;
 
     /** 状态 */
-    private String status;
+    private NormalDisableStatusEnum status;
 
     /** 所属组织 ID */
     private Long orgUnitId;

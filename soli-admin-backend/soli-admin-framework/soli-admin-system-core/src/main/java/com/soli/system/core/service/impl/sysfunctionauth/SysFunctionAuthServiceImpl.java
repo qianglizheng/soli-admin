@@ -1,12 +1,14 @@
 package com.soli.system.core.service.impl.sysfunctionauth;
 
 import com.github.yitter.idgen.YitIdHelper;
+import com.soli.common.api.enums.BinaryFlagEnum;
 import com.soli.common.api.exception.BusinessException;
 import com.soli.system.core.mapper.SysModuleMapper;
 import com.soli.system.core.mapper.SysModulePermissionMapper;
 import com.soli.system.core.service.impl.sysmodulepermission.SysOrgPostButtonAuthEntity;
 import com.soli.system.core.service.impl.sysmodulepermission.SysOrgPostFieldAuthEntity;
 import com.soli.system.core.service.impl.sysmodulepermission.SysOrgPostModuleAuthEntity;
+import com.soli.system.service.enums.PermissionLevelEnum;
 import com.soli.system.service.sysfunctionauth.SysFunctionAuthButtonPermissionDTO;
 import com.soli.system.service.sysfunctionauth.SysFunctionAuthConfigDTO;
 import com.soli.system.service.sysfunctionauth.SysFunctionAuthFieldPermissionDTO;
@@ -112,8 +114,8 @@ public class SysFunctionAuthServiceImpl implements SysFunctionAuthService {
         moduleAuthEntity.setId(YitIdHelper.nextId());
         moduleAuthEntity.setOrgPostId(request.getOrgPostId());
         moduleAuthEntity.setModuleId(request.getModuleId());
-        moduleAuthEntity.setModuleVisible(Boolean.TRUE.equals(request.getModuleVisible()) ? "1" : "0");
-        moduleAuthEntity.setNavVisible(Boolean.TRUE.equals(request.getModuleVisible()) && Boolean.TRUE.equals(request.getNavVisible()) ? "1" : "0");
+        moduleAuthEntity.setModuleVisible(Boolean.TRUE.equals(request.getModuleVisible()) ? BinaryFlagEnum.YES : BinaryFlagEnum.NO);
+        moduleAuthEntity.setNavVisible(Boolean.TRUE.equals(request.getModuleVisible()) && Boolean.TRUE.equals(request.getNavVisible()) ? BinaryFlagEnum.YES : BinaryFlagEnum.NO);
         moduleAuthEntity.setCreateBy("system");
         moduleAuthEntity.setCreateTime(now);
         sysModulePermissionMapper.insertOrgPostModuleAuth(moduleAuthEntity);
@@ -124,7 +126,7 @@ public class SysFunctionAuthServiceImpl implements SysFunctionAuthService {
             entity.setOrgPostId(request.getOrgPostId());
             entity.setModuleId(request.getModuleId());
             entity.setFieldId(field.getId());
-            entity.setPermissionLevel(requestFieldPermissionMap.getOrDefault(field.getId(), 0));
+            entity.setPermissionLevel(toPermissionLevel(requestFieldPermissionMap.getOrDefault(field.getId(), PermissionLevelEnum.LEVEL_0.getValue())));
             entity.setCreateBy("system");
             entity.setCreateTime(now);
             return entity;
@@ -139,7 +141,7 @@ public class SysFunctionAuthServiceImpl implements SysFunctionAuthService {
             entity.setOrgPostId(request.getOrgPostId());
             entity.setModuleId(request.getModuleId());
             entity.setButtonId(button.getId());
-            entity.setPermissionLevel(requestButtonPermissionMap.getOrDefault(button.getId(), 0));
+            entity.setPermissionLevel(toPermissionLevel(requestButtonPermissionMap.getOrDefault(button.getId(), PermissionLevelEnum.LEVEL_0.getValue())));
             entity.setCreateBy("system");
             entity.setCreateTime(now);
             return entity;
@@ -155,26 +157,26 @@ public class SysFunctionAuthServiceImpl implements SysFunctionAuthService {
         SysOrgPostModuleAuthEntity moduleAuthEntity = sysModulePermissionMapper.selectOrgPostModuleAuth(orgPostId, moduleDetail.getId());
         Map<Long, Integer> fieldPermissionMap = sysModulePermissionMapper.selectOrgPostFieldAuthList(orgPostId, moduleDetail.getId())
                 .stream()
-                .collect(Collectors.toMap(SysOrgPostFieldAuthEntity::getFieldId, SysOrgPostFieldAuthEntity::getPermissionLevel, (left, right) -> right, LinkedHashMap::new));
+                .collect(Collectors.toMap(SysOrgPostFieldAuthEntity::getFieldId, item -> normalizePermissionLevel(item.getPermissionLevel()), (left, right) -> right, LinkedHashMap::new));
         Map<Long, Integer> buttonPermissionMap = sysModulePermissionMapper.selectOrgPostButtonAuthList(orgPostId, moduleDetail.getId())
                 .stream()
-                .collect(Collectors.toMap(SysOrgPostButtonAuthEntity::getButtonId, SysOrgPostButtonAuthEntity::getPermissionLevel, (left, right) -> right, LinkedHashMap::new));
+                .collect(Collectors.toMap(SysOrgPostButtonAuthEntity::getButtonId, item -> normalizePermissionLevel(item.getPermissionLevel()), (left, right) -> right, LinkedHashMap::new));
 
         SysFunctionAuthConfigDTO config = new SysFunctionAuthConfigDTO();
         config.setOrgPostId(orgPostId);
         config.setModuleId(moduleDetail.getId());
-        config.setModuleVisible(moduleAuthEntity != null && "1".equals(moduleAuthEntity.getModuleVisible()));
-        config.setNavVisible(moduleAuthEntity != null && "1".equals(moduleAuthEntity.getNavVisible()));
+        config.setModuleVisible(moduleAuthEntity != null && BinaryFlagEnum.YES == moduleAuthEntity.getModuleVisible());
+        config.setNavVisible(moduleAuthEntity != null && BinaryFlagEnum.YES == moduleAuthEntity.getNavVisible());
         config.setFieldPermissions(flattenFields(moduleDetail).stream().map(field -> {
             SysFunctionAuthFieldPermissionDTO item = new SysFunctionAuthFieldPermissionDTO();
             item.setFieldId(field.getId());
-            item.setPermissionLevel(fieldPermissionMap.getOrDefault(field.getId(), 0));
+            item.setPermissionLevel(toPermissionLevel(fieldPermissionMap.getOrDefault(field.getId(), PermissionLevelEnum.LEVEL_0.getValue())));
             return item;
         }).toList());
         config.setButtonPermissions((moduleDetail.getButtons() == null ? new ArrayList<SysModuleButtonDTO>() : moduleDetail.getButtons()).stream().map(button -> {
             SysFunctionAuthButtonPermissionDTO item = new SysFunctionAuthButtonPermissionDTO();
             item.setButtonId(button.getId());
-            item.setPermissionLevel(buttonPermissionMap.getOrDefault(button.getId(), 0));
+            item.setPermissionLevel(toPermissionLevel(buttonPermissionMap.getOrDefault(button.getId(), PermissionLevelEnum.LEVEL_0.getValue())));
             return item;
         }).toList());
         return config;
@@ -197,11 +199,23 @@ public class SysFunctionAuthServiceImpl implements SysFunctionAuthService {
         });
     }
 
+    private Integer normalizePermissionLevel(PermissionLevelEnum permissionLevel) {
+        return normalizePermissionLevel(permissionLevel == null ? null : permissionLevel.getValue());
+    }
+
     private Integer normalizePermissionLevel(Integer permissionLevel) {
         if (permissionLevel == null || permissionLevel < 0) {
             return 0;
         }
         return Math.min(permissionLevel, 2);
+    }
+
+    private PermissionLevelEnum toPermissionLevel(Integer permissionLevel) {
+        return switch (normalizePermissionLevel(permissionLevel)) {
+            case 1 -> PermissionLevelEnum.LEVEL_1;
+            case 2 -> PermissionLevelEnum.LEVEL_2;
+            default -> PermissionLevelEnum.LEVEL_0;
+        };
     }
 
 }

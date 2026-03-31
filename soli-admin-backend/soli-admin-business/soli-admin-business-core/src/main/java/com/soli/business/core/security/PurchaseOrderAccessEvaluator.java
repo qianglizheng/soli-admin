@@ -2,6 +2,7 @@ package com.soli.business.core.security;
 
 import com.soli.business.core.mapper.PurchaseOrderMapper;
 import com.soli.business.core.service.impl.purchaseorder.PurchaseOrderEntity;
+import com.soli.business.service.purchaseorder.PurchaseOrderStatusEnum;
 import com.soli.common.core.security.CompanyContextHolder;
 import com.soli.system.core.security.SysModuleAccessEvaluator;
 import lombok.RequiredArgsConstructor;
@@ -52,7 +53,8 @@ public class PurchaseOrderAccessEvaluator {
         if (entity == null) {
             return false;
         }
-        return sysModuleAccessEvaluator.hasStateButton(MODULE_CODE, buttonCode, entity.getStatus());
+        PurchaseOrderStatusEnum status = entity.getStatus();
+        return sysModuleAccessEvaluator.hasStateButton(MODULE_CODE, buttonCode, status == null ? null : status.getValue());
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.soli.system.service.sysstateauth;
 
+import com.soli.system.service.enums.PermissionLevelEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,6 +18,6 @@ public class SysStateFieldPermissionDTO {
     private Long fieldId;
 
     /** 限制级别 */
-    private Integer permissionLevel;
+    private PermissionLevelEnum permissionLevel;
 
 }

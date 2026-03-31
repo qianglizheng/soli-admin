@@ -41,7 +41,7 @@ public class PurchaseOrderListItemDTO {
 
     private BigDecimal totalQty;
 
-    private String status;
+    private PurchaseOrderStatusEnum status;
 
     private String statusName;
 }

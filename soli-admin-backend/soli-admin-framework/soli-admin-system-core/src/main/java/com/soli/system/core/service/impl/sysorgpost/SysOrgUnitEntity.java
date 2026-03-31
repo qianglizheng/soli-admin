@@ -1,6 +1,8 @@
 package com.soli.system.core.service.impl.sysorgpost;
 
+import com.soli.common.api.enums.NormalDisableStatusEnum;
 import com.soli.common.core.entity.BaseEntity;
+import com.soli.system.service.enums.OrgTypeEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,7 +29,7 @@ public class SysOrgUnitEntity extends BaseEntity {
     private String orgName;
 
     /** 组织类型 */
-    private String orgType;
+    private OrgTypeEnum orgType;
 
     /** 显示顺序 */
     private Integer sort;
@@ -36,6 +38,6 @@ public class SysOrgUnitEntity extends BaseEntity {
     private Long leaderUserId;
 
     /** 状态 */
-    private String status;
+    private NormalDisableStatusEnum status;
 
 }

@@ -154,7 +154,7 @@
             <if test="supplierId != null">
                 and supplier_id = #{supplierId}
             </if>
-            <if test="status != null and status != ''">
+            <if test="status != null">
                 and status = #{status}
             </if>
             <if test="startBillDate != null and startBillDate != ''">

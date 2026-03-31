@@ -1,5 +1,6 @@
 package com.soli.system.core.service.impl.sysorgpost;
 
+import com.soli.system.service.enums.OrgTypeEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,7 +27,7 @@ public class SysOrgCompanyModel {
     private String nodeName;
 
     /** 公司类型 */
-    private String nodeType;
+    private OrgTypeEnum nodeType;
 
     /** 排序 */
     private Integer sort;

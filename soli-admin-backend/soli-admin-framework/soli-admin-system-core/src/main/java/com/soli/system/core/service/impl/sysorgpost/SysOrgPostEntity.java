@@ -1,6 +1,8 @@
 package com.soli.system.core.service.impl.sysorgpost;
 
+import com.soli.common.api.enums.NormalDisableStatusEnum;
 import com.soli.common.core.entity.BaseEntity;
+import com.soli.system.service.enums.PostTypeEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,7 +32,7 @@ public class SysOrgPostEntity extends BaseEntity {
     private String postName;
 
     /** 岗位类型 */
-    private String postType;
+    private PostTypeEnum postType;
 
     /** 岗位负责人用户 ID */
     private Long managerUserId;
@@ -39,6 +41,6 @@ public class SysOrgPostEntity extends BaseEntity {
     private Integer sort;
 
     /** 状态 */
-    private String status;
+    private NormalDisableStatusEnum status;
 
 }

@@ -1,6 +1,10 @@
 package com.soli.system.service.sysmodule;
 
 import com.soli.common.api.dto.BaseDTO;
+import com.soli.common.api.enums.BinaryFlagEnum;
+import com.soli.common.api.enums.NormalDisableStatusEnum;
+import com.soli.system.service.enums.ModuleComponentTypeEnum;
+import com.soli.system.service.enums.ModuleValueTypeEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -57,7 +61,7 @@ public class SysModuleFieldDTO extends BaseDTO {
     /**
      * 组件类型
      */
-    private String componentType;
+    private ModuleComponentTypeEnum componentType;
 
     /**
      * 数据路径
@@ -67,12 +71,12 @@ public class SysModuleFieldDTO extends BaseDTO {
     /**
      * 值类型
      */
-    private String valueType;
+    private ModuleValueTypeEnum valueType;
 
     /**
      * 是否必填
      */
-    private String requiredFlag;
+    private BinaryFlagEnum requiredFlag;
 
     /**
      * 排序
@@ -82,6 +86,6 @@ public class SysModuleFieldDTO extends BaseDTO {
     /**
      * 状态
      */
-    private String status;
+    private NormalDisableStatusEnum status;
 
 }

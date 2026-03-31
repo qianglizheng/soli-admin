@@ -1,6 +1,9 @@
 package com.soli.system.service.sysuser;
 
 import com.soli.common.api.dto.BaseDTO;
+import com.soli.common.api.enums.NormalDisableStatusEnum;
+import com.soli.system.service.enums.UserSexEnum;
+import com.soli.system.service.enums.UserTypeEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -35,13 +38,13 @@ public class SysUserDTO extends BaseDTO {
     private String avatar;
 
     /** 用户类型 */
-    private String type;
+    private UserTypeEnum type;
 
     /** 用户性别 */
-    private String sex;
+    private UserSexEnum sex;
 
     /** 用户状态 */
-    private String status;
+    private NormalDisableStatusEnum status;
 
     /** 用户最后登录 IP */
     private String loginIp;

@@ -10,7 +10,7 @@
         <result property="configName" column="config_name"/>
         <result property="configKey" column="config_key"/>
         <result property="configValue" column="config_value"/>
-        <result property="configType" column="config_type"/>
+        <result property="configType" column="config_type" javaType="com.soli.common.api.enums.YesNoEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>
         <result property="updateBy" column="update_by"/>
@@ -26,7 +26,7 @@
         insert into sys_config (
             id, config_name, config_key, config_value, config_type, create_by, create_time, update_by, update_time, note
         ) values (
-            #{id}, #{configName}, #{configKey}, #{configValue}, #{configType}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
+            #{id}, #{configName}, #{configKey}, #{configValue}, #{configType, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
         )
     </insert>
 
@@ -36,7 +36,7 @@
             <if test="configName != null">config_name = #{configName},</if>
             <if test="configKey != null">config_key = #{configKey},</if>
             <if test="configValue != null">config_value = #{configValue},</if>
-            <if test="configType != null">config_type = #{configType},</if>
+            <if test="configType != null">config_type = #{configType, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
             <if test="note != null">note = #{note},</if>
@@ -58,8 +58,8 @@
             <if test="configKey != null and configKey != ''">
                 and config_key like concat('%', #{configKey}, '%')
             </if>
-            <if test="configType != null and configType != ''">
-                and config_type = #{configType}
+            <if test="configType != null">
+                and config_type = #{configType, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}
             </if>
         </where>
         order by create_time desc, id desc

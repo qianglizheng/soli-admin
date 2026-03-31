@@ -1,5 +1,6 @@
 package com.soli.system.core.service.impl.sysconfig;
 
+import com.soli.common.api.enums.YesNoEnum;
 import com.soli.common.api.exception.BusinessException;
 import com.soli.system.core.mapper.SysConfigMapper;
 import com.soli.system.core.service.impl.BaseCrudServiceImpl;
@@ -59,7 +60,7 @@ public class SysConfigServiceImpl extends BaseCrudServiceImpl<SysConfigDTO, SysC
     @Override
     protected void beforeRemove(Long id) {
         SysConfigEntity entity = sysConfigMapper.selectById(id);
-        if (entity != null && "Y".equalsIgnoreCase(entity.getConfigType())) {
+        if (entity != null && YesNoEnum.YES == entity.getConfigType()) {
             throw new BusinessException("系统内置参数不能删除");
         }
     }
@@ -79,9 +80,6 @@ public class SysConfigServiceImpl extends BaseCrudServiceImpl<SysConfigDTO, SysC
     }
 
     private void normalize(SysConfigDTO dto) {
-        if (dto.getConfigType() != null) {
-            dto.setConfigType(dto.getConfigType().toUpperCase());
-        }
     }
 
 }

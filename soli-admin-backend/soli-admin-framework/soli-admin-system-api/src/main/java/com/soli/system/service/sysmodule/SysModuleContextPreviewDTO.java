@@ -1,5 +1,6 @@
 package com.soli.system.service.sysmodule;
 
+import com.soli.system.service.enums.ModuleComponentTypeEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -117,7 +118,7 @@ public class SysModuleContextPreviewDTO {
         /**
          * 组件类型
          */
-        private String componentType;
+        private ModuleComponentTypeEnum componentType;
 
         /**
          * 是否可见

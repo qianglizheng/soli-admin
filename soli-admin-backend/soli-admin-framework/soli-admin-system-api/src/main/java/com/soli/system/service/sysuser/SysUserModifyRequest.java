@@ -1,5 +1,8 @@
 package com.soli.system.service.sysuser;
 
+import com.soli.common.api.enums.NormalDisableStatusEnum;
+import com.soli.system.service.enums.UserSexEnum;
+import com.soli.system.service.enums.UserTypeEnum;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,11 +34,11 @@ public class SysUserModifyRequest {
     private String avatar;
 
     /** 用户类型 */
-    private String type;
+    private UserTypeEnum type;
 
     /** 用户性别 */
-    private String sex;
+    private UserSexEnum sex;
 
     /** 用户状态 */
-    private String status;
+    private NormalDisableStatusEnum status;
 }

@@ -1,5 +1,6 @@
 package com.soli.system.service.sysfunctionauth;
 
+import com.soli.system.service.enums.PermissionLevelEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,6 +18,6 @@ public class SysFunctionAuthFieldPermissionDTO {
     private Long fieldId;
 
     /** 权限级别 */
-    private Integer permissionLevel;
+    private PermissionLevelEnum permissionLevel;
 
 }

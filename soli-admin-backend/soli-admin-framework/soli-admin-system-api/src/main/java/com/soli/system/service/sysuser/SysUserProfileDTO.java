@@ -1,5 +1,6 @@
 package com.soli.system.service.sysuser;
 
+import com.soli.system.service.enums.UserTypeEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,7 +18,7 @@ public class SysUserProfileDTO {
 
     private String avatar;
 
-    private String type;
+    private UserTypeEnum type;
 
     private List<String> roles;
 

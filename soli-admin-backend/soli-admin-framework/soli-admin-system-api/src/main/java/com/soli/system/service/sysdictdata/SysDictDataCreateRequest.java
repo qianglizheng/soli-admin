@@ -2,6 +2,8 @@ package com.soli.system.service.sysdictdata;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
+import com.soli.common.api.enums.NormalDisableStatusEnum;
+import com.soli.common.api.enums.YesNoEnum;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -41,11 +43,11 @@ public class SysDictDataCreateRequest {
 
     /** 是否默认 */
     @JsonSetter(nulls = Nulls.SKIP)
-    private String defaultFlag = "N";
+    private YesNoEnum defaultFlag = YesNoEnum.NO;
 
     /** 状态 */
     @JsonSetter(nulls = Nulls.SKIP)
-    private String status = "0";
+    private NormalDisableStatusEnum status = NormalDisableStatusEnum.NORMAL;
 
     /** 备注 */
     private String note;

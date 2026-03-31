@@ -1,5 +1,7 @@
 package com.soli.system.core.service.impl.sysorgpost;
 
+import com.soli.common.api.enums.NormalDisableStatusEnum;
+import com.soli.common.api.enums.YesNoEnum;
 import com.soli.common.core.entity.BaseEntity;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,9 +23,9 @@ public class SysUserOrgPostEntity extends BaseEntity {
     private Long orgPostId;
 
     /** 主岗位标记 */
-    private String primaryFlag;
+    private YesNoEnum primaryFlag;
 
     /** 状态 */
-    private String status;
+    private NormalDisableStatusEnum status;
 
 }

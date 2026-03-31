@@ -1,5 +1,7 @@
 package com.soli.system.core.service.impl.sysdictdata;
 
+import com.soli.common.api.enums.NormalDisableStatusEnum;
+import com.soli.common.api.enums.YesNoEnum;
 import com.soli.common.core.entity.BaseEntity;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,9 +35,9 @@ public class SysDictDataEntity extends BaseEntity {
     private String listClass;
 
     /** 是否默认 */
-    private String defaultFlag;
+    private YesNoEnum defaultFlag;
 
     /** 状态 */
-    private String status;
+    private NormalDisableStatusEnum status;
 
 }

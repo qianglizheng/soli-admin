@@ -19,7 +19,7 @@ public class PurchaseOrderHeaderDTO {
 
     private String billDate;
 
-    private String status;
+    private PurchaseOrderStatusEnum status;
 
     private String statusName;
 
@@ -27,7 +27,7 @@ public class PurchaseOrderHeaderDTO {
 
     private String supplierName;
 
-    private String settleType;
+    private PurchaseOrderSettleTypeEnum settleType;
 
     private String deptId;
 
@@ -37,7 +37,7 @@ public class PurchaseOrderHeaderDTO {
 
     private String warehouseName;
 
-    private String currency;
+    private CurrencyEnum currency;
 
     private String remark;
 

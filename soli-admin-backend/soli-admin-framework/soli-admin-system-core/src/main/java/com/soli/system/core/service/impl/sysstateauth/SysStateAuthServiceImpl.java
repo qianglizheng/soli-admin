@@ -1,11 +1,14 @@
 package com.soli.system.core.service.impl.sysstateauth;
 
 import com.github.yitter.idgen.YitIdHelper;
+import com.soli.common.api.enums.BinaryFlagEnum;
 import com.soli.common.api.exception.BusinessException;
 import com.soli.system.core.mapper.SysModuleMapper;
 import com.soli.system.core.mapper.SysModulePermissionMapper;
 import com.soli.system.core.service.impl.sysmodulepermission.SysModuleStateButtonAuthEntity;
 import com.soli.system.core.service.impl.sysmodulepermission.SysModuleStateFieldAuthEntity;
+import com.soli.system.service.enums.ModuleTypeEnum;
+import com.soli.system.service.enums.PermissionLevelEnum;
 import com.soli.system.service.sysmodule.SysModuleButtonDTO;
 import com.soli.system.service.sysmodule.SysModuleComponentDetailDTO;
 import com.soli.system.service.sysmodule.SysModuleDetailDTO;
@@ -107,9 +110,9 @@ public class SysStateAuthServiceImpl implements SysStateAuthService {
 
     private SysStateAuthConfigDTO buildConfig(SysModuleDetailDTO moduleDetail) {
         Map<String, Map<Long, Integer>> fieldPermissionMap = new LinkedHashMap<>();
-        sysModulePermissionMapper.selectStateFieldAuthList(moduleDetail.getId()).forEach(item -> fieldPermissionMap.computeIfAbsent(item.getStateCode(), key -> new LinkedHashMap<>()).put(item.getFieldId(), item.getPermissionLevel()));
+        sysModulePermissionMapper.selectStateFieldAuthList(moduleDetail.getId()).forEach(item -> fieldPermissionMap.computeIfAbsent(item.getStateCode(), key -> new LinkedHashMap<>()).put(item.getFieldId(), normalizeStatePermissionLevel(item.getPermissionLevel())));
         Map<String, Map<Long, Integer>> buttonPermissionMap = new LinkedHashMap<>();
-        sysModulePermissionMapper.selectStateButtonAuthList(moduleDetail.getId()).forEach(item -> buttonPermissionMap.computeIfAbsent(item.getStateCode(), key -> new LinkedHashMap<>()).put(item.getButtonId(), item.getPermissionLevel()));
+        sysModulePermissionMapper.selectStateButtonAuthList(moduleDetail.getId()).forEach(item -> buttonPermissionMap.computeIfAbsent(item.getStateCode(), key -> new LinkedHashMap<>()).put(item.getButtonId(), normalizeStatePermissionLevel(item.getPermissionLevel())));
 
         List<SysModuleFieldDTO> fieldList = flattenFields(moduleDetail);
         List<SysModuleButtonDTO> buttonList = moduleDetail.getButtons() == null ? new ArrayList<>() : moduleDetail.getButtons();
@@ -122,14 +125,14 @@ public class SysStateAuthServiceImpl implements SysStateAuthService {
                 item.setFieldPermissions(fieldList.stream().map(field -> {
                     SysStateFieldPermissionDTO fieldPermissionDTO = new SysStateFieldPermissionDTO();
                     fieldPermissionDTO.setFieldId(field.getId());
-                    fieldPermissionDTO.setPermissionLevel(normalizeStatePermissionLevel(currentFieldPermissionMap.get(field.getId())));
+                    fieldPermissionDTO.setPermissionLevel(toPermissionLevel(currentFieldPermissionMap.get(field.getId())));
                     return fieldPermissionDTO;
                 }).toList());
                 Map<Long, Integer> currentButtonPermissionMap = buttonPermissionMap.getOrDefault(state.getStateCode(), new LinkedHashMap<>());
                 item.setButtonPermissions(buttonList.stream().map(button -> {
                     SysStateButtonPermissionDTO buttonPermissionDTO = new SysStateButtonPermissionDTO();
                     buttonPermissionDTO.setButtonId(button.getId());
-                    buttonPermissionDTO.setPermissionLevel(normalizeStatePermissionLevel(currentButtonPermissionMap.get(button.getId())));
+                    buttonPermissionDTO.setPermissionLevel(toPermissionLevel(currentButtonPermissionMap.get(button.getId())));
                     return buttonPermissionDTO;
                 }).toList());
                 permissionByStateList.add(item);
@@ -159,7 +162,7 @@ public class SysStateAuthServiceImpl implements SysStateAuthService {
             entity.setModuleId(moduleId);
             entity.setStateCode(item.getStateCode());
             entity.setFieldId(fieldPermission.getFieldId());
-            entity.setPermissionLevel(permissionLevel);
+            entity.setPermissionLevel(toPermissionLevel(permissionLevel));
             entity.setCreateBy("system");
             entity.setCreateTime(now);
             entityList.add(entity);
@@ -183,7 +186,7 @@ public class SysStateAuthServiceImpl implements SysStateAuthService {
             entity.setModuleId(moduleId);
             entity.setStateCode(item.getStateCode());
             entity.setButtonId(buttonPermission.getButtonId());
-            entity.setPermissionLevel(permissionLevel);
+            entity.setPermissionLevel(toPermissionLevel(permissionLevel));
             entity.setCreateBy("system");
             entity.setCreateTime(now);
             entityList.add(entity);
@@ -194,7 +197,7 @@ public class SysStateAuthServiceImpl implements SysStateAuthService {
         List<SysModuleTreeNodeDTO> result = new ArrayList<>();
         nodeList.forEach(node -> {
             List<SysModuleTreeNodeDTO> children = node.getChildren() == null ? new ArrayList<>() : filterStatefulNodes(node.getChildren());
-            if ("CATALOG".equals(node.getModuleType())) {
+            if (ModuleTypeEnum.CATALOG == node.getModuleType()) {
                 if (!children.isEmpty()) {
                     SysModuleTreeNodeDTO copied = copyTreeNode(node);
                     copied.setChildren(children);
@@ -202,7 +205,7 @@ public class SysStateAuthServiceImpl implements SysStateAuthService {
                 }
                 return;
             }
-            if ("1".equals(node.getStatefulFlag())) {
+            if (BinaryFlagEnum.YES == node.getStatefulFlag()) {
                 SysModuleTreeNodeDTO copied = copyTreeNode(node);
                 copied.setChildren(new ArrayList<>());
                 result.add(copied);
@@ -246,9 +249,13 @@ public class SysStateAuthServiceImpl implements SysStateAuthService {
     }
 
     private void validateStatefulModule(SysModuleDetailDTO moduleDetail) {
-        if (!"1".equals(moduleDetail.getStatefulFlag())) {
+        if (BinaryFlagEnum.YES != moduleDetail.getStatefulFlag()) {
             throw new BusinessException("当前模块不是状态型模块");
         }
+    }
+
+    private Integer normalizeStatePermissionLevel(PermissionLevelEnum permissionLevel) {
+        return normalizeStatePermissionLevel(permissionLevel == null ? null : permissionLevel.getValue());
     }
 
     private Integer normalizeStatePermissionLevel(Integer permissionLevel) {
@@ -256,6 +263,14 @@ public class SysStateAuthServiceImpl implements SysStateAuthService {
             return 2;
         }
         return Math.min(permissionLevel, 2);
+    }
+
+    private PermissionLevelEnum toPermissionLevel(Integer permissionLevel) {
+        return switch (normalizeStatePermissionLevel(permissionLevel)) {
+            case 1 -> PermissionLevelEnum.LEVEL_1;
+            case 2 -> PermissionLevelEnum.LEVEL_2;
+            default -> PermissionLevelEnum.LEVEL_0;
+        };
     }
 
 }

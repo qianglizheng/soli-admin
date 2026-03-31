@@ -1,5 +1,8 @@
 package com.soli.business.core.service.impl.purchaseorder;
 
+import com.soli.business.service.purchaseorder.CurrencyEnum;
+import com.soli.business.service.purchaseorder.PurchaseOrderSettleTypeEnum;
+import com.soli.business.service.purchaseorder.PurchaseOrderStatusEnum;
 import com.soli.common.core.entity.BaseEntity;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,7 +31,7 @@ public class PurchaseOrderEntity extends BaseEntity {
 
     private String supplierName;
 
-    private String settleType;
+    private PurchaseOrderSettleTypeEnum settleType;
 
     private Long warehouseId;
 
@@ -36,11 +39,11 @@ public class PurchaseOrderEntity extends BaseEntity {
 
     private String userName;
 
-    private String currency;
+    private CurrencyEnum currency;
 
     private String remark;
 
-    private String status;
+    private PurchaseOrderStatusEnum status;
 
     private Long createUserId;
 

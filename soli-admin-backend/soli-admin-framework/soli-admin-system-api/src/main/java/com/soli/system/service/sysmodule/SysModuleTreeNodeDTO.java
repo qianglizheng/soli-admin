@@ -1,5 +1,8 @@
 package com.soli.system.service.sysmodule;
 
+import com.soli.common.api.enums.BinaryFlagEnum;
+import com.soli.common.api.enums.NormalDisableStatusEnum;
+import com.soli.system.service.enums.ModuleTypeEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,7 +31,7 @@ public class SysModuleTreeNodeDTO {
     private String moduleName;
 
     /** 模块类型 */
-    private String moduleType;
+    private ModuleTypeEnum moduleType;
 
     /** 路由地址 */
     private String routePath;
@@ -43,13 +46,13 @@ public class SysModuleTreeNodeDTO {
     private Integer sort;
 
     /** 导航可见标识 */
-    private String navVisible;
+    private BinaryFlagEnum navVisible;
 
     /** 状态型模块标识 */
-    private String statefulFlag;
+    private BinaryFlagEnum statefulFlag;
 
     /** 状态 */
-    private String status;
+    private NormalDisableStatusEnum status;
 
     /** 子节点 */
     private List<SysModuleTreeNodeDTO> children;

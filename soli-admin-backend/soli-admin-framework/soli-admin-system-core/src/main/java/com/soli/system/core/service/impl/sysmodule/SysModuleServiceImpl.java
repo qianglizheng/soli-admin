@@ -1,6 +1,7 @@
 package com.soli.system.core.service.impl.sysmodule;
 
 import com.github.yitter.idgen.YitIdHelper;
+import com.soli.common.api.enums.BinaryFlagEnum;
 import com.soli.common.api.exception.BusinessException;
 import com.soli.system.core.mapper.SysModuleMapper;
 import com.soli.system.core.mapper.SysModulePermissionMapper;
@@ -22,6 +23,8 @@ import com.soli.system.service.sysmodule.SysModuleService;
 import com.soli.system.service.sysmodule.SysModuleStateDTO;
 import com.soli.system.service.sysmodule.SysModuleTransitionDTO;
 import com.soli.system.service.sysmodule.SysModuleTreeNodeDTO;
+import com.soli.system.service.enums.ModuleTypeEnum;
+import com.soli.system.service.enums.PermissionLevelEnum;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -94,7 +97,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         if (navPermissionList == null || navPermissionList.isEmpty()) {
             return new ArrayList<>();
         }
-        Map<Long, String> navVisibleMap = buildNavVisibleMap(navPermissionList);
+        Map<Long, BinaryFlagEnum> navVisibleMap = buildNavVisibleMap(navPermissionList);
         return applyNavVisibility(filterNavTree(buildTreeList(), navVisibleMap.keySet()), navVisibleMap);
     }
 
@@ -297,7 +300,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         if (parentEntity != null && (Objects.equals(parentEntity.getId(), dto.getId()) || containsId(parentEntity.getAncestors(), dto.getId()))) {
             throw new BusinessException("上级模块不能选择当前模块或其下级模块");
         }
-        if (!"CATALOG".equals(dto.getModuleType()) && sysModuleMapper.countChildModuleByParentId(dto.getId()) > 0) {
+        if (ModuleTypeEnum.CATALOG != dto.getModuleType() && sysModuleMapper.countChildModuleByParentId(dto.getId()) > 0) {
             throw new BusinessException(CHILD_MODULE_REQUIRES_CATALOG_MESSAGE);
         }
         validateModuleCodeUnique(dto.getModuleCode(), dto.getId());
@@ -359,14 +362,11 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         if (dto.getSort() != null && dto.getSort() <= 0) {
             dto.setSort(1);
         }
-        if (!"1".equals(dto.getStatefulFlag())) {
+        if (BinaryFlagEnum.YES != dto.getStatefulFlag()) {
             dto.setStateFieldCode("");
         }
-        if (StringUtils.hasText(dto.getModuleType())) {
-            dto.setModuleType(dto.getModuleType().toUpperCase());
-        }
-        if ("BILL".equals(dto.getModuleType())) {
-            dto.setModuleType("PAGE");
+        if (ModuleTypeEnum.BILL == dto.getModuleType()) {
+            dto.setModuleType(ModuleTypeEnum.PAGE);
         }
     }
 
@@ -396,7 +396,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
         if (parentEntity == null) {
             throw new BusinessException(PARENT_MODULE_NOT_FOUND_MESSAGE);
         }
-        if (!"CATALOG".equals(parentEntity.getModuleType())) {
+        if (ModuleTypeEnum.CATALOG != parentEntity.getModuleType()) {
             throw new BusinessException("只有目录节点允许包含子模块");
         }
     }
@@ -564,8 +564,8 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
             entity.setId(YitIdHelper.nextId());
             entity.setOrgPostId(orgPostId);
             entity.setModuleId(moduleEntity.getId());
-            entity.setModuleVisible("1");
-            entity.setNavVisible("1".equals(moduleEntity.getNavVisible()) ? "1" : "0");
+            entity.setModuleVisible(BinaryFlagEnum.YES);
+            entity.setNavVisible(BinaryFlagEnum.YES == moduleEntity.getNavVisible() ? BinaryFlagEnum.YES : BinaryFlagEnum.NO);
             entity.setCreateBy(SYSTEM_USER);
             entity.setCreateTime(now);
             entity.setNote("admin 账号默认拥有模块可见权限");
@@ -585,7 +585,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
             entity.setOrgPostId(orgPostId);
             entity.setModuleId(fieldEntity.getModuleId());
             entity.setFieldId(fieldEntity.getId());
-            entity.setPermissionLevel(2);
+            entity.setPermissionLevel(PermissionLevelEnum.LEVEL_2);
             entity.setCreateBy(SYSTEM_USER);
             entity.setCreateTime(now);
             entity.setNote("admin 账号默认拥有字段可写权限");
@@ -606,7 +606,7 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
             entity.setOrgPostId(orgPostId);
             entity.setModuleId(buttonEntity.getModuleId());
             entity.setButtonId(buttonEntity.getId());
-            entity.setPermissionLevel(2);
+            entity.setPermissionLevel(PermissionLevelEnum.LEVEL_2);
             entity.setCreateBy(SYSTEM_USER);
             entity.setCreateTime(now);
             entity.setNote("admin 账号默认拥有按钮权限");
@@ -697,18 +697,18 @@ public class SysModuleServiceImpl extends BaseCrudServiceImpl<SysModuleDTO, SysM
     }
 
     private boolean isUserVisibleNode(SysModuleTreeNodeDTO node) {
-        return "1".equals(node.getNavVisible());
+        return BinaryFlagEnum.YES == node.getNavVisible();
     }
 
-    private Map<Long, String> buildNavVisibleMap(List<SysUserModuleNavPermissionModel> navPermissionList) {
-        Map<Long, String> navVisibleMap = new LinkedHashMap<>();
+    private Map<Long, BinaryFlagEnum> buildNavVisibleMap(List<SysUserModuleNavPermissionModel> navPermissionList) {
+        Map<Long, BinaryFlagEnum> navVisibleMap = new LinkedHashMap<>();
         navPermissionList.forEach(item -> navVisibleMap.put(item.getModuleId(), item.getNavVisible()));
         return navVisibleMap;
     }
 
-    private List<SysModuleTreeNodeDTO> applyNavVisibility(List<SysModuleTreeNodeDTO> nodeList, Map<Long, String> navVisibleMap) {
+    private List<SysModuleTreeNodeDTO> applyNavVisibility(List<SysModuleTreeNodeDTO> nodeList, Map<Long, BinaryFlagEnum> navVisibleMap) {
         nodeList.forEach(node -> {
-            String navVisible = navVisibleMap.get(node.getId());
+            BinaryFlagEnum navVisible = navVisibleMap.get(node.getId());
             if (navVisible != null) {
                 node.setNavVisible(navVisible);
             }

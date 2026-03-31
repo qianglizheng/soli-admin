@@ -1,5 +1,7 @@
 package com.soli.business.core.service.impl.purchaseorder;
 
+import com.soli.business.service.purchaseorder.PurchaseOrderActionEnum;
+import com.soli.business.service.purchaseorder.PurchaseOrderActivityTypeEnum;
 import com.soli.common.core.entity.BaseEntity;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,7 +20,7 @@ public class PurchaseOrderActivityEntity extends BaseEntity {
 
     private Long orderId;
 
-    private String actionCode;
+    private PurchaseOrderActionEnum actionCode;
 
     private String actionName;
 
@@ -28,7 +30,7 @@ public class PurchaseOrderActivityEntity extends BaseEntity {
 
     private String operatorName;
 
-    private String activityType;
+    private PurchaseOrderActivityTypeEnum activityType;
 
     private LocalDateTime operateTime;
 }

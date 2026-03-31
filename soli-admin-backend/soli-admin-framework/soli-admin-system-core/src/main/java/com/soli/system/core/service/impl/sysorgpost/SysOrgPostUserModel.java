@@ -1,6 +1,8 @@
 package com.soli.system.core.service.impl.sysorgpost;
 
 import com.soli.common.api.dto.BaseDTO;
+import com.soli.common.api.enums.NormalDisableStatusEnum;
+import com.soli.common.api.enums.YesNoEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -33,9 +35,9 @@ public class SysOrgPostUserModel extends BaseDTO {
     private Long orgPostId;
 
     /** 主岗位标识 */
-    private String primaryFlag;
+    private YesNoEnum primaryFlag;
 
     /** 用户状态 */
-    private String status;
+    private NormalDisableStatusEnum status;
 
 }

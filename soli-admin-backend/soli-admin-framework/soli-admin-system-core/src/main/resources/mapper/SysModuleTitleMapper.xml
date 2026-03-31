@@ -17,12 +17,12 @@
         <result property="displayTitle" column="display_title"/>
         <result property="placeholder" column="placeholder"/>
         <result property="helpText" column="help_text"/>
-        <result property="componentType" column="component_type"/>
+        <result property="componentType" column="component_type" javaType="com.soli.system.service.enums.ModuleComponentTypeEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
         <result property="dataPath" column="data_path"/>
-        <result property="valueType" column="value_type"/>
-        <result property="requiredFlag" column="required_flag"/>
+        <result property="valueType" column="value_type" javaType="com.soli.system.service.enums.ModuleValueTypeEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
+        <result property="requiredFlag" column="required_flag" javaType="com.soli.common.api.enums.BinaryFlagEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
         <result property="sort" column="sort"/>
-        <result property="status" column="status"/>
+        <result property="status" column="status" javaType="com.soli.common.api.enums.NormalDisableStatusEnum" typeHandler="com.soli.common.core.mybatis.handler.DbEnumTypeHandler"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>
         <result property="updateBy" column="update_by"/>
@@ -57,7 +57,7 @@
             create_by, create_time, update_by, update_time, note
         ) values (
             #{id}, #{fieldId}, #{moduleId}, #{componentId}, #{componentCode}, #{fieldCode}, #{defaultTitle}, #{locale},
-            #{displayTitle}, #{placeholder}, #{helpText}, #{componentType}, #{dataPath}, #{valueType}, #{requiredFlag}, #{sort}, #{status},
+            #{displayTitle}, #{placeholder}, #{helpText}, #{componentType, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}, #{dataPath}, #{valueType, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}, #{requiredFlag, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler}, #{sort}, #{status, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler},
             #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{note}
         )
     </insert>
@@ -67,7 +67,7 @@
         set display_title = #{displayTitle},
             placeholder = #{placeholder},
             help_text = #{helpText},
-            status = #{status},
+            status = #{status, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler},
             update_by = #{updateBy},
             update_time = #{updateTime}
         where id = #{id}
@@ -80,12 +80,12 @@
             component_code = #{componentCode},
             field_code = #{fieldCode},
             default_title = #{defaultTitle},
-            component_type = #{componentType},
+            component_type = #{componentType, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler},
             data_path = #{dataPath},
-            value_type = #{valueType},
-            required_flag = #{requiredFlag},
+            value_type = #{valueType, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler},
+            required_flag = #{requiredFlag, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler},
             sort = #{sort},
-            status = #{status},
+            status = #{status, typeHandler=com.soli.common.core.mybatis.handler.DbEnumTypeHandler},
             note = #{note},
             update_by = #{updateBy},
             update_time = #{updateTime}

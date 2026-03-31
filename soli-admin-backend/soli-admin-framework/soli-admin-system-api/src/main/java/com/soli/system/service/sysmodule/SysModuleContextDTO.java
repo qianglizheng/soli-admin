@@ -1,5 +1,9 @@
 package com.soli.system.service.sysmodule;
 
+import com.soli.common.api.enums.BinaryFlagEnum;
+import com.soli.system.service.enums.ModuleComponentTypeEnum;
+import com.soli.system.service.enums.ModuleValueTypeEnum;
+import com.soli.system.service.enums.PermissionLevelEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -38,7 +42,7 @@ public class SysModuleContextDTO {
     /**
      * 是否状态型模块
      */
-    private String statefulFlag;
+    private BinaryFlagEnum statefulFlag;
 
     /**
      * 状态字段编码
@@ -137,7 +141,7 @@ public class SysModuleContextDTO {
         /**
          * 组件类型
          */
-        private String componentType;
+        private ModuleComponentTypeEnum componentType;
 
         /**
          * 数据路径
@@ -147,12 +151,12 @@ public class SysModuleContextDTO {
         /**
          * 值类型
          */
-        private String valueType;
+        private ModuleValueTypeEnum valueType;
 
         /**
          * 权限级别
          */
-        private Integer permissionLevel;
+        private PermissionLevelEnum permissionLevel;
 
         /**
          * 是否可见

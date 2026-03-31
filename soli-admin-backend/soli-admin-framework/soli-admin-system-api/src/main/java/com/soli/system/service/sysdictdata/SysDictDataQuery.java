@@ -1,5 +1,6 @@
 package com.soli.system.service.sysdictdata;
 
+import com.soli.common.api.enums.NormalDisableStatusEnum;
 import com.soli.common.api.vo.PageQuery;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,6 +25,6 @@ public class SysDictDataQuery extends PageQuery {
     private String value;
 
     /** 状态 */
-    private String status;
+    private NormalDisableStatusEnum status;
 
 }

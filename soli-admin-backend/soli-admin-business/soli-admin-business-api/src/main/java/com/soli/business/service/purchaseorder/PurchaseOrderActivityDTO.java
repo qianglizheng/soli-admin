@@ -21,5 +21,5 @@ public class PurchaseOrderActivityDTO {
 
     private String operator;
 
-    private String type;
+    private PurchaseOrderActivityTypeEnum type;
 }
