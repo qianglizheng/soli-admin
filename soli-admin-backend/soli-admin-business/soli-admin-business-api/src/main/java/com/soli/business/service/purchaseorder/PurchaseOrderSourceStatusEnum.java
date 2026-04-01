@@ -14,7 +14,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum PurchaseOrderSourceStatusEnum implements DbEnum<String> {
 
-    APPROVED("已审批");
+    APPROVED("已审核", "已审核");
 
     private final String value;
+
+    private final String name;
 }

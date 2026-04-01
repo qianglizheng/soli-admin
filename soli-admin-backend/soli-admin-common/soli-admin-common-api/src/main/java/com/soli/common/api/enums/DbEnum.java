@@ -1,7 +1,5 @@
 package com.soli.common.api.enums;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-
 /**
  * 数据库枚举接口
  *
@@ -16,6 +14,12 @@ public interface DbEnum<T> {
      *
      * @return 枚举值
      */
-    @JsonValue
     T getValue();
+
+    /**
+     * 获取前端展示名称
+     *
+     * @return 展示名称
+     */
+    String getName();
 }

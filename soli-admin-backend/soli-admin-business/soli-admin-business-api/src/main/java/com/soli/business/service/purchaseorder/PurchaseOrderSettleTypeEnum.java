@@ -14,8 +14,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum PurchaseOrderSettleTypeEnum implements DbEnum<String> {
 
-    MONTHLY("monthly"),
-    CASH("cash");
+    MONTHLY("monthly", "月结"),
+    CASH("cash", "现结");
 
     private final String value;
+
+    private final String name;
 }

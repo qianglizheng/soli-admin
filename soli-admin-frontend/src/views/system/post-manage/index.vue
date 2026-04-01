@@ -212,8 +212,8 @@
                 <el-table-column label="邮箱" min-width="180" prop="email" show-overflow-tooltip />
                 <el-table-column align="center" label="状态" width="90">
                   <template #default="{ row }">
-                    <el-tag size="small" effect="plain" :type="row.status === '0' ? 'success' : 'danger'">
-                      {{ row.status === '0' ? '启用' : '停用' }}
+                    <el-tag size="small" effect="plain" :type="getEnumCode(row.status) === '0' ? 'success' : 'danger'">
+                      {{ getEnumCode(row.status) === '0' ? '启用' : '停用' }}
                     </el-tag>
                   </template>
                 </el-table-column>
@@ -332,6 +332,7 @@ import {
   type OrgFormFieldCode,
   type PostFormFieldCode
 } from './moduleConfig';
+import { getEnumCode } from '@/utils/enum';
 
 defineOptions({
   name: 'SystemPostManage'
@@ -469,7 +470,7 @@ const rootOrgNode = computed(() => findFirstNodeByType(postTree.value, 'HEADQUAR
 const postCount = computed(() => countPostNodes(postTree.value));
 const currentPostTypeLabel = computed(() => getPostTypeLabel(selectedPostDetail.value?.postType));
 const currentOrgTypeLabel = computed(() => getOrgNodeTypeLabel(selectedPostDetail.value?.orgType || selectedNode.value?.nodeType));
-const currentStatus = computed(() => selectedPostDetail.value?.status || selectedPostNode.value?.status || '0');
+const currentStatus = computed(() => getEnumCode(selectedPostDetail.value?.status) || getEnumCode(selectedPostNode.value?.status) || '0');
 
 function isHeadquarterNode(node?: OrgPostTreeNode) {
   return node?.nodeType === 'HEADQUARTERS';
@@ -710,7 +711,7 @@ async function handleEditOrgUnit(targetNode?: OrgPostTreeNode) {
       orgName: data.orgName,
       parentNodeKey: `ORG_${data.parentId}`,
       sort: data.sort,
-      status: (data.status || '0') as '0' | '1'
+      status: getEnumCode(data.status) || '0'
     };
     orgFormVisible.value = true;
   } catch (error) {
@@ -767,9 +768,9 @@ async function handleEditPost(targetNode?: OrgPostTreeNode) {
     parentNodeKey: currentNode.parentNodeKey || '',
     postCode: detail.postCode,
     postName: detail.postName,
-    postType: detail.postType || POST_TYPE_OPTIONS[0]!.value,
+    postType: getEnumCode(detail.postType) || POST_TYPE_OPTIONS[0]!.value,
     sort: detail.sort,
-    status: (detail.status || '0') as '0' | '1'
+    status: getEnumCode(detail.status) || '0'
   };
   formVisible.value = true;
 }

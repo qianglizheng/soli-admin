@@ -1,5 +1,6 @@
 package com.soli.common.web.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -35,6 +36,8 @@ public class SecurityConfig {
     private final AccessDeniedHandler accessDeniedHandler;
 
     private final JwtService jwtService;
+
+    private final ObjectMapper objectMapper;
 
     private static final String[] SWAGGER_WHITELIST = {
             "/doc.html",
@@ -89,7 +92,7 @@ public class SecurityConfig {
     public SecurityFilterChain defaultSecurity(HttpSecurity http) throws Exception {
         commonSetting(http);
         http.addFilterBefore(new AccessTokenFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
-        http.addFilterBefore(new SecurityFilterExceptionHandler(), SecurityContextHolderFilter.class);
+        http.addFilterBefore(new SecurityFilterExceptionHandler(objectMapper), SecurityContextHolderFilter.class);
         http.securityMatcher("/**")
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated());
         return http.build();

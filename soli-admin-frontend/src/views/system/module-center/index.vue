@@ -21,7 +21,7 @@
                     <span class="tree-node__label">{{ data.moduleName }}</span>
                     <div class="tree-node__meta">
                       <div class="tree-node__actions">
-                        <el-button v-if="data.moduleType === 'CATALOG'" link type="primary"
+                        <el-button v-if="getEnumCode(data.moduleType) === 'CATALOG'" link type="primary"
                                    size="small" @click.stop="handleCreateChild(data)">新增
                         </el-button>
                         <el-button link size="small" @click.stop="handleEditModule(data)">编辑
@@ -55,10 +55,10 @@
                             effect="plain">{{ getModuleTypeLabel(selectedModule.moduleType) }}
                     </el-tag>
                     <el-tag size="small"
-                            :type="selectedModule.status === '0' ? 'success' : 'danger'"
-                            effect="plain">{{ selectedModule.status === '0' ? '启用' : '停用' }}
+                            :type="getEnumCode(selectedModule.status) === '0' ? 'success' : 'danger'"
+                            effect="plain">{{ getEnumCode(selectedModule.status) === '0' ? '启用' : '停用' }}
                     </el-tag>
-                    <el-tag v-if="selectedModule.statefulFlag === '1'" size="small" type="warning"
+                    <el-tag v-if="getEnumCode(selectedModule.statefulFlag) === '1'" size="small" type="warning"
                             effect="plain">状态型模块
                     </el-tag>
                   </div>
@@ -101,7 +101,7 @@
                 <el-descriptions-item label="组件路径">{{ selectedModule.componentPath || '-' }}
                 </el-descriptions-item>
                 <el-descriptions-item label="导航可见">
-                  {{ selectedModule.navVisible === '1' ? '显示' : '隐藏' }}
+                  {{ getEnumCode(selectedModule.navVisible) === '1' ? '显示' : '隐藏' }}
                 </el-descriptions-item>
                 <el-descriptions-item label="状态字段">{{ selectedModule.stateFieldCode || '-' }}
                 </el-descriptions-item>
@@ -148,15 +148,23 @@
                               style="width: 100%">
                       <el-table-column prop="fieldCode" label="字段编码" min-width="180" />
                       <el-table-column prop="defaultTitle" label="默认标题" min-width="140" />
-                      <el-table-column prop="componentType" label="组件类型" width="120" />
+                      <el-table-column label="组件类型" width="120">
+                        <template #default="scope">
+                          {{ scope.row.componentType?.name || '-' }}
+                        </template>
+                      </el-table-column>
                       <el-table-column prop="dataPath" label="数据路径" min-width="220"
                                        show-overflow-tooltip />
-                      <el-table-column prop="valueType" label="值类型" width="120" />
+                      <el-table-column label="值类型" width="120">
+                        <template #default="scope">
+                          {{ scope.row.valueType?.name || '-' }}
+                        </template>
+                      </el-table-column>
                       <el-table-column label="必填" width="90" align="center">
                         <template #default="scope">
                           <el-tag size="small"
-                                  :type="scope.row.requiredFlag === '1' ? 'danger' : 'info'"
-                                  effect="plain">{{ scope.row.requiredFlag === '1' ? '是' : '否' }}
+                                  :type="getEnumCode(scope.row.requiredFlag) === '1' ? 'danger' : 'info'"
+                                  effect="plain">{{ getEnumCode(scope.row.requiredFlag) === '1' ? '是' : '否' }}
                           </el-tag>
                         </template>
                       </el-table-column>
@@ -240,7 +248,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import ModuleButtonForm from './components/ModuleButtonForm.vue'
 import ModuleCenterForm from './components/ModuleCenterForm.vue'
 import ModuleComponentForm from './components/ModuleComponentForm.vue'
-import ModuleFieldForm from './components/ModuleFieldForm.vue'
+import ModuleFieldForm, { type ModuleFieldFormModel } from './components/ModuleFieldForm.vue'
 import {
   createModule,
   createModuleButton,
@@ -259,27 +267,35 @@ import {
   updateModuleComponent,
   updateModuleField,
   type ModuleButtonDefinition,
+  type ModuleButtonPayload,
   type ModuleComponentDefinition,
   type ModuleComponentInfo,
   type ModuleDetail,
   type ModuleFieldDefinition,
+  type ModuleFieldPayload,
   type ModuleFormModel,
   type ModuleStateDefinition,
   type ModuleStateTransition,
   type ModuleTreeNode,
   type ModuleType,
-  type YesNo
+  type ModuleTypeCode,
+  type ModuleValueTypeCode,
+  type YesNoCode
 } from '@/api/moduleCenter'
+import { getEnumCode } from '@/utils/enum'
 
 defineOptions({ name: 'SystemModuleCenter' })
 
-interface ModuleNode extends ModuleTreeNode {
+interface ModuleNode extends Omit<ModuleTreeNode, 'moduleType' | 'navVisible' | 'statefulFlag' | 'status' | 'children'> {
   routePath: string;
   componentPath: string;
   icon: string;
-  navVisible: YesNo;
+  moduleType: ModuleTypeCode;
+  navVisible: YesNoCode;
+  statefulFlag: YesNoCode;
   stateFieldCode: string;
   contextVersion: number;
+  status: YesNoCode;
   note: string;
   components: ModuleComponentDefinition[];
   buttons: ModuleButtonDefinition[];
@@ -309,7 +325,7 @@ const componentFormInitial = ref<Partial<ModuleComponentInfo>>({})
 
 const fieldFormVisible = ref(false)
 const fieldFormMode = ref<'create' | 'edit'>('create')
-const fieldFormInitial = ref<Partial<ModuleFieldDefinition>>({})
+const fieldFormInitial = ref<Partial<ModuleFieldFormModel>>({})
 const fieldFormComponentCode = ref('')
 
 const buttonFormVisible = ref(false)
@@ -331,11 +347,14 @@ function mapTreeNode(node: ModuleTreeNode): ModuleNode {
     components: [],
     contextVersion: 0,
     icon: node.icon || 'Document',
-    navVisible: node.navVisible || '1',
+    moduleType: getEnumCode(node.moduleType) || 'PAGE',
+    navVisible: getEnumCode(node.navVisible) || '1',
     note: '',
     routePath: node.routePath || '',
     stateFieldCode: '',
+    statefulFlag: getEnumCode(node.statefulFlag) || '0',
     states: [],
+    status: getEnumCode(node.status) || '0',
     transitions: [],
     children: (node.children || []).map(mapTreeNode)
   }
@@ -356,7 +375,7 @@ function findModuleNode(nodes: ModuleNode[], id?: number): ModuleNode | undefine
 
 function findFirstEditableModule(nodes: ModuleNode[]): ModuleNode | undefined {
   for (const node of nodes) {
-    if (node.moduleType !== 'CATALOG') {
+    if (getEnumCode(node.moduleType) !== 'CATALOG') {
       return node
     }
     const matched = findFirstEditableModule(node.children || [])
@@ -371,19 +390,20 @@ function sortBySort<T extends { sort: number }>(left: T, right: T) {
   return left.sort - right.sort
 }
 
-function getModuleTypeTagType(type: ModuleType) {
-  return type === 'CATALOG' ? 'info' : 'warning'
+function getModuleTypeTagType(type: ModuleType | ModuleTypeCode) {
+  return getEnumCode(type) === 'CATALOG' ? 'info' : 'warning'
 }
 
-function getModuleTypeLabel(type: ModuleType) {
-  return moduleTypeLabelMap[type]
+function getModuleTypeLabel(type: ModuleType | ModuleTypeCode) {
+  const code = getEnumCode(type) || 'PAGE'
+  return moduleTypeLabelMap[code]
 }
 
-function normalizeModuleValueType(valueType?: string) {
+function normalizeModuleValueType(valueType?: ModuleValueTypeCode | string): ModuleValueTypeCode {
   if (valueType === 'integer') {
     return 'int'
   }
-  return valueType || 'string'
+  return (valueType as ModuleValueTypeCode) || 'string'
 }
 
 function filterNode(value: string, data: ModuleNode) {
@@ -395,7 +415,12 @@ function hydrateModuleDetail(detail: ModuleDetail, preferredComponent?: string) 
   if (!currentNode) {
     return
   }
-  Object.assign(currentNode, detail)
+  Object.assign(currentNode, detail, {
+    moduleType: getEnumCode(detail.moduleType) || 'PAGE',
+    navVisible: getEnumCode(detail.navVisible) || '1',
+    statefulFlag: getEnumCode(detail.statefulFlag) || '0',
+    status: getEnumCode(detail.status) || '0'
+  })
   activeComponentCode.value = detail.components.find((item) => item.componentInfo.componentCode === preferredComponent)?.componentInfo.componentCode || detail.components[0]?.componentInfo.componentCode || ''
 }
 
@@ -459,7 +484,7 @@ function handleCreateRoot() {
 
 function handleCreateChild(node?: ModuleNode) {
   const targetNode = node || selectedModule.value
-  if (!targetNode || targetNode.moduleType !== 'CATALOG') {
+  if (!targetNode || getEnumCode(targetNode.moduleType) !== 'CATALOG') {
     ElMessage.warning('只有目录节点可以新增下级模块')
     return
   }
@@ -489,7 +514,26 @@ async function handleEditModule(node?: ModuleNode) {
   }
   await loadModuleDetail(targetNode.id)
   formMode.value = 'edit'
-  formInitial.value = { ...findModuleNode(moduleTree.value, targetNode.id) }
+  const currentNode = findModuleNode(moduleTree.value, targetNode.id)
+  if (!currentNode) {
+    return
+  }
+  formInitial.value = {
+    id: currentNode.id,
+    parentId: currentNode.parentId,
+    moduleCode: currentNode.moduleCode,
+    moduleName: currentNode.moduleName,
+    moduleType: currentNode.moduleType,
+    routePath: currentNode.routePath,
+    componentPath: currentNode.componentPath,
+    icon: currentNode.icon,
+    sort: currentNode.sort,
+    navVisible: currentNode.navVisible,
+    statefulFlag: currentNode.statefulFlag,
+    stateFieldCode: currentNode.stateFieldCode,
+    status: currentNode.status,
+    note: currentNode.note
+  }
   formVisible.value = true
 }
 
@@ -647,7 +691,17 @@ function handleCreateField() {
 function handleEditField(componentCode: string, field: ModuleFieldDefinition) {
   fieldFormMode.value = 'edit'
   fieldFormComponentCode.value = componentCode
-  fieldFormInitial.value = { ...field }
+  fieldFormInitial.value = {
+    id: field.id,
+    componentType: getEnumCode(field.componentType) || 'input',
+    dataPath: field.dataPath,
+    defaultTitle: field.defaultTitle,
+    fieldCode: field.fieldCode,
+    note: field.note || '',
+    requiredFlag: getEnumCode(field.requiredFlag) || '0',
+    sort: field.sort,
+    valueType: getEnumCode(field.valueType) || 'string'
+  }
   fieldFormVisible.value = true
 }
 
@@ -669,12 +723,12 @@ async function handleDeleteField(componentCode: string, field: ModuleFieldDefini
   await loadModuleDetail(selectedModule.value.id, componentCode)
 }
 
-async function handleFieldFormSubmit(payload: Partial<ModuleFieldDefinition>) {
+async function handleFieldFormSubmit(payload: Partial<ModuleFieldFormModel>) {
   const component = selectedModule.value?.components.find((item) => item.componentInfo.componentCode === fieldFormComponentCode.value)
   if (!selectedModule.value || !component) {
     return
   }
-  const requestPayload = {
+  const requestPayload: ModuleFieldPayload = {
     componentId: component.componentInfo.id,
     componentType: payload.componentType || 'input',
     dataPath: payload.dataPath || '',
@@ -682,9 +736,9 @@ async function handleFieldFormSubmit(payload: Partial<ModuleFieldDefinition>) {
     fieldCode: payload.fieldCode || '',
     moduleId: selectedModule.value.id,
     note: payload.note || '',
-    requiredFlag: (payload.requiredFlag || '0') as YesNo,
+    requiredFlag: payload.requiredFlag || '0',
     sort: payload.sort || component.fields.length + 1,
-    status: '0' as YesNo,
+    status: '0',
     valueType: normalizeModuleValueType(payload.valueType)
   }
   if (fieldFormMode.value === 'create') {
@@ -744,13 +798,13 @@ async function handleButtonFormSubmit(payload: Partial<ModuleButtonDefinition>) 
   if (!selectedModule.value) {
     return
   }
-  const requestPayload = {
+  const requestPayload: ModuleButtonPayload = {
     buttonCode: payload.buttonCode || '',
     defaultTitle: payload.defaultTitle || '',
     moduleId: selectedModule.value.id,
     note: payload.note || '',
     sort: payload.sort || selectedModule.value.buttons.length + 1,
-    status: '0' as YesNo
+    status: '0'
   }
   if (buttonFormMode.value === 'create') {
     await createModuleButton(requestPayload)
@@ -970,3 +1024,4 @@ onMounted(() => {
   width: 100%;
 }
 </style>
+

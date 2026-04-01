@@ -14,9 +14,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum PurchaseOrderActivityTypeEnum implements DbEnum<String> {
 
-    PRIMARY("primary"),
-    WARNING("warning"),
-    SUCCESS("success");
+    PRIMARY("primary", "主要"),
+    WARNING("warning", "警告"),
+    SUCCESS("success", "成功");
 
     private final String value;
+
+    private final String name;
 }

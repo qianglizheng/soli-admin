@@ -2,17 +2,27 @@
 import type { ApiResponse } from '@/types/global';
 import type {
   BinaryFlagEnum,
+  BinaryFlagEnumCode,
   ModuleComponentTypeEnum,
+  ModuleComponentTypeEnumCode,
   ModuleTypeEnum,
+  ModuleTypeEnumCode,
   ModuleValueTypeEnum,
-  PermissionLevelEnum
+  ModuleValueTypeEnumCode,
+  PermissionLevelEnum,
+  PermissionLevelEnumCode
 } from '@/types/enums';
 
 export type ModuleType = ModuleTypeEnum;
+export type ModuleTypeCode = ModuleTypeEnumCode;
 export type YesNo = BinaryFlagEnum;
+export type YesNoCode = BinaryFlagEnumCode;
 export type ModuleComponentType = ModuleComponentTypeEnum;
+export type ModuleComponentTypeCode = ModuleComponentTypeEnumCode;
 export type ModuleValueType = ModuleValueTypeEnum;
+export type ModuleValueTypeCode = ModuleValueTypeEnumCode;
 export type PermissionLevel = PermissionLevelEnum;
+export type PermissionLevelCode = PermissionLevelEnumCode;
 
 export interface ModuleTreeNode {
   id: number;
@@ -165,20 +175,58 @@ export interface ModuleFormModel {
   parentId: number;
   moduleCode: string;
   moduleName: string;
-  moduleType: ModuleType;
+  moduleType: ModuleTypeCode;
   routePath: string;
   componentPath: string;
   icon: string;
   sort: number;
-  navVisible: YesNo;
-  statefulFlag: YesNo;
+  navVisible: YesNoCode;
+  statefulFlag: YesNoCode;
   stateFieldCode: string;
-  status: YesNo;
+  status: YesNoCode;
   note: string;
 }
 
-export const moduleTypeLabelMap: Record<ModuleType, string> = {
-  BILL: '页面',
+export interface ModuleComponentPayload {
+  id?: number;
+  moduleId: number;
+  componentCode: string;
+  componentName: string;
+  sort: number;
+  status?: YesNoCode;
+  note?: string;
+}
+
+export interface ModuleFieldPayload {
+  id?: number;
+  moduleId: number;
+  componentId: number;
+  fieldCode: string;
+  defaultTitle: string;
+  displayTitle?: string | null;
+  placeholder?: string | null;
+  helpText?: string | null;
+  componentType: ModuleComponentTypeCode;
+  dataPath: string;
+  valueType: ModuleValueTypeCode;
+  requiredFlag: YesNoCode;
+  sort: number;
+  status?: YesNoCode;
+  note?: string;
+}
+
+export interface ModuleButtonPayload {
+  id?: number;
+  moduleId: number;
+  buttonCode: string;
+  defaultTitle: string;
+  sort: number;
+  status?: YesNoCode;
+  note?: string;
+}
+
+export const moduleTypeLabelMap: Record<ModuleTypeCode, string> = {
+  BILL: '单据',
   CATALOG: '目录',
   PAGE: '页面'
 };
@@ -234,7 +282,7 @@ export function deleteModule(id: number) {
   });
 }
 
-export function createModuleComponent(data: Omit<ModuleComponentInfo, 'id'> & { note?: string; status?: YesNo }) {
+export function createModuleComponent(data: ModuleComponentPayload) {
   return request<ApiResponse<number>>({
     data,
     method: 'post',
@@ -242,7 +290,7 @@ export function createModuleComponent(data: Omit<ModuleComponentInfo, 'id'> & { 
   });
 }
 
-export function updateModuleComponent(data: ModuleComponentInfo & { note?: string; status?: YesNo }) {
+export function updateModuleComponent(data: ModuleComponentPayload & { id: number }) {
   return request<ApiResponse<void>>({
     data,
     method: 'put',
@@ -257,7 +305,7 @@ export function deleteModuleComponent(id: number) {
   });
 }
 
-export function createModuleField(data: Omit<ModuleFieldDefinition, 'id' | 'componentCode'> & { note?: string; status?: YesNo }) {
+export function createModuleField(data: ModuleFieldPayload) {
   return request<ApiResponse<number>>({
     data,
     method: 'post',
@@ -265,7 +313,7 @@ export function createModuleField(data: Omit<ModuleFieldDefinition, 'id' | 'comp
   });
 }
 
-export function updateModuleField(data: Omit<ModuleFieldDefinition, 'componentCode'> & { note?: string; status?: YesNo }) {
+export function updateModuleField(data: ModuleFieldPayload & { id: number }) {
   return request<ApiResponse<void>>({
     data,
     method: 'put',
@@ -280,7 +328,7 @@ export function deleteModuleField(id: number) {
   });
 }
 
-export function createModuleButton(data: Omit<ModuleButtonDefinition, 'id'> & { note?: string; status?: YesNo }) {
+export function createModuleButton(data: ModuleButtonPayload) {
   return request<ApiResponse<number>>({
     data,
     method: 'post',
@@ -288,7 +336,7 @@ export function createModuleButton(data: Omit<ModuleButtonDefinition, 'id'> & { 
   });
 }
 
-export function updateModuleButton(data: ModuleButtonDefinition & { note?: string; status?: YesNo }) {
+export function updateModuleButton(data: ModuleButtonPayload & { id: number }) {
   return request<ApiResponse<void>>({
     data,
     method: 'put',

@@ -243,7 +243,8 @@ const visibleColumnKeys = ref([...defaultVisibleColumnKeys]);
 const currentSortProp = ref('');
 const materialDialogVisible = ref(false);
 const currentMaterialRowIndex = ref(-1);
-const originalValues = new WeakMap<PurchaseOrderItem, Record<string, number | null>>();
+type EditableNumberField = 'qty' | 'priceExcl' | 'taxRate';
+const originalValues = new WeakMap<PurchaseOrderItem, Partial<Record<EditableNumberField, number | null>>>();
 
 const canShowColumn = (key: string) => {
   return visibleColumnKeys.value.includes(key) && permissionAccess.isFieldVisible(key);
@@ -304,18 +305,18 @@ const getSafeVal = (value: string | number | null | undefined) => {
   return Number.isNaN(result) ? 0 : result;
 };
 
-const handleFocus = (row: PurchaseOrderItem, field: keyof PurchaseOrderItem) => {
+const handleFocus = (row: PurchaseOrderItem, field: EditableNumberField) => {
   if (!originalValues.has(row)) {
     originalValues.set(row, {});
   }
-  originalValues.get(row)![String(field)] = row[field] as number | null;
-  row[field] = null as PurchaseOrderItem[keyof PurchaseOrderItem];
+  originalValues.get(row)![field] = row[field];
+  row[field] = null;
 };
 
-const handleBlur = (row: PurchaseOrderItem, field: keyof PurchaseOrderItem) => {
+const handleBlur = (row: PurchaseOrderItem, field: EditableNumberField) => {
   if (row[field] === null || row[field] === undefined) {
-    const original = originalValues.get(row)?.[String(field)];
-    row[field] = (original !== undefined && original !== null ? original : 0) as PurchaseOrderItem[keyof PurchaseOrderItem];
+    const original = originalValues.get(row)?.[field];
+    row[field] = original !== undefined && original !== null ? original : 0;
   }
 };
 

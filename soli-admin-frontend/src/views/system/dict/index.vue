@@ -1,6 +1,6 @@
-<template>
+﻿<template>
   <div class="app-container">
-    <el-form :model="queryParams" :inline="true" v-show="showSearch">
+    <el-form v-show="showSearch" :model="queryParams" :inline="true">
       <div ref="searchCollapseRef" class="search-collapse-container">
         <el-form-item
           v-if="listFieldConfigMap.name.visible"
@@ -68,7 +68,9 @@
           <el-button icon="Refresh" @click="resetQuery">重置</el-button>
           <el-button v-if="isSearchMeasured && showMoreButton" link @click="toggleMoreSearch">
             {{ showMoreSearch ? '收起' : '更多' }}
-            <el-icon class="el-icon--right"><component :is="showMoreSearch ? 'ArrowUp' : 'ArrowDown'" /></el-icon>
+            <el-icon class="el-icon--right">
+              <component :is="showMoreSearch ? 'ArrowUp' : 'ArrowDown'" />
+            </el-icon>
           </el-button>
         </el-form-item>
       </div>
@@ -138,8 +140,8 @@
         width="100"
       >
         <template #default="{ row }">
-          <el-tag :type="row.status === '0' ? 'success' : 'danger'">
-            {{ row.status === '0' ? '正常' : '停用' }}
+          <el-tag :type="getEnumCode(row.status) === '0' ? 'success' : 'danger'">
+            {{ getEnumName(row.status) || '-' }}
           </el-tag>
         </template>
       </el-table-column>
@@ -151,7 +153,13 @@
         min-width="200"
       />
       <el-table-column label="创建时间" align="center" prop="createTime" width="180" />
-      <el-table-column label="操作" align="center" fixed="right" min-width="260" class-name="small-padding fixed-width">
+      <el-table-column
+        label="操作"
+        align="center"
+        fixed="right"
+        min-width="260"
+        class-name="small-padding fixed-width"
+      >
         <template #default="{ row }">
           <el-button link type="primary" icon="Tickets" @click="handleData(row)">数据</el-button>
           <el-button
@@ -206,10 +214,10 @@
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { createDict, deleteDict, getDictModuleContext, getDictPage, updateDict } from '@/api/dict';
+import { createDict, deleteDict, getDictModuleContext, getDictPage, updateDict, type DictPageQuery } from '@/api/dict';
 import { useStatefulModuleContext } from '@/composables/useStatefulModuleContext';
 import type { SysDictType } from '@/types/global';
-import DictTypeForm from './components/DictTypeForm.vue';
+import { getEnumCode, getEnumName } from '@/utils/enum';
 import {
   buildResolvedButtonConfigMap,
   buildResolvedFieldConfigMap,
@@ -218,6 +226,7 @@ import {
   type ModuleFieldFallback
 } from '@/utils/moduleContext';
 import { useSearchCollapse } from '@/utils/useSearchCollapse';
+import DictTypeForm, { type DictTypeFormModel } from './components/DictTypeForm.vue';
 
 defineOptions({
   name: 'SystemDict'
@@ -225,7 +234,13 @@ defineOptions({
 
 type DictFieldCode = 'name' | 'type' | 'status' | 'note';
 type DictButtonCode = 'create' | 'modify' | 'remove';
+
 const DICT_FORM_COMPONENT = 'dict_form';
+
+type DictQueryParams = Omit<DictPageQuery, 'status'> & {
+  noteKeyword: string;
+  status: DictPageQuery['status'] | '';
+};
 
 const dictFieldFallbackMap: Record<DictFieldCode, ModuleFieldFallback> = {
   name: { label: '字典名称', placeholder: '请输入字典名称', required: true, visible: true },
@@ -258,7 +273,7 @@ const dictList = ref<SysDictType[]>([]);
 const selectedRows = ref<SysDictType[]>([]);
 const formVisible = ref(false);
 const formMode = ref<'create' | 'edit'>('create');
-const formInitial = ref<Partial<SysDictType>>({});
+const formInitial = ref<Partial<DictTypeFormModel>>({});
 
 const {
   activeContext: formContext,
@@ -278,7 +293,7 @@ const {
   }
 });
 
-const queryParams = reactive({
+const queryParams = reactive<DictQueryParams>({
   pageNum: 1,
   pageSize: 10,
   name: '',
@@ -320,7 +335,7 @@ const getList = async () => {
       name: queryParams.name || undefined,
       pageNum: queryParams.pageNum,
       pageSize: queryParams.pageSize,
-      status: queryParams.status || undefined,
+      status: queryParams.status === '' ? undefined : queryParams.status,
       type: queryParams.type || undefined
     });
     dictList.value = res.data.list || [];
@@ -360,7 +375,12 @@ const handleAdd = async () => {
   }
   formMode.value = 'create';
   formContext.value = await setActiveStateContext('create');
-  formInitial.value = {};
+  formInitial.value = {
+    name: '',
+    note: '',
+    status: '0',
+    type: ''
+  };
   formVisible.value = true;
 };
 
@@ -374,7 +394,13 @@ const handleUpdate = async (row?: SysDictType) => {
   }
   formMode.value = 'edit';
   formContext.value = await setActiveStateContext('edit');
-  formInitial.value = { ...currentRow };
+  formInitial.value = {
+    id: currentRow.id,
+    name: currentRow.name,
+    note: currentRow.note || '',
+    status: getEnumCode(currentRow.status) || '0',
+    type: currentRow.type
+  };
   formVisible.value = true;
 };
 
@@ -391,16 +417,16 @@ const handleDelete = async (row?: SysDictType) => {
     return;
   }
   const names = rows.map((item) => item.name).join('、');
-  await ElMessageBox.confirm(`确认要删除字典"${names}"吗？`, '警告', {
-    cancelButtonText: '取消',
-    confirmButtonText: '确定',
-    type: 'warning'
-  });
-
-  for (const item of rows) {
-    await deleteDict(item.id);
+  try {
+    await ElMessageBox.confirm(`确认要删除字典“${names}”吗？`, '警告', {
+      cancelButtonText: '取消',
+      confirmButtonText: '确定',
+      type: 'warning'
+    });
+  } catch {
+    return;
   }
-
+  await Promise.all(rows.map((item) => deleteDict(item.id)));
   ElMessage.success('删除成功');
   if (dictList.value.length === rows.length && queryParams.pageNum > 1) {
     queryParams.pageNum -= 1;
@@ -412,7 +438,7 @@ const pickWritableFormValue = <T,>(fieldCode: DictFieldCode, value: T | undefine
   return pickWritableModuleValue(formFieldConfigMap.value, fieldCode, value);
 };
 
-const onFormSubmit = async (data: Partial<SysDictType>) => {
+const onFormSubmit = async (data: DictTypeFormModel) => {
   submitLoading.value = true;
   try {
     if (formMode.value === 'create') {

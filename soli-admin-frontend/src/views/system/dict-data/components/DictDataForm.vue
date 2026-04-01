@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <el-dialog v-model="visible" :title="dialogTitle" width="620px" destroy-on-close @closed="handleClosed">
     <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
       <el-form-item v-if="fieldConfigMap.label.visible" :label="fieldConfigMap.label.label" prop="label">
@@ -77,7 +77,7 @@
 import { computed, nextTick, reactive, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
 import type { ModuleContext } from '@/api/moduleCenter';
-import type { SysDictData } from '@/types/global';
+import type { NormalDisableStatusEnumCode, YesNoEnumCode } from '@/types/enums';
 import {
   buildResolvedButtonConfigMap,
   buildResolvedFieldConfigMap,
@@ -89,11 +89,24 @@ type DictDataFieldCode = 'label' | 'value' | 'sort' | 'listClass' | 'cssClass' |
 type DictDataButtonCode = 'create' | 'modify';
 const DICT_DATA_FORM_COMPONENT = 'dict_data_form';
 
+export interface DictDataFormModel {
+  id?: number;
+  dictTypeId?: number;
+  label: string;
+  value: string;
+  sort: string;
+  cssClass: string;
+  listClass: string;
+  defaultFlag: YesNoEnumCode;
+  status: NormalDisableStatusEnumCode;
+  note: string;
+}
+
 interface Props {
   modelValue: boolean;
   mode: 'create' | 'edit';
   context?: ModuleContext | null;
-  initialData?: Partial<SysDictData>;
+  initialData?: Partial<DictDataFormModel>;
   submitting?: boolean;
 }
 
@@ -105,7 +118,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   'update:modelValue': [value: boolean];
-  submit: [value: Partial<SysDictData>];
+  submit: [value: DictDataFormModel];
   cancel: [];
 }>();
 
@@ -132,7 +145,7 @@ const visible = computed({
 
 const formRef = ref<FormInstance>();
 
-const createDefaultForm = (): Partial<SysDictData> => ({
+const createDefaultForm = (): DictDataFormModel => ({
   cssClass: '',
   defaultFlag: 'N',
   label: '',
@@ -143,7 +156,7 @@ const createDefaultForm = (): Partial<SysDictData> => ({
   value: ''
 });
 
-const form = reactive<Partial<SysDictData>>(createDefaultForm());
+const form = reactive<DictDataFormModel>(createDefaultForm());
 
 const fieldConfigMap = computed(() => {
   return buildResolvedFieldConfigMap(props.context?.fieldConfigs || {}, DICT_DATA_FORM_COMPONENT, dictDataFieldFallbackMap);
@@ -176,7 +189,7 @@ const createRequiredRule = (fieldCode: DictDataFieldCode) => {
   };
 };
 
-const rules = computed<FormRules<Partial<SysDictData>>>(() => ({
+const rules = computed<FormRules<DictDataFormModel>>(() => ({
   defaultFlag: [createRequiredRule('defaultFlag')],
   label: [createRequiredRule('label')],
   status: [createRequiredRule('status')],

@@ -1,53 +1,71 @@
-import type {
+﻿import type {
   PurchaseOrderCurrency,
+  PurchaseOrderCurrencyCode,
   PurchaseOrderHeader,
   PurchaseOrderItem,
   PurchaseOrderSettleType,
-  PurchaseOrderStatus
+  PurchaseOrderSettleTypeCode,
+  PurchaseOrderStatus,
+  PurchaseOrderStatusCode
 } from '@/api/purchaseOrder';
+import { getEnumCode, getEnumName } from '@/utils/enum';
 
-export interface OptionItem {
+export interface OptionItem<TValue extends number | string = number | string> {
   label: string;
-  value: number | string;
+  value: TValue;
 }
 
 export interface PurchaseOrderHeaderDraft {
   billDate: string;
   supplierId: number | null;
-  settleType: PurchaseOrderSettleType | '';
+  settleType: PurchaseOrderSettleTypeCode | '';
   deptId: string;
   userName: string;
   warehouseId: number | null;
-  currency: PurchaseOrderCurrency;
+  currency: PurchaseOrderCurrencyCode;
   remark: string;
-  status: PurchaseOrderStatus;
+  status: PurchaseOrderStatusCode;
   statusName: string;
   createByName: string;
 }
 
-export const supplierOptions: OptionItem[] = [
+export interface PurchaseOrderEditableHeader extends PurchaseOrderHeaderDraft {
+  id?: number;
+  billNo: string;
+  supplierName?: string;
+  warehouseName?: string;
+}
+
+const purchaseOrderStatusNameMap: Record<PurchaseOrderStatusCode, string> = {
+  unaudited: '未审核',
+  pre_audited: '待审核',
+  audited: '已审核',
+  shipped: '已发运',
+  completed: '已完成'
+};
+
+export const supplierOptions: OptionItem<number>[] = [
   { label: '华为技术有限公司', value: 1 },
   { label: '小米通讯有限公司', value: 2 },
   { label: '宁德时代新能源科技股份有限公司', value: 3 }
 ];
 
-export const warehouseOptions: OptionItem[] = [
+export const warehouseOptions: OptionItem<number>[] = [
   { label: '深圳一号仓', value: 1 },
   { label: '广州二号仓', value: 2 },
   { label: '上海中心仓', value: 3 }
 ];
 
-export const settleTypeOptions: OptionItem[] = [
-  { label: '电汇', value: 'monthly' },
+export const settleTypeOptions: OptionItem<PurchaseOrderSettleTypeCode>[] = [
+  { label: '月结', value: 'monthly' },
   { label: '现结', value: 'cash' }
 ];
 
-export const currencyOptions: OptionItem[] = [
-  { label: '人民币 (CNY)', value: 'CNY' },
-  { label: '美元 (USD)', value: 'USD' }
+export const currencyOptions: OptionItem<PurchaseOrderCurrencyCode>[] = [
+  { label: '人民币 (CNY)', value: 'CNY' }
 ];
 
-export const purchaseOrderStatusOptions: Array<{ label: string; value: PurchaseOrderStatus | '' }> = [
+export const purchaseOrderStatusOptions: Array<{ label: string; value: PurchaseOrderStatusCode | '' }> = [
   { label: '全部单据', value: '' },
   { label: '未审核', value: 'unaudited' },
   { label: '待审核', value: 'pre_audited' },
@@ -56,14 +74,34 @@ export const purchaseOrderStatusOptions: Array<{ label: string; value: PurchaseO
   { label: '已完成', value: 'completed' }
 ];
 
-export const getStatusType = (status: PurchaseOrderStatus | string) => {
+export const resolvePurchaseOrderStatusCode = (
+  status?: PurchaseOrderStatus | PurchaseOrderStatusCode | null
+): PurchaseOrderStatusCode => {
+  return getEnumCode(status) || 'unaudited';
+};
+
+export const resolvePurchaseOrderStatusName = (
+  status?: PurchaseOrderStatus | PurchaseOrderStatusCode | null,
+  fallback?: string
+) => {
+  if (fallback) {
+    return fallback;
+  }
+  if (status && typeof status === 'object') {
+    return getEnumName(status) || purchaseOrderStatusNameMap[status.code];
+  }
+  return purchaseOrderStatusNameMap[resolvePurchaseOrderStatusCode(status)];
+};
+
+export const getStatusType = (status?: PurchaseOrderStatus | PurchaseOrderStatusCode | string | null) => {
+  const code = getEnumCode(status) || String(status || '');
   return ({
     unaudited: 'info',
     pre_audited: 'warning',
     audited: 'primary',
     shipped: 'success',
     completed: 'success'
-  }[status] || 'info');
+  }[code] || 'info');
 };
 
 export const getCurrentDate = () => {
@@ -88,13 +126,13 @@ export const createDefaultPurchaseOrderHeaderDraft = (): PurchaseOrderHeaderDraf
   createByName: ''
 });
 
-export const createDefaultPurchaseOrderHeader = (): PurchaseOrderHeader => ({
+export const createDefaultPurchaseOrderHeader = (): PurchaseOrderEditableHeader => ({
   billNo: '',
   billDate: getCurrentDate(),
   status: 'unaudited',
   statusName: '未审核',
   supplierId: null,
-  settleType: '',
+  settleType: 'monthly',
   deptId: '',
   userName: '',
   warehouseId: null,
@@ -102,6 +140,30 @@ export const createDefaultPurchaseOrderHeader = (): PurchaseOrderHeader => ({
   remark: '',
   createByName: ''
 });
+
+export const mapPurchaseOrderHeaderToEditable = (header?: PurchaseOrderHeader | null): PurchaseOrderEditableHeader => {
+  if (!header) {
+    return createDefaultPurchaseOrderHeader();
+  }
+  const status = resolvePurchaseOrderStatusCode(header.status);
+  return {
+    id: header.id,
+    billNo: header.billNo || '',
+    billDate: header.billDate || getCurrentDate(),
+    status,
+    statusName: resolvePurchaseOrderStatusName(header.status, header.statusName),
+    supplierId: header.supplierId ?? null,
+    supplierName: header.supplierName,
+    settleType: getEnumCode(header.settleType) || 'monthly',
+    deptId: header.deptId || '',
+    userName: header.userName || '',
+    warehouseId: header.warehouseId ?? null,
+    warehouseName: header.warehouseName,
+    currency: getEnumCode(header.currency) || 'CNY',
+    remark: header.remark || '',
+    createByName: header.createByName || ''
+  };
+};
 
 export const createDefaultPurchaseOrderItem = (): PurchaseOrderItem => ({
   itemCode: '',

@@ -3,19 +3,31 @@ import type { ModuleContext } from './moduleCenter';
 import type { ApiResponse, PageResult } from '@/types/global';
 import type {
   CurrencyEnum,
+  CurrencyEnumCode,
   PurchaseOrderActivityTypeEnum,
+  PurchaseOrderActivityTypeEnumCode,
   PurchaseOrderSettleTypeEnum,
+  PurchaseOrderSettleTypeEnumCode,
   PurchaseOrderSourceStatusEnum,
+  PurchaseOrderSourceStatusEnumCode,
   PurchaseOrderSourceTypeEnum,
-  PurchaseOrderStatusEnum
+  PurchaseOrderSourceTypeEnumCode,
+  PurchaseOrderStatusEnum,
+  PurchaseOrderStatusEnumCode
 } from '@/types/enums';
 
 export type PurchaseOrderStatus = PurchaseOrderStatusEnum;
+export type PurchaseOrderStatusCode = PurchaseOrderStatusEnumCode;
 export type PurchaseOrderSettleType = PurchaseOrderSettleTypeEnum;
+export type PurchaseOrderSettleTypeCode = PurchaseOrderSettleTypeEnumCode;
 export type PurchaseOrderCurrency = CurrencyEnum;
+export type PurchaseOrderCurrencyCode = CurrencyEnumCode;
 export type PurchaseOrderSourceType = PurchaseOrderSourceTypeEnum;
+export type PurchaseOrderSourceTypeCode = PurchaseOrderSourceTypeEnumCode;
 export type PurchaseOrderSourceStatus = PurchaseOrderSourceStatusEnum;
+export type PurchaseOrderSourceStatusCode = PurchaseOrderSourceStatusEnumCode;
 export type PurchaseOrderActivityType = PurchaseOrderActivityTypeEnum;
+export type PurchaseOrderActivityTypeCode = PurchaseOrderActivityTypeEnumCode;
 
 export interface PurchaseOrderOverviewCard {
   key: string;
@@ -121,7 +133,7 @@ export interface PurchaseOrderPageQuery {
   pageSize: number;
   billNo?: string;
   supplierId?: number | null;
-  status?: PurchaseOrderStatus | '';
+  status?: PurchaseOrderStatusCode | '';
   startBillDate?: string;
   endBillDate?: string;
   userName?: string;
@@ -149,10 +161,10 @@ export interface PurchaseOrderSavePayload {
   id?: number;
   billDate: string;
   supplierId: number | null;
-  settleType: PurchaseOrderSettleType;
+  settleType: PurchaseOrderSettleTypeCode;
   warehouseId: number | null;
   userName: string;
-  currency: PurchaseOrderCurrency;
+  currency: PurchaseOrderCurrencyCode;
   remark?: string;
   items: PurchaseOrderSaveItemPayload[];
 }

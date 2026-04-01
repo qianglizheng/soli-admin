@@ -13,8 +13,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum BinaryFlagEnum implements DbEnum<String> {
 
-    NO("0"),
-    YES("1");
+    NO("0", "否"),
+    YES("1", "是");
 
     private final String value;
+
+    private final String name;
 }

@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { getUserCompanyOptions, switchUserCompany, type UserCompanyNodeType } from '@/api/user';
+import type { OrgTypeEnumCode } from '@/types/enums';
+import { getEnumCode } from '@/utils/enum';
 import { setToken } from '@/utils/auth';
 import { storage } from '@/utils/storage';
 
@@ -17,7 +19,8 @@ export interface CompanyOption {
 const COMPANY_STORAGE_KEY = 'currentCompanyId';
 const COMPANY_CACHE_STORAGE_KEY = 'currentCompanyCache';
 
-const companyTypeLabelMap: Record<UserCompanyNodeType, string> = {
+const companyTypeLabelMap: Record<OrgTypeEnumCode, string> = {
+  GROUP: '集团',
   BRANCH: '分公司',
   HEADQUARTERS: '总公司'
 };
@@ -109,7 +112,7 @@ export const useCompanyStore = defineStore('company', () => {
         nodeCode: company.nodeCode,
         nodeName: company.nodeName,
         nodeType: company.nodeType,
-        typeLabel: companyTypeLabelMap[company.nodeType] || company.nodeType,
+        typeLabel: companyTypeLabelMap[getEnumCode(company.nodeType) || 'GROUP'] || getEnumNameFallback(company.nodeType),
         sort: company.sort ?? 0
       })).sort((left, right) => {
         if (left.sort !== right.sort) {
@@ -135,6 +138,10 @@ export const useCompanyStore = defineStore('company', () => {
     } finally {
       loading.value = false;
     }
+  };
+
+  const getEnumNameFallback = (nodeType: UserCompanyNodeType) => {
+    return nodeType.name || getEnumCode(nodeType) || '';
   };
 
   const openSelector = async (required = false) => {

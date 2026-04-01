@@ -14,19 +14,21 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ModuleComponentTypeEnum implements DbEnum<String> {
 
-    INPUT("input"),
-    SEARCH_SELECT("search-select"),
-    DATE("date"),
-    DATETIME("datetime"),
-    SELECT("select"),
-    RADIO("radio"),
-    SWITCH("switch"),
-    TEXT("text"),
-    TEXTAREA("textarea"),
-    NUMBER("number"),
-    AMOUNT("amount"),
-    TAG("tag"),
-    BUTTON("button");
+    INPUT("input", "输入框"),
+    SEARCH_SELECT("search-select", "搜索选择"),
+    DATE("date", "日期"),
+    DATETIME("datetime", "日期时间"),
+    SELECT("select", "下拉选择"),
+    RADIO("radio", "单选框"),
+    SWITCH("switch", "开关"),
+    TEXT("text", "文本"),
+    TEXTAREA("textarea", "多行文本"),
+    NUMBER("number", "数字"),
+    AMOUNT("amount", "金额"),
+    TAG("tag", "标签"),
+    BUTTON("button", "按钮");
 
     private final String value;
+
+    private final String name;
 }

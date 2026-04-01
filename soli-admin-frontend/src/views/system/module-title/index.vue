@@ -36,7 +36,7 @@
                 <div class="overview-title">
                   <span>{{ selectedModule.moduleName }}</span>
                   <el-tag size="small" :type="getModuleTypeTagType(selectedModule.moduleType)" effect="plain">{{ getModuleTypeLabel(selectedModule.moduleType) }}</el-tag>
-                  <el-tag size="small" :type="selectedModule.status === '0' ? 'success' : 'danger'" effect="plain">{{ selectedModule.status === '0' ? '启用' : '停用' }}</el-tag>
+                  <el-tag size="small" :type="getEnumCode(selectedModule.status) === '0' ? 'success' : 'danger'" effect="plain">{{ getEnumCode(selectedModule.status) === '0' ? '启用' : '停用' }}</el-tag>
                 </div>
                 <div class="overview-subtitle">默认标题来源于模块字段定义，当前页只维护独立字段标题表中的覆盖配置。</div>
               </div>
@@ -119,6 +119,7 @@ import {
   type ModuleType
 } from '@/api/moduleCenter';
 import { getModuleTitleDetail, getModuleTitleTree, saveModuleTitle } from '@/api/moduleTitle';
+import { getEnumCode } from '@/utils/enum';
 
 defineOptions({ name: 'SystemModuleTitle' });
 
@@ -156,18 +157,18 @@ function filterModuleNode(value: string, data: ModuleTreeNode) {
 }
 
 function handleModuleNodeClick(node: ModuleTreeNode) {
-  const targetNode = node.moduleType === 'CATALOG' ? findFirstModuleLeafInNode(node) : node;
+  const targetNode = getEnumCode(node.moduleType) === 'CATALOG' ? findFirstModuleLeafInNode(node) : node;
   if (targetNode) {
     selectedModuleId.value = targetNode.id;
   }
 }
 
 function getModuleTypeLabel(moduleType: ModuleType) {
-  return moduleTypeLabelMap[moduleType];
+  return moduleTypeLabelMap[getEnumCode(moduleType) || 'PAGE'];
 }
 
 function getModuleTypeTagType(moduleType: ModuleType) {
-  return moduleType === 'CATALOG' ? 'info' : 'success';
+  return getEnumCode(moduleType) === 'CATALOG' ? 'info' : 'success';
 }
 
 function getFieldConfig(fieldCode: string) {
@@ -266,7 +267,7 @@ function buildModuleTitlePreview(moduleDetail: ModuleDetail, titleMap: Record<st
         fieldCode: field.fieldCode,
         helpText: titleMap[field.fieldCode]?.helpText ?? getFieldDefaultHelpText(field),
         placeholder: titleMap[field.fieldCode]?.placeholder ?? getFieldDefaultPlaceholder(field),
-        required: field.requiredFlag === '1'
+        required: getEnumCode(field.requiredFlag) === '1'
       }))
     })),
     contextVersion: moduleDetail.contextVersion,
@@ -276,10 +277,10 @@ function buildModuleTitlePreview(moduleDetail: ModuleDetail, titleMap: Record<st
 }
 
 function getFieldDefaultPlaceholder(field: ModuleFieldDefinition) {
-  if (field.componentType === 'tag' || field.componentType === 'text' || field.componentType === 'switch') {
+  if (getEnumCode(field.componentType) === 'tag' || getEnumCode(field.componentType) === 'text' || getEnumCode(field.componentType) === 'switch') {
     return '';
   }
-  if (['date', 'datetime', 'search-select', 'select', 'radio'].includes(field.componentType)) {
+  if (['date', 'datetime', 'search-select', 'select', 'radio'].includes(getEnumCode(field.componentType) || '')) {
     return `请选择${field.defaultTitle}`;
   }
   return `请输入${field.defaultTitle}`;
@@ -289,7 +290,7 @@ function getFieldDefaultHelpText(field: ModuleFieldDefinition) {
   if (field.note) {
     return field.note;
   }
-  if (field.requiredFlag === '1') {
+  if (getEnumCode(field.requiredFlag) === '1') {
     return `${field.defaultTitle}为必填项，请按业务规范维护。`;
   }
   return `${field.defaultTitle}用于补充当前业务信息。`;
@@ -300,7 +301,7 @@ function flattenFields(moduleDetail: ModuleDetail) {
 }
 
 function countModuleLeaves(nodes: ModuleTreeNode[]): number {
-  return nodes.reduce((sum, node) => node.moduleType !== 'CATALOG' ? sum + 1 : sum + (node.children?.length ? countModuleLeaves(node.children) : 0), 0);
+  return nodes.reduce((sum, node) => getEnumCode(node.moduleType) !== 'CATALOG' ? sum + 1 : sum + (node.children?.length ? countModuleLeaves(node.children) : 0), 0);
 }
 
 function findFirstModuleLeaf(nodes: ModuleTreeNode[]): ModuleTreeNode | undefined {
@@ -314,7 +315,7 @@ function findFirstModuleLeaf(nodes: ModuleTreeNode[]): ModuleTreeNode | undefine
 }
 
 function findFirstModuleLeafInNode(node: ModuleTreeNode): ModuleTreeNode | undefined {
-  if (node.moduleType !== 'CATALOG') {
+  if (getEnumCode(node.moduleType) !== 'CATALOG') {
     return node;
   }
   for (const child of node.children || []) {
@@ -361,3 +362,4 @@ function deepClone<T>(value: T): T {
 :deep(.component-tabs > .el-tabs__content > .el-tab-pane) { min-height: 0; height: 100%; overflow: auto; }
 .context-preview { min-height: calc(100vh - 220px); overflow: auto; margin: 0; padding: 16px; border-radius: 12px; background: #0f172a; color: #dbeafe; font-size: 13px; line-height: 1.65; white-space: pre-wrap; word-break: break-word; }
 </style>
+

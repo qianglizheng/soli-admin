@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="app-container">
     <div class="dict-header">
       <div>
@@ -8,7 +8,7 @@
       <el-button icon="ArrowLeft" @click="handleBack">返回</el-button>
     </div>
 
-    <el-form :model="queryParams" :inline="true" v-show="showSearch">
+    <el-form v-show="showSearch" :model="queryParams" :inline="true">
       <div ref="searchCollapseRef" class="search-collapse-container">
         <el-form-item
           v-if="listFieldConfigMap.label.visible"
@@ -77,7 +77,9 @@
           <el-button icon="Refresh" @click="resetQuery">重置</el-button>
           <el-button v-if="isSearchMeasured && showMoreButton" link @click="toggleMoreSearch">
             {{ showMoreSearch ? '收起' : '更多' }}
-            <el-icon class="el-icon--right"><component :is="showMoreSearch ? 'ArrowUp' : 'ArrowDown'" /></el-icon>
+            <el-icon class="el-icon--right">
+              <component :is="showMoreSearch ? 'ArrowUp' : 'ArrowDown'" />
+            </el-icon>
           </el-button>
         </el-form-item>
       </div>
@@ -150,8 +152,8 @@
         width="90"
       >
         <template #default="{ row }">
-          <el-tag :type="row.defaultFlag === 'Y' ? 'success' : 'info'">
-            {{ row.defaultFlag === 'Y' ? '是' : '否' }}
+          <el-tag :type="getEnumCode(row.defaultFlag) === 'Y' ? 'success' : 'info'">
+            {{ getEnumName(row.defaultFlag) || '-' }}
           </el-tag>
         </template>
       </el-table-column>
@@ -162,8 +164,8 @@
         width="100"
       >
         <template #default="{ row }">
-          <el-tag :type="row.status === '0' ? 'success' : 'danger'">
-            {{ row.status === '0' ? '正常' : '停用' }}
+          <el-tag :type="getEnumCode(row.status) === '0' ? 'success' : 'danger'">
+            {{ getEnumName(row.status) || '-' }}
           </el-tag>
         </template>
       </el-table-column>
@@ -241,18 +243,21 @@ import {
   getDictDataModuleContext,
   getDictDataPage,
   getDictDetail,
-  updateDictData
+  updateDictData,
+  type DictDataPageQuery
 } from '@/api/dict';
 import { useStatefulModuleContext } from '@/composables/useStatefulModuleContext';
 import type { SysDictData, SysDictType } from '@/types/global';
-import DictDataForm from './components/DictDataForm.vue';
+import { getEnumCode, getEnumName } from '@/utils/enum';
 import {
   buildResolvedButtonConfigMap,
   buildResolvedFieldConfigMap,
+  pickWritableModuleValue,
   type ModuleButtonFallback,
   type ModuleFieldFallback
 } from '@/utils/moduleContext';
 import { useSearchCollapse } from '@/utils/useSearchCollapse';
+import DictDataForm, { type DictDataFormModel } from './components/DictDataForm.vue';
 
 defineOptions({
   name: 'SystemDictData'
@@ -260,7 +265,13 @@ defineOptions({
 
 type DictDataFieldCode = 'label' | 'value' | 'sort' | 'listClass' | 'cssClass' | 'defaultFlag' | 'status' | 'note';
 type DictDataButtonCode = 'create' | 'modify' | 'remove';
+
 const DICT_DATA_FORM_COMPONENT = 'dict_data_form';
+
+type DictDataQueryParams = Omit<DictDataPageQuery, 'dictTypeId' | 'status'> & {
+  listClassKeyword: string;
+  status: DictDataPageQuery['status'] | '';
+};
 
 const dictDataFieldFallbackMap: Record<DictDataFieldCode, ModuleFieldFallback> = {
   cssClass: { label: '样式属性', placeholder: '请输入样式属性', required: false, visible: true },
@@ -299,7 +310,7 @@ const dictDataList = ref<SysDictData[]>([]);
 const selectedRows = ref<SysDictData[]>([]);
 const formVisible = ref(false);
 const formMode = ref<'create' | 'edit'>('create');
-const formInitial = ref<Partial<SysDictData>>({});
+const formInitial = ref<Partial<DictDataFormModel>>({});
 
 const {
   activeContext: formContext,
@@ -321,7 +332,7 @@ const {
 
 const currentDictId = computed(() => Number(route.params.dictId));
 
-const queryParams = reactive({
+const queryParams = reactive<DictDataQueryParams>({
   pageNum: 1,
   pageSize: 10,
   label: '',
@@ -378,7 +389,7 @@ const getList = async () => {
       label: queryParams.label || undefined,
       pageNum: queryParams.pageNum,
       pageSize: queryParams.pageSize,
-      status: queryParams.status || undefined,
+      status: queryParams.status === '' ? undefined : queryParams.status,
       value: queryParams.value || undefined
     });
     dictDataList.value = res.data.list || [];
@@ -428,7 +439,15 @@ const handleAdd = async () => {
   formMode.value = 'create';
   formContext.value = await setActiveStateContext('create');
   formInitial.value = {
-    dictTypeId: currentDictId.value
+    cssClass: '',
+    defaultFlag: 'N',
+    dictTypeId: currentDictId.value,
+    label: '',
+    listClass: '',
+    note: '',
+    sort: '0',
+    status: '0',
+    value: ''
   };
   formVisible.value = true;
 };
@@ -443,7 +462,18 @@ const handleUpdate = async (row?: SysDictData) => {
   }
   formMode.value = 'edit';
   formContext.value = await setActiveStateContext('edit');
-  formInitial.value = { ...currentRow };
+  formInitial.value = {
+    id: currentRow.id,
+    dictTypeId: currentRow.dictTypeId,
+    label: currentRow.label,
+    value: currentRow.value,
+    sort: currentRow.sort || '0',
+    cssClass: currentRow.cssClass || '',
+    listClass: currentRow.listClass || '',
+    defaultFlag: getEnumCode(currentRow.defaultFlag) || 'N',
+    status: getEnumCode(currentRow.status) || '0',
+    note: currentRow.note || ''
+  };
   formVisible.value = true;
 };
 
@@ -456,16 +486,16 @@ const handleDelete = async (row?: SysDictData) => {
     return;
   }
   const labels = rows.map((item) => item.label).join('、');
-  await ElMessageBox.confirm(`确认要删除字典数据"${labels}"吗？`, '警告', {
-    cancelButtonText: '取消',
-    confirmButtonText: '确定',
-    type: 'warning'
-  });
-
-  for (const item of rows) {
-    await deleteDictData(item.id);
+  try {
+    await ElMessageBox.confirm(`确认要删除字典数据“${labels}”吗？`, '警告', {
+      cancelButtonText: '取消',
+      confirmButtonText: '确定',
+      type: 'warning'
+    });
+  } catch {
+    return;
   }
-
+  await Promise.all(rows.map((item) => deleteDictData(item.id)));
   ElMessage.success('删除成功');
   if (dictDataList.value.length === rows.length && queryParams.pageNum > 1) {
     queryParams.pageNum -= 1;
@@ -474,14 +504,10 @@ const handleDelete = async (row?: SysDictData) => {
 };
 
 const pickWritableFormValue = <T,>(fieldCode: DictDataFieldCode, value: T | undefined) => {
-  const fieldConfig = formFieldConfigMap.value[fieldCode];
-  if (!fieldConfig.visible || !fieldConfig.editable) {
-    return undefined;
-  }
-  return value;
+  return pickWritableModuleValue(formFieldConfigMap.value, fieldCode, value);
 };
 
-const onFormSubmit = async (data: Partial<SysDictData>) => {
+const onFormSubmit = async (data: DictDataFormModel) => {
   submitLoading.value = true;
   try {
     if (formMode.value === 'create') {

@@ -14,8 +14,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum UserTypeEnum implements DbEnum<String> {
 
-    ADMIN("0"),
-    NORMAL("1");
+    ADMIN("0", "超级管理员"),
+    NORMAL("1", "普通用户");
 
     private final String value;
+
+    private final String name;
 }

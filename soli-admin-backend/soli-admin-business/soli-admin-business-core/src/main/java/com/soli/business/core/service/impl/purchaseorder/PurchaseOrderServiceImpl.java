@@ -558,7 +558,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         if (status == null) {
             return "";
         }
-        return STATUS_NAME_MAP.getOrDefault(status, status.getLabel());
+        return STATUS_NAME_MAP.getOrDefault(status, status.getName());
     }
 
     private PurchaseOrderActionEnum resolveActionEnum(final String actionCode) {

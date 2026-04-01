@@ -14,7 +14,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum CurrencyEnum implements DbEnum<String> {
 
-    CNY("CNY");
+    CNY("CNY", "人民币");
 
     private final String value;
+
+    private final String name;
 }

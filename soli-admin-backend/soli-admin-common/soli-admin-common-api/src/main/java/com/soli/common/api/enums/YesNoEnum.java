@@ -13,8 +13,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum YesNoEnum implements DbEnum<String> {
 
-    YES("Y"),
-    NO("N");
+    YES("Y", "是"),
+    NO("N", "否");
 
     private final String value;
+
+    private final String name;
 }

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <EnterFocusScope>
     <el-form ref="formRef" label-position="left" :model="model" :rules="rules" label-width="90px" size="small" class="compact-form">
       <el-row :gutter="24">
@@ -90,8 +90,8 @@
 import { computed, ref } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
 import type {
-  PurchaseOrderCurrency,
-  PurchaseOrderSettleType
+  PurchaseOrderCurrencyCode,
+  PurchaseOrderSettleTypeCode
 } from '@/api/purchaseOrder';
 import {
   createBillPermissionAccessor,
@@ -107,10 +107,10 @@ import {
 interface PurchaseOrderBasicFormModel {
   billDate: string;
   supplierId: number | null;
-  settleType: PurchaseOrderSettleType | '';
+  settleType: PurchaseOrderSettleTypeCode | '';
   userName: string;
   warehouseId: number | null;
-  currency: PurchaseOrderCurrency;
+  currency: PurchaseOrderCurrencyCode;
   remark: string;
 }
 

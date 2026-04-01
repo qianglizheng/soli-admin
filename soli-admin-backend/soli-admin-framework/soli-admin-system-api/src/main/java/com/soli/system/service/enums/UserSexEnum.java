@@ -14,9 +14,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum UserSexEnum implements DbEnum<String> {
 
-    MALE("0"),
-    FEMALE("1"),
-    UNKNOWN("2");
+    MALE("0", "男"),
+    FEMALE("1", "女"),
+    UNKNOWN("2", "未知");
 
     private final String value;
+
+    private final String name;
 }

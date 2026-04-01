@@ -14,9 +14,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum OrgTypeEnum implements DbEnum<String> {
 
-    GROUP("GROUP"),
-    HEADQUARTERS("HEADQUARTERS"),
-    BRANCH("BRANCH");
+    GROUP("GROUP", "集团"),
+    HEADQUARTERS("HEADQUARTERS", "总公司"),
+    BRANCH("BRANCH", "分公司");
 
     private final String value;
+
+    private final String name;
 }

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -22,7 +23,10 @@ import jakarta.servlet.http.HttpServletResponse;
  * @author lizhengqiang
  * @since 2026-03-14 11:57
 */
+@RequiredArgsConstructor
 public class SecurityFilterExceptionHandler extends OncePerRequestFilter {
+
+    private final ObjectMapper objectMapper;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
@@ -31,11 +35,10 @@ public class SecurityFilterExceptionHandler extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (BusinessException e) {
             e.printStackTrace();
-            ObjectMapper mapper = new ObjectMapper();
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setCharacterEncoding("UTF-8");
             PrintWriter writer = response.getWriter();
-            writer.write(mapper.writeValueAsString(Result.fail(e.getMessage())));
+            writer.write(objectMapper.writeValueAsString(Result.fail(e.getMessage())));
             writer.flush();
             writer.close();
         }

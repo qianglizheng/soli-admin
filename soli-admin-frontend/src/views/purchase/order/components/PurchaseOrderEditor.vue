@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="app-container purchase-order-editor">
     <div class="tech-card editor-header">
       <el-page-header class="custom-header" @back="handleBack">
@@ -264,7 +264,11 @@
       <el-table :data="sourceBills" border size="small">
         <el-table-column type="index" label="序号" width="60" align="center" />
         <el-table-column v-if="sourceFieldConfigMap.sourceBillNo.visible" :label="sourceFieldConfigMap.sourceBillNo.label" prop="sourceBillNo" min-width="160" />
-        <el-table-column v-if="sourceFieldConfigMap.sourceType.visible" :label="sourceFieldConfigMap.sourceType.label" prop="sourceType" width="120" />
+        <el-table-column v-if="sourceFieldConfigMap.sourceType.visible" :label="sourceFieldConfigMap.sourceType.label" width="120">
+          <template #default="{ row }">
+            {{ getEnumName(row.sourceType) || '-' }}
+          </template>
+        </el-table-column>
         <el-table-column v-if="sourceFieldConfigMap.supplierName.visible" :label="sourceFieldConfigMap.supplierName.label" prop="supplierName" min-width="180" />
         <el-table-column v-if="sourceFieldConfigMap.billDate.visible" :label="sourceFieldConfigMap.billDate.label" prop="billDate" width="120" />
         <el-table-column v-if="sourceFieldConfigMap.totalAmount.visible" :label="sourceFieldConfigMap.totalAmount.label" width="140" align="right">
@@ -272,7 +276,11 @@
             <span class="amount-text">{{ formatAmount(row.totalAmount) }}</span>
           </template>
         </el-table-column>
-        <el-table-column v-if="sourceFieldConfigMap.status.visible" :label="sourceFieldConfigMap.status.label" prop="status" width="120" />
+        <el-table-column v-if="sourceFieldConfigMap.status.visible" :label="sourceFieldConfigMap.status.label" width="120">
+          <template #default="{ row }">
+            {{ getEnumName(row.status) || '-' }}
+          </template>
+        </el-table-column>
         <el-table-column v-if="sourceFieldConfigMap.remark.visible" :label="sourceFieldConfigMap.remark.label" prop="remark" min-width="160" />
       </el-table>
     </div>
@@ -304,7 +312,6 @@ import type { ModuleContext } from '@/api/moduleCenter';
 import type {
   PurchaseOrderAttachment,
   PurchaseOrderDetail,
-  PurchaseOrderHeader,
   PurchaseOrderItem,
   PurchaseOrderSavePayload,
   PurchaseOrderSourceBill
@@ -318,6 +325,7 @@ import {
 } from '@/api/purchaseOrder';
 import FooterSummaryCard, { type SummaryItem } from '@/components/Bill/FooterSummaryCard.vue';
 import BillDetailFormCard from '@/components/Bill/BillDetailFormCard.vue';
+import { getEnumName } from '@/utils/enum';
 import {
   buildResolvedButtonConfigMap,
   buildResolvedFieldConfigMap
@@ -328,8 +336,10 @@ import {
   createDefaultPurchaseOrderItem,
   currencyOptions,
   getStatusType,
+  mapPurchaseOrderHeaderToEditable,
   settleTypeOptions,
   supplierOptions,
+  type PurchaseOrderEditableHeader,
   warehouseOptions
 } from '../purchaseOrderShared';
 
@@ -363,7 +373,7 @@ const actionLoading = ref('');
 const selectedItems = ref<PurchaseOrderItem[]>([]);
 const sourceBills = ref<PurchaseOrderSourceBill[]>([]);
 const attachments = ref<PurchaseOrderAttachment[]>([]);
-const header = reactive<PurchaseOrderHeader>(createDefaultPurchaseOrderHeader());
+const header = reactive<PurchaseOrderEditableHeader>(createDefaultPurchaseOrderHeader());
 const items = ref<PurchaseOrderItem[]>([createDefaultPurchaseOrderItem()]);
 
 const pageTitle = computed(() => {
@@ -556,7 +566,7 @@ const resetEditorData = () => {
 };
 
 const applyDetailData = (detail: PurchaseOrderDetail) => {
-  Object.assign(header, createDefaultPurchaseOrderHeader(), detail.header);
+  Object.assign(header, mapPurchaseOrderHeaderToEditable(detail.header));
   items.value = (detail.items || []).length ? detail.items.map((item) => ({ ...item })) : [createDefaultPurchaseOrderItem()];
   sourceBills.value = (detail.sourceBills || []).map((item) => ({ ...item }));
   attachments.value = (detail.attachments || []).map((item) => ({ ...item }));
@@ -585,7 +595,7 @@ const buildSavePayload = (): PurchaseOrderSavePayload => {
     id: header.id,
     billDate: header.billDate,
     supplierId: header.supplierId,
-    settleType: header.settleType,
+    settleType: header.settleType || 'monthly',
     warehouseId: header.warehouseId,
     userName: header.userName,
     currency: header.currency,
@@ -794,3 +804,6 @@ onMounted(async () => {
   }
 }
 </style>
+
+
+

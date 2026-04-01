@@ -3,12 +3,18 @@ import type { ModuleContext } from './moduleCenter';
 import type { ApiResponse, PageResult } from '@/types/global';
 import type {
   BinaryFlagEnum,
+  BinaryFlagEnumCode,
   NormalDisableStatusEnum,
+  NormalDisableStatusEnumCode,
   OrgTypeEnum,
-  PostTypeEnum
+  OrgTypeEnumCode,
+  PostTypeEnum,
+  PostTypeEnumCode
 } from '@/types/enums';
+import { getEnumCode } from '@/utils/enum';
 
-export type YesNo = BinaryFlagEnum;
+export type YesNo = BinaryFlagEnumCode;
+export type OrgPostStatusCode = NormalDisableStatusEnumCode;
 export type OrgNodeType = 'GROUP' | 'HEADQUARTERS' | 'BRANCH' | 'DEPT' | 'POST';
 
 export interface OrgPostTreeNode {
@@ -66,7 +72,7 @@ export interface OrgPostPageQuery {
   parentPostId?: number;
   postCode?: string;
   postName?: string;
-  status?: NormalDisableStatusEnum;
+  status?: NormalDisableStatusEnumCode;
 }
 
 export interface OrgPostUserPageQuery {
@@ -74,7 +80,7 @@ export interface OrgPostUserPageQuery {
   pageSize: number;
   orgPostId: number;
   keyword?: string;
-  status?: NormalDisableStatusEnum;
+  status?: NormalDisableStatusEnumCode;
 }
 
 export interface CreateOrgPostPayload {
@@ -82,10 +88,10 @@ export interface CreateOrgPostPayload {
   parentPostId?: number;
   postCode: string;
   postName: string;
-  postType?: PostTypeEnum;
+  postType?: PostTypeEnumCode;
   managerUserId?: number;
   sort?: number;
-  status?: NormalDisableStatusEnum;
+  status?: NormalDisableStatusEnumCode;
   note?: string;
 }
 
@@ -99,7 +105,7 @@ export interface CreateOrgUnitPayload {
   orgName: string;
   leaderUserId?: number;
   sort?: number;
-  status?: NormalDisableStatusEnum;
+  status?: NormalDisableStatusEnumCode;
   note?: string;
 }
 
@@ -124,10 +130,10 @@ export interface OrgPostFormModel {
   parentNodeKey: string;
   postCode: string;
   postName: string;
-  postType: PostTypeEnum;
+  postType: PostTypeEnumCode;
   managerUserId?: number;
   sort: number;
-  status: YesNo;
+  status: OrgPostStatusCode;
   note: string;
 }
 
@@ -138,16 +144,13 @@ export interface OrgUnitFormModel {
   orgName: string;
   leaderUserId?: number;
   sort: number;
-  status: YesNo;
+  status: OrgPostStatusCode;
   note: string;
 }
 
 export const POST_TYPE_OPTIONS = [
   { label: '管理岗', value: 'MANAGER' },
   { label: '采购岗', value: 'BUYER' },
-  { label: '审核岗', value: 'AUDITOR' },
-  { label: '销售经理', value: 'SALES_MANAGER' },
-  { label: '销售岗', value: 'SALES' },
   { label: '运营岗', value: 'OPERATION' },
   { label: '财务岗', value: 'FINANCE' }
 ] as const;
@@ -165,18 +168,20 @@ const postTypeLabelMap = POST_TYPE_OPTIONS.reduce<Record<string, string>>((resul
   return result;
 }, {});
 
-export function getOrgNodeTypeLabel(nodeType?: string) {
-  if (!nodeType) {
+export function getOrgNodeTypeLabel(nodeType?: OrgTypeEnum | OrgNodeType) {
+  const code = getEnumCode(nodeType);
+  if (!code) {
     return '岗位';
   }
-  return orgNodeTypeLabelMap[nodeType as OrgNodeType] || nodeType;
+  return orgNodeTypeLabelMap[code as OrgNodeType] || code;
 }
 
-export function getPostTypeLabel(postType?: string) {
-  if (!postType) {
+export function getPostTypeLabel(postType?: PostTypeEnum | PostTypeEnumCode) {
+  const code = getEnumCode(postType);
+  if (!code) {
     return '岗位';
   }
-  return postTypeLabelMap[postType] || postType;
+  return postTypeLabelMap[code] || code;
 }
 
 export function getOrgPostTree() {
@@ -293,3 +298,4 @@ export function unbindOrgPostUsers(data: { orgPostId: number; userIds: number[] 
     url: '/sys/org-post/user/unbind'
   });
 }
+

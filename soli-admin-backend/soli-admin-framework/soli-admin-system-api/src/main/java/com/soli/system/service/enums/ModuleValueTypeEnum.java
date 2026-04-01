@@ -14,13 +14,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ModuleValueTypeEnum implements DbEnum<String> {
 
-    STRING("string"),
-    LONG("long"),
-    DATE("date"),
-    DATETIME("datetime"),
-    DECIMAL("decimal"),
-    INT("int"),
-    BOOLEAN("boolean");
+    STRING("string", "字符串"),
+    LONG("long", "长整数"),
+    DATE("date", "日期"),
+    DATETIME("datetime", "日期时间"),
+    DECIMAL("decimal", "小数"),
+    INT("int", "整数"),
+    BOOLEAN("boolean", "布尔");
 
     private final String value;
+
+    private final String name;
 }

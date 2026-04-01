@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="app-container purchase-order-index">
     <el-row :gutter="8" class="stat-row">
       <el-col v-for="card in overviewCards" :key="card.key" :span="6">
@@ -324,9 +324,10 @@ import type {
   PurchaseOrderListItem,
   PurchaseOrderOverviewCard,
   PurchaseOrderPageQuery,
-  PurchaseOrderStatus
+  PurchaseOrderStatusCode
 } from '@/api/purchaseOrder';
 import { getPurchaseOrderContext, getPurchaseOrderPage } from '@/api/purchaseOrder';
+import { getEnumCode } from '@/utils/enum';
 import { buildResolvedButtonConfigMap, buildResolvedFieldConfigMap } from '@/utils/moduleContext';
 import PurchaseOrderColumnSetting from './components/PurchaseOrderColumnSetting.vue';
 import { buildTextFilters, compareNumber, matchTextFilter } from './components/tableHelper';
@@ -497,7 +498,7 @@ const overviewIconMap = {
   money: Money
 } as const;
 
-const statusOrderMap: Record<PurchaseOrderStatus, number> = {
+const statusOrderMap: Record<PurchaseOrderStatusCode, number> = {
   unaudited: 1,
   pre_audited: 2,
   audited: 3,
@@ -658,7 +659,7 @@ const sortByTotalAmount = (left: PurchaseOrderListItem, right: PurchaseOrderList
 };
 
 const sortByStatus = (left: PurchaseOrderListItem, right: PurchaseOrderListItem) => {
-  return compareNumber(statusOrderMap[left.status], statusOrderMap[right.status]);
+  return compareNumber(statusOrderMap[getEnumCode(left.status) || 'unaudited'], statusOrderMap[getEnumCode(right.status) || 'unaudited']);
 };
 
 const handleExport = () => {
@@ -906,3 +907,5 @@ onMounted(async () => {
   }
 }
 </style>
+
+

@@ -1,7 +1,7 @@
 import request from './request';
 import type { ApiResponse } from '@/types/global';
 import type { ModuleDetail, ModuleTreeNode } from './moduleCenter';
-import type { PermissionLevelEnum } from '@/types/enums';
+import type { PermissionLevelEnum, PermissionLevelEnumCode } from '@/types/enums';
 
 export interface StateFieldPermission {
   fieldId: number;
@@ -13,15 +13,36 @@ export interface StateButtonPermission {
   permissionLevel: PermissionLevelEnum;
 }
 
+export interface StateFieldPermissionPayload {
+  fieldId: number;
+  permissionLevel: PermissionLevelEnumCode;
+}
+
+export interface StateButtonPermissionPayload {
+  buttonId: number;
+  permissionLevel: PermissionLevelEnumCode;
+}
+
 export interface StatePermissionByState {
   stateCode: string;
   fieldPermissions: StateFieldPermission[];
   buttonPermissions: StateButtonPermission[];
 }
 
+export interface StatePermissionByStatePayload {
+  stateCode: string;
+  fieldPermissions: StateFieldPermissionPayload[];
+  buttonPermissions: StateButtonPermissionPayload[];
+}
+
 export interface StateAuthConfig {
   moduleId: number;
   permissionsByState: StatePermissionByState[];
+}
+
+export interface StateAuthConfigPayload {
+  moduleId: number;
+  permissionsByState: StatePermissionByStatePayload[];
 }
 
 export interface StateAuthPageDetail {
@@ -43,7 +64,7 @@ export function getStateAuthDetail(moduleId: number) {
   });
 }
 
-export function saveStateAuth(data: StateAuthConfig) {
+export function saveStateAuth(data: StateAuthConfigPayload) {
   return request<ApiResponse<void>>({
     data,
     method: 'put',

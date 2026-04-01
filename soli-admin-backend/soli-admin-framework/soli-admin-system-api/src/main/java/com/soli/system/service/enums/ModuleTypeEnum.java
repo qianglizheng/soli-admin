@@ -14,9 +14,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ModuleTypeEnum implements DbEnum<String> {
 
-    CATALOG("CATALOG"),
-    PAGE("PAGE"),
-    BILL("BILL");
+    CATALOG("CATALOG", "目录"),
+    PAGE("PAGE", "页面"),
+    BILL("BILL", "单据");
 
     private final String value;
+
+    private final String name;
 }

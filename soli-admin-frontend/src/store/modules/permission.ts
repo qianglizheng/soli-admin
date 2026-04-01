@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import type { RouteRecordRaw } from 'vue-router';
 import { getModuleNavTree, type ModuleTreeNode } from '@/api/moduleCenter';
+import { getEnumCode } from '@/utils/enum';
 import router, { dashboardRoute } from '@/router';
 
 const Layout = () => import('@/layout/index.vue');
@@ -58,11 +59,11 @@ export const usePermissionStore = defineStore('permission', () => {
       meta: {
         title: node.moduleName,
         icon: node.icon,
-        hidden: node.navVisible === '0'
+        hidden: getEnumCode(node.navVisible) === '0'
       }
     } as unknown as RouteRecordRaw;
 
-    if (node.moduleType === 'CATALOG') {
+    if (getEnumCode(node.moduleType) === 'CATALOG') {
       route.component = Layout;
     } else {
       const component = resolveViewComponent(node.componentPath);
@@ -80,7 +81,7 @@ export const usePermissionStore = defineStore('permission', () => {
       route.children = childRoutes.map((item) => item.route);
       const redirectChildRoute =
         childRoutes.find((item) => !item.route.meta?.hidden) || childRoutes[0];
-      if (node.moduleType === 'CATALOG' && redirectChildRoute) {
+      if (getEnumCode(node.moduleType) === 'CATALOG' && redirectChildRoute) {
         route.redirect = redirectChildRoute.fullPath;
       }
     }

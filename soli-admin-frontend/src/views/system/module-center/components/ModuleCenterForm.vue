@@ -107,17 +107,38 @@
 import { computed, reactive, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
 import type { ModuleFormModel, ModuleTreeNode } from '@/api/moduleCenter';
+import { getEnumCode } from '@/utils/enum';
 
-interface TreeOption extends ModuleTreeNode {
+interface TreeOption {
+  id: number;
+  moduleName: string;
+  parentId: number;
+  moduleCode: string;
+  moduleType: ModuleFormModel['moduleType'];
+  sort: number;
+  statefulFlag: ModuleFormModel['statefulFlag'];
+  status: ModuleFormModel['status'];
   disabled?: boolean;
   children?: TreeOption[];
+}
+
+interface TreeSourceNode {
+  id: number;
+  moduleName: string;
+  parentId: number;
+  moduleCode: string;
+  moduleType: ModuleTreeNode['moduleType'] | ModuleFormModel['moduleType'];
+  sort: number;
+  statefulFlag: ModuleTreeNode['statefulFlag'] | ModuleFormModel['statefulFlag'];
+  status: ModuleTreeNode['status'] | ModuleFormModel['status'];
+  children?: TreeSourceNode[];
 }
 
 interface Props {
   modelValue: boolean;
   mode: 'create' | 'edit';
   initialData?: Partial<ModuleFormModel>;
-  treeData?: ModuleTreeNode[];
+  treeData?: TreeSourceNode[];
   currentId?: number;
 }
 
@@ -151,8 +172,8 @@ function createDefaultForm(): ModuleFormModel {
   };
 }
 
-function normalizeModuleType(moduleType?: ModuleFormModel['moduleType']): ModuleFormModel['moduleType'] {
-  return moduleType === 'BILL' ? 'PAGE' : (moduleType || 'PAGE');
+function normalizeModuleType(moduleType?: ModuleFormModel['moduleType'] | string): ModuleFormModel['moduleType'] {
+  return moduleType === 'BILL' ? 'PAGE' : (moduleType as ModuleFormModel['moduleType'] || 'PAGE');
 }
 
 const formRef = ref<FormInstance>();
@@ -173,7 +194,7 @@ const treeSelectProps = {
 };
 
 function collectDisabledIds(
-  nodes: ModuleTreeNode[] | undefined,
+  nodes: TreeSourceNode[] | undefined,
   currentId?: number,
   bucket: Set<number> = new Set()
 ): Set<number> {
@@ -191,7 +212,7 @@ function collectDisabledIds(
   return bucket;
 }
 
-function collectChildIds(nodes: ModuleTreeNode[] | undefined, bucket: Set<number>) {
+function collectChildIds(nodes: TreeSourceNode[] | undefined, bucket: Set<number>) {
   if (!nodes) {
     return;
   }
@@ -201,18 +222,25 @@ function collectChildIds(nodes: ModuleTreeNode[] | undefined, bucket: Set<number
   });
 }
 
-function markDisabled(nodes: ModuleTreeNode[] | undefined, disabledIds: Set<number>): TreeOption[] {
+function markDisabled(nodes: TreeSourceNode[] | undefined, disabledIds: Set<number>): TreeOption[] {
   if (!nodes) {
     return [];
   }
   return nodes.map((node) => ({
-    ...node,
+    id: node.id,
+    moduleName: node.moduleName,
+    parentId: node.parentId,
+    moduleCode: node.moduleCode,
+    moduleType: getEnumCode(node.moduleType) || 'PAGE',
+    sort: node.sort,
+    statefulFlag: getEnumCode(node.statefulFlag) || '0',
+    status: getEnumCode(node.status) || '0',
     children: markDisabled(node.children, disabledIds),
-    disabled: disabledIds.has(node.id) || node.moduleType !== 'CATALOG'
+    disabled: disabledIds.has(node.id) || getEnumCode(node.moduleType) !== 'CATALOG'
   }));
 }
 
-const treeOptions = computed(() => {
+const treeOptions = computed<TreeOption[]>(() => {
   const disabledIds = collectDisabledIds(props.treeData, props.currentId);
   return [
     {
@@ -226,7 +254,7 @@ const treeOptions = computed(() => {
       status: '0',
       children: markDisabled(props.treeData, disabledIds)
     }
-  ] as TreeOption[];
+  ];
 });
 
 watch(

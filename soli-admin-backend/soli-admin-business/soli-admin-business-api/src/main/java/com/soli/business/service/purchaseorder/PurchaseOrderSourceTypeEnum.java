@@ -14,7 +14,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum PurchaseOrderSourceTypeEnum implements DbEnum<String> {
 
-    PURCHASE_REQUEST("采购申请");
+    PURCHASE_REQUEST("采购申请", "采购申请");
 
     private final String value;
+
+    private final String name;
 }

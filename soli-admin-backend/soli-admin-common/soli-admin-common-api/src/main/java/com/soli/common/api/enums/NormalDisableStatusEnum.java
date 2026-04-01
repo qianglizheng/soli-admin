@@ -13,8 +13,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum NormalDisableStatusEnum implements DbEnum<String> {
 
-    NORMAL("0"),
-    DISABLED("1");
+    NORMAL("0", "正常"),
+    DISABLED("1", "停用");
 
     private final String value;
+
+    private final String name;
 }

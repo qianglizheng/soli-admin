@@ -2,10 +2,10 @@ import request from './request';
 import type { ApiResponse, PageResult, SysUser, UserInfo } from '@/types/global';
 import type { ModuleContext } from './moduleCenter';
 import type {
-  NormalDisableStatusEnum,
+  NormalDisableStatusEnumCode,
   OrgTypeEnum,
-  UserSexEnum,
-  UserTypeEnum
+  UserSexEnumCode,
+  UserTypeEnumCode
 } from '@/types/enums';
 
 export interface UserPageQuery {
@@ -14,7 +14,7 @@ export interface UserPageQuery {
   nickname?: string;
   username?: string;
   phone?: string;
-  status?: NormalDisableStatusEnum;
+  status?: NormalDisableStatusEnumCode;
 }
 
 export interface CreateUserPayload {
@@ -24,9 +24,9 @@ export interface CreateUserPayload {
   email?: string;
   phone?: string;
   avatar?: string;
-  type?: UserTypeEnum;
-  sex?: UserSexEnum;
-  status?: NormalDisableStatusEnum;
+  type?: UserTypeEnumCode;
+  sex?: UserSexEnumCode;
+  status?: NormalDisableStatusEnumCode;
 }
 
 export interface UpdateUserPayload {
@@ -35,9 +35,9 @@ export interface UpdateUserPayload {
   email?: string;
   phone?: string;
   avatar?: string;
-  type?: UserTypeEnum;
-  sex?: UserSexEnum;
-  status?: NormalDisableStatusEnum;
+  type?: UserTypeEnumCode;
+  sex?: UserSexEnumCode;
+  status?: NormalDisableStatusEnumCode;
 }
 
 export type UserCompanyNodeType = OrgTypeEnum;

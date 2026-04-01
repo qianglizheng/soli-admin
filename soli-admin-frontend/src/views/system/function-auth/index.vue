@@ -346,7 +346,7 @@ import {
   type ModuleDetail,
   type ModuleTreeNode,
   type ModuleType,
-  type YesNo
+  type YesNoCode
 } from '@/api/moduleCenter'
 import {
   getFunctionAuthDetail,
@@ -354,6 +354,7 @@ import {
   getFunctionAuthPostTree,
   saveFunctionAuth,
   type FunctionAuthConfig,
+  type FunctionAuthConfigPayload,
   type FunctionAuthPageDetail
 } from '@/api/functionAuth'
 import {
@@ -362,6 +363,7 @@ import {
   type OrgNodeType,
   type OrgPostTreeNode
 } from '@/api/orgPost'
+import { getEnumCode } from '@/utils/enum'
 
 defineOptions({
   name: 'SystemFunctionAuth'
@@ -380,7 +382,7 @@ interface ModulePermissionConfig {
 interface SelectedPostSummary {
   id: number;
   nodeName: string;
-  status: YesNo;
+  status: YesNoCode;
   orgName?: string;
   orgTypeLabel?: string;
   postTypeLabel?: string;
@@ -451,7 +453,7 @@ const selectedPost = computed<SelectedPostSummary | undefined>(() => {
     orgName: detail.orgName,
     orgTypeLabel: getOrgNodeTypeLabel(detail.orgType),
     postTypeLabel: getPostTypeLabel(detail.postType),
-    status: (detail.status || '0') as YesNo
+    status: getEnumCode(detail.status) || '0'
   }
 })
 
@@ -522,10 +524,10 @@ const previewJson = computed(() => {
   return JSON.stringify(buildFunctionAuthPreview(selectedPost.value, selectedModule.value, currentModuleConfig.value), null, 2)
 })
 
-const getModuleTypeLabel = (moduleType: ModuleType) => moduleTypeLabelMap[moduleType]
+const getModuleTypeLabel = (moduleType: ModuleType) => moduleTypeLabelMap[getEnumCode(moduleType) || 'PAGE']
 
 const getModuleTypeTagType = (moduleType: ModuleType) => {
-  if (moduleType === 'CATALOG') {
+  if (getEnumCode(moduleType) === 'CATALOG') {
     return 'info'
   }
   return 'success'
@@ -577,7 +579,7 @@ const handlePostNodeClick = (node: OrgPostTreeNode) => {
 }
 
 const handleModuleNodeClick = (node: ModuleTreeNode) => {
-  const targetNode = node.moduleType === 'CATALOG' ? findFirstModuleLeafInNode(node) : node
+  const targetNode = getEnumCode(node.moduleType) === 'CATALOG' ? findFirstModuleLeafInNode(node) : node
   if (targetNode) {
     selectModule(targetNode.id)
   }
@@ -735,7 +737,7 @@ function buildFunctionAuthPayload(
   orgPostId: number,
   moduleDetail: ModuleDetail,
   config: ModulePermissionConfig
-): FunctionAuthConfig {
+): FunctionAuthConfigPayload {
   return {
     buttonPermissions: (moduleDetail.buttons || []).map((button) => ({
       buttonId: button.id,
@@ -866,7 +868,7 @@ function findFirstModuleLeaf(nodes: ModuleTreeNode[]): ModuleTreeNode | undefine
 }
 
 function findFirstModuleLeafInNode(node: ModuleTreeNode): ModuleTreeNode | undefined {
-  if (node.moduleType !== 'CATALOG') {
+  if (getEnumCode(node.moduleType) !== 'CATALOG') {
     return node
   }
   if (!node.children?.length) {
@@ -881,9 +883,10 @@ function findFirstModuleLeafInNode(node: ModuleTreeNode): ModuleTreeNode | undef
   return undefined
 }
 
-function normalizePermissionLevel(level?: number): FieldPermissionLevel {
-  if (level === 1 || level === 2) {
-    return level
+function normalizePermissionLevel(level?: number | { code: number; name: string }): FieldPermissionLevel {
+  const code = Number(getEnumCode(level) ?? level ?? 0)
+  if (code === 1 || code === 2) {
+    return code
   }
   return 0
 }
@@ -1258,3 +1261,4 @@ function deepClone<T>(value: T): T {
 }
 
 </style>
+

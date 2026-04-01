@@ -22,5 +22,5 @@ public enum PurchaseOrderStatusEnum implements DbEnum<String> {
 
     private final String value;
 
-    private final String label;
+    private final String name;
 }

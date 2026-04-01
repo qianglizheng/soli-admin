@@ -14,9 +14,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum PermissionLevelEnum implements DbEnum<Integer> {
 
-    LEVEL_0(0),
-    LEVEL_1(1),
-    LEVEL_2(2);
+    LEVEL_0(0, "不可见"),
+    LEVEL_1(1, "受限"),
+    LEVEL_2(2, "完全");
 
     private final Integer value;
+
+    private final String name;
 }

@@ -2,7 +2,7 @@ import request from './request';
 import type { ApiResponse } from '@/types/global';
 import type { ModuleDetail, ModuleTreeNode } from './moduleCenter';
 import type { OrgPostDetail, OrgPostTreeNode } from './orgPost';
-import type { PermissionLevelEnum } from '@/types/enums';
+import type { PermissionLevelEnum, PermissionLevelEnumCode } from '@/types/enums';
 
 export interface FunctionAuthFieldPermission {
   fieldId: number;
@@ -14,6 +14,16 @@ export interface FunctionAuthButtonPermission {
   permissionLevel: PermissionLevelEnum;
 }
 
+export interface FunctionAuthFieldPermissionPayload {
+  fieldId: number;
+  permissionLevel: PermissionLevelEnumCode;
+}
+
+export interface FunctionAuthButtonPermissionPayload {
+  buttonId: number;
+  permissionLevel: PermissionLevelEnumCode;
+}
+
 export interface FunctionAuthConfig {
   orgPostId: number;
   moduleId: number;
@@ -21,6 +31,15 @@ export interface FunctionAuthConfig {
   navVisible: boolean;
   fieldPermissions: FunctionAuthFieldPermission[];
   buttonPermissions: FunctionAuthButtonPermission[];
+}
+
+export interface FunctionAuthConfigPayload {
+  orgPostId: number;
+  moduleId: number;
+  moduleVisible: boolean;
+  navVisible: boolean;
+  fieldPermissions: FunctionAuthFieldPermissionPayload[];
+  buttonPermissions: FunctionAuthButtonPermissionPayload[];
 }
 
 export interface FunctionAuthPageDetail {
@@ -55,7 +74,7 @@ export function getFunctionAuthDetail(orgPostId: number, moduleId: number) {
   });
 }
 
-export function saveFunctionAuth(data: FunctionAuthConfig) {
+export function saveFunctionAuth(data: FunctionAuthConfigPayload) {
   return request<ApiResponse<void>>({
     data,
     method: 'put',

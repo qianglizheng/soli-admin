@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <el-descriptions v-if="hasVisibleFields" :column="3" border size="small">
     <el-descriptions-item
       v-if="permissionAccess.isFieldVisible('createByName')"
@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { PurchaseOrderStatus } from '@/api/purchaseOrder';
+import type { PurchaseOrderStatusCode } from '@/api/purchaseOrder';
 import {
   createBillPermissionAccessor,
   type BillPermissionSource
@@ -32,7 +32,7 @@ import { getStatusType } from '../purchaseOrderShared';
 
 interface PurchaseOrderAuditInfoModel {
   createByName: string;
-  status: PurchaseOrderStatus;
+  status: PurchaseOrderStatusCode;
   statusName: string;
 }
 

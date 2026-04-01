@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="app-container">
     <el-form v-show="showSearch" :inline="true" :model="queryParams">
       <div ref="searchCollapseRef" class="search-collapse-container">
@@ -153,8 +153,8 @@
         width="120"
       >
         <template #default="{ row }">
-          <el-tag :type="row.type === '0' ? 'danger' : 'info'">
-            {{ row.type === '0' ? '超级管理员' : '普通用户' }}
+          <el-tag :type="getEnumCode(row.type) === '0' ? 'danger' : 'info'">
+            {{ getEnumName(row.type) || '-' }}
           </el-tag>
         </template>
       </el-table-column>
@@ -169,7 +169,7 @@
             active-value="0"
             inactive-value="1"
             :disabled="isStatusSwitchDisabled()"
-            :model-value="row.status"
+            :model-value="getEnumCode(row.status)"
             @change="handleStatusSwitchChange(row, $event)"
           />
         </template>
@@ -243,10 +243,12 @@ import {
   getUserPage,
   updateUser,
   type CreateUserPayload,
+  type UserPageQuery,
   type UpdateUserPayload
 } from '@/api/user';
 import { useStatefulModuleContext } from '@/composables/useStatefulModuleContext';
 import type { SysUser } from '@/types/global';
+import { getEnumCode, getEnumName } from '@/utils/enum';
 import {
   buildResolvedButtonConfigMap,
   buildResolvedFieldConfigMap,
@@ -264,6 +266,13 @@ import {
 defineOptions({
   name: 'SystemUser'
 });
+
+type UserQueryParams = Omit<UserPageQuery, 'nickname' | 'status'> & {
+  nicknameKeyword: string;
+  status: UserPageQuery['status'] | '';
+};
+
+type UserStatus = NonNullable<UpdateUserPayload['status']>;
 
 const showSearch = ref(true);
 const {
@@ -302,7 +311,7 @@ const {
   }
 });
 
-const queryParams = reactive({
+const queryParams = reactive<UserQueryParams>({
   pageNum: 1,
   pageSize: 10,
   username: '',
@@ -353,7 +362,7 @@ const getList = async () => {
       pageNum: queryParams.pageNum,
       pageSize: queryParams.pageSize,
       phone: queryParams.phone || undefined,
-      status: queryParams.status || undefined,
+      status: queryParams.status === '' ? undefined : queryParams.status,
       username: queryParams.username || undefined
     });
     userList.value = res.data.list || [];
@@ -430,9 +439,9 @@ const handleUpdate = async (row?: SysUser) => {
       nickname: detail.nickname || '',
       email: detail.email || '',
       phone: detail.phone || '',
-      sex: detail.sex || '0',
-      type: detail.type || '1',
-      status: detail.status || '0'
+      sex: getEnumCode(detail.sex) || '0',
+      type: getEnumCode(detail.type) || '1',
+      status: getEnumCode(detail.status) || '0'
     };
     formVisible.value = true;
   } finally {
@@ -493,14 +502,16 @@ const handleDelete = async (row?: SysUser) => {
     return;
   }
   const names = rows.map((item) => item.username).join('、');
-  await ElMessageBox.confirm(`是否确认删除用户“${names}”？`, '警告', {
-    cancelButtonText: '取消',
-    confirmButtonText: '确定',
-    type: 'warning'
-  });
-  for (const item of rows) {
-    await deleteUser(item.id);
+  try {
+    await ElMessageBox.confirm(`是否确认删除用户“${names}”？`, '警告', {
+      cancelButtonText: '取消',
+      confirmButtonText: '确定',
+      type: 'warning'
+    });
+  } catch {
+    return;
   }
+  await Promise.all(rows.map((item) => deleteUser(item.id)));
   ElMessage.success('删除成功');
   if (userList.value.length === rows.length && queryParams.pageNum > 1) {
     queryParams.pageNum -= 1;
@@ -514,25 +525,24 @@ const isStatusSwitchDisabled = () => {
     || editButtonConfig.value.disabled;
 };
 
-const handleStatusChange = async (row: SysUser, value: string) => {
+const handleStatusChange = async (row: SysUser, value: UserStatus) => {
   if (isStatusSwitchDisabled()) {
     return;
   }
-  const previousStatus = row.status || '0';
-  row.status = value;
   try {
     await updateUser({
       id: row.id,
       status: value
     });
     ElMessage.success(value === '0' ? '启用成功' : '停用成功');
+    await getList();
   } catch {
-    row.status = previousStatus;
+    return;
   }
 };
 
 const handleStatusSwitchChange = (row: SysUser, value: string | number | boolean) => {
-  void handleStatusChange(row, String(value));
+  void handleStatusChange(row, String(value) === '1' ? '1' : '0');
 };
 
 onMounted(() => {

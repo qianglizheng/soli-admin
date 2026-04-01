@@ -66,8 +66,8 @@
                       {{ getModuleTypeLabel(selectedModule.moduleType) }}
                     </el-tag>
                     <el-tag size="small" type="warning" effect="plain">状态字段：{{ selectedModule.stateFieldCode || '-' }}</el-tag>
-                    <el-tag size="small" :type="selectedModule.status === '0' ? 'success' : 'danger'" effect="plain">
-                      {{ selectedModule.status === '0' ? '启用' : '停用' }}
+                    <el-tag size="small" :type="getEnumCode(selectedModule.status) === '0' ? 'success' : 'danger'" effect="plain">
+                      {{ getEnumCode(selectedModule.status) === '0' ? '启用' : '停用' }}
                     </el-tag>
                   </div>
                   <div class="overview-subtitle">
@@ -142,10 +142,10 @@
                         </el-tag>
                       </div>
                       <div class="state-card__meta">
-                        <el-tag v-if="state.isInitial === '1'" size="small" type="primary" effect="plain">初始</el-tag>
-                        <el-tag v-if="state.isFinal === '1'" size="small" type="success" effect="plain">终态</el-tag>
-                        <el-tag size="small" :type="state.status === '0' ? 'success' : 'danger'" effect="plain">
-                          {{ state.status === '0' ? '启用' : '停用' }}
+                        <el-tag v-if="getEnumCode(state.isInitial) === '1'" size="small" type="primary" effect="plain">初始</el-tag>
+                        <el-tag v-if="getEnumCode(state.isFinal) === '1'" size="small" type="success" effect="plain">终态</el-tag>
+                        <el-tag size="small" :type="getEnumCode(state.status) === '0' ? 'success' : 'danger'" effect="plain">
+                          {{ getEnumCode(state.status) === '0' ? '启用' : '停用' }}
                         </el-tag>
                       </div>
                       <div class="state-card__note">{{ state.note || '当前状态未填写说明。' }}</div>
@@ -166,8 +166,8 @@
                       <el-tag v-if="selectedState" size="small" :type="getStateSummaryTagType(selectedState)" effect="plain">
                         {{ selectedState.stateCode }}
                       </el-tag>
-                      <el-tag v-if="selectedState?.isInitial === '1'" size="small" type="primary" effect="plain">初始状态</el-tag>
-                      <el-tag v-if="selectedState?.isFinal === '1'" size="small" type="success" effect="plain">最终状态</el-tag>
+                      <el-tag v-if="getEnumCode(selectedState?.isInitial) === '1'" size="small" type="primary" effect="plain">初始状态</el-tag>
+                      <el-tag v-if="getEnumCode(selectedState?.isFinal) === '1'" size="small" type="success" effect="plain">最终状态</el-tag>
                     </div>
                     <div class="editor-subtitle">
                       {{ selectedState?.note || '当前状态未配置说明。' }}
@@ -188,23 +188,23 @@
                               <el-table-column prop="stateName" label="状态名称" min-width="120" />
                               <el-table-column label="初始" width="90" align="center">
                                 <template #default="scope">
-                                  <el-tag size="small" :type="scope.row.isInitial === '1' ? 'primary' : 'info'" effect="plain">
-                                    {{ scope.row.isInitial === '1' ? '是' : '否' }}
+                                  <el-tag size="small" :type="getEnumCode(scope.row.isInitial) === '1' ? 'primary' : 'info'" effect="plain">
+                                    {{ getEnumCode(scope.row.isInitial) === '1' ? '是' : '否' }}
                                   </el-tag>
                                 </template>
                               </el-table-column>
                               <el-table-column label="终态" width="90" align="center">
                                 <template #default="scope">
-                                  <el-tag size="small" :type="scope.row.isFinal === '1' ? 'success' : 'info'" effect="plain">
-                                    {{ scope.row.isFinal === '1' ? '是' : '否' }}
+                                  <el-tag size="small" :type="getEnumCode(scope.row.isFinal) === '1' ? 'success' : 'info'" effect="plain">
+                                    {{ getEnumCode(scope.row.isFinal) === '1' ? '是' : '否' }}
                                   </el-tag>
                                 </template>
                               </el-table-column>
                               <el-table-column prop="sort" label="排序" width="80" align="center" />
                               <el-table-column label="状态" width="90" align="center">
                                 <template #default="scope">
-                                  <el-tag size="small" :type="scope.row.status === '0' ? 'success' : 'danger'" effect="plain">
-                                    {{ scope.row.status === '0' ? '启用' : '停用' }}
+                                  <el-tag size="small" :type="getEnumCode(scope.row.status) === '0' ? 'success' : 'danger'" effect="plain">
+                                    {{ getEnumCode(scope.row.status) === '0' ? '启用' : '停用' }}
                                   </el-tag>
                                 </template>
                               </el-table-column>
@@ -253,8 +253,8 @@
                         <el-table-column prop="sort" label="排序" width="80" align="center" />
                         <el-table-column label="状态" width="90" align="center">
                           <template #default="scope">
-                            <el-tag size="small" :type="scope.row.status === '0' ? 'success' : 'danger'" effect="plain">
-                              {{ scope.row.status === '0' ? '启用' : '停用' }}
+                            <el-tag size="small" :type="getEnumCode(scope.row.status) === '0' ? 'success' : 'danger'" effect="plain">
+                              {{ getEnumCode(scope.row.status) === '0' ? '启用' : '停用' }}
                             </el-tag>
                           </template>
                         </el-table-column>
@@ -385,8 +385,10 @@ import {
   getStateAuthTree,
   saveStateAuth,
   type StateAuthConfig,
+  type StateAuthConfigPayload,
   type StateAuthPageDetail
 } from '@/api/stateAuth';
+import { getEnumCode } from '@/utils/enum';
 
 defineOptions({
   name: 'SystemStateAuth'
@@ -495,7 +497,7 @@ const moduleLeafCount = computed(() => countModuleLeaves(moduleTree.value));
 const stateCount = computed(() => stateList.value.length);
 
 const enabledTransitionCount = computed(() => {
-  return transitionList.value.filter((item) => item.status === '0').length;
+  return transitionList.value.filter((item) => getEnumCode(item.status) === '0').length;
 });
 
 const currentRestrictedFieldCount = computed(() => {
@@ -518,21 +520,21 @@ const previewJson = computed(() => {
 });
 
 function getModuleTypeLabel(moduleType: ModuleType) {
-  return moduleTypeLabelMap[moduleType];
+  return moduleTypeLabelMap[getEnumCode(moduleType) || 'PAGE'];
 }
 
 function getModuleTypeTagType(moduleType: ModuleType) {
-  if (moduleType === 'CATALOG') {
+  if (getEnumCode(moduleType) === 'CATALOG') {
     return 'info';
   }
   return 'success';
 }
 
 function getStateSummaryTagType(state: ModuleStateDefinition): 'primary' | 'success' | 'warning' | 'info' {
-  if (state.isInitial === '1') {
+  if (getEnumCode(state.isInitial) === '1') {
     return 'primary';
   }
-  if (state.isFinal === '1') {
+  if (getEnumCode(state.isFinal) === '1') {
     return 'success';
   }
   if (state.stateCode === 'pre_audited') {
@@ -560,7 +562,7 @@ function selectState(stateCode: string) {
 }
 
 function handleModuleNodeClick(node: ModuleTreeNode) {
-  const targetNode = node.moduleType === 'CATALOG' ? findFirstStatefulModuleInNode(node) : node;
+  const targetNode = getEnumCode(node.moduleType) === 'CATALOG' ? findFirstStatefulModuleInNode(node) : node;
   if (targetNode) {
     selectModule(targetNode.id);
   }
@@ -724,7 +726,7 @@ function mapStateAuthConfig(config: StateAuthConfig, moduleDetail: ModuleDetail)
   };
 }
 
-function buildStateAuthPayload(moduleDetail: ModuleDetail, config: ModuleStateAuthConfig): StateAuthConfig {
+function buildStateAuthPayload(moduleDetail: ModuleDetail, config: ModuleStateAuthConfig): StateAuthConfigPayload {
   return {
     moduleId: moduleDetail.id,
     permissionsByState: (moduleDetail.states || []).map((state) => ({
@@ -797,16 +799,16 @@ function buildStateAuthPreview(
     stateFieldCode: moduleDetail.stateFieldCode,
     states: (moduleDetail.states || []).map((item) => ({
       code: item.stateCode,
-      isFinal: item.isFinal === '1',
-      isInitial: item.isInitial === '1',
+      isFinal: getEnumCode(item.isFinal) === '1',
+      isInitial: getEnumCode(item.isInitial) === '1',
       name: item.stateName,
-      status: item.status === '0' ? 'enabled' : 'disabled'
+      status: getEnumCode(item.status) === '0' ? 'enabled' : 'disabled'
     })),
     transitions: (moduleDetail.transitions || []).map((item) => ({
       actionButtonCode: item.actionButtonCode,
       actionButtonName: item.actionButtonName,
       fromStateCode: item.fromStateCode,
-      status: item.status === '0' ? 'enabled' : 'disabled',
+      status: getEnumCode(item.status) === '0' ? 'enabled' : 'disabled',
       toStateCode: item.toStateCode
     }))
   };
@@ -826,7 +828,7 @@ function buildButtonConfigKey(buttonCode: string) {
 
 function countModuleLeaves(nodes: ModuleTreeNode[]): number {
   return nodes.reduce((sum, node) => {
-    if (node.moduleType !== 'CATALOG') {
+    if (getEnumCode(node.moduleType) !== 'CATALOG') {
       return sum + 1;
     }
     return sum + (node.children?.length ? countModuleLeaves(node.children) : 0);
@@ -844,7 +846,7 @@ function findFirstStatefulModule(nodes: ModuleTreeNode[]): ModuleTreeNode | unde
 }
 
 function findFirstStatefulModuleInNode(node: ModuleTreeNode): ModuleTreeNode | undefined {
-  if (node.moduleType !== 'CATALOG') {
+  if (getEnumCode(node.moduleType) !== 'CATALOG') {
     return node;
   }
   if (!node.children?.length) {
@@ -873,9 +875,10 @@ function countRestrictedButtonPermissions(config?: ModuleStatePermissionConfig) 
   return Object.values(config.buttonPermissions).filter((level) => level < 2).length;
 }
 
-function normalizeStatePermissionLevel(level?: number): StateFieldLimitLevel {
-  if (level === 0 || level === 1) {
-    return level;
+function normalizeStatePermissionLevel(level?: number | { code: number; name: string }): StateFieldLimitLevel {
+  const code = Number(getEnumCode(level) ?? level ?? 2);
+  if (code === 0 || code === 1) {
+    return code;
   }
   return 2;
 }
@@ -1302,4 +1305,5 @@ function deepClone<T>(value: T): T {
 }
 
 </style>
+
 

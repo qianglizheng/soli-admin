@@ -1,5 +1,4 @@
-
-import axios, { type AxiosRequestConfig } from 'axios';
+﻿import axios, { type AxiosRequestConfig } from 'axios';
 import { ElMessage } from 'element-plus';
 import { getToken } from '@/utils/auth';
 
@@ -9,18 +8,18 @@ const service = axios.create({
 });
 
 service.interceptors.request.use(
-  config => {
+  (config) => {
     const token = getToken();
     if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  error => Promise.reject(error)
+  (error) => Promise.reject(error)
 );
 
 service.interceptors.response.use(
-  response => {
+  (response) => {
     const res = response.data;
     const hasCode = typeof res === 'object' && res !== null && 'code' in res && 'data' in res;
     if (hasCode) {
@@ -28,11 +27,11 @@ service.interceptors.response.use(
         ElMessage.error((res as any).message || 'Error');
         return Promise.reject(new Error((res as any).message || 'Error'));
       }
-      return res as any;
+      return res;
     }
     return { code: 200, data: res, message: '' };
   },
-  error => {
+  (error) => {
     ElMessage.error(error.message || 'Request Error');
     return Promise.reject(error);
   }

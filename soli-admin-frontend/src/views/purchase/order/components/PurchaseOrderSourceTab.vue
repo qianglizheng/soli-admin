@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="tab-pane-content table-tab-pane">
     <div class="table-toolbar">
       <PurchaseOrderColumnSetting
@@ -41,7 +41,11 @@
           sortable
           :filters="sourceTypeFilters"
           :filter-method="filterBySourceType"
-        />
+        >
+          <template #default="scope">
+            {{ getEnumName(scope.row.sourceType) || '-' }}
+          </template>
+        </el-table-column>
 
         <el-table-column
           v-if="canShowColumn('supplierName')"
@@ -90,7 +94,9 @@
           :filter-method="filterByStatus"
         >
           <template #default="scope">
-            <el-tag size="small" :type="scope.row.status === '已审批' ? 'success' : 'info'">{{ scope.row.status }}</el-tag>
+            <el-tag size="small" :type="getEnumName(scope.row.status) === '已审核' ? 'success' : 'info'">
+              {{ getEnumName(scope.row.status) || '-' }}
+            </el-tag>
           </template>
         </el-table-column>
 
@@ -117,6 +123,7 @@ import {
   type BillPermissionSource
 } from '@/components/Bill/billPermission';
 import type { PurchaseOrderSourceBill } from '@/api/purchaseOrder';
+import { getEnumName } from '@/utils/enum';
 import PurchaseOrderColumnSetting from './PurchaseOrderColumnSetting.vue';
 import { buildTextFilters, compareNumber, matchTextFilter } from './tableHelper';
 
@@ -175,7 +182,7 @@ const sourceBillNoFilters = computed(() => {
 
 const sourceTypeFilters = computed(() => {
   return buildTextFilters(props.rows, (item) => {
-    return item.sourceType;
+    return getEnumName(item.sourceType);
   });
 });
 
@@ -187,7 +194,7 @@ const supplierFilters = computed(() => {
 
 const statusFilters = computed(() => {
   return buildTextFilters(props.rows, (item) => {
-    return item.status;
+    return getEnumName(item.status);
   });
 });
 
@@ -199,7 +206,7 @@ const filterBySourceBillNo = (value: string, row: PurchaseOrderSourceBill) => {
 
 const filterBySourceType = (value: string, row: PurchaseOrderSourceBill) => {
   return matchTextFilter(value, row, (item) => {
-    return item.sourceType;
+    return getEnumName(item.sourceType);
   });
 };
 
@@ -211,7 +218,7 @@ const filterBySupplier = (value: string, row: PurchaseOrderSourceBill) => {
 
 const filterByStatus = (value: string, row: PurchaseOrderSourceBill) => {
   return matchTextFilter(value, row, (item) => {
-    return item.status;
+    return getEnumName(item.status);
   });
 };
 

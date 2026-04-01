@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <el-dialog v-model="visible" :title="dialogTitle" width="640px" top="6vh" destroy-on-close>
     <div class="dialog-scroll-body">
       <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
@@ -89,19 +89,37 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
-import type { ModuleFieldDefinition } from '@/api/moduleCenter';
+import type {
+  ModuleComponentTypeCode,
+  ModuleFieldDefinition,
+  ModuleValueTypeCode,
+  YesNoCode
+} from '@/api/moduleCenter';
+import { getEnumCode } from '@/utils/enum';
+
+export interface ModuleFieldFormModel {
+  id?: number;
+  componentType: ModuleComponentTypeCode;
+  dataPath: string;
+  defaultTitle: string;
+  fieldCode: string;
+  note: string;
+  requiredFlag: YesNoCode;
+  sort: number;
+  valueType: ModuleValueTypeCode;
+}
 
 interface Props {
   modelValue: boolean;
   mode: 'create' | 'edit';
-  initialData?: Partial<ModuleFieldDefinition>;
+  initialData?: Partial<ModuleFieldDefinition> | Partial<ModuleFieldFormModel>;
   title?: string;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
-  (e: 'submit', value: Partial<ModuleFieldDefinition>): void;
+  (e: 'submit', value: Partial<ModuleFieldFormModel>): void;
   (e: 'cancel'): void;
 }>();
 
@@ -110,7 +128,7 @@ const visible = computed({
   set: (value: boolean) => emit('update:modelValue', value)
 });
 
-function createDefaultForm(): Partial<ModuleFieldDefinition> {
+function createDefaultForm(): ModuleFieldFormModel {
   return {
     componentType: 'input',
     dataPath: '',
@@ -124,9 +142,9 @@ function createDefaultForm(): Partial<ModuleFieldDefinition> {
 }
 
 const formRef = ref<FormInstance>();
-const form = reactive<Partial<ModuleFieldDefinition>>(createDefaultForm());
+const form = reactive<ModuleFieldFormModel>(createDefaultForm());
 
-const rules: FormRules = {
+const rules: FormRules<ModuleFieldFormModel> = {
   componentType: [{ message: '请选择组件类型', required: true, trigger: 'change' }],
   dataPath: [{ message: '请输入数据路径', required: true, trigger: 'blur' }],
   defaultTitle: [{ message: '请输入字段标题', required: true, trigger: 'blur' }],
@@ -137,7 +155,12 @@ const rules: FormRules = {
 watch(
   () => props.initialData,
   (value) => {
-    Object.assign(form, createDefaultForm(), value || {});
+    Object.assign(form, createDefaultForm(), value ? {
+      ...value,
+      componentType: getEnumCode(value.componentType) || 'input',
+      requiredFlag: getEnumCode(value.requiredFlag) || '0',
+      valueType: getEnumCode(value.valueType) || 'string'
+    } : {});
   },
   { immediate: true }
 );

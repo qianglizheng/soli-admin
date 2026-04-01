@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <el-dialog v-model="visible" :title="dialogTitle" width="560px" destroy-on-close @closed="handleClosed">
     <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
       <el-form-item v-if="fieldConfigMap.name.visible" :label="fieldConfigMap.name.label" prop="name">
@@ -50,7 +50,7 @@
 import { computed, nextTick, reactive, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
 import type { ModuleContext } from '@/api/moduleCenter';
-import type { SysDictType } from '@/types/global';
+import type { NormalDisableStatusEnumCode } from '@/types/enums';
 import {
   buildResolvedButtonConfigMap,
   buildResolvedFieldConfigMap,
@@ -62,11 +62,19 @@ type DictFieldCode = 'name' | 'type' | 'status' | 'note';
 type DictButtonCode = 'create' | 'modify';
 const DICT_FORM_COMPONENT = 'dict_form';
 
+export interface DictTypeFormModel {
+  id?: number;
+  name: string;
+  type: string;
+  status: NormalDisableStatusEnumCode;
+  note: string;
+}
+
 interface Props {
   modelValue: boolean;
   mode: 'create' | 'edit';
   context?: ModuleContext | null;
-  initialData?: Partial<SysDictType>;
+  initialData?: Partial<DictTypeFormModel>;
   submitting?: boolean;
 }
 
@@ -78,7 +86,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   'update:modelValue': [value: boolean];
-  submit: [value: Partial<SysDictType>];
+  submit: [value: DictTypeFormModel];
   cancel: [];
 }>();
 
@@ -101,14 +109,14 @@ const visible = computed({
 
 const formRef = ref<FormInstance>();
 
-const createDefaultForm = (): Partial<SysDictType> => ({
+const createDefaultForm = (): DictTypeFormModel => ({
   name: '',
   note: '',
   status: '0',
   type: ''
 });
 
-const form = reactive<Partial<SysDictType>>(createDefaultForm());
+const form = reactive<DictTypeFormModel>(createDefaultForm());
 
 const fieldConfigMap = computed(() => {
   return buildResolvedFieldConfigMap(props.context?.fieldConfigs || {}, DICT_FORM_COMPONENT, dictFieldFallbackMap);
@@ -141,7 +149,7 @@ const createRequiredRule = (fieldCode: DictFieldCode) => {
   };
 };
 
-const rules = computed<FormRules<Partial<SysDictType>>>(() => ({
+const rules = computed<FormRules<DictTypeFormModel>>(() => ({
   name: [createRequiredRule('name')],
   status: [createRequiredRule('status')],
   type: [createRequiredRule('type')]

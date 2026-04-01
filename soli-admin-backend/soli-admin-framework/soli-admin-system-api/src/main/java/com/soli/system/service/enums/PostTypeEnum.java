@@ -14,10 +14,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum PostTypeEnum implements DbEnum<String> {
 
-    MANAGER("MANAGER"),
-    BUYER("BUYER"),
-    OPERATION("OPERATION"),
-    FINANCE("FINANCE");
+    MANAGER("MANAGER", "管理岗"),
+    BUYER("BUYER", "采购岗"),
+    OPERATION("OPERATION", "运营岗"),
+    FINANCE("FINANCE", "财务岗");
 
     private final String value;
+
+    private final String name;
 }

@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { getUserInfo, loginUsingUsername } from '@/api/user';
 import { useCompanyStore } from '@/store/modules/company';
 import { getToken, removeToken, setToken } from '@/utils/auth';
+import { getEnumCode } from '@/utils/enum';
 import { computed, ref } from 'vue';
 
 export const useUserStore = defineStore('user', () => {
@@ -33,7 +34,7 @@ export const useUserStore = defineStore('user', () => {
     const { username, nickname, avatar: av, type: userType, roles: rs, currentCompanyId } = res.data;
     name.value = nickname || username;
     avatar.value = av || '';
-    type.value = userType || '';
+    type.value = getEnumCode(userType) || '';
     roles.value = rs || [];
     infoLoaded.value = true;
     companyStore.syncCurrentCompany(currentCompanyId ?? null);

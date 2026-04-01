@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div v-loading="pageLoading" class="app-container purchase-order-detail">
     <BillDetailHeaderCard
       title="采购订单"
@@ -92,7 +92,7 @@
           <el-timeline-item
             v-for="item in activities"
             :key="item.id"
-            :type="item.type"
+            :type="getEnumCode(item.type)"
             :timestamp="item.timestamp"
           >
             <div class="log-item-content">
@@ -125,7 +125,6 @@ import type {
   PurchaseOrderActivity,
   PurchaseOrderAttachment,
   PurchaseOrderDetail,
-  PurchaseOrderHeader,
   PurchaseOrderItem,
   PurchaseOrderSavePayload,
   PurchaseOrderSourceBill
@@ -138,12 +137,15 @@ import {
   updatePurchaseOrder
 } from '@/api/purchaseOrder';
 import { usePurchaseOrderStore } from '@/store/modules/purchaseOrder';
+import { getEnumCode } from '@/utils/enum';
 import { buildResolvedButtonConfigMap, buildResolvedFieldConfigMap } from '@/utils/moduleContext';
 import {
   calcPurchaseOrderItemAmounts,
   createDefaultPurchaseOrderHeader,
   createDefaultPurchaseOrderItem,
-  getStatusType
+  getStatusType,
+  mapPurchaseOrderHeaderToEditable,
+  type PurchaseOrderEditableHeader
 } from './purchaseOrderShared';
 import PurchaseOrderAttachmentTab from './components/PurchaseOrderAttachmentTab.vue';
 import PurchaseOrderAuditInfo from './components/PurchaseOrderAuditInfo.vue';
@@ -183,7 +185,7 @@ const activeDetailTab = ref('items');
 const headerExpanded = ref(true);
 const logVisible = ref(false);
 
-const billInfo = reactive<PurchaseOrderHeader>(createDefaultPurchaseOrderHeader());
+const billInfo = reactive<PurchaseOrderEditableHeader>(createDefaultPurchaseOrderHeader());
 const itemDetails = ref<PurchaseOrderItem[]>([createDefaultPurchaseOrderItem()]);
 const sourceBillList = ref<PurchaseOrderSourceBill[]>([]);
 const attachmentList = ref<PurchaseOrderAttachment[]>([]);
@@ -566,7 +568,7 @@ const applyDraftData = () => {
 };
 
 const applyDetailData = (detail: PurchaseOrderDetail) => {
-  Object.assign(billInfo, createDefaultPurchaseOrderHeader(), detail.header);
+  Object.assign(billInfo, mapPurchaseOrderHeaderToEditable(detail.header));
   itemDetails.value = (detail.items || []).length
     ? detail.items.map((item) => {
       return { ...item };
@@ -619,7 +621,7 @@ const buildSavePayload = (): PurchaseOrderSavePayload => {
     id: billInfo.id,
     billDate: billInfo.billDate,
     supplierId: billInfo.supplierId,
-    settleType: billInfo.settleType,
+    settleType: billInfo.settleType || 'monthly',
     warehouseId: billInfo.warehouseId,
     userName: billInfo.userName,
     currency: billInfo.currency,
@@ -843,3 +845,6 @@ watch([showItemsTab, showSourceDetailTab, showAttachmentDetailTab], ([itemsVisib
   }
 }
 </style>
+
+
+
