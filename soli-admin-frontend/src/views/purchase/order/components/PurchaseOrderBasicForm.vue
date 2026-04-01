@@ -89,6 +89,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
+import type {
+  PurchaseOrderCurrency,
+  PurchaseOrderSettleType
+} from '@/api/purchaseOrder';
 import {
   createBillPermissionAccessor,
   type BillPermissionSource
@@ -103,10 +107,10 @@ import {
 interface PurchaseOrderBasicFormModel {
   billDate: string;
   supplierId: number | null;
-  settleType: string;
+  settleType: PurchaseOrderSettleType | '';
   userName: string;
   warehouseId: number | null;
-  currency: string;
+  currency: PurchaseOrderCurrency;
   remark: string;
 }
 

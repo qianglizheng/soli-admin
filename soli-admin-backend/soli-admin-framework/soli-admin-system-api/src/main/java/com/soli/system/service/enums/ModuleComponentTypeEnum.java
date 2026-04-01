@@ -19,6 +19,8 @@ public enum ModuleComponentTypeEnum implements DbEnum<String> {
     DATE("date"),
     DATETIME("datetime"),
     SELECT("select"),
+    RADIO("radio"),
+    SWITCH("switch"),
     TEXT("text"),
     TEXTAREA("textarea"),
     NUMBER("number"),

@@ -1,8 +1,21 @@
 import request from './request';
 import type { ModuleContext } from './moduleCenter';
 import type { ApiResponse, PageResult } from '@/types/global';
+import type {
+  CurrencyEnum,
+  PurchaseOrderActivityTypeEnum,
+  PurchaseOrderSettleTypeEnum,
+  PurchaseOrderSourceStatusEnum,
+  PurchaseOrderSourceTypeEnum,
+  PurchaseOrderStatusEnum
+} from '@/types/enums';
 
-export type PurchaseOrderStatus = 'unaudited' | 'pre_audited' | 'audited' | 'shipped' | 'completed';
+export type PurchaseOrderStatus = PurchaseOrderStatusEnum;
+export type PurchaseOrderSettleType = PurchaseOrderSettleTypeEnum;
+export type PurchaseOrderCurrency = CurrencyEnum;
+export type PurchaseOrderSourceType = PurchaseOrderSourceTypeEnum;
+export type PurchaseOrderSourceStatus = PurchaseOrderSourceStatusEnum;
+export type PurchaseOrderActivityType = PurchaseOrderActivityTypeEnum;
 
 export interface PurchaseOrderOverviewCard {
   key: string;
@@ -42,12 +55,12 @@ export interface PurchaseOrderHeader {
   statusName: string;
   supplierId: number | null;
   supplierName?: string;
-  settleType: string;
+  settleType: PurchaseOrderSettleType;
   deptId?: string;
   userName: string;
   warehouseId: number | null;
   warehouseName?: string;
-  currency: string;
+  currency: PurchaseOrderCurrency;
   remark: string;
   createByName: string;
 }
@@ -69,11 +82,11 @@ export interface PurchaseOrderItem {
 export interface PurchaseOrderSourceBill {
   id: number;
   sourceBillNo: string;
-  sourceType: string;
+  sourceType: PurchaseOrderSourceType;
   supplierName: string;
   billDate: string;
   totalAmount: number;
-  status: string;
+  status: PurchaseOrderSourceStatus;
   remark?: string;
 }
 
@@ -92,7 +105,7 @@ export interface PurchaseOrderActivity {
   content: string;
   timestamp: string;
   operator: string;
-  type: string;
+  type: PurchaseOrderActivityType;
 }
 
 export interface PurchaseOrderDetail {
@@ -136,10 +149,10 @@ export interface PurchaseOrderSavePayload {
   id?: number;
   billDate: string;
   supplierId: number | null;
-  settleType: string;
+  settleType: PurchaseOrderSettleType;
   warehouseId: number | null;
   userName: string;
-  currency: string;
+  currency: PurchaseOrderCurrency;
   remark?: string;
   items: PurchaseOrderSaveItemPayload[];
 }

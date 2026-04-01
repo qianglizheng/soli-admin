@@ -2,15 +2,16 @@ import request from './request';
 import type { ApiResponse } from '@/types/global';
 import type { ModuleDetail, ModuleTreeNode } from './moduleCenter';
 import type { OrgPostDetail, OrgPostTreeNode } from './orgPost';
+import type { PermissionLevelEnum } from '@/types/enums';
 
 export interface FunctionAuthFieldPermission {
   fieldId: number;
-  permissionLevel: number;
+  permissionLevel: PermissionLevelEnum;
 }
 
 export interface FunctionAuthButtonPermission {
   buttonId: number;
-  permissionLevel: number;
+  permissionLevel: PermissionLevelEnum;
 }
 
 export interface FunctionAuthConfig {

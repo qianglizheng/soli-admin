@@ -1,4 +1,10 @@
-import type { PurchaseOrderHeader, PurchaseOrderItem, PurchaseOrderStatus } from '@/api/purchaseOrder';
+import type {
+  PurchaseOrderCurrency,
+  PurchaseOrderHeader,
+  PurchaseOrderItem,
+  PurchaseOrderSettleType,
+  PurchaseOrderStatus
+} from '@/api/purchaseOrder';
 
 export interface OptionItem {
   label: string;
@@ -8,11 +14,11 @@ export interface OptionItem {
 export interface PurchaseOrderHeaderDraft {
   billDate: string;
   supplierId: number | null;
-  settleType: string;
+  settleType: PurchaseOrderSettleType | '';
   deptId: string;
   userName: string;
   warehouseId: number | null;
-  currency: string;
+  currency: PurchaseOrderCurrency;
   remark: string;
   status: PurchaseOrderStatus;
   statusName: string;

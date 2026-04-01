@@ -1,8 +1,14 @@
 import request from './request';
 import type { ModuleContext } from './moduleCenter';
 import type { ApiResponse, PageResult } from '@/types/global';
+import type {
+  BinaryFlagEnum,
+  NormalDisableStatusEnum,
+  OrgTypeEnum,
+  PostTypeEnum
+} from '@/types/enums';
 
-export type YesNo = '0' | '1';
+export type YesNo = BinaryFlagEnum;
 export type OrgNodeType = 'GROUP' | 'HEADQUARTERS' | 'BRANCH' | 'DEPT' | 'POST';
 
 export interface OrgPostTreeNode {
@@ -12,7 +18,7 @@ export interface OrgPostTreeNode {
   nodeType: OrgNodeType;
   nodeCode: string;
   nodeName: string;
-  status: string;
+  status: NormalDisableStatusEnum;
   orgUnitId: number;
   parentPostId: number;
   sort: number;
@@ -27,14 +33,14 @@ export interface OrgPostDetail {
   parentPostId: number;
   postCode: string;
   postName: string;
-  postType?: string;
+  postType?: PostTypeEnum;
   managerUserId?: number;
   managerName?: string;
   orgName?: string;
-  orgType?: OrgNodeType;
+  orgType?: OrgTypeEnum | OrgNodeType;
   parentNodeName?: string;
   sort: number;
-  status: string;
+  status: NormalDisableStatusEnum;
   childPostCount: number;
   employeeCount: number;
   note?: string;
@@ -48,8 +54,8 @@ export interface OrgPostUser {
   phone?: string;
   email?: string;
   orgPostId: number;
-  primaryFlag?: string;
-  status?: string;
+  primaryFlag?: YesNo;
+  status?: NormalDisableStatusEnum;
   createTime?: string;
 }
 
@@ -60,7 +66,7 @@ export interface OrgPostPageQuery {
   parentPostId?: number;
   postCode?: string;
   postName?: string;
-  status?: string;
+  status?: NormalDisableStatusEnum;
 }
 
 export interface OrgPostUserPageQuery {
@@ -68,7 +74,7 @@ export interface OrgPostUserPageQuery {
   pageSize: number;
   orgPostId: number;
   keyword?: string;
-  status?: string;
+  status?: NormalDisableStatusEnum;
 }
 
 export interface CreateOrgPostPayload {
@@ -76,10 +82,10 @@ export interface CreateOrgPostPayload {
   parentPostId?: number;
   postCode: string;
   postName: string;
-  postType?: string;
+  postType?: PostTypeEnum;
   managerUserId?: number;
   sort?: number;
-  status?: string;
+  status?: NormalDisableStatusEnum;
   note?: string;
 }
 
@@ -93,7 +99,7 @@ export interface CreateOrgUnitPayload {
   orgName: string;
   leaderUserId?: number;
   sort?: number;
-  status?: string;
+  status?: NormalDisableStatusEnum;
   note?: string;
 }
 
@@ -106,10 +112,10 @@ export interface OrgUnitDetail {
   parentId: number;
   orgCode: string;
   orgName: string;
-  orgType?: OrgNodeType;
+  orgType?: OrgTypeEnum;
   leaderUserId?: number;
   sort: number;
-  status: string;
+  status: NormalDisableStatusEnum;
   note?: string;
 }
 
@@ -118,7 +124,7 @@ export interface OrgPostFormModel {
   parentNodeKey: string;
   postCode: string;
   postName: string;
-  postType: string;
+  postType: PostTypeEnum;
   managerUserId?: number;
   sort: number;
   status: YesNo;

@@ -1,19 +1,20 @@
 import request from './request';
 import type { ModuleContext } from './moduleCenter';
 import type { ApiResponse, PageResult, SysDictData, SysDictType } from '@/types/global';
+import type { NormalDisableStatusEnum, YesNoEnum } from '@/types/enums';
 
 export interface DictPageQuery {
   pageNum: number;
   pageSize: number;
   name?: string;
   type?: string;
-  status?: string;
+  status?: NormalDisableStatusEnum;
 }
 
 export interface DictPayload {
   name: string;
   type: string;
-  status?: string;
+  status?: NormalDisableStatusEnum;
   note?: string;
 }
 
@@ -27,7 +28,7 @@ export interface DictDataPageQuery {
   dictTypeId: number;
   label?: string;
   value?: string;
-  status?: string;
+  status?: NormalDisableStatusEnum;
 }
 
 export interface DictDataPayload {
@@ -37,8 +38,8 @@ export interface DictDataPayload {
   sort?: string;
   cssClass?: string;
   listClass?: string;
-  defaultFlag?: string;
-  status?: string;
+  defaultFlag?: YesNoEnum;
+  status?: NormalDisableStatusEnum;
   note?: string;
 }
 

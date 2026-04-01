@@ -21,7 +21,11 @@
               <el-select v-model="form.componentType" placeholder="请选择组件类型" style="width: 100%">
                 <el-option label="文本" value="text" />
                 <el-option label="输入框" value="input" />
+                <el-option label="多行文本" value="textarea" />
+                <el-option label="下拉选择" value="select" />
                 <el-option label="搜索选择" value="search-select" />
+                <el-option label="单选框" value="radio" />
+                <el-option label="开关" value="switch" />
                 <el-option label="数字" value="number" />
                 <el-option label="金额" value="amount" />
                 <el-option label="日期" value="date" />
@@ -34,8 +38,10 @@
             <el-form-item label="值类型" prop="valueType">
               <el-select v-model="form.valueType" placeholder="请选择值类型" style="width: 100%">
                 <el-option label="字符串" value="string" />
-                <el-option label="整数" value="integer" />
+                <el-option label="长整数" value="long" />
+                <el-option label="整数" value="int" />
                 <el-option label="小数" value="decimal" />
+                <el-option label="布尔" value="boolean" />
                 <el-option label="日期" value="date" />
                 <el-option label="日期时间" value="datetime" />
               </el-select>

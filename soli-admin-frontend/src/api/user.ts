@@ -1,6 +1,12 @@
 import request from './request';
 import type { ApiResponse, PageResult, SysUser, UserInfo } from '@/types/global';
 import type { ModuleContext } from './moduleCenter';
+import type {
+  NormalDisableStatusEnum,
+  OrgTypeEnum,
+  UserSexEnum,
+  UserTypeEnum
+} from '@/types/enums';
 
 export interface UserPageQuery {
   pageNum: number;
@@ -8,7 +14,7 @@ export interface UserPageQuery {
   nickname?: string;
   username?: string;
   phone?: string;
-  status?: string;
+  status?: NormalDisableStatusEnum;
 }
 
 export interface CreateUserPayload {
@@ -18,9 +24,9 @@ export interface CreateUserPayload {
   email?: string;
   phone?: string;
   avatar?: string;
-  type?: string;
-  sex?: string;
-  status?: string;
+  type?: UserTypeEnum;
+  sex?: UserSexEnum;
+  status?: NormalDisableStatusEnum;
 }
 
 export interface UpdateUserPayload {
@@ -29,12 +35,12 @@ export interface UpdateUserPayload {
   email?: string;
   phone?: string;
   avatar?: string;
-  type?: string;
-  sex?: string;
-  status?: string;
+  type?: UserTypeEnum;
+  sex?: UserSexEnum;
+  status?: NormalDisableStatusEnum;
 }
 
-export type UserCompanyNodeType = 'HEADQUARTERS' | 'BRANCH';
+export type UserCompanyNodeType = OrgTypeEnum;
 
 export interface UserCompanyOption {
   id: number;

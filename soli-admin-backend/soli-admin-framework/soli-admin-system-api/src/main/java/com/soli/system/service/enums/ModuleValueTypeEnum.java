@@ -17,6 +17,7 @@ public enum ModuleValueTypeEnum implements DbEnum<String> {
     STRING("string"),
     LONG("long"),
     DATE("date"),
+    DATETIME("datetime"),
     DECIMAL("decimal"),
     INT("int"),
     BOOLEAN("boolean");

@@ -23,6 +23,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import type { PurchaseOrderStatus } from '@/api/purchaseOrder';
 import {
   createBillPermissionAccessor,
   type BillPermissionSource
@@ -31,7 +32,7 @@ import { getStatusType } from '../purchaseOrderShared';
 
 interface PurchaseOrderAuditInfoModel {
   createByName: string;
-  status: string;
+  status: PurchaseOrderStatus;
   statusName: string;
 }
 

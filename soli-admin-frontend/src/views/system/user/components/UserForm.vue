@@ -76,6 +76,11 @@
 import { computed, nextTick, reactive, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
 import type { ModuleContext } from '@/api/moduleCenter';
+import type {
+  NormalDisableStatusEnum,
+  UserSexEnum,
+  UserTypeEnum
+} from '@/types/enums';
 import { buildResolvedButtonConfigMap, buildResolvedFieldConfigMap } from '@/utils/moduleContext';
 import {
   USER_FORM_COMPONENT,
@@ -92,9 +97,9 @@ export interface UserFormModel {
   nickname: string;
   email: string;
   phone: string;
-  sex: string;
-  type: string;
-  status: string;
+  sex: UserSexEnum;
+  type: UserTypeEnum;
+  status: NormalDisableStatusEnum;
 }
 
 interface Props {

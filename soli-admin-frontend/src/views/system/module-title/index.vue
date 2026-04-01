@@ -276,10 +276,10 @@ function buildModuleTitlePreview(moduleDetail: ModuleDetail, titleMap: Record<st
 }
 
 function getFieldDefaultPlaceholder(field: ModuleFieldDefinition) {
-  if (field.componentType === 'tag' || field.componentType === 'text') {
+  if (field.componentType === 'tag' || field.componentType === 'text' || field.componentType === 'switch') {
     return '';
   }
-  if (['date', 'datetime', 'search-select'].includes(field.componentType)) {
+  if (['date', 'datetime', 'search-select', 'select', 'radio'].includes(field.componentType)) {
     return `请选择${field.defaultTitle}`;
   }
   return `请输入${field.defaultTitle}`;

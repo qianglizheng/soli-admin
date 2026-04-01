@@ -379,6 +379,13 @@ function getModuleTypeLabel(type: ModuleType) {
   return moduleTypeLabelMap[type]
 }
 
+function normalizeModuleValueType(valueType?: string) {
+  if (valueType === 'integer') {
+    return 'int'
+  }
+  return valueType || 'string'
+}
+
 function filterNode(value: string, data: ModuleNode) {
   return !value || data.moduleName.includes(value) || data.moduleCode.includes(value)
 }
@@ -678,7 +685,7 @@ async function handleFieldFormSubmit(payload: Partial<ModuleFieldDefinition>) {
     requiredFlag: (payload.requiredFlag || '0') as YesNo,
     sort: payload.sort || component.fields.length + 1,
     status: '0' as YesNo,
-    valueType: payload.valueType || 'string'
+    valueType: normalizeModuleValueType(payload.valueType)
   }
   if (fieldFormMode.value === 'create') {
     await createModuleField(requestPayload)

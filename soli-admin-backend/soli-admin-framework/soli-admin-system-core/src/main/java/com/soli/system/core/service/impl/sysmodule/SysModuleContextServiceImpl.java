@@ -328,12 +328,16 @@ public class SysModuleContextServiceImpl implements SysModuleContextService {
         if (StringUtils.hasText(field.getPlaceholder())) {
             return field.getPlaceholder();
         }
-        if (field.getComponentType() == ModuleComponentTypeEnum.TAG || field.getComponentType() == ModuleComponentTypeEnum.TEXT) {
+        if (field.getComponentType() == ModuleComponentTypeEnum.TAG
+                || field.getComponentType() == ModuleComponentTypeEnum.TEXT
+                || field.getComponentType() == ModuleComponentTypeEnum.SWITCH) {
             return "";
         }
         if (field.getComponentType() == ModuleComponentTypeEnum.DATE
                 || field.getComponentType() == ModuleComponentTypeEnum.DATETIME
-                || field.getComponentType() == ModuleComponentTypeEnum.SEARCH_SELECT) {
+                || field.getComponentType() == ModuleComponentTypeEnum.SEARCH_SELECT
+                || field.getComponentType() == ModuleComponentTypeEnum.SELECT
+                || field.getComponentType() == ModuleComponentTypeEnum.RADIO) {
             return "请选择" + label;
         }
         return "请输入" + label;

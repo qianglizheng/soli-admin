@@ -1,8 +1,18 @@
 ﻿import request from './request';
 import type { ApiResponse } from '@/types/global';
+import type {
+  BinaryFlagEnum,
+  ModuleComponentTypeEnum,
+  ModuleTypeEnum,
+  ModuleValueTypeEnum,
+  PermissionLevelEnum
+} from '@/types/enums';
 
-export type ModuleType = 'CATALOG' | 'PAGE' | 'BILL';
-export type YesNo = '0' | '1';
+export type ModuleType = ModuleTypeEnum;
+export type YesNo = BinaryFlagEnum;
+export type ModuleComponentType = ModuleComponentTypeEnum;
+export type ModuleValueType = ModuleValueTypeEnum;
+export type PermissionLevel = PermissionLevelEnum;
 
 export interface ModuleTreeNode {
   id: number;
@@ -30,9 +40,9 @@ export interface ModuleFieldDefinition {
   displayTitle?: string | null;
   placeholder?: string | null;
   helpText?: string | null;
-  componentType: string;
+  componentType: ModuleComponentType;
   dataPath: string;
-  valueType: string;
+  valueType: ModuleValueType;
   requiredFlag: YesNo;
   sort: number;
   status?: YesNo;
@@ -125,10 +135,10 @@ export interface ModuleContextConfigItem {
   label: string;
   placeholder?: string;
   helpText?: string;
-  componentType: string;
+  componentType: ModuleComponentType;
   dataPath?: string;
-  valueType?: string;
-  permissionLevel: number;
+  valueType?: ModuleValueType;
+  permissionLevel: PermissionLevel;
   visible: boolean;
   editable: boolean;
   required: boolean;
