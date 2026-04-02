@@ -1,24 +1,26 @@
-﻿export interface EnumValue<TCode extends string | number> {
+export type EnumCode = string | number;
+
+export interface EnumValue<TCode extends EnumCode> {
   code: TCode;
   name: string;
 }
 
-export type EnumValueCode<TEnum extends EnumValue<string | number>> = TEnum['code'];
+type SwitchCode = '0' | '1';
 
-export type YesNoEnum = EnumValue<'N' | 'Y'>;
-export type YesNoEnumCode = EnumValueCode<YesNoEnum>;
+export type YesNoCode = 'N' | 'Y';
+export type YesNoValue = EnumValue<YesNoCode>;
 
-export type BinaryFlagEnum = EnumValue<'0' | '1'>;
-export type BinaryFlagEnumCode = EnumValueCode<BinaryFlagEnum>;
+export type BinaryFlagCode = SwitchCode;
+export type BinaryFlagValue = EnumValue<BinaryFlagCode>;
 
-export type NormalDisableStatusEnum = EnumValue<'0' | '1'>;
-export type NormalDisableStatusEnumCode = EnumValueCode<NormalDisableStatusEnum>;
+export type NormalDisableStatusCode = SwitchCode;
+export type NormalDisableStatusValue = EnumValue<NormalDisableStatusCode>;
 
-export type ModuleTypeEnum = EnumValue<'CATALOG' | 'PAGE' | 'BILL'>;
-export type ModuleTypeEnumCode = EnumValueCode<ModuleTypeEnum>;
+export type ModuleTypeCode = 'CATALOG' | 'PAGE' | 'BILL';
+export type ModuleTypeValue = EnumValue<ModuleTypeCode>;
 
-export type ModuleComponentTypeEnum = EnumValue<
-  'input'
+export type ModuleComponentTypeCode =
+  | 'input'
   | 'search-select'
   | 'date'
   | 'datetime'
@@ -30,45 +32,44 @@ export type ModuleComponentTypeEnum = EnumValue<
   | 'number'
   | 'amount'
   | 'tag'
-  | 'button'
->;
-export type ModuleComponentTypeEnumCode = EnumValueCode<ModuleComponentTypeEnum>;
+  | 'button';
+export type ModuleComponentTypeValue = EnumValue<ModuleComponentTypeCode>;
 
-export type ModuleValueTypeEnum = EnumValue<'string' | 'long' | 'date' | 'datetime' | 'decimal' | 'int' | 'boolean'>;
-export type ModuleValueTypeEnumCode = EnumValueCode<ModuleValueTypeEnum>;
+export type ModuleValueTypeCode = 'string' | 'long' | 'date' | 'datetime' | 'decimal' | 'int' | 'boolean';
+export type ModuleValueTypeValue = EnumValue<ModuleValueTypeCode>;
 
-export type PermissionLevelEnum = EnumValue<0 | 1 | 2>;
-export type PermissionLevelEnumCode = EnumValueCode<PermissionLevelEnum>;
+export type PermissionLevelCode = 0 | 1 | 2;
+export type PermissionLevelValue = EnumValue<PermissionLevelCode>;
 
-export type OrgTypeEnum = EnumValue<'GROUP' | 'HEADQUARTERS' | 'BRANCH'>;
-export type OrgTypeEnumCode = EnumValueCode<OrgTypeEnum>;
+export type OrgTypeCode = 'GROUP' | 'HEADQUARTERS' | 'BRANCH';
+export type OrgTypeValue = EnumValue<OrgTypeCode>;
 
-export type PostTypeEnum = EnumValue<'MANAGER' | 'BUYER' | 'OPERATION' | 'FINANCE'>;
-export type PostTypeEnumCode = EnumValueCode<PostTypeEnum>;
+export type PostTypeCode = 'MANAGER' | 'BUYER' | 'OPERATION' | 'FINANCE';
+export type PostTypeValue = EnumValue<PostTypeCode>;
 
-export type UserSexEnum = EnumValue<'0' | '1' | '2'>;
-export type UserSexEnumCode = EnumValueCode<UserSexEnum>;
+export type UserSexCode = '0' | '1' | '2';
+export type UserSexValue = EnumValue<UserSexCode>;
 
-export type UserTypeEnum = EnumValue<'0' | '1'>;
-export type UserTypeEnumCode = EnumValueCode<UserTypeEnum>;
+export type UserTypeCode = SwitchCode;
+export type UserTypeValue = EnumValue<UserTypeCode>;
 
-export type CurrencyEnum = EnumValue<'CNY'>;
-export type CurrencyEnumCode = EnumValueCode<CurrencyEnum>;
+export type CurrencyCode = 'CNY';
+export type CurrencyValue = EnumValue<CurrencyCode>;
 
-export type PurchaseOrderStatusEnum = EnumValue<'unaudited' | 'pre_audited' | 'audited' | 'shipped' | 'completed'>;
-export type PurchaseOrderStatusEnumCode = EnumValueCode<PurchaseOrderStatusEnum>;
+export type PurchaseOrderStatusCode = 'unaudited' | 'pre_audited' | 'audited' | 'shipped' | 'completed';
+export type PurchaseOrderStatusValue = EnumValue<PurchaseOrderStatusCode>;
 
-export type PurchaseOrderSettleTypeEnum = EnumValue<'monthly' | 'cash'>;
-export type PurchaseOrderSettleTypeEnumCode = EnumValueCode<PurchaseOrderSettleTypeEnum>;
+export type PurchaseOrderSettleTypeCode = 'monthly' | 'cash';
+export type PurchaseOrderSettleTypeValue = EnumValue<PurchaseOrderSettleTypeCode>;
 
-export type PurchaseOrderSourceTypeEnum = EnumValue<'采购申请'>;
-export type PurchaseOrderSourceTypeEnumCode = EnumValueCode<PurchaseOrderSourceTypeEnum>;
+export type PurchaseOrderSourceTypeCode = '采购申请';
+export type PurchaseOrderSourceTypeValue = EnumValue<PurchaseOrderSourceTypeCode>;
 
-export type PurchaseOrderSourceStatusEnum = EnumValue<'已审核'>;
-export type PurchaseOrderSourceStatusEnumCode = EnumValueCode<PurchaseOrderSourceStatusEnum>;
+export type PurchaseOrderSourceStatusCode = '已审核';
+export type PurchaseOrderSourceStatusValue = EnumValue<PurchaseOrderSourceStatusCode>;
 
-export type PurchaseOrderActivityTypeEnum = EnumValue<'primary' | 'warning' | 'success'>;
-export type PurchaseOrderActivityTypeEnumCode = EnumValueCode<PurchaseOrderActivityTypeEnum>;
+export type PurchaseOrderActivityTypeCode = 'primary' | 'warning' | 'success';
+export type PurchaseOrderActivityTypeValue = EnumValue<PurchaseOrderActivityTypeCode>;
 
-export type PurchaseOrderActionEnum = EnumValue<'create' | 'modify' | 'submit' | 'audit' | 'ship' | 'complete'>;
-export type PurchaseOrderActionEnumCode = EnumValueCode<PurchaseOrderActionEnum>;
+export type PurchaseOrderActionCode = 'create' | 'modify' | 'submit' | 'audit' | 'ship' | 'complete';
+export type PurchaseOrderActionValue = EnumValue<PurchaseOrderActionCode>;

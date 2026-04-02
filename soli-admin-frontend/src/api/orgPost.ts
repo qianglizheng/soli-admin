@@ -2,19 +2,19 @@ import request from './request';
 import type { ModuleContext } from './moduleCenter';
 import type { ApiResponse, PageResult } from '@/types/global';
 import type {
-  BinaryFlagEnum,
-  BinaryFlagEnumCode,
-  NormalDisableStatusEnum,
-  NormalDisableStatusEnumCode,
-  OrgTypeEnum,
-  OrgTypeEnumCode,
-  PostTypeEnum,
-  PostTypeEnumCode
+  BinaryFlagValue,
+  BinaryFlagCode,
+  NormalDisableStatusValue,
+  NormalDisableStatusCode,
+  OrgTypeValue,
+  OrgTypeCode,
+  PostTypeValue,
+  PostTypeCode
 } from '@/types/enums';
 import { getEnumCode } from '@/utils/enum';
 
-export type YesNo = BinaryFlagEnumCode;
-export type OrgPostStatusCode = NormalDisableStatusEnumCode;
+export type YesNo = BinaryFlagCode;
+export type OrgPostStatusCode = NormalDisableStatusCode;
 export type OrgNodeType = 'GROUP' | 'HEADQUARTERS' | 'BRANCH' | 'DEPT' | 'POST';
 
 export interface OrgPostTreeNode {
@@ -24,7 +24,7 @@ export interface OrgPostTreeNode {
   nodeType: OrgNodeType;
   nodeCode: string;
   nodeName: string;
-  status: NormalDisableStatusEnum;
+  status: NormalDisableStatusValue;
   orgUnitId: number;
   parentPostId: number;
   sort: number;
@@ -39,14 +39,14 @@ export interface OrgPostDetail {
   parentPostId: number;
   postCode: string;
   postName: string;
-  postType?: PostTypeEnum;
+  postType?: PostTypeValue;
   managerUserId?: number;
   managerName?: string;
   orgName?: string;
-  orgType?: OrgTypeEnum | OrgNodeType;
+  orgType?: OrgTypeValue | OrgNodeType;
   parentNodeName?: string;
   sort: number;
-  status: NormalDisableStatusEnum;
+  status: NormalDisableStatusValue;
   childPostCount: number;
   employeeCount: number;
   note?: string;
@@ -61,7 +61,7 @@ export interface OrgPostUser {
   email?: string;
   orgPostId: number;
   primaryFlag?: YesNo;
-  status?: NormalDisableStatusEnum;
+  status?: NormalDisableStatusValue;
   createTime?: string;
 }
 
@@ -72,7 +72,7 @@ export interface OrgPostPageQuery {
   parentPostId?: number;
   postCode?: string;
   postName?: string;
-  status?: NormalDisableStatusEnumCode;
+  status?: NormalDisableStatusCode;
 }
 
 export interface OrgPostUserPageQuery {
@@ -80,7 +80,7 @@ export interface OrgPostUserPageQuery {
   pageSize: number;
   orgPostId: number;
   keyword?: string;
-  status?: NormalDisableStatusEnumCode;
+  status?: NormalDisableStatusCode;
 }
 
 export interface CreateOrgPostPayload {
@@ -88,10 +88,10 @@ export interface CreateOrgPostPayload {
   parentPostId?: number;
   postCode: string;
   postName: string;
-  postType?: PostTypeEnumCode;
+  postType?: PostTypeCode;
   managerUserId?: number;
   sort?: number;
-  status?: NormalDisableStatusEnumCode;
+  status?: NormalDisableStatusCode;
   note?: string;
 }
 
@@ -105,7 +105,7 @@ export interface CreateOrgUnitPayload {
   orgName: string;
   leaderUserId?: number;
   sort?: number;
-  status?: NormalDisableStatusEnumCode;
+  status?: NormalDisableStatusCode;
   note?: string;
 }
 
@@ -118,10 +118,10 @@ export interface OrgUnitDetail {
   parentId: number;
   orgCode: string;
   orgName: string;
-  orgType?: OrgTypeEnum;
+  orgType?: OrgTypeValue;
   leaderUserId?: number;
   sort: number;
-  status: NormalDisableStatusEnum;
+  status: NormalDisableStatusValue;
   note?: string;
 }
 
@@ -130,7 +130,7 @@ export interface OrgPostFormModel {
   parentNodeKey: string;
   postCode: string;
   postName: string;
-  postType: PostTypeEnumCode;
+  postType: PostTypeCode;
   managerUserId?: number;
   sort: number;
   status: OrgPostStatusCode;
@@ -168,7 +168,7 @@ const postTypeLabelMap = POST_TYPE_OPTIONS.reduce<Record<string, string>>((resul
   return result;
 }, {});
 
-export function getOrgNodeTypeLabel(nodeType?: OrgTypeEnum | OrgNodeType) {
+export function getOrgNodeTypeLabel(nodeType?: OrgTypeValue | OrgNodeType) {
   const code = getEnumCode(nodeType);
   if (!code) {
     return '岗位';
@@ -176,7 +176,7 @@ export function getOrgNodeTypeLabel(nodeType?: OrgTypeEnum | OrgNodeType) {
   return orgNodeTypeLabelMap[code as OrgNodeType] || code;
 }
 
-export function getPostTypeLabel(postType?: PostTypeEnum | PostTypeEnumCode) {
+export function getPostTypeLabel(postType?: PostTypeValue | PostTypeCode) {
   const code = getEnumCode(postType);
   if (!code) {
     return '岗位';

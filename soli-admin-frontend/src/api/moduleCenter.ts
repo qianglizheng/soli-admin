@@ -1,28 +1,28 @@
-﻿import request from './request';
+import request from './request';
 import type { ApiResponse } from '@/types/global';
 import type {
-  BinaryFlagEnum,
-  BinaryFlagEnumCode,
-  ModuleComponentTypeEnum,
-  ModuleComponentTypeEnumCode,
-  ModuleTypeEnum,
-  ModuleTypeEnumCode,
-  ModuleValueTypeEnum,
-  ModuleValueTypeEnumCode,
-  PermissionLevelEnum,
-  PermissionLevelEnumCode
+  BinaryFlagValue,
+  BinaryFlagCode,
+  ModuleComponentTypeValue,
+  ModuleComponentTypeCode as ModuleComponentTypeCodeValue,
+  ModuleTypeValue,
+  ModuleTypeCode as ModuleTypeCodeValue,
+  ModuleValueTypeValue,
+  ModuleValueTypeCode as ModuleValueTypeCodeValue,
+  PermissionLevelValue,
+  PermissionLevelCode as PermissionLevelCodeValue
 } from '@/types/enums';
 
-export type ModuleType = ModuleTypeEnum;
-export type ModuleTypeCode = ModuleTypeEnumCode;
-export type YesNo = BinaryFlagEnum;
-export type YesNoCode = BinaryFlagEnumCode;
-export type ModuleComponentType = ModuleComponentTypeEnum;
-export type ModuleComponentTypeCode = ModuleComponentTypeEnumCode;
-export type ModuleValueType = ModuleValueTypeEnum;
-export type ModuleValueTypeCode = ModuleValueTypeEnumCode;
-export type PermissionLevel = PermissionLevelEnum;
-export type PermissionLevelCode = PermissionLevelEnumCode;
+export type ModuleType = ModuleTypeValue;
+export type ModuleTypeCode = ModuleTypeCodeValue;
+export type YesNo = BinaryFlagValue;
+export type YesNoCode = BinaryFlagCode;
+export type ModuleComponentType = ModuleComponentTypeValue;
+export type ModuleComponentTypeCode = ModuleComponentTypeCodeValue;
+export type ModuleValueType = ModuleValueTypeValue;
+export type ModuleValueTypeCode = ModuleValueTypeCodeValue;
+export type PermissionLevel = PermissionLevelValue;
+export type PermissionLevelCode = PermissionLevelCodeValue;
 
 export interface ModuleTreeNode {
   id: number;

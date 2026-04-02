@@ -1,26 +1,26 @@
 import request from './request';
 import type { ApiResponse } from '@/types/global';
 import type { ModuleDetail, ModuleTreeNode } from './moduleCenter';
-import type { PermissionLevelEnum, PermissionLevelEnumCode } from '@/types/enums';
+import type { PermissionLevelValue, PermissionLevelCode } from '@/types/enums';
 
 export interface StateFieldPermission {
   fieldId: number;
-  permissionLevel: PermissionLevelEnum;
+  permissionLevel: PermissionLevelValue;
 }
 
 export interface StateButtonPermission {
   buttonId: number;
-  permissionLevel: PermissionLevelEnum;
+  permissionLevel: PermissionLevelValue;
 }
 
 export interface StateFieldPermissionPayload {
   fieldId: number;
-  permissionLevel: PermissionLevelEnumCode;
+  permissionLevel: PermissionLevelCode;
 }
 
 export interface StateButtonPermissionPayload {
   buttonId: number;
-  permissionLevel: PermissionLevelEnumCode;
+  permissionLevel: PermissionLevelCode;
 }
 
 export interface StatePermissionByState {

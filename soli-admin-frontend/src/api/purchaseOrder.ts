@@ -2,32 +2,32 @@ import request from './request';
 import type { ModuleContext } from './moduleCenter';
 import type { ApiResponse, PageResult } from '@/types/global';
 import type {
-  CurrencyEnum,
-  CurrencyEnumCode,
-  PurchaseOrderActivityTypeEnum,
-  PurchaseOrderActivityTypeEnumCode,
-  PurchaseOrderSettleTypeEnum,
-  PurchaseOrderSettleTypeEnumCode,
-  PurchaseOrderSourceStatusEnum,
-  PurchaseOrderSourceStatusEnumCode,
-  PurchaseOrderSourceTypeEnum,
-  PurchaseOrderSourceTypeEnumCode,
-  PurchaseOrderStatusEnum,
-  PurchaseOrderStatusEnumCode
+  CurrencyValue as PurchaseOrderCurrencyValue,
+  CurrencyCode as PurchaseOrderCurrencyCodeValue,
+  PurchaseOrderActivityTypeValue,
+  PurchaseOrderActivityTypeCode as PurchaseOrderActivityTypeCodeValue,
+  PurchaseOrderSettleTypeValue,
+  PurchaseOrderSettleTypeCode as PurchaseOrderSettleTypeCodeValue,
+  PurchaseOrderSourceStatusValue,
+  PurchaseOrderSourceStatusCode as PurchaseOrderSourceStatusCodeValue,
+  PurchaseOrderSourceTypeValue,
+  PurchaseOrderSourceTypeCode as PurchaseOrderSourceTypeCodeValue,
+  PurchaseOrderStatusValue,
+  PurchaseOrderStatusCode as PurchaseOrderStatusCodeValue
 } from '@/types/enums';
 
-export type PurchaseOrderStatus = PurchaseOrderStatusEnum;
-export type PurchaseOrderStatusCode = PurchaseOrderStatusEnumCode;
-export type PurchaseOrderSettleType = PurchaseOrderSettleTypeEnum;
-export type PurchaseOrderSettleTypeCode = PurchaseOrderSettleTypeEnumCode;
-export type PurchaseOrderCurrency = CurrencyEnum;
-export type PurchaseOrderCurrencyCode = CurrencyEnumCode;
-export type PurchaseOrderSourceType = PurchaseOrderSourceTypeEnum;
-export type PurchaseOrderSourceTypeCode = PurchaseOrderSourceTypeEnumCode;
-export type PurchaseOrderSourceStatus = PurchaseOrderSourceStatusEnum;
-export type PurchaseOrderSourceStatusCode = PurchaseOrderSourceStatusEnumCode;
-export type PurchaseOrderActivityType = PurchaseOrderActivityTypeEnum;
-export type PurchaseOrderActivityTypeCode = PurchaseOrderActivityTypeEnumCode;
+export type PurchaseOrderStatus = PurchaseOrderStatusValue;
+export type PurchaseOrderStatusCode = PurchaseOrderStatusCodeValue;
+export type PurchaseOrderSettleType = PurchaseOrderSettleTypeValue;
+export type PurchaseOrderSettleTypeCode = PurchaseOrderSettleTypeCodeValue;
+export type PurchaseOrderCurrency = PurchaseOrderCurrencyValue;
+export type PurchaseOrderCurrencyCode = PurchaseOrderCurrencyCodeValue;
+export type PurchaseOrderSourceType = PurchaseOrderSourceTypeValue;
+export type PurchaseOrderSourceTypeCode = PurchaseOrderSourceTypeCodeValue;
+export type PurchaseOrderSourceStatus = PurchaseOrderSourceStatusValue;
+export type PurchaseOrderSourceStatusCode = PurchaseOrderSourceStatusCodeValue;
+export type PurchaseOrderActivityType = PurchaseOrderActivityTypeValue;
+export type PurchaseOrderActivityTypeCode = PurchaseOrderActivityTypeCodeValue;
 
 export interface PurchaseOrderOverviewCard {
   key: string;

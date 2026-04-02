@@ -1,6 +1,6 @@
-import type { EnumValue } from '@/types/enums';
+import type { EnumCode, EnumValue } from '@/types/enums';
 
-export function getEnumCode<TCode extends string | number>(
+export function getEnumCode<TCode extends EnumCode>(
   value?: EnumValue<TCode> | TCode | null
 ): TCode | undefined {
   if (value === null || value === undefined) {
@@ -12,7 +12,7 @@ export function getEnumCode<TCode extends string | number>(
   return value;
 }
 
-export function getEnumName<TCode extends string | number>(
+export function getEnumName<TCode extends EnumCode>(
   value?: EnumValue<TCode> | null
 ): string {
   return value?.name || '';

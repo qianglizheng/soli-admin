@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <el-dialog v-model="visible" :title="dialogTitle" width="620px" destroy-on-close @closed="handleClosed">
     <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
       <el-form-item v-if="fieldConfigMap.label.visible" :label="fieldConfigMap.label.label" prop="label">
@@ -77,7 +77,7 @@
 import { computed, nextTick, reactive, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
 import type { ModuleContext } from '@/api/moduleCenter';
-import type { NormalDisableStatusEnumCode, YesNoEnumCode } from '@/types/enums';
+import type { NormalDisableStatusCode, YesNoCode } from '@/types/enums';
 import {
   buildResolvedButtonConfigMap,
   buildResolvedFieldConfigMap,
@@ -97,8 +97,8 @@ export interface DictDataFormModel {
   sort: string;
   cssClass: string;
   listClass: string;
-  defaultFlag: YesNoEnumCode;
-  status: NormalDisableStatusEnumCode;
+  defaultFlag: YesNoCode;
+  status: NormalDisableStatusCode;
   note: string;
 }
 

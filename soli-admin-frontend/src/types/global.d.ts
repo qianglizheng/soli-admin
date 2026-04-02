@@ -1,8 +1,8 @@
 import type {
-  NormalDisableStatusEnum,
-  UserSexEnum,
-  UserTypeEnum,
-  YesNoEnum
+  NormalDisableStatusValue,
+  UserSexValue,
+  UserTypeValue,
+  YesNoValue
 } from '@/types/enums';
 
 declare global {
@@ -16,7 +16,7 @@ export interface UserInfo {
   username: string;
   nickname?: string;
   avatar?: string;
-  type?: UserTypeEnum;
+  type?: UserTypeValue;
   roles: string[];
   currentCompanyId?: number | null;
 }
@@ -42,9 +42,9 @@ export interface SysUser {
   email?: string;
   phone?: string;
   avatar?: string;
-  type?: UserTypeEnum;
-  sex?: UserSexEnum;
-  status?: NormalDisableStatusEnum;
+  type?: UserTypeValue;
+  sex?: UserSexValue;
+  status?: NormalDisableStatusValue;
   createTime?: string;
   updateTime?: string;
 }
@@ -53,7 +53,7 @@ export interface SysDictType {
   id: number;
   name: string;
   type: string;
-  status?: NormalDisableStatusEnum;
+  status?: NormalDisableStatusValue;
   note?: string;
   createTime?: string;
   updateTime?: string;
@@ -67,8 +67,8 @@ export interface SysDictData {
   sort?: string;
   cssClass?: string;
   listClass?: string;
-  defaultFlag?: YesNoEnum;
-  status?: NormalDisableStatusEnum;
+  defaultFlag?: YesNoValue;
+  status?: NormalDisableStatusValue;
   note?: string;
   createTime?: string;
   updateTime?: string;

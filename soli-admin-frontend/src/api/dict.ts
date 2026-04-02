@@ -2,8 +2,8 @@ import request from './request';
 import type { ModuleContext } from './moduleCenter';
 import type { ApiResponse, PageResult, SysDictData, SysDictType } from '@/types/global';
 import type {
-  NormalDisableStatusEnumCode,
-  YesNoEnumCode
+  NormalDisableStatusCode,
+  YesNoCode
 } from '@/types/enums';
 
 export interface DictPageQuery {
@@ -11,13 +11,13 @@ export interface DictPageQuery {
   pageSize: number;
   name?: string;
   type?: string;
-  status?: NormalDisableStatusEnumCode;
+  status?: NormalDisableStatusCode;
 }
 
 export interface DictPayload {
   name: string;
   type: string;
-  status?: NormalDisableStatusEnumCode;
+  status?: NormalDisableStatusCode;
   note?: string;
 }
 
@@ -31,7 +31,7 @@ export interface DictDataPageQuery {
   dictTypeId: number;
   label?: string;
   value?: string;
-  status?: NormalDisableStatusEnumCode;
+  status?: NormalDisableStatusCode;
 }
 
 export interface DictDataPayload {
@@ -41,8 +41,8 @@ export interface DictDataPayload {
   sort?: string;
   cssClass?: string;
   listClass?: string;
-  defaultFlag?: YesNoEnumCode;
-  status?: NormalDisableStatusEnumCode;
+  defaultFlag?: YesNoCode;
+  status?: NormalDisableStatusCode;
   note?: string;
 }
 

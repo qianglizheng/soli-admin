@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { getUserCompanyOptions, switchUserCompany, type UserCompanyNodeType } from '@/api/user';
-import type { OrgTypeEnumCode } from '@/types/enums';
+import type { OrgTypeCode } from '@/types/enums';
 import { getEnumCode } from '@/utils/enum';
 import { setToken } from '@/utils/auth';
 import { storage } from '@/utils/storage';
@@ -19,7 +19,7 @@ export interface CompanyOption {
 const COMPANY_STORAGE_KEY = 'currentCompanyId';
 const COMPANY_CACHE_STORAGE_KEY = 'currentCompanyCache';
 
-const companyTypeLabelMap: Record<OrgTypeEnumCode, string> = {
+const companyTypeLabelMap: Record<OrgTypeCode, string> = {
   GROUP: '集团',
   BRANCH: '分公司',
   HEADQUARTERS: '总公司'

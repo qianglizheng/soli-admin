@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <el-dialog v-model="visible" :title="dialogTitle" width="520px" destroy-on-close @closed="handleClosed">
     <el-form ref="formRef" :model="form" :rules="rules" label-width="90px">
       <el-form-item v-if="fieldConfigMap.username.visible" :label="fieldConfigMap.username.label" prop="username">
@@ -77,9 +77,9 @@ import { computed, nextTick, reactive, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
 import type { ModuleContext } from '@/api/moduleCenter';
 import type {
-  NormalDisableStatusEnumCode,
-  UserSexEnumCode,
-  UserTypeEnumCode
+  NormalDisableStatusCode,
+  UserSexCode,
+  UserTypeCode
 } from '@/types/enums';
 import { buildResolvedButtonConfigMap, buildResolvedFieldConfigMap } from '@/utils/moduleContext';
 import {
@@ -97,9 +97,9 @@ export interface UserFormModel {
   nickname: string;
   email: string;
   phone: string;
-  sex: UserSexEnumCode;
-  type: UserTypeEnumCode;
-  status: NormalDisableStatusEnumCode;
+  sex: UserSexCode;
+  type: UserTypeCode;
+  status: NormalDisableStatusCode;
 }
 
 interface Props {
